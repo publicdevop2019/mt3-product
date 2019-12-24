@@ -11,10 +11,13 @@ import java.math.BigDecimal;
 @Entity
 @Inheritance
 @Data
+@SequenceGenerator(name = "productSimpleId_gen", sequenceName = "productSimpleId_gen", initialValue = 100)
 public class ProductSimple extends Auditable {
+
     @Id
-    @Setter(AccessLevel.NONE)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "productSimpleId_gen")
     private Long id;
+
 
     @NotNull
     @Column(nullable = false)
