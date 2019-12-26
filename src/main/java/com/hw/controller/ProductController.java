@@ -58,9 +58,6 @@ public class ProductController {
 
     @PutMapping("productDetails/{productDetailId}")
     public ResponseEntity<?> updateProduct(@RequestHeader("authorization") String authorization, @PathVariable(name = "productDetailId") Long productDetailId, @RequestBody ProductDetail newProductDetail) {
-        /**
-         * @todo update product simple table
-         */
         Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
         if (findById.isEmpty())
             return ResponseEntity.badRequest().build();
@@ -73,9 +70,6 @@ public class ProductController {
 
     @DeleteMapping("productDetails/{productDetailId}")
     public ResponseEntity<?> deleteProduct(@RequestHeader("authorization") String authorization, @PathVariable(name = "productDetailId") Long productDetailId) {
-        /**
-         * @todo update product simple table
-         */
         Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
         if (findById.isEmpty())
             return ResponseEntity.badRequest().build();
