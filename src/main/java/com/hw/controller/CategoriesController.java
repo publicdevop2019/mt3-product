@@ -44,7 +44,7 @@ public class CategoriesController {
     }
 
 
-    @DeleteMapping("categories{categoryId}")
+    @DeleteMapping("categories/{categoryId}")
     public ResponseEntity<?> deleteProduct(@RequestHeader("authorization") String authorization, @PathVariable(name = "categoryId") Long CategoryId) {
         Optional<Category> findById = categoryRepo.findById(CategoryId);
         if (findById.isEmpty())
