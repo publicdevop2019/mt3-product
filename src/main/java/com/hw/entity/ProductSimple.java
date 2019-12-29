@@ -19,7 +19,7 @@ public class ProductSimple extends Auditable {
     private Long id;
 
 
-    @Column(nullable = false)
+    @Column
     private String imageUrlSmall;
 
     @NotNull
