@@ -19,7 +19,6 @@ public class ProductSimple extends Auditable {
     private Long id;
 
 
-    @NotNull
     @Column(nullable = false)
     private String imageUrlSmall;
 
@@ -27,11 +26,9 @@ public class ProductSimple extends Auditable {
     @Column
     private String name;
 
-    @NotNull
     @Column
     private String description;
 
-    @NotNull
     @Column
     private String rate;
 
@@ -39,7 +36,6 @@ public class ProductSimple extends Auditable {
     @Column
     private BigDecimal price;
 
-    @NotNull
     @Column
     private BigDecimal sales;
 

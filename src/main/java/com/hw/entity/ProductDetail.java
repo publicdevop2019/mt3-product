@@ -19,15 +19,11 @@ import java.util.Set;
 @Data
 public class ProductDetail extends ProductSimple {
 
-    @NotNull
-    @NotEmpty
     @Column(length = 10000)
     @Convert(converter = ProductOptionMapper.class)
     private List<ProductOption> selectedOptions;
 
 
-    @NotNull
-    @NotEmpty
     @Column(nullable = false)
     @Convert(converter = StringSetConverter.class)
     private Set<String> imageUrlLarge;
