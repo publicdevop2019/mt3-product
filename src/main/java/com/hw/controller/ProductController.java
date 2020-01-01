@@ -3,6 +3,7 @@ package com.hw.controller;
 import com.hw.entity.ProductDetail;
 import com.hw.entity.ProductSimple;
 import com.hw.repo.ProductDetailRepo;
+import com.hw.service.ProductService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -18,6 +20,9 @@ public class ProductController {
 
     @Autowired
     ProductDetailRepo productDetailRepo;
+
+    @Autowired
+    ProductService productService;
 
     /**
      * public access
@@ -78,17 +83,14 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("productDetails/{productDetailId}/decreaseStorageBy")
-    public ResponseEntity<?> decreaseProductStorage(@RequestHeader("authorization") String authorization, @PathVariable(name = "productDetailId") Long productDetailId, @RequestParam(value = "decreaseStorageBy") Integer amount) {
-        Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
-        if (findById.isEmpty())
-            return ResponseEntity.badRequest().build();
-        ProductDetail oldProductSimple = findById.get();
-        if (oldProductSimple.getStorage() == null || 0 == oldProductSimple.getStorage())
-            return ResponseEntity.badRequest().body("storage is empty");
-        oldProductSimple.setStorage(oldProductSimple.getStorage() - amount);
-        productDetailRepo.save(oldProductSimple);
-        return ResponseEntity.ok().build();
+    @PutMapping("productDetails/decreaseStorageBy")
+    public ResponseEntity<?> decreaseProductStorage(@RequestHeader("authorization") String authorization, @RequestBody Map<Long, Integer> stringIntegerMapMap) {
+        try {
+            productService.batchDecrease(stringIntegerMapMap);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
 
