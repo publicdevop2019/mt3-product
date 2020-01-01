@@ -18,7 +18,6 @@ public class ProductSimple extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "productSimpleId_gen")
-    @Setter(AccessLevel.NONE)
     private Long id;
 
 
