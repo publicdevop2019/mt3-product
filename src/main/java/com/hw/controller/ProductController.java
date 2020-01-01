@@ -78,6 +78,19 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("productDetails/{productDetailId}/decreaseStorageBy")
+    public ResponseEntity<?> decreaseProductStorage(@RequestHeader("authorization") String authorization, @PathVariable(name = "productDetailId") Long productDetailId, @RequestParam(value = "decreaseStorageBy") Integer amount) {
+        Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
+        if (findById.isEmpty())
+            return ResponseEntity.badRequest().build();
+        ProductDetail oldProductSimple = findById.get();
+        if (oldProductSimple.getStorage() == null || 0 == oldProductSimple.getStorage())
+            return ResponseEntity.badRequest().body("storage is empty");
+        oldProductSimple.setStorage(oldProductSimple.getStorage() - amount);
+        productDetailRepo.save(oldProductSimple);
+        return ResponseEntity.ok().build();
+    }
+
 
     @DeleteMapping("productDetails/{productDetailId}")
     public ResponseEntity<?> deleteProduct(@RequestHeader("authorization") String authorization, @PathVariable(name = "productDetailId") Long productDetailId) {
