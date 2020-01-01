@@ -52,6 +52,9 @@ public class ProductController {
     @PostMapping("productDetails")
     public ResponseEntity<?> createProduct(@RequestHeader("authorization") String authorization, @RequestBody ProductDetail productDetail) {
         ProductDetail save = productDetailRepo.save(productDetail);
+        if (productDetail.getStorage() == null) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok().header("Location", save.getId().toString()).build();
     }
 
@@ -61,8 +64,16 @@ public class ProductController {
         Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
         if (findById.isEmpty())
             return ResponseEntity.badRequest().build();
+        if (newProductDetail.getStorage() != null)
+            return ResponseEntity.badRequest().body("use increaseBy or decreaseBy to update storage value");
         ProductDetail oldProductSimple = findById.get();
+        Integer storageCopied = oldProductSimple.getStorage();
         BeanUtils.copyProperties(newProductDetail, oldProductSimple);
+        oldProductSimple.setStorage(storageCopied);
+        if (newProductDetail.getIncreaseStorageBy() != null)
+            oldProductSimple.setStorage(oldProductSimple.getStorage() + newProductDetail.getIncreaseStorageBy());
+        if (newProductDetail.getDecreaseStorageBy() != null)
+            oldProductSimple.setStorage(oldProductSimple.getStorage() - (newProductDetail.getDecreaseStorageBy()));
         productDetailRepo.save(oldProductSimple);
         return ResponseEntity.ok().build();
     }

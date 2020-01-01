@@ -1,5 +1,7 @@
 package com.hw.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -16,6 +18,7 @@ public class ProductSimple extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "productSimpleId_gen")
+    @Setter(AccessLevel.NONE)
     private Long id;
 
 
@@ -25,6 +28,17 @@ public class ProductSimple extends Auditable {
     @NotNull
     @Column
     private String name;
+
+    @Column
+    private Integer storage;
+    /**
+     * use increase | decrease to make sure storage does not get overwritten
+     */
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Integer increaseStorageBy;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Integer decreaseStorageBy;
 
     @Column
     private String description;
