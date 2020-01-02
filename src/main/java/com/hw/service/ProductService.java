@@ -16,15 +16,15 @@ public class ProductService {
     ProductDetailRepo productDetailRepo;
 
     @Transactional
-    public void batchDecrease(Map<Long, Integer> map) throws RuntimeException{
+    public void batchDecrease(Map<String, String> map) throws RuntimeException {
         map.keySet().stream().forEach(productDetailId -> {
-            Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
+            Optional<ProductDetail> findById = productDetailRepo.findById(Long.parseLong(productDetailId));
             if (findById.isEmpty())
                 throw new RuntimeException("product id::" + productDetailId + " not found");
             ProductDetail oldProductSimple = findById.get();
             if (oldProductSimple.getStorage() == null || 0 == oldProductSimple.getStorage())
                 throw new RuntimeException("product id::" + productDetailId + " storage is empty");
-            Integer output = oldProductSimple.getStorage() - map.get(productDetailId);
+            Integer output = oldProductSimple.getStorage() - Integer.parseInt(map.get(productDetailId));
             if (output < 0)
                 throw new RuntimeException("product id::" + productDetailId + " storage not enough");
             oldProductSimple.setStorage(output);

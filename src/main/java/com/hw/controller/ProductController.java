@@ -84,7 +84,7 @@ public class ProductController {
     }
 
     @PutMapping("productDetails/decreaseStorageBy")
-    public ResponseEntity<?> decreaseProductStorage(@RequestHeader("authorization") String authorization, @RequestBody Map<Long, Integer> stringIntegerMapMap) {
+    public ResponseEntity<?> decreaseProductStorage(@RequestHeader("authorization") String authorization, @RequestBody Map<String, String> stringIntegerMapMap) {
         try {
             productService.batchDecrease(stringIntegerMapMap);
             return ResponseEntity.ok().build();
