@@ -98,7 +98,7 @@ public class ProductController {
     @PutMapping("productDetails/decreaseStorageBy")
     public ResponseEntity<?> decreaseProductStorage(@RequestHeader("authorization") String authorization, @RequestBody Map<String, String> stringIntegerMapMap) {
         try {
-            productService.batchDecreaseUpdate(stringIntegerMapMap);
+            productService.consumeProduct(stringIntegerMapMap);
             return ResponseEntity.ok().build();
         } catch (RuntimeException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
@@ -108,7 +108,7 @@ public class ProductController {
     @PutMapping("productDetails/increaseStorageBy")
     public ResponseEntity<?> increaseProductStorage(@RequestHeader("authorization") String authorization, @RequestBody Map<String, String> stringIntegerMapMap) {
         try {
-            productService.batchIncreaseUpdate(stringIntegerMapMap);
+            productService.restoreProduct(stringIntegerMapMap);
             return ResponseEntity.ok().build();
         } catch (RuntimeException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());

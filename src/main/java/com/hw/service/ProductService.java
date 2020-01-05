@@ -22,7 +22,7 @@ public class ProductService {
      * @throws RuntimeException
      */
     @Transactional
-    public void batchIncreaseUpdate(Map<String, String> map) throws RuntimeException {
+    public void consumeProduct(Map<String, String> map) throws RuntimeException {
         map.keySet().stream().forEach(productDetailId -> {
             Optional<ProductDetail> findById = productDetailRepo.findById(Long.parseLong(productDetailId));
             if (findById.isEmpty())
@@ -38,8 +38,9 @@ public class ProductService {
             productDetailRepo.save(oldProductSimple);
         });
     }
+
     @Transactional
-    public void batchDecreaseUpdate(Map<String, String> map) throws RuntimeException {
+    public void restoreProduct(Map<String, String> map) throws RuntimeException {
         map.keySet().stream().forEach(productDetailId -> {
             Optional<ProductDetail> findById = productDetailRepo.findById(Long.parseLong(productDetailId));
             if (findById.isEmpty())
