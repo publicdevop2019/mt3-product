@@ -22,7 +22,7 @@ public class ProductService {
      * @throws RuntimeException
      */
     @Transactional
-    public void batchUpdate(Map<String, String> map) throws RuntimeException {
+    public void batchIncreaseUpdate(Map<String, String> map) throws RuntimeException {
         map.keySet().stream().forEach(productDetailId -> {
             Optional<ProductDetail> findById = productDetailRepo.findById(Long.parseLong(productDetailId));
             if (findById.isEmpty())
@@ -35,6 +35,23 @@ public class ProductService {
                 throw new RuntimeException("product id::" + productDetailId + " storage not enough");
             oldProductSimple.setStorage(output);
             oldProductSimple.setSales(oldProductSimple.getSales() + Integer.parseInt(map.get(productDetailId)));
+            productDetailRepo.save(oldProductSimple);
+        });
+    }
+    @Transactional
+    public void batchDecreaseUpdate(Map<String, String> map) throws RuntimeException {
+        map.keySet().stream().forEach(productDetailId -> {
+            Optional<ProductDetail> findById = productDetailRepo.findById(Long.parseLong(productDetailId));
+            if (findById.isEmpty())
+                throw new RuntimeException("product id::" + productDetailId + " not found");
+            ProductDetail oldProductSimple = findById.get();
+            if (oldProductSimple.getSales() == null || 0 == oldProductSimple.getSales())
+                throw new RuntimeException("product id::" + productDetailId + " sales is empty");
+            Integer output = oldProductSimple.getSales() - Integer.parseInt(map.get(productDetailId));
+            if (output < 0)
+                throw new RuntimeException("product id::" + productDetailId + " sales not enough");
+            oldProductSimple.setSales(output);
+            oldProductSimple.setStorage(oldProductSimple.getStorage() + Integer.parseInt(map.get(productDetailId)));
             productDetailRepo.save(oldProductSimple);
         });
     }

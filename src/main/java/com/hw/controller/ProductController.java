@@ -41,6 +41,18 @@ public class ProductController {
         return ResponseEntity.ok(productSimpleArrayList);
     }
 
+    @GetMapping("categories/all")
+    public ResponseEntity<?> getProductsByCategory() {
+        List<ProductDetail> productByCategory = productDetailRepo.findAll();
+        List<ProductSimple> productSimpleArrayList = new ArrayList<>();
+        productByCategory.stream().forEach(e -> {
+            ProductSimple productSimple = new ProductSimple();
+            BeanUtils.copyProperties(e, productSimple);
+            productSimpleArrayList.add(productSimple);
+        });
+        return ResponseEntity.ok(productSimpleArrayList);
+    }
+
 
     /**
      * public access
@@ -86,7 +98,17 @@ public class ProductController {
     @PutMapping("productDetails/decreaseStorageBy")
     public ResponseEntity<?> decreaseProductStorage(@RequestHeader("authorization") String authorization, @RequestBody Map<String, String> stringIntegerMapMap) {
         try {
-            productService.batchUpdate(stringIntegerMapMap);
+            productService.batchDecreaseUpdate(stringIntegerMapMap);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    @PutMapping("productDetails/increaseStorageBy")
+    public ResponseEntity<?> increaseProductStorage(@RequestHeader("authorization") String authorization, @RequestBody Map<String, String> stringIntegerMapMap) {
+        try {
+            productService.batchIncreaseUpdate(stringIntegerMapMap);
             return ResponseEntity.ok().build();
         } catch (RuntimeException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());

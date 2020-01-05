@@ -33,9 +33,11 @@ public class ProductSimple extends Auditable {
     /**
      * use increase | decrease to make sure storage does not get overwritten
      */
+    @Transient
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Integer increaseStorageBy;
 
+    @Transient
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Integer decreaseStorageBy;
 
