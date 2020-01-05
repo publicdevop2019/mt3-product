@@ -15,8 +15,14 @@ public class ProductService {
     @Autowired
     ProductDetailRepo productDetailRepo;
 
+    /**
+     * decrease storage amount and increase sales
+     *
+     * @param map
+     * @throws RuntimeException
+     */
     @Transactional
-    public void batchDecrease(Map<String, String> map) throws RuntimeException {
+    public void batchUpdate(Map<String, String> map) throws RuntimeException {
         map.keySet().stream().forEach(productDetailId -> {
             Optional<ProductDetail> findById = productDetailRepo.findById(Long.parseLong(productDetailId));
             if (findById.isEmpty())
@@ -28,6 +34,7 @@ public class ProductService {
             if (output < 0)
                 throw new RuntimeException("product id::" + productDetailId + " storage not enough");
             oldProductSimple.setStorage(output);
+            oldProductSimple.setSales(oldProductSimple.getSales() + Integer.parseInt(map.get(productDetailId)));
             productDetailRepo.save(oldProductSimple);
         });
     }

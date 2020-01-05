@@ -50,7 +50,7 @@ public class ProductSimple extends Auditable {
     private BigDecimal price;
 
     @Column
-    private BigDecimal sales;
+    private Integer sales;
 
     @NotNull
     @Column
