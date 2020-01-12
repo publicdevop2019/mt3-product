@@ -34,7 +34,11 @@ public class ProductService {
             if (output < 0)
                 throw new RuntimeException("product id::" + productDetailId + " storage not enough");
             oldProductSimple.setStorage(output);
-            oldProductSimple.setSales(oldProductSimple.getSales() + Integer.parseInt(map.get(productDetailId)));
+            if (oldProductSimple.getSales() == null) {
+                oldProductSimple.setSales(Integer.parseInt(map.get(productDetailId)));
+            } else {
+                oldProductSimple.setSales(oldProductSimple.getSales() + Integer.parseInt(map.get(productDetailId)));
+            }
             productDetailRepo.save(oldProductSimple);
         });
     }

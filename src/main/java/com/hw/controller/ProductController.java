@@ -42,10 +42,27 @@ public class ProductController {
     }
 
     @GetMapping("categories/all")
-    public ResponseEntity<?> getProductsByCategory() {
+    public ResponseEntity<?> getAllProducts() {
         List<ProductDetail> productByCategory = productDetailRepo.findAll();
         List<ProductSimple> productSimpleArrayList = new ArrayList<>();
         productByCategory.stream().forEach(e -> {
+            ProductSimple productSimple = new ProductSimple();
+            BeanUtils.copyProperties(e, productSimple);
+            productSimpleArrayList.add(productSimple);
+        });
+        return ResponseEntity.ok(productSimpleArrayList);
+    }
+
+    /**
+     * public access
+     */
+    @GetMapping("productDetails/search")
+    public ResponseEntity<?> searchProduct(@RequestParam("key") String key) {
+        Optional<List<ProductDetail>> productDetails = productDetailRepo.searchProductByName(key);
+        List<ProductSimple> productSimpleArrayList = new ArrayList<>();
+        if (productDetails.isEmpty())
+            return ResponseEntity.ok(productSimpleArrayList);
+        productDetails.get().forEach(e -> {
             ProductSimple productSimple = new ProductSimple();
             BeanUtils.copyProperties(e, productSimple);
             productSimpleArrayList.add(productSimple);
