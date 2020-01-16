@@ -1,19 +1,24 @@
 package com.hw.controller;
 
+import com.hw.clazz.OptionItem;
+import com.hw.clazz.ProductOption;
 import com.hw.entity.ProductDetail;
 import com.hw.entity.ProductSimple;
+import com.hw.entity.SnapshotProduct;
 import com.hw.repo.ProductDetailRepo;
 import com.hw.service.ProductService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+@Slf4j
 @RestController
 @RequestMapping(path = "v1/api", produces = "application/json")
 public class ProductController {
@@ -68,6 +73,101 @@ public class ProductController {
             productSimpleArrayList.add(productSimple);
         });
         return ResponseEntity.ok(productSimpleArrayList);
+    }
+
+    @PostMapping("productDetails/validate")
+    public ResponseEntity<?> validateOrderDetails(@RequestBody List<SnapshotProduct> products) {
+        boolean containInvalidValue;
+        if (products.stream().anyMatch(user_product -> {
+            Optional<ProductDetail> byId = productDetailRepo.findById(Long.parseLong(user_product.getProductId()));
+            /**
+             * validate product match
+             */
+            if (byId.isEmpty())
+                return true;
+            /**
+             * if no option present then compare final price
+             */
+            if (user_product.getSelectedOptions() == null || user_product.getSelectedOptions().size() == 0)
+                if (!user_product.getFinalPrice().equals(byId.get().getPrice().toString()))
+                    return true;
+            /**
+             * validate product option match
+             */
+            List<ProductOption> storedOption = byId.get().getSelectedOptions();
+            if (storedOption == null || storedOption.size() == 0)
+                return true;
+            boolean optionAllMatch = user_product.getSelectedOptions().stream().allMatch(userSelected -> {
+                /** check selected option is valid option */
+                Optional<ProductOption> first = storedOption.stream().filter(storedOptionItem -> {
+                    /** compare title */
+                    if (!storedOptionItem.title.equals(userSelected.title))
+                        return false;
+                    /**compare option value for each title*/
+                    String optionValue = userSelected.getOptions().get(0).getOptionValue();
+                    Optional<OptionItem> first1 = storedOptionItem.options.stream().filter(optionItem -> optionItem.getOptionValue().equals(optionValue)).findFirst();
+                    if (first1.isEmpty())
+                        return false;
+                    return true;
+                }).findFirst();
+                if (first.isEmpty())
+                    return false;
+                else {
+                    return true;
+                }
+            });
+            if (!optionAllMatch)
+                return true;
+            /**
+             * validate product final price
+             */
+            String finalPrice = user_product.getFinalPrice();
+            /** get all price variable */
+            List<String> userSelectedAddOnTitles = user_product.getSelectedOptions().stream().map(ProductOption::getTitle).collect(Collectors.toList());
+            /** filter option based on title */
+            Stream<ProductOption> storedAddonMacthingUserSelection = byId.get().getSelectedOptions().stream().filter(var1 -> userSelectedAddOnTitles.contains(var1.getTitle()));
+            /** map to value detail for each title */
+            List<String> priceVarCollection = storedAddonMacthingUserSelection.map(storedMatchAddon -> {
+                String title = storedMatchAddon.getTitle();
+                /**
+                 * find right option for title
+                 */
+                Optional<ProductOption> user_addon_option = user_product.getSelectedOptions().stream().filter(e -> e.getTitle().equals(title)).findFirst();
+                OptionItem user_optionItem = user_addon_option.get().getOptions().get(0);
+                Optional<OptionItem> first = storedMatchAddon.getOptions().stream().filter(db_optionItem -> db_optionItem.getOptionValue().equals(user_optionItem.getOptionValue())).findFirst();
+                return first.get().getPriceVar();
+            }).collect(Collectors.toList());
+            BigDecimal calc = new BigDecimal(0);
+            for (String priceVar : priceVarCollection) {
+                if (priceVar.contains("+")) {
+                    double v = Double.parseDouble(priceVar.replace("+", ""));
+                    BigDecimal bigDecimal = BigDecimal.valueOf(v);
+                    calc = calc.add(bigDecimal);
+                } else if (priceVar.contains("-")) {
+                    double v = Double.parseDouble(priceVar.replace("-", ""));
+                    BigDecimal bigDecimal = BigDecimal.valueOf(v);
+                    calc = calc.subtract(bigDecimal);
+
+                } else if (priceVar.contains("*")) {
+                    double v = Double.parseDouble(priceVar.replace("*", ""));
+                    BigDecimal bigDecimal = BigDecimal.valueOf(v);
+                    calc = calc.multiply(bigDecimal);
+                } else {
+                    log.error("unknown operation type");
+                }
+            }
+            if (calc.add(byId.get().getPrice()).toString().replace(".00", "").equals(finalPrice.replace(".00", "")))
+                return false;
+            return true;
+        })) containInvalidValue = true;
+        else containInvalidValue = false;
+        Map<String, String> result = new HashMap<>();
+        if (containInvalidValue) {
+            result.put("result", "false");
+        } else {
+            result.put("result", "true");
+        }
+        return ResponseEntity.ok(result);
     }
 
 
