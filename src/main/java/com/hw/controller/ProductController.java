@@ -156,7 +156,7 @@ public class ProductController {
                     log.error("unknown operation type");
                 }
             }
-            if (calc.add(byId.get().getPrice()).toString().replace(".00", "").equals(finalPrice.replace(".00", "")))
+            if (calc.add(byId.get().getPrice()).compareTo(BigDecimal.valueOf(Double.parseDouble(finalPrice))) == 0)
                 return false;
             return true;
         })) containInvalidValue = true;
