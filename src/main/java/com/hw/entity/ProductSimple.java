@@ -29,7 +29,10 @@ public class ProductSimple extends Auditable {
     private String name;
 
     @Column
-    private Integer storage;
+    private Integer orderStorage;
+
+    @Column
+    private Integer actualStorage;
     /**
      * use increase | decrease to make sure storage does not get overwritten
      */

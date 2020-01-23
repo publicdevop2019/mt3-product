@@ -15,25 +15,36 @@ public class ProductService {
     @Autowired
     ProductDetailRepo productDetailRepo;
 
-    /**
-     * decrease storage amount and increase sales
-     *
-     * @param map
-     * @throws RuntimeException
-     */
     @Transactional
-    public void consumeProduct(Map<String, String> map) throws RuntimeException {
-        map.keySet().stream().forEach(productDetailId -> {
+    public void decreaseOrderStorage(Map<String, String> map) throws RuntimeException {
+        map.keySet().forEach(productDetailId -> {
             Optional<ProductDetail> findById = productDetailRepo.findById(Long.parseLong(productDetailId));
             if (findById.isEmpty())
                 throw new RuntimeException("product id::" + productDetailId + " not found");
             ProductDetail oldProductSimple = findById.get();
-            if (oldProductSimple.getStorage() == null || 0 == oldProductSimple.getStorage())
+            if (oldProductSimple.getOrderStorage() == null || 0 == oldProductSimple.getOrderStorage())
                 throw new RuntimeException("product id::" + productDetailId + " storage is empty");
-            Integer output = oldProductSimple.getStorage() - Integer.parseInt(map.get(productDetailId));
+            int output = oldProductSimple.getOrderStorage() - Integer.parseInt(map.get(productDetailId));
             if (output < 0)
                 throw new RuntimeException("product id::" + productDetailId + " storage not enough");
-            oldProductSimple.setStorage(output);
+            oldProductSimple.setOrderStorage(output);
+            productDetailRepo.save(oldProductSimple);
+        });
+    }
+
+    @Transactional
+    public void decreaseActualStorage(Map<String, String> map) throws RuntimeException {
+        map.keySet().forEach(productDetailId -> {
+            Optional<ProductDetail> findById = productDetailRepo.findById(Long.parseLong(productDetailId));
+            if (findById.isEmpty())
+                throw new RuntimeException("product id::" + productDetailId + " not found");
+            ProductDetail oldProductSimple = findById.get();
+            if (oldProductSimple.getActualStorage() == null || 0 == oldProductSimple.getActualStorage())
+                throw new RuntimeException("product id::" + productDetailId + " storage is empty");
+            int output = oldProductSimple.getActualStorage() - Integer.parseInt(map.get(productDetailId));
+            if (output < 0)
+                throw new RuntimeException("product id::" + productDetailId + " storage not enough");
+            oldProductSimple.setActualStorage(output);
             if (oldProductSimple.getSales() == null) {
                 oldProductSimple.setSales(Integer.parseInt(map.get(productDetailId)));
             } else {
@@ -44,19 +55,13 @@ public class ProductService {
     }
 
     @Transactional
-    public void restoreProduct(Map<String, String> map) throws RuntimeException {
-        map.keySet().stream().forEach(productDetailId -> {
+    public void increaseOrderStorage(Map<String, String> map) throws RuntimeException {
+        map.keySet().forEach(productDetailId -> {
             Optional<ProductDetail> findById = productDetailRepo.findById(Long.parseLong(productDetailId));
             if (findById.isEmpty())
                 throw new RuntimeException("product id::" + productDetailId + " not found");
             ProductDetail oldProductSimple = findById.get();
-            if (oldProductSimple.getSales() == null || 0 == oldProductSimple.getSales())
-                throw new RuntimeException("product id::" + productDetailId + " sales is empty");
-            Integer output = oldProductSimple.getSales() - Integer.parseInt(map.get(productDetailId));
-            if (output < 0)
-                throw new RuntimeException("product id::" + productDetailId + " sales not enough");
-            oldProductSimple.setSales(output);
-            oldProductSimple.setStorage(oldProductSimple.getStorage() + Integer.parseInt(map.get(productDetailId)));
+            oldProductSimple.setOrderStorage(oldProductSimple.getOrderStorage() + Integer.parseInt(map.get(productDetailId)));
             productDetailRepo.save(oldProductSimple);
         });
     }

@@ -186,7 +186,7 @@ public class ProductController {
     @PostMapping("productDetails")
     public ResponseEntity<?> createProduct(@RequestHeader("authorization") String authorization, @RequestBody ProductDetail productDetail) {
         ProductDetail save = productDetailRepo.save(productDetail);
-        if (productDetail.getStorage() == null) {
+        if (productDetail.getOrderStorage() == null) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().header("Location", save.getId().toString()).build();
@@ -198,24 +198,34 @@ public class ProductController {
         Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
         if (findById.isEmpty())
             return ResponseEntity.badRequest().build();
-        if (newProductDetail.getStorage() != null)
+        if (newProductDetail.getOrderStorage() != null)
             return ResponseEntity.badRequest().body("use increaseBy or decreaseBy to update storage value");
         ProductDetail oldProductSimple = findById.get();
-        Integer storageCopied = oldProductSimple.getStorage();
+        Integer storageCopied = oldProductSimple.getOrderStorage();
         BeanUtils.copyProperties(newProductDetail, oldProductSimple);
-        oldProductSimple.setStorage(storageCopied);
+        oldProductSimple.setOrderStorage(storageCopied);
         if (newProductDetail.getIncreaseStorageBy() != null)
-            oldProductSimple.setStorage(oldProductSimple.getStorage() + newProductDetail.getIncreaseStorageBy());
+            oldProductSimple.setOrderStorage(oldProductSimple.getOrderStorage() + newProductDetail.getIncreaseStorageBy());
         if (newProductDetail.getDecreaseStorageBy() != null)
-            oldProductSimple.setStorage(oldProductSimple.getStorage() - (newProductDetail.getDecreaseStorageBy()));
+            oldProductSimple.setOrderStorage(oldProductSimple.getOrderStorage() - (newProductDetail.getDecreaseStorageBy()));
         productDetailRepo.save(oldProductSimple);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("productDetails/decreaseStorageBy")
-    public ResponseEntity<?> decreaseProductStorage(@RequestHeader("authorization") String authorization, @RequestBody Map<String, String> stringIntegerMapMap) {
+    public ResponseEntity<?> decreaseOrderStorage(@RequestHeader("authorization") String authorization, @RequestBody Map<String, String> stringIntegerMapMap) {
         try {
-            productService.consumeProduct(stringIntegerMapMap);
+            productService.decreaseOrderStorage(stringIntegerMapMap);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    @PutMapping("productDetails/sold")
+    public ResponseEntity<?> decreaseActualStorage(@RequestHeader("authorization") String authorization, @RequestBody Map<String, String> stringIntegerMapMap) {
+        try {
+            productService.decreaseActualStorage(stringIntegerMapMap);
             return ResponseEntity.ok().build();
         } catch (RuntimeException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
@@ -223,9 +233,9 @@ public class ProductController {
     }
 
     @PutMapping("productDetails/increaseStorageBy")
-    public ResponseEntity<?> increaseProductStorage(@RequestHeader("authorization") String authorization, @RequestBody Map<String, String> stringIntegerMapMap) {
+    public ResponseEntity<?> increaseOrderStorage(@RequestHeader("authorization") String authorization, @RequestBody Map<String, String> stringIntegerMapMap) {
         try {
-            productService.restoreProduct(stringIntegerMapMap);
+            productService.increaseOrderStorage(stringIntegerMapMap);
             return ResponseEntity.ok().build();
         } catch (RuntimeException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
