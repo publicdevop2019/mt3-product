@@ -198,16 +198,23 @@ public class ProductController {
         Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
         if (findById.isEmpty())
             return ResponseEntity.badRequest().build();
-        if (newProductDetail.getOrderStorage() != null)
+        if (newProductDetail.getOrderStorage() != null || newProductDetail.getActualStorage() != null)
             return ResponseEntity.badRequest().body("use increaseBy or decreaseBy to update storage value");
         ProductDetail oldProductSimple = findById.get();
-        Integer storageCopied = oldProductSimple.getOrderStorage();
+        Integer orderStorageCopied = oldProductSimple.getOrderStorage();
+        Integer actualStorageCopied = oldProductSimple.getActualStorage();
         BeanUtils.copyProperties(newProductDetail, oldProductSimple);
-        oldProductSimple.setOrderStorage(storageCopied);
-        if (newProductDetail.getIncreaseStorageBy() != null)
-            oldProductSimple.setOrderStorage(oldProductSimple.getOrderStorage() + newProductDetail.getIncreaseStorageBy());
-        if (newProductDetail.getDecreaseStorageBy() != null)
-            oldProductSimple.setOrderStorage(oldProductSimple.getOrderStorage() - (newProductDetail.getDecreaseStorageBy()));
+        oldProductSimple.setOrderStorage(orderStorageCopied);
+        oldProductSimple.setActualStorage(actualStorageCopied);
+        if (newProductDetail.getIncreaseOrderStorageBy() != null)
+            oldProductSimple.setOrderStorage(oldProductSimple.getOrderStorage() + newProductDetail.getIncreaseOrderStorageBy());
+        if (newProductDetail.getDecreaseOrderStorageBy() != null)
+            oldProductSimple.setOrderStorage(oldProductSimple.getOrderStorage() - (newProductDetail.getDecreaseOrderStorageBy()));
+
+        if (newProductDetail.getIncreaseActualStorageBy() != null)
+            oldProductSimple.setActualStorage(oldProductSimple.getActualStorage() + newProductDetail.getIncreaseActualStorageBy());
+        if (newProductDetail.getDecreaseActualStorageBy() != null)
+            oldProductSimple.setActualStorage(oldProductSimple.getActualStorage() - (newProductDetail.getDecreaseActualStorageBy()));
         productDetailRepo.save(oldProductSimple);
         return ResponseEntity.ok().build();
     }
