@@ -16,8 +16,8 @@ import java.util.Objects;
 /**
  * copied from user-profile service
  */
-@Embeddable
 @Data
+@Embeddable
 public class SnapshotProduct {
 
     @NotNull

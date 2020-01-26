@@ -1,15 +1,16 @@
 package com.hw.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.hw.shared.Auditable;
 import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
+@Data
 @Entity
 @Inheritance
-@Data
 @SequenceGenerator(name = "productSimpleId_gen", sequenceName = "productSimpleId_gen", initialValue = 100)
 public class ProductSimple extends Auditable {
 

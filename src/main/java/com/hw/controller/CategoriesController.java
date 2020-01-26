@@ -26,14 +26,14 @@ public class CategoriesController {
 
 
     @PostMapping("categories")
-    public ResponseEntity<?> createProduct(@RequestHeader("authorization") String authorization, @RequestBody Category category) {
+    public ResponseEntity<?> createProduct(@RequestBody Category category) {
         Category save = categoryRepo.save(category);
         return ResponseEntity.ok().header("Location", save.getId().toString()).build();
     }
 
 
     @PutMapping("categories/{categoryId}")
-    public ResponseEntity<?> updateProduct(@RequestHeader("authorization") String authorization, @PathVariable(name = "categoryId") Long CategoryId, @RequestBody Category newCategory) {
+    public ResponseEntity<?> updateProduct(@PathVariable(name = "categoryId") Long CategoryId, @RequestBody Category newCategory) {
         Optional<Category> findById = categoryRepo.findById(CategoryId);
         if (findById.isEmpty())
             return ResponseEntity.badRequest().build();
@@ -45,7 +45,7 @@ public class CategoriesController {
 
 
     @DeleteMapping("categories/{categoryId}")
-    public ResponseEntity<?> deleteProduct(@RequestHeader("authorization") String authorization, @PathVariable(name = "categoryId") Long CategoryId) {
+    public ResponseEntity<?> deleteProduct(@PathVariable(name = "categoryId") Long CategoryId) {
         Optional<Category> findById = categoryRepo.findById(CategoryId);
         if (findById.isEmpty())
             return ResponseEntity.badRequest().build();

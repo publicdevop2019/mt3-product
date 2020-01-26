@@ -1,5 +1,6 @@
 package com.hw.entity;
 
+import com.hw.shared.Auditable;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -7,7 +8,6 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Objects;
 
 @Entity
 @Table(name = "Category")

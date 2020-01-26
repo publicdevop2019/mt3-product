@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table
+@Table(name = "Products")
 @Data
 @SequenceGenerator(name = "productDetailId_gen", sequenceName = "productDetailId_gen", initialValue = 100)
 public class ProductDetail extends ProductSimple {

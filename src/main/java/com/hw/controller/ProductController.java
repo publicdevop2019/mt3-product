@@ -76,7 +76,7 @@ public class ProductController {
     }
 
     @PostMapping("productDetails/validate")
-    public ResponseEntity<?> validateOrderDetails(@RequestBody List<SnapshotProduct> products) {
+    public ResponseEntity<?> validateProductDetails(@RequestBody List<SnapshotProduct> products) {
         boolean containInvalidValue;
         if (products.stream().anyMatch(user_product -> {
             Optional<ProductDetail> byId = productDetailRepo.findById(Long.parseLong(user_product.getProductId()));
@@ -184,7 +184,7 @@ public class ProductController {
 
 
     @PostMapping("productDetails")
-    public ResponseEntity<?> createProduct(@RequestHeader("authorization") String authorization, @RequestBody ProductDetail productDetail) {
+    public ResponseEntity<?> createProduct(@RequestBody ProductDetail productDetail) {
         ProductDetail save = productDetailRepo.save(productDetail);
         if (productDetail.getOrderStorage() == null) {
             return ResponseEntity.badRequest().build();
@@ -194,7 +194,7 @@ public class ProductController {
 
 
     @PutMapping("productDetails/{productDetailId}")
-    public ResponseEntity<?> updateProduct(@RequestHeader("authorization") String authorization, @PathVariable(name = "productDetailId") Long productDetailId, @RequestBody ProductDetail newProductDetail) {
+    public ResponseEntity<?> updateProduct(@PathVariable(name = "productDetailId") Long productDetailId, @RequestBody ProductDetail newProductDetail) {
         Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
         if (findById.isEmpty())
             return ResponseEntity.badRequest().build();
@@ -220,7 +220,7 @@ public class ProductController {
     }
 
     @PutMapping("productDetails/decreaseStorageBy")
-    public ResponseEntity<?> decreaseOrderStorage(@RequestHeader("authorization") String authorization, @RequestBody Map<String, String> stringIntegerMapMap) {
+    public ResponseEntity<?> decreaseOrderStorage(@RequestBody Map<String, String> stringIntegerMapMap) {
         try {
             productService.decreaseOrderStorage(stringIntegerMapMap);
             return ResponseEntity.ok().build();
@@ -230,7 +230,7 @@ public class ProductController {
     }
 
     @PutMapping("productDetails/sold")
-    public ResponseEntity<?> decreaseActualStorage(@RequestHeader("authorization") String authorization, @RequestBody Map<String, String> stringIntegerMapMap) {
+    public ResponseEntity<?> decreaseActualStorage(@RequestBody Map<String, String> stringIntegerMapMap) {
         try {
             productService.decreaseActualStorage(stringIntegerMapMap);
             return ResponseEntity.ok().build();
@@ -240,7 +240,7 @@ public class ProductController {
     }
 
     @PutMapping("productDetails/increaseStorageBy")
-    public ResponseEntity<?> increaseOrderStorage(@RequestHeader("authorization") String authorization, @RequestBody Map<String, String> stringIntegerMapMap) {
+    public ResponseEntity<?> increaseOrderStorage(@RequestBody Map<String, String> stringIntegerMapMap) {
         try {
             productService.increaseOrderStorage(stringIntegerMapMap);
             return ResponseEntity.ok().build();
@@ -251,7 +251,7 @@ public class ProductController {
 
 
     @DeleteMapping("productDetails/{productDetailId}")
-    public ResponseEntity<?> deleteProduct(@RequestHeader("authorization") String authorization, @PathVariable(name = "productDetailId") Long productDetailId) {
+    public ResponseEntity<?> deleteProduct(@PathVariable(name = "productDetailId") Long productDetailId) {
         Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
         if (findById.isEmpty())
             return ResponseEntity.badRequest().build();

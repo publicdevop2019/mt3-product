@@ -1,4 +1,4 @@
-package com.hw.handler;
+package com.hw.shared;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.NestedExceptionUtils;
