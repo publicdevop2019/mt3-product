@@ -1,6 +1,7 @@
 package com.hw.service;
 
 import com.hw.clazz.OptionItem;
+import com.hw.clazz.ProductException;
 import com.hw.clazz.ProductOption;
 import com.hw.entity.ProductDetail;
 import com.hw.entity.ProductSimple;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,17 +31,123 @@ public class ProductService {
     @Autowired
     ProductDetailRepo productDetailRepo;
 
-    public List<ProductSimple> getAllProducts() {
-        List<ProductDetail> productByCategory = productDetailRepo.findAll();
-        return extractProductSimple(Optional.of(productByCategory));
+    public List<ProductSimple> getAll() {
+        return extractProductSimple(Optional.of(productDetailRepo.findAll()));
     }
 
-    public List<ProductSimple> searchProduct(String key) {
-        Optional<List<ProductDetail>> productDetails = productDetailRepo.searchProductByName(key);
-        return extractProductSimple(productDetails);
+    public List<ProductSimple> search(String key) {
+        return extractProductSimple(productDetailRepo.searchProductByName(key));
     }
 
-    public Boolean validateProductDetails(List<SnapshotProduct> products) {
+    public synchronized String create(ProductDetail productDetail) {
+        return productDetailRepo.save(productDetail).getId().toString();
+    }
+
+    public ThrowingBiConsumer<ProductDetail, ProductDetail, ProductException> update = (old, next) -> {
+        if (next.getOrderStorage() != null || next.getActualStorage() != null)
+            throw new ProductException("use increaseBy or decreaseBy to update storage value");
+        Integer orderStorageCopied = old.getOrderStorage();
+        Integer actualStorageCopied = old.getActualStorage();
+        BeanUtils.copyProperties(next, old);
+        old.setOrderStorage(orderStorageCopied);
+        old.setActualStorage(actualStorageCopied);
+        if (next.getIncreaseOrderStorageBy() != null)
+            old.setOrderStorage(old.getOrderStorage() + next.getIncreaseOrderStorageBy());
+        if (next.getDecreaseOrderStorageBy() != null)
+            old.setOrderStorage(old.getOrderStorage() - (next.getDecreaseOrderStorageBy()));
+
+        if (next.getIncreaseActualStorageBy() != null)
+            old.setActualStorage(old.getActualStorage() + next.getIncreaseActualStorageBy());
+        if (next.getDecreaseActualStorageBy() != null)
+            old.setActualStorage(old.getActualStorage() - (next.getDecreaseActualStorageBy()));
+        productDetailRepo.save(old);
+    };
+
+    public ThrowingFunction<String, List<ProductSimple>, ProductException> getByCategory = (categoryName) -> {
+        Optional<List<ProductDetail>> productByCategory = productDetailRepo.findProductByCategory(categoryName);
+        if (productByCategory.isEmpty())
+            throw new ProductException("categoryName::" + categoryName + " not found");
+        return extractProductSimple(productByCategory);
+    };
+
+    public ThrowingFunction<Long, ProductDetail, ProductException> getById = (productDetailId) -> {
+        Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
+        if (findById.isEmpty())
+            throw new ProductException("productDetailId not found ::" + productDetailId);
+        return findById.get();
+    };
+
+    public void delete(Long productDetailId) {
+        productDetailRepo.delete(getById.apply(productDetailId));
+    }
+
+    private BiConsumer<ProductDetail, Integer> increaseOrderStorageById = (productDetail, increaseBy) -> {
+        productDetail.setOrderStorage(productDetail.getOrderStorage() + increaseBy);
+        productDetailRepo.save(productDetail);
+    };
+
+    public ThrowingConsumer<Map<String, String>, ProductException> increaseOrderStorage = (map) -> {
+        map.keySet().forEach(productDetailId -> {
+            synchronized (productDetailRepo) {
+                getById.andThen(increaseOrderStorageById).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+            }
+        });
+    };
+
+    private ThrowingBiConsumer<ProductDetail, Integer, ProductException> decreaseOrderStorageById = (pd, decreaseBy) -> {
+        if (pd.getOrderStorage() == null || 0 == pd.getOrderStorage())
+            throw new ProductException("product id::" + pd.getId() + " storage is empty");
+        int output = pd.getOrderStorage() - decreaseBy;
+        if (output < 0)
+            throw new ProductException("product id::" + pd.getId() + " storage not enough");
+        pd.setOrderStorage(output);
+        productDetailRepo.save(pd);
+    };
+
+    private ThrowingBiConsumer<ProductDetail, Integer, ProductException> decreaseActualStorageById = (pd, decreaseBy) -> {
+        if (pd.getActualStorage() == null || 0 == pd.getActualStorage())
+            throw new ProductException("product id::" + pd.getId() + " storage is empty");
+        int output = pd.getActualStorage() - decreaseBy;
+        if (output < 0)
+            throw new ProductException("product id::" + pd.getId() + " storage not enough");
+        pd.setActualStorage(output);
+        if (pd.getSales() == null) {
+            pd.setSales(decreaseBy);
+        } else {
+            pd.setSales(pd.getSales() + decreaseBy);
+        }
+        productDetailRepo.save(pd);
+    };
+
+    public ThrowingConsumer<Map<String, String>, ProductException> decreaseOrderStorage = (map) -> {
+        map.keySet().forEach(productDetailId -> {
+            synchronized (productDetailRepo) {
+                getById.andThen(decreaseOrderStorageById).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+            }
+        });
+    };
+
+    public ThrowingConsumer<Map<String, String>, ProductException> decreaseActualStorage = (map) -> {
+        map.keySet().forEach(productDetailId -> {
+            synchronized (productDetailRepo) {
+                getById.andThen(decreaseActualStorageById).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+            }
+        });
+    };
+
+    private List<ProductSimple> extractProductSimple(Optional<List<ProductDetail>> productDetails) {
+        List<ProductSimple> productSimpleList = new ArrayList<>();
+        if (productDetails.isEmpty())
+            return productSimpleList;
+        productDetails.get().forEach(e -> {
+            ProductSimple productSimple = new ProductSimple();
+            BeanUtils.copyProperties(e, productSimple);
+            productSimpleList.add(productSimple);
+        });
+        return productSimpleList;
+    }
+
+    public Boolean validate(List<SnapshotProduct> products) {
         boolean containInvalidValue;
         if (products.stream().anyMatch(user_product -> {
             Optional<ProductDetail> byId = productDetailRepo.findById(Long.parseLong(user_product.getProductId()));
@@ -125,123 +233,5 @@ public class ProductService {
         })) containInvalidValue = true;
         else containInvalidValue = false;
         return containInvalidValue;
-    }
-
-    public synchronized String createProduct(ProductDetail productDetail) {
-        ProductDetail save = productDetailRepo.save(productDetail);
-        return save.getId().toString();
-    }
-
-    public ThrowingBiConsumer<Object, Object, Exception> updateProduct = (productDetailId, newProductDetail) -> {
-        synchronized (productDetailRepo) {
-            Optional<ProductDetail> findById = productDetailRepo.findById((Long) productDetailId);
-            ProductDetail newProductDetail1 = (ProductDetail) newProductDetail;
-            if (findById.isEmpty())
-                throw new Exception("productDetailId not found ::" + productDetailId);
-            if (newProductDetail1.getOrderStorage() != null || newProductDetail1.getActualStorage() != null)
-                throw new Exception("use increaseBy or decreaseBy to update storage value");
-            ProductDetail oldProductSimple = findById.get();
-            Integer orderStorageCopied = oldProductSimple.getOrderStorage();
-            Integer actualStorageCopied = oldProductSimple.getActualStorage();
-            BeanUtils.copyProperties(newProductDetail, oldProductSimple);
-            oldProductSimple.setOrderStorage(orderStorageCopied);
-            oldProductSimple.setActualStorage(actualStorageCopied);
-            if (newProductDetail1.getIncreaseOrderStorageBy() != null)
-                oldProductSimple.setOrderStorage(oldProductSimple.getOrderStorage() + newProductDetail1.getIncreaseOrderStorageBy());
-            if (newProductDetail1.getDecreaseOrderStorageBy() != null)
-                oldProductSimple.setOrderStorage(oldProductSimple.getOrderStorage() - (newProductDetail1.getDecreaseOrderStorageBy()));
-
-            if (newProductDetail1.getIncreaseActualStorageBy() != null)
-                oldProductSimple.setActualStorage(oldProductSimple.getActualStorage() + newProductDetail1.getIncreaseActualStorageBy());
-            if (newProductDetail1.getDecreaseActualStorageBy() != null)
-                oldProductSimple.setActualStorage(oldProductSimple.getActualStorage() - (newProductDetail1.getDecreaseActualStorageBy()));
-            productDetailRepo.save(oldProductSimple);
-        }
-    };
-
-    public ThrowingFunction<Object, Object, Exception> getProductsByCategory = (categoryName) -> {
-        Optional<List<ProductDetail>> productByCategory = productDetailRepo.findProductByCategory((String) categoryName);
-        if (productByCategory.isEmpty())
-            throw new Exception("categoryName::" + categoryName + " not found");
-        return extractProductSimple(productByCategory);
-    };
-
-    public ThrowingFunction<Object, Object, Exception> getProductById = (productDetailId) -> {
-        Optional<ProductDetail> findById = productDetailRepo.findById((Long) productDetailId);
-        if (findById.isEmpty())
-            throw new Exception("productDetailId not found ::" + productDetailId);
-        return findById.get();
-    };
-
-    public ThrowingConsumer<Object, Exception> deleteProduct = (productDetailId) -> {
-        Optional<ProductDetail> findById = productDetailRepo.findById((Long) productDetailId);
-        if (findById.isEmpty())
-            throw new Exception("productDetailId not found ::" + productDetailId);
-        productDetailRepo.delete(findById.get());
-    };
-
-    public ThrowingConsumer<Object, Exception> increaseOrderStorage = (map) -> {
-        ((Map<String, String>) map).keySet().forEach(productDetailId -> {
-            synchronized (productDetailRepo) {
-                Optional<ProductDetail> findById = productDetailRepo.findById(Long.parseLong(productDetailId));
-                if (findById.isEmpty())
-                    throw new RuntimeException("product id::" + productDetailId + " not found");
-                ProductDetail oldProductSimple = findById.get();
-                oldProductSimple.setOrderStorage(oldProductSimple.getOrderStorage() + Integer.parseInt(((Map<String, String>) map).get(productDetailId)));
-                productDetailRepo.save(oldProductSimple);
-            }
-        });
-    };
-
-    public ThrowingConsumer<Object, Exception> decreaseOrderStorage = (map) -> {
-        ((Map<String, String>) map).keySet().forEach(productDetailId -> {
-            synchronized (productDetailRepo) {
-                Optional<ProductDetail> findById = productDetailRepo.findById(Long.parseLong(productDetailId));
-                if (findById.isEmpty())
-                    throw new RuntimeException("product id::" + productDetailId + " not found");
-                ProductDetail oldProductSimple = findById.get();
-                if (oldProductSimple.getOrderStorage() == null || 0 == oldProductSimple.getOrderStorage())
-                    throw new RuntimeException("product id::" + productDetailId + " storage is empty");
-                int output = oldProductSimple.getOrderStorage() - Integer.parseInt(((Map<String, String>) map).get(productDetailId));
-                if (output < 0)
-                    throw new RuntimeException("product id::" + productDetailId + " storage not enough");
-                oldProductSimple.setOrderStorage(output);
-                productDetailRepo.save(oldProductSimple);
-            }
-        });
-    };
-    public ThrowingConsumer<Object, Exception> decreaseActualStorage = (map) -> {
-        ((Map<String, String>) map).keySet().forEach(productDetailId -> {
-            synchronized (productDetailRepo) {
-                Optional<ProductDetail> findById = productDetailRepo.findById(Long.parseLong(productDetailId));
-                if (findById.isEmpty())
-                    throw new RuntimeException("product id::" + productDetailId + " not found");
-                ProductDetail oldProductSimple = findById.get();
-                if (oldProductSimple.getActualStorage() == null || 0 == oldProductSimple.getActualStorage())
-                    throw new RuntimeException("product id::" + productDetailId + " storage is empty");
-                int output = oldProductSimple.getActualStorage() - Integer.parseInt(((Map<String, String>) map).get(productDetailId));
-                if (output < 0)
-                    throw new RuntimeException("product id::" + productDetailId + " storage not enough");
-                oldProductSimple.setActualStorage(output);
-                if (oldProductSimple.getSales() == null) {
-                    oldProductSimple.setSales(Integer.parseInt(((Map<String, String>) map).get(productDetailId)));
-                } else {
-                    oldProductSimple.setSales(oldProductSimple.getSales() + Integer.parseInt(((Map<String, String>) map).get(productDetailId)));
-                }
-                productDetailRepo.save(oldProductSimple);
-            }
-        });
-    };
-
-    private List<ProductSimple> extractProductSimple(Optional<List<ProductDetail>> productDetails) {
-        List<ProductSimple> productSimpleList = new ArrayList<>();
-        if (productDetails.isEmpty())
-            return productSimpleList;
-        productDetails.get().forEach(e -> {
-            ProductSimple productSimple = new ProductSimple();
-            BeanUtils.copyProperties(e, productSimple);
-            productSimpleList.add(productSimple);
-        });
-        return productSimpleList;
     }
 }

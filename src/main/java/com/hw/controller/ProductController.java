@@ -3,9 +3,6 @@ package com.hw.controller;
 import com.hw.entity.ProductDetail;
 import com.hw.entity.SnapshotProduct;
 import com.hw.service.ProductService;
-import com.hw.shared.ThrowingBiConsumer;
-import com.hw.shared.ThrowingConsumer;
-import com.hw.shared.ThrowingFunction;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,14 +23,15 @@ public class ProductController {
     /**
      * public access
      */
+
     @GetMapping("categories/{categoryName}")
     public ResponseEntity<?> getProductsByCategory(@PathVariable(name = "categoryName") String categoryName) {
-        return respExceptionHelper(productService.getProductsByCategory, categoryName);
+        return ResponseEntity.ok(productService.getByCategory.apply(categoryName));
     }
 
     @GetMapping("categories/all")
     public ResponseEntity<?> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+        return ResponseEntity.ok(productService.getAll());
     }
 
     /**
@@ -41,12 +39,12 @@ public class ProductController {
      */
     @GetMapping("productDetails/search")
     public ResponseEntity<?> searchProduct(@RequestParam("key") String key) {
-        return ResponseEntity.ok(productService.searchProduct(key));
+        return ResponseEntity.ok(productService.search(key));
     }
 
     @PostMapping("productDetails/validate")
     public ResponseEntity<?> validateProductDetails(@RequestBody List<SnapshotProduct> products) {
-        Boolean containInvalidValue = productService.validateProductDetails(products);
+        Boolean containInvalidValue = productService.validate(products);
         Map<String, String> result = new HashMap<>();
         if (containInvalidValue) {
             result.put("result", "false");
@@ -61,68 +59,48 @@ public class ProductController {
      */
     @GetMapping("productDetails/{productDetailId}")
     public ResponseEntity<?> getProductById(@PathVariable(name = "productDetailId") Long productDetailId) {
-        return respExceptionHelper(productService.getProductById, productDetailId);
+        return ResponseEntity.ok(productService.getById.apply(productDetailId));
     }
 
 
     @PostMapping("productDetails")
     public ResponseEntity<?> createProduct(@RequestBody ProductDetail productDetail) {
-        return ResponseEntity.ok().header("Location", productService.createProduct(productDetail)).build();
+        return ResponseEntity.ok().header("Location", productService.create(productDetail)).build();
     }
 
 
     @PutMapping("productDetails/{productDetailId}")
     public ResponseEntity<?> updateProduct(@PathVariable(name = "productDetailId") Long productDetailId, @RequestBody ProductDetail newProductDetail) {
-        return respExceptionHelper(productService.updateProduct, productDetailId, newProductDetail);
+        productService.getById.andThen(productService.update).accept(productDetailId, newProductDetail);
+        return ResponseEntity.ok().build();
     }
+
 
     @PutMapping("productDetails/decreaseStorageBy")
     public ResponseEntity<?> decreaseOrderStorage(@RequestBody Map<String, String> productMap) {
-        return respExceptionHelper(productService.decreaseOrderStorage, productMap);
+        productService.decreaseOrderStorage.accept(productMap);
+        return ResponseEntity.ok().build();
     }
+
 
     @PutMapping("productDetails/sold")
     public ResponseEntity<?> decreaseActualStorage(@RequestBody Map<String, String> productMap) {
-        return respExceptionHelper(productService.decreaseActualStorage, productMap);
+        productService.decreaseActualStorage.accept(productMap);
+        return ResponseEntity.ok().build();
     }
+
 
     @PutMapping("productDetails/increaseStorageBy")
     public ResponseEntity<?> increaseOrderStorage(@RequestBody Map<String, String> productMap) {
-        return respExceptionHelper(productService.increaseOrderStorage, productMap);
+        productService.increaseOrderStorage.accept(productMap);
+        return ResponseEntity.ok().build();
     }
 
 
     @DeleteMapping("productDetails/{productDetailId}")
     public ResponseEntity<?> deleteProduct(@PathVariable(name = "productDetailId") Long productDetailId) {
-        return respExceptionHelper(productService.deleteProduct, productDetailId);
+        productService.delete(productDetailId);
+        return ResponseEntity.ok().build();
     }
 
-    private ResponseEntity<?> respExceptionHelper(ThrowingConsumer<Object, Exception> throwingConsumer, Object input) {
-        try {
-            throwingConsumer.accept(input);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            log.error("error during method call -->", e);
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    private ResponseEntity<?> respExceptionHelper(ThrowingFunction<Object, Object, Exception> throwingFunction, Object input) {
-        try {
-            return ResponseEntity.ok(throwingFunction.accept(input));
-        } catch (Exception e) {
-            log.error("error during method call -->", e);
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    private ResponseEntity<?> respExceptionHelper(ThrowingBiConsumer<Object, Object, Exception> throwingFunction, Object input1, Object input2) {
-        try {
-            throwingFunction.accept(input1, input2);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            log.error("error during method call -->", e);
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 }

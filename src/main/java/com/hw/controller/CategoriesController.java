@@ -1,55 +1,40 @@
 package com.hw.controller;
 
 import com.hw.entity.Category;
-import com.hw.repo.CategoryRepo;
-import org.springframework.beans.BeanUtils;
+import com.hw.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
-
 @RestController
 @RequestMapping(path = "v1/api", produces = "application/json")
 public class CategoriesController {
+
     @Autowired
-    CategoryRepo categoryRepo;
+    CategoryService categoryService;
 
     @GetMapping("categories")
     public ResponseEntity<?> getCategoryList() {
-        List<Category> categoryList = categoryRepo.findAll();
-        if (categoryList.isEmpty())
-            return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(categoryList);
+        return ResponseEntity.ok(categoryService.getAll());
     }
 
 
     @PostMapping("categories")
-    public ResponseEntity<?> createProduct(@RequestBody Category category) {
-        Category save = categoryRepo.save(category);
-        return ResponseEntity.ok().header("Location", save.getId().toString()).build();
+    public ResponseEntity<?> createCategory(@RequestBody Category category) {
+        return ResponseEntity.ok().header("Location", categoryService.create(category)).build();
     }
 
 
     @PutMapping("categories/{categoryId}")
-    public ResponseEntity<?> updateProduct(@PathVariable(name = "categoryId") Long CategoryId, @RequestBody Category newCategory) {
-        Optional<Category> findById = categoryRepo.findById(CategoryId);
-        if (findById.isEmpty())
-            return ResponseEntity.badRequest().build();
-        Category old = findById.get();
-        BeanUtils.copyProperties(newCategory, old);
-        categoryRepo.save(old);
+    public ResponseEntity<?> updateCategory(@PathVariable(name = "categoryId") Long categoryId, @RequestBody Category newCategory) {
+        categoryService.update(categoryId, newCategory);
         return ResponseEntity.ok().build();
     }
 
 
     @DeleteMapping("categories/{categoryId}")
-    public ResponseEntity<?> deleteProduct(@PathVariable(name = "categoryId") Long CategoryId) {
-        Optional<Category> findById = categoryRepo.findById(CategoryId);
-        if (findById.isEmpty())
-            return ResponseEntity.badRequest().build();
-        categoryRepo.delete(findById.get());
+    public ResponseEntity<?> deleteCategory(@PathVariable(name = "categoryId") Long categoryId) {
+        categoryService.delete(categoryId);
         return ResponseEntity.ok().build();
     }
 }
