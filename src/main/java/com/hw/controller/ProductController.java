@@ -43,7 +43,7 @@ public class ProductController {
     }
 
     @PostMapping("productDetails/validate")
-    public ResponseEntity<?> validateProductDetails(@RequestBody List<SnapshotProduct> products) {
+    public ResponseEntity<?> validateProduct(@RequestBody List<SnapshotProduct> products) {
         Boolean containInvalidValue = productService.validate(products);
         Map<String, String> result = new HashMap<>();
         if (containInvalidValue) {
@@ -78,21 +78,21 @@ public class ProductController {
 
     @PutMapping("productDetails/decreaseStorageBy")
     public ResponseEntity<?> decreaseOrderStorage(@RequestBody Map<String, String> productMap) {
-        productService.decreaseOrderStorage.accept(productMap);
+        productService.decreaseOrderStorageForMappedProducts.accept(productMap);
         return ResponseEntity.ok().build();
     }
 
 
     @PutMapping("productDetails/sold")
     public ResponseEntity<?> decreaseActualStorage(@RequestBody Map<String, String> productMap) {
-        productService.decreaseActualStorage.accept(productMap);
+        productService.decreaseActualStorageForMappedProducts.accept(productMap);
         return ResponseEntity.ok().build();
     }
 
 
     @PutMapping("productDetails/increaseStorageBy")
     public ResponseEntity<?> increaseOrderStorage(@RequestBody Map<String, String> productMap) {
-        productService.increaseOrderStorage.accept(productMap);
+        productService.increaseOrderStorageForMappedProducts.accept(productMap);
         return ResponseEntity.ok().build();
     }
 

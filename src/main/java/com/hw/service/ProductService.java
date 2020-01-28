@@ -8,6 +8,7 @@ import com.hw.entity.ProductSimple;
 import com.hw.entity.SnapshotProduct;
 import com.hw.repo.ProductDetailRepo;
 import com.hw.shared.ThrowingBiConsumer;
+import com.hw.shared.ThrowingBiFunction;
 import com.hw.shared.ThrowingConsumer;
 import com.hw.shared.ThrowingFunction;
 import lombok.extern.slf4j.Slf4j;
@@ -81,36 +82,36 @@ public class ProductService {
         productDetailRepo.delete(getById.apply(productDetailId));
     }
 
-    private BiConsumer<ProductDetail, Integer> increaseOrderStorageById = (productDetail, increaseBy) -> {
+    private BiConsumer<ProductDetail, Integer> increaseOrderStorage = (productDetail, increaseBy) -> {
         productDetail.setOrderStorage(productDetail.getOrderStorage() + increaseBy);
         productDetailRepo.save(productDetail);
     };
 
-    public ThrowingConsumer<Map<String, String>, ProductException> increaseOrderStorage = (map) -> {
+    public ThrowingConsumer<Map<String, String>, ProductException> increaseOrderStorageForMappedProducts = (map) -> {
         map.keySet().forEach(productDetailId -> {
             synchronized (productDetailRepo) {
-                getById.andThen(increaseOrderStorageById).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+                getById.andThen(increaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
             }
         });
     };
 
-    private ThrowingBiConsumer<ProductDetail, Integer, ProductException> decreaseOrderStorageById = (pd, decreaseBy) -> {
-        if (pd.getOrderStorage() == null || 0 == pd.getOrderStorage())
-            throw new ProductException("product id::" + pd.getId() + " storage is empty");
-        int output = pd.getOrderStorage() - decreaseBy;
+    private ThrowingBiFunction<Integer, Integer, Integer, ProductException> calcNextStorageValue = (storage, decreaseBy) -> {
+        if (0 == storage)
+            throw new ProductException("product storage is empty");
+        Integer output = storage - decreaseBy;
         if (output < 0)
-            throw new ProductException("product id::" + pd.getId() + " storage not enough");
-        pd.setOrderStorage(output);
+            throw new ProductException("product storage not enough");
+        return output;
+    };
+
+    private ThrowingBiConsumer<ProductDetail, Integer, ProductException> decreaseOrderStorage = (pd, decreaseBy) -> {
+        pd.setOrderStorage(calcNextStorageValue.apply(pd.getOrderStorage(), decreaseBy));
         productDetailRepo.save(pd);
     };
 
-    private ThrowingBiConsumer<ProductDetail, Integer, ProductException> decreaseActualStorageById = (pd, decreaseBy) -> {
-        if (pd.getActualStorage() == null || 0 == pd.getActualStorage())
-            throw new ProductException("product id::" + pd.getId() + " storage is empty");
-        int output = pd.getActualStorage() - decreaseBy;
-        if (output < 0)
-            throw new ProductException("product id::" + pd.getId() + " storage not enough");
-        pd.setActualStorage(output);
+
+    private ThrowingBiConsumer<ProductDetail, Integer, ProductException> decreaseActualStorage = (pd, decreaseBy) -> {
+        pd.setActualStorage(calcNextStorageValue.apply(pd.getActualStorage(), decreaseBy));
         if (pd.getSales() == null) {
             pd.setSales(decreaseBy);
         } else {
@@ -119,18 +120,19 @@ public class ProductService {
         productDetailRepo.save(pd);
     };
 
-    public ThrowingConsumer<Map<String, String>, ProductException> decreaseOrderStorage = (map) -> {
+
+    public ThrowingConsumer<Map<String, String>, ProductException> decreaseOrderStorageForMappedProducts = (map) -> {
         map.keySet().forEach(productDetailId -> {
             synchronized (productDetailRepo) {
-                getById.andThen(decreaseOrderStorageById).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+                getById.andThen(decreaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
             }
         });
     };
 
-    public ThrowingConsumer<Map<String, String>, ProductException> decreaseActualStorage = (map) -> {
+    public ThrowingConsumer<Map<String, String>, ProductException> decreaseActualStorageForMappedProducts = (map) -> {
         map.keySet().forEach(productDetailId -> {
             synchronized (productDetailRepo) {
-                getById.andThen(decreaseActualStorageById).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+                getById.andThen(decreaseActualStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
             }
         });
     };
