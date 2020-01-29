@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -105,7 +106,9 @@ public class ProductService {
     };
 
     private ThrowingBiConsumer<ProductDetail, Integer, ProductException> decreaseOrderStorage = (pd, decreaseBy) -> {
-        pd.setOrderStorage(calcNextStorageValue.apply(pd.getOrderStorage(), decreaseBy));
+        Integer apply = calcNextStorageValue.apply(pd.getOrderStorage(), decreaseBy);
+        log.info("after calc, new order storage value is " + apply);
+        pd.setOrderStorage(apply);
         productDetailRepo.save(pd);
     };
 
