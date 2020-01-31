@@ -10,6 +10,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
@@ -26,7 +30,7 @@ import java.util.stream.IntStream;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class)
+@SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ProductServiceTest {
 
     @Autowired
@@ -35,12 +39,17 @@ public class ProductServiceTest {
     @Autowired
     ProductServiceTransactional productServiceTransactional;
 
+    @LocalServerPort
+    int randomServerPort;
+
+    TestRestTemplate testRestTemplate = new TestRestTemplate();
+
     @Autowired
     ProductDetailRepo productDetailRepo;
 
     @Test
     public void concurrentValidation() {
-
+        String url = "http://localhost:" + randomServerPort + "/v1/api/productDetails/validate";
         OptionItem optionItem = new OptionItem("value1", null);
 
         ProductOption reqAddOn1 = new ProductOption();
@@ -67,16 +76,15 @@ public class ProductServiceTest {
         products.add(snapshotProduct);
         products.add(snapshotProduct);
         products.add(snapshotProduct);
-
-
+        HttpEntity<List<SnapshotProduct>> listHttpEntity = new HttpEntity<>(products, null);
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                productService.validate(products);
+                testRestTemplate.exchange(url, HttpMethod.POST, listHttpEntity, Object.class);
             }
         };
         ArrayList<Runnable> runnables = new ArrayList<>();
-        IntStream.range(0, 50).forEach(e -> {
+        IntStream.range(0, 5).forEach(e -> {
             runnables.add(runnable);
         });
         try {

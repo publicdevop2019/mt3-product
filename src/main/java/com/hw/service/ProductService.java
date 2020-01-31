@@ -68,14 +68,14 @@ public class ProductService {
     public ThrowingFunction<String, List<ProductSimple>, ProductException> getByCategory = (categoryName) -> {
         Optional<List<ProductDetail>> productByCategory = productDetailRepo.findProductByCategory(categoryName);
         if (productByCategory.isEmpty())
-            throw new ProductException("categoryName::" + categoryName + " not found");
+            throw new ProductException("categoryName :: " + categoryName + " not found");
         return extractProductSimple(productByCategory);
     };
 
     public ThrowingFunction<Long, ProductDetail, ProductException> getById = (productDetailId) -> {
         Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
         if (findById.isEmpty())
-            throw new ProductException("productDetailId not found ::" + productDetailId);
+            throw new ProductException("productDetailId not found :: " + productDetailId);
         return findById.get();
     };
 

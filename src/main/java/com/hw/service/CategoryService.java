@@ -40,7 +40,7 @@ public class CategoryService {
     protected ThrowingFunction<Long, Category, CategoryException> getById = (categoryId) -> {
         Optional<Category> findById = categoryRepo.findById(categoryId);
         if (findById.isEmpty())
-            throw new CategoryException("unable to find target category::" + categoryId);
+            throw new CategoryException("categoryId not found :: " + categoryId);
         return findById.get();
     };
 }
