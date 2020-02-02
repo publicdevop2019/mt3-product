@@ -18,20 +18,20 @@ import java.util.Map;
 public class ProductController {
 
     @Autowired
-    ProductService productService;
+    private ProductService productService;
 
     /**
      * public access
      */
 
     @GetMapping("categories/{categoryName}")
-    public ResponseEntity<?> getProductsByCategory(@PathVariable(name = "categoryName") String categoryName) {
-        return ResponseEntity.ok(productService.getByCategory.apply(categoryName));
+    public ResponseEntity<?> getProductsByCategory(@PathVariable(name = "categoryName") String categoryName, @RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
+        return ResponseEntity.ok(productService.getByCategory(categoryName, pageNumber, pageSize));
     }
 
     @GetMapping("categories/all")
-    public ResponseEntity<?> getAllProducts() {
-        return ResponseEntity.ok(productService.getAll());
+    public ResponseEntity<?> getAllProducts(@RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
+        return ResponseEntity.ok(productService.getAll(pageNumber, pageSize));
     }
 
     /**

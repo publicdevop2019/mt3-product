@@ -9,7 +9,7 @@ import java.util.Map;
 @Service
 public class ProductServiceTransactional {
     @Autowired
-    ProductService productService;
+    private ProductService productService;
 
     @Transactional
     public void decreaseOrderStorageForMappedProducts(Map<String, String> map) {

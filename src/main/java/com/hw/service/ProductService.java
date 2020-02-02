@@ -14,8 +14,9 @@ import com.hw.shared.ThrowingFunction;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -31,10 +32,15 @@ import java.util.stream.Stream;
 public class ProductService {
 
     @Autowired
-    ProductDetailRepo productDetailRepo;
+    private ProductDetailRepo productDetailRepo;
 
-    public List<ProductSimple> getAll() {
-        return extractProductSimple(Optional.of(productDetailRepo.findAll()));
+    @Autowired
+    private CategoryService categoryService;
+
+    public List<ProductSimple> getAll(Integer pageNumber, Integer pageSize) {
+        Sort orders = new Sort(Sort.Direction.ASC, "id");
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, orders);
+        return extractProductSimple(Optional.of(productDetailRepo.findAll(pageRequest).getContent()));
     }
 
     public List<ProductSimple> search(String key) {
@@ -65,12 +71,13 @@ public class ProductService {
         productDetailRepo.save(old);
     };
 
-    public ThrowingFunction<String, List<ProductSimple>, ProductException> getByCategory = (categoryName) -> {
-        Optional<List<ProductDetail>> productByCategory = productDetailRepo.findProductByCategory(categoryName);
-        if (productByCategory.isEmpty())
+    public List<ProductSimple> getByCategory(String categoryName, Integer pageNumber, Integer pageSize) {
+        Sort orders = new Sort(Sort.Direction.ASC, "id");
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, orders);
+        if (categoryService.getAll().stream().noneMatch(e -> e.getTitle().equals(categoryName)))
             throw new ProductException("categoryName :: " + categoryName + " not found");
-        return extractProductSimple(productByCategory);
-    };
+        return extractProductSimple(Optional.of(productDetailRepo.findProductByCategory(categoryName, pageRequest).getContent()));
+    }
 
     public ThrowingFunction<Long, ProductDetail, ProductException> getById = (productDetailId) -> {
         Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);

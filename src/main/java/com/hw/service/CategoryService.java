@@ -17,7 +17,7 @@ import java.util.Optional;
 public class CategoryService {
 
     @Autowired
-    CategoryRepo categoryRepo;
+    private CategoryRepo categoryRepo;
 
     public List<Category> getAll() {
         return categoryRepo.findAll();

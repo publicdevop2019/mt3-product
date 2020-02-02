@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 public class CategoriesController {
 
     @Autowired
-    CategoryService categoryService;
+    private CategoryService categoryService;
 
     @GetMapping("categories")
     public ResponseEntity<?> getCategoryList() {
