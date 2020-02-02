@@ -11,9 +11,11 @@ import com.hw.shared.ThrowingBiConsumer;
 import com.hw.shared.ThrowingBiFunction;
 import com.hw.shared.ThrowingConsumer;
 import com.hw.shared.ThrowingFunction;
+import com.hw.vo.ProductTotalResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -37,16 +39,17 @@ public class ProductService {
     @Autowired
     private CategoryService categoryService;
 
-    public List<ProductSimple> getAll(Integer pageNumber, Integer pageSize) {
+    public ProductTotalResponse getAll(Integer pageNumber, Integer pageSize) {
         Sort orders = new Sort(Sort.Direction.ASC, "id");
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, orders);
-        return extractProductSimple(Optional.of(productDetailRepo.findAll(pageRequest).getContent()));
+        Page<ProductDetail> all = productDetailRepo.findAll(pageRequest);
+        return new ProductTotalResponse(extractProductSimple(Optional.of(all.getContent())), all.getTotalPages(), all.getTotalElements());
     }
 
-    public List<ProductSimple> search(String key,Integer pageNumber, Integer pageSize) {
+    public List<ProductSimple> search(String key, Integer pageNumber, Integer pageSize) {
         Sort orders = new Sort(Sort.Direction.ASC, "id");
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, orders);
-        return extractProductSimple(productDetailRepo.searchProductByName(key,pageRequest));
+        return extractProductSimple(productDetailRepo.searchProductByName(key, pageRequest));
     }
 
     public synchronized String create(ProductDetail productDetail) {
