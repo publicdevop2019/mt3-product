@@ -12,12 +12,10 @@ import java.util.Optional;
 
 @Repository
 public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
-    @Query("SELECT p FROM #{#entityName} as p WHERE p.category = ?1")
-    Optional<List<ProductDetail>> findProductByCategory(String categoryName);
 
     @Query("SELECT p FROM #{#entityName} as p WHERE p.category = ?1")
     Page<ProductDetail> findProductByCategory(String categoryName, Pageable pageable);
 
     @Query("SELECT p FROM #{#entityName} as p WHERE p.name LIKE ?1%")
-    Optional<List<ProductDetail>> searchProductByName(String searchKey);
+    Optional<List<ProductDetail>> searchProductByName(String searchKey,Pageable pageable);
 }

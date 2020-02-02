@@ -43,8 +43,10 @@ public class ProductService {
         return extractProductSimple(Optional.of(productDetailRepo.findAll(pageRequest).getContent()));
     }
 
-    public List<ProductSimple> search(String key) {
-        return extractProductSimple(productDetailRepo.searchProductByName(key));
+    public List<ProductSimple> search(String key,Integer pageNumber, Integer pageSize) {
+        Sort orders = new Sort(Sort.Direction.ASC, "id");
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, orders);
+        return extractProductSimple(productDetailRepo.searchProductByName(key,pageRequest));
     }
 
     public synchronized String create(ProductDetail productDetail) {
