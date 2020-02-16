@@ -1,6 +1,5 @@
-
 target/
-db/
+
 ### STS ###
 .apt_generated
 .classpath
@@ -30,3 +29,4 @@ HELP.md
 mvnw
 mvnw.cmd
 .mvn
+db/
