@@ -1,6 +1,6 @@
 package com.hw.service;
 
-import com.hw.Application;
+import com.hw.Product;
 import com.hw.clazz.OptionItem;
 import com.hw.clazz.ProductOption;
 import com.hw.entity.ProductDetail;
@@ -30,7 +30,7 @@ import java.util.stream.IntStream;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = Product.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ProductServiceTest {
 
     @Autowired
