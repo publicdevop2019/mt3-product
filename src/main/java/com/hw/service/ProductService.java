@@ -1,16 +1,11 @@
 package com.hw.service;
 
-import com.hw.clazz.OptionItem;
-import com.hw.clazz.ProductException;
-import com.hw.clazz.ProductOption;
+import com.hw.clazz.*;
 import com.hw.entity.ProductDetail;
 import com.hw.entity.ProductSimple;
 import com.hw.entity.SnapshotProduct;
 import com.hw.repo.ProductDetailRepo;
-import com.hw.shared.ThrowingBiConsumer;
-import com.hw.shared.ThrowingBiFunction;
-import com.hw.shared.ThrowingConsumer;
-import com.hw.shared.ThrowingFunction;
+import com.hw.shared.*;
 import com.hw.vo.ProductTotalResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -76,9 +71,17 @@ public class ProductService {
         productDetailRepo.save(old);
     };
 
-    public List<ProductSimple> getByCategory(String categoryName, Integer pageNumber, Integer pageSize) {
-        Sort orders = new Sort(Sort.Direction.ASC, "id");
-        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, orders);
+    public List<ProductSimple> getByCategory(String categoryName, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        Sort initialSort = new Sort(Sort.Direction.ASC, SortCriteriaEnum.fromString(sortBy).getSortCriteria());
+        Sort finalSort;
+        if (sortOrder.equalsIgnoreCase(SortOrderEnum.ASC.getSortOrder())) {
+            finalSort = initialSort.ascending();
+        } else if (sortOrder.equalsIgnoreCase(SortOrderEnum.DESC.getSortOrder())) {
+            finalSort = initialSort.descending();
+        } else {
+            throw new BadRequestException("unsupported sort order");
+        }
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, finalSort);
         if (categoryService.getAll().stream().noneMatch(e -> e.getTitle().equals(categoryName)))
             throw new ProductException("categoryName :: " + categoryName + " not found");
         return extractProductSimple(Optional.of(productDetailRepo.findProductByCategory(categoryName, pageRequest).getContent()));

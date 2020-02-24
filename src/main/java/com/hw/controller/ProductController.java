@@ -25,8 +25,9 @@ public class ProductController {
      */
 
     @GetMapping("categories/{categoryName}")
-    public ResponseEntity<?> getProductsByCategory(@PathVariable(name = "categoryName") String categoryName, @RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
-        return ResponseEntity.ok(productService.getByCategory(categoryName, pageNumber, pageSize));
+    public ResponseEntity<?> getProductsByCategory(@PathVariable(name = "categoryName") String categoryName, @RequestParam("pageNum") Integer pageNumber,
+                                                   @RequestParam("pageSize") Integer pageSize, @RequestParam("sortBy") String sortBy, @RequestParam("sortOrder") String sortOrder) {
+        return ResponseEntity.ok(productService.getByCategory(categoryName, pageNumber, pageSize, sortBy, sortOrder));
     }
 
     @GetMapping("categories/all")
@@ -38,8 +39,8 @@ public class ProductController {
      * public access
      */
     @GetMapping("productDetails/search")
-    public ResponseEntity<?> searchProduct(@RequestParam("key") String key,@RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
-        return ResponseEntity.ok(productService.search(key,pageNumber, pageSize));
+    public ResponseEntity<?> searchProduct(@RequestParam("key") String key, @RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
+        return ResponseEntity.ok(productService.search(key, pageNumber, pageSize));
     }
 
     @PostMapping("productDetails/validate")
