@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Data
 @Entity
 @Inheritance
-@SequenceGenerator(name = "productSimpleId_gen", sequenceName = "productSimpleId_gen", initialValue = 100)
+@SequenceGenerator(name = "productSimpleId_gen", sequenceName = "productSimpleId_gen", initialValue = 500000)
 public class ProductSimple extends Auditable {
 
     @Id

@@ -14,7 +14,7 @@ import java.util.Set;
 @Entity
 @Table(name = "Products")
 @Data
-@SequenceGenerator(name = "productDetailId_gen", sequenceName = "productDetailId_gen", initialValue = 100)
+@SequenceGenerator(name = "productDetailId_gen", sequenceName = "productDetailId_gen", initialValue = 500000)
 public class ProductDetail extends ProductSimple {
 
     @Id
