@@ -180,8 +180,7 @@ public class ProductService {
              * if no option present then compare final price
              */
             if (user_product.getSelectedOptions() == null || user_product.getSelectedOptions().size() == 0)
-                if (!user_product.getFinalPrice().equals(byId.get().getPrice().toString()))
-                    return true;
+                return !user_product.getFinalPrice().equals(byId.get().getPrice().toString());
             /**
              * validate product option match
              */
