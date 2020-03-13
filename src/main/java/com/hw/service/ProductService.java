@@ -247,8 +247,10 @@ public class ProductService {
                     log.error("unknown operation type");
                 }
             }
-            if (calc.add(byId.get().getPrice()).compareTo(BigDecimal.valueOf(Double.parseDouble(finalPrice))) == 0)
+            if (calc.add(byId.get().getPrice()).compareTo(BigDecimal.valueOf(Double.parseDouble(finalPrice))) == 0) {
+                log.error("value does match for product {}, expected {} actual {}", user_product.getProductId(), calc.add(byId.get().getPrice()), BigDecimal.valueOf(Double.parseDouble(finalPrice)));
                 return false;
+            }
             return true;
         })) containInvalidValue = true;
         else containInvalidValue = false;
