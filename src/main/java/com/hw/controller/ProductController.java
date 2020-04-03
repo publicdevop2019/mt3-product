@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping(path = "v1/api", produces = "application/json")
+@RequestMapping(produces = "application/json")
 public class ProductController {
 
     @Autowired

@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "v1/api", produces = "application/json")
+@RequestMapping(produces = "application/json")
 public class CategoriesController {
 
     @Autowired
