@@ -13,7 +13,7 @@ public class ProductServiceTransactional {
     private ProductService productService;
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void decreaseOrderStorageForMappedProducts(Map<String, String> map) {
-        productService.decreaseOrderStorageForMappedProducts.accept(map);
+    public void decreaseOrderStorageForMappedProducts(Map<String, String> map, String optToken) {
+        productService.decreaseOrderStorageForMappedProducts.accept(map, optToken);
     }
 }

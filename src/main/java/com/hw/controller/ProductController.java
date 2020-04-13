@@ -78,22 +78,28 @@ public class ProductController {
 
 
     @PutMapping("productDetails/decreaseStorageBy")
-    public ResponseEntity<?> decreaseOrderStorage(@RequestBody Map<String, String> productMap) {
-        productService.decreaseOrderStorageForMappedProducts.accept(productMap);
+    public ResponseEntity<?> decreaseOrderStorage(@RequestBody Map<String, String> productMap, @RequestParam(name = "optToken") String optToken) {
+        productService.decreaseOrderStorageForMappedProducts.accept(productMap,optToken);
         return ResponseEntity.ok().build();
     }
 
 
     @PutMapping("productDetails/sold")
-    public ResponseEntity<?> decreaseActualStorage(@RequestBody Map<String, String> productMap) {
-        productService.decreaseActualStorageForMappedProducts.accept(productMap);
+    public ResponseEntity<?> decreaseActualStorage(@RequestBody Map<String, String> productMap, @RequestParam(name = "optToken") String optToken) {
+        productService.decreaseActualStorageForMappedProducts.accept(productMap,optToken);
         return ResponseEntity.ok().build();
     }
 
 
     @PutMapping("productDetails/increaseStorageBy")
-    public ResponseEntity<?> increaseOrderStorage(@RequestBody Map<String, String> productMap) {
-        productService.increaseOrderStorageForMappedProducts.accept(productMap);
+    public ResponseEntity<?> increaseOrderStorage(@RequestBody Map<String, String> productMap, @RequestParam(name = "optToken") String optToken) {
+        productService.increaseOrderStorageForMappedProducts.accept(productMap,optToken);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("productDetails/revoke")
+    public ResponseEntity<?> revoke(@RequestParam(name = "optToken") String optToken) {
+        productService.revoke.accept(optToken);
         return ResponseEntity.ok().build();
     }
 

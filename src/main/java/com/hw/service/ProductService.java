@@ -1,9 +1,11 @@
 package com.hw.service;
 
 import com.hw.clazz.*;
+import com.hw.entity.ChangeRecord;
 import com.hw.entity.ProductDetail;
 import com.hw.entity.ProductSimple;
 import com.hw.entity.SnapshotProduct;
+import com.hw.repo.ChangeRepo;
 import com.hw.repo.ProductDetailRepo;
 import com.hw.shared.*;
 import com.hw.vo.ProductTotalResponse;
@@ -26,13 +28,50 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Service
+/**
+ * Transactional will make all fields null
+ */
 public class ProductService {
 
     @Autowired
     private ProductDetailRepo productDetailRepo;
 
     @Autowired
+    private ChangeRepo changeRepo;
+
+    @Autowired
     private CategoryService categoryService;
+
+    private ThrowingBiFunction<Integer, Integer, Integer, ProductException> calcNextStorageValue = (storage, decreaseBy) -> {
+        if (0 == storage)
+            throw new ProductException("product storage is empty");
+        Integer output = storage - decreaseBy;
+        if (output < 0)
+            throw new ProductException("product storage not enough");
+        return output;
+    };
+    private BiConsumer<ProductDetail, Integer> increaseOrderStorage = (productDetail, increaseBy) -> {
+        productDetail.setOrderStorage(productDetail.getOrderStorage() + increaseBy);
+        productDetailRepo.save(productDetail);
+    };
+
+    private ThrowingBiConsumer<ProductDetail, Integer, ProductException> decreaseOrderStorage = (pd, decreaseBy) -> {
+        Integer apply = calcNextStorageValue.apply(pd.getOrderStorage(), decreaseBy);
+        log.info("after calc, new order storage value is " + apply);
+        pd.setOrderStorage(apply);
+        productDetailRepo.save(pd);
+    };
+
+
+    private ThrowingBiConsumer<ProductDetail, Integer, ProductException> decreaseActualStorage = (pd, decreaseBy) -> {
+        pd.setActualStorage(calcNextStorageValue.apply(pd.getActualStorage(), decreaseBy));
+        if (pd.getSales() == null) {
+            pd.setSales(decreaseBy);
+        } else {
+            pd.setSales(pd.getSales() + decreaseBy);
+        }
+        productDetailRepo.save(pd);
+    };
 
     public ProductTotalResponse getAll(Integer pageNumber, Integer pageSize) {
         Sort orders = new Sort(Sort.Direction.ASC, "id");
@@ -98,61 +137,110 @@ public class ProductService {
         productDetailRepo.delete(getById.apply(productDetailId));
     }
 
-    private BiConsumer<ProductDetail, Integer> increaseOrderStorage = (productDetail, increaseBy) -> {
-        productDetail.setOrderStorage(productDetail.getOrderStorage() + increaseBy);
-        productDetailRepo.save(productDetail);
-    };
 
-    public ThrowingConsumer<Map<String, String>, ProductException> increaseOrderStorageForMappedProducts = (map) -> {
-        map.keySet().forEach(productDetailId -> {
-            synchronized (productDetailRepo) {
-                getById.andThen(increaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
-            }
-        });
-    };
-
-    private ThrowingBiFunction<Integer, Integer, Integer, ProductException> calcNextStorageValue = (storage, decreaseBy) -> {
-        if (0 == storage)
-            throw new ProductException("product storage is empty");
-        Integer output = storage - decreaseBy;
-        if (output < 0)
-            throw new ProductException("product storage not enough");
-        return output;
-    };
-
-    private ThrowingBiConsumer<ProductDetail, Integer, ProductException> decreaseOrderStorage = (pd, decreaseBy) -> {
-        Integer apply = calcNextStorageValue.apply(pd.getOrderStorage(), decreaseBy);
-        log.info("after calc, new order storage value is " + apply);
-        pd.setOrderStorage(apply);
-        productDetailRepo.save(pd);
-    };
-
-
-    private ThrowingBiConsumer<ProductDetail, Integer, ProductException> decreaseActualStorage = (pd, decreaseBy) -> {
-        pd.setActualStorage(calcNextStorageValue.apply(pd.getActualStorage(), decreaseBy));
-        if (pd.getSales() == null) {
-            pd.setSales(decreaseBy);
+    public ThrowingBiConsumer<Map<String, String>, String, ProductException> increaseOrderStorageForMappedProducts = (map, optToken) -> {
+        if (optToken == null) {
+            map.keySet().forEach(productDetailId -> {
+                synchronized (productDetailRepo) {
+                    getById.andThen(increaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+                }
+            });
         } else {
-            pd.setSales(pd.getSales() + decreaseBy);
+            synchronized (changeRepo) {
+                Optional<ChangeRecord> byOptToken = changeRepo.findByOptToken(optToken);
+                if (byOptToken.isEmpty()) {
+                    ChangeRecord change = new ChangeRecord();
+                    change.setChangeField("actualStorage");
+                    change.setChangeType("decrease");
+                    change.setChangeValues(map);
+                    change.setOptToken(optToken);
+                    changeRepo.save(change);
+                    map.keySet().forEach(productDetailId -> {
+                        synchronized (productDetailRepo) {
+                            getById.andThen(increaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+                        }
+                    });
+                }
+            }
         }
-        productDetailRepo.save(pd);
+    };
+
+    public ThrowingBiConsumer<Map<String, String>, String, ProductException> decreaseOrderStorageForMappedProducts = (map, optToken) -> {
+        if (optToken == null) {
+            map.keySet().forEach(productDetailId -> {
+                synchronized (productDetailRepo) {
+                    getById.andThen(decreaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+                }
+            });
+        } else {
+            synchronized (changeRepo) {
+                Optional<ChangeRecord> byOptToken = changeRepo.findByOptToken(optToken);
+                if (byOptToken.isEmpty()) {
+                    ChangeRecord change = new ChangeRecord();
+                    change.setChangeField("orderStorage");
+                    change.setChangeType("decrease");
+                    change.setChangeValues(map);
+                    change.setOptToken(optToken);
+                    changeRepo.save(change);
+                    map.keySet().forEach(productDetailId -> {
+                        synchronized (productDetailRepo) {
+                            getById.andThen(decreaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+                        }
+                    });
+                }
+            }
+        }
     };
 
 
-    public ThrowingConsumer<Map<String, String>, ProductException> decreaseOrderStorageForMappedProducts = (map) -> {
-        map.keySet().forEach(productDetailId -> {
-            synchronized (productDetailRepo) {
-                getById.andThen(decreaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+    public ThrowingBiConsumer<Map<String, String>, String, ProductException> decreaseActualStorageForMappedProducts = (map, optToken) -> {
+        if (optToken == null) {
+            map.keySet().forEach(productDetailId -> {
+                synchronized (productDetailRepo) {
+                    getById.andThen(decreaseActualStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+                }
+            });
+        } else {
+            synchronized (changeRepo) {
+                Optional<ChangeRecord> byOptToken = changeRepo.findByOptToken(optToken);
+                if (byOptToken.isEmpty()) {
+                    ChangeRecord change = new ChangeRecord();
+                    change.setChangeField("actualStorage");
+                    change.setChangeType("decrease");
+                    change.setChangeValues(map);
+                    change.setOptToken(optToken);
+                    changeRepo.save(change);
+                    map.keySet().forEach(productDetailId -> {
+                        synchronized (productDetailRepo) {
+                            getById.andThen(decreaseActualStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+                        }
+                    });
+                }
             }
-        });
+        }
     };
 
-    public ThrowingConsumer<Map<String, String>, ProductException> decreaseActualStorageForMappedProducts = (map) -> {
-        map.keySet().forEach(productDetailId -> {
-            synchronized (productDetailRepo) {
-                getById.andThen(decreaseActualStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+    public ThrowingConsumer<String, ProductException> revoke = (optToken) -> {
+        Optional<ChangeRecord> byOptToken = changeRepo.findByOptToken(optToken);
+        if (byOptToken.isPresent()) {
+            ChangeRecord change = byOptToken.get();
+            String changeField = change.getChangeField();
+            String changeType = change.getChangeType();
+            Map<String, String> changeValue = change.getChangeValues();
+            if (changeField.equals("orderStorage")) {
+                if (changeType.equals("increase")) {
+                    decreaseOrderStorageForMappedProducts.accept(changeValue, null);
+                } else if (changeType.equals("decrease")) {
+                    increaseOrderStorageForMappedProducts.accept(changeValue, null);
+                } else {
+                    // do nothing
+                }
+
+            } else {
+                // do nothing
             }
-        });
+
+        }
     };
 
     private List<ProductSimple> extractProductSimple(Optional<List<ProductDetail>> productDetails) {
