@@ -1,5 +1,6 @@
 package com.hw.clazz;
 
+import com.hw.aggregate.product.exception.ProductException;
 import com.hw.shared.ErrorMessage;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

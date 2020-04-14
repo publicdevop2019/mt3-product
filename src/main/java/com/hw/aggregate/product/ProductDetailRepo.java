@@ -1,6 +1,6 @@
-package com.hw.repo;
+package com.hw.aggregate.product;
 
-import com.hw.entity.ProductDetail;
+import com.hw.aggregate.product.model.ProductDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,5 +17,5 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
     Page<ProductDetail> findProductByCategory(String categoryName, Pageable pageable);
 
     @Query("SELECT p FROM #{#entityName} as p WHERE p.name LIKE ?1%")
-    Optional<List<ProductDetail>> searchProductByName(String searchKey,Pageable pageable);
+    List<ProductDetail> searchProductByName(String searchKey,Pageable pageable);
 }

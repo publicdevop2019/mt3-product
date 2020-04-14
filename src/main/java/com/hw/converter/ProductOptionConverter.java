@@ -1,4 +1,7 @@
-package com.hw.clazz;
+package com.hw.converter;
+
+import com.hw.aggregate.product.model.OptionItem;
+import com.hw.aggregate.product.model.ProductOption;
 
 import javax.persistence.AttributeConverter;
 import java.util.ArrayList;
@@ -6,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ProductOptionMapper implements AttributeConverter<List<ProductOption>, String> {
+public class ProductOptionConverter implements AttributeConverter<List<ProductOption>, String> {
     @Override
     public String convertToDatabaseColumn(List<ProductOption> productOptions) {
         /**

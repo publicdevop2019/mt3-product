@@ -1,7 +1,7 @@
 package com.hw.service.unit;
 
-import com.hw.clazz.SortCriteriaEnum;
-import com.hw.clazz.SortOrderEnum;
+import com.hw.aggregate.product.model.SortCriteriaEnum;
+import com.hw.aggregate.product.model.SortOrderEnum;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

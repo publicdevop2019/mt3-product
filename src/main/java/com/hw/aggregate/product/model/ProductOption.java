@@ -1,4 +1,4 @@
-package com.hw.clazz;
+package com.hw.aggregate.product.model;
 
 import lombok.Data;
 
