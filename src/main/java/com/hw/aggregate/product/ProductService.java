@@ -160,12 +160,12 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public ProductDetailCustomRepresentation getProductByIdForCustomer(Long productDetailId) {
-        return new ProductDetailCustomRepresentation(productServiceLambda.getById.apply(productDetailId));
+        return new ProductDetailCustomRepresentation(productServiceLambda.getByIdReadOnly.apply(productDetailId));
     }
 
     @Transactional(readOnly = true)
     public ProductDetailAdminRepresentation getProductByIdForAdmin(Long productDetailId) {
-        return new ProductDetailAdminRepresentation(productServiceLambda.getById.apply(productDetailId));
+        return new ProductDetailAdminRepresentation(productServiceLambda.getByIdReadOnly.apply(productDetailId));
     }
 
     @Transactional
@@ -188,21 +188,24 @@ public class ProductService {
         productServiceLambda.delete(productDetailId.getId());
     }
 
-    public synchronized void decreaseOrderStorageForMappedProducts(DecreaseOrderStorageCommand command) {
-        productServiceLambdaTransactionalWrapper.decreaseOrderStorageForMappedProducts(command.getProductMap(), command.getOptToken());
+    @Transactional
+    public void decreaseActualStorageForMappedProducts(DecreaseActualStorageCommand command) {
+        productServiceLambda.decreaseActualStorageForMappedProducts.accept(command.getProductMap(), command.getOptToken());
     }
 
-    public synchronized void decreaseActualStorageForMappedProducts(DecreaseActualStorageCommand command) {
-        productServiceLambdaTransactionalWrapper.decreaseActualStorageForMappedProducts(command.getProductMap(), command.getOptToken());
+    @Transactional
+    public void decreaseOrderStorageForMappedProducts(DecreaseOrderStorageCommand command) {
+        productServiceLambda.decreaseOrderStorageForMappedProducts.accept(command.getProductMap(), command.getOptToken());
     }
 
-    public synchronized void increaseOrderStorageForMappedProducts(IncreaseOrderStorageCommand command) {
-        productServiceLambdaTransactionalWrapper.increaseOrderStorageForMappedProducts(command.getProductMap(), command.getOptToken());
+    @Transactional
+    public void increaseOrderStorageForMappedProducts(IncreaseOrderStorageCommand command) {
+        productServiceLambda.increaseOrderStorageForMappedProducts.accept(command.getProductMap(), command.getOptToken());
     }
 
-    public synchronized void revoke(RevokeRecordedChangeCommand command) {
-        productServiceLambdaTransactionalWrapper.revoke(command.getOptToken());
+    @Transactional
+    public void revoke(RevokeRecordedChangeCommand command) {
+        productServiceLambda.revoke.accept(command.getOptToken());
     }
-
 }
 

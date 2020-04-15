@@ -85,6 +85,9 @@ public class ProductDetail extends Auditable {
     @Convert(converter = StringSetConverter.class)
     private Set<String> specification;
 
+    @Version
+    private Integer version;
+
     public static ProductDetail create(String imageUrlSmall, String name, Integer orderStorage, Integer actualStorage,
                                        String description, String rate, BigDecimal price,
                                        Integer sales, String category, List<ProductOption> selectedOptions,

@@ -65,6 +65,13 @@ public class ProductServiceLambda {
     };
 
     public ThrowingFunction<Long, ProductDetail, ProductException> getById = (productDetailId) -> {
+        Optional<ProductDetail> findById = productDetailRepo.findByIdForUpdate(productDetailId);
+        if (findById.isEmpty())
+            throw new ProductException("productDetailId not found :: " + productDetailId);
+        return findById.get();
+    };
+
+    public ThrowingFunction<Long, ProductDetail, ProductException> getByIdReadOnly = (productDetailId) -> {
         Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
         if (findById.isEmpty())
             throw new ProductException("productDetailId not found :: " + productDetailId);
@@ -82,18 +89,15 @@ public class ProductServiceLambda {
                 getById.andThen(increaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
             });
         } else {
-            Optional<ChangeRecord> byOptToken = changeRepo.findByOptToken(optToken);
-            if (byOptToken.isEmpty()) {
-                ChangeRecord change = new ChangeRecord();
-                change.setChangeField("actualStorage");
-                change.setChangeType("decrease");
-                change.setChangeValues(map);
-                change.setOptToken(optToken);
-                changeRepo.save(change);
-                map.keySet().forEach(productDetailId -> {
-                    getById.andThen(increaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
-                });
-            }
+            ChangeRecord change = new ChangeRecord();
+            change.setChangeField("actualStorage");
+            change.setChangeType("decrease");
+            change.setChangeValues(map);
+            change.setOptToken(optToken);
+            map.keySet().forEach(productDetailId -> {
+                getById.andThen(increaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+            });
+            changeRepo.save(change);
         }
     };
 
@@ -103,18 +107,15 @@ public class ProductServiceLambda {
                 getById.andThen(decreaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
             });
         } else {
-            Optional<ChangeRecord> byOptToken = changeRepo.findByOptToken(optToken);
-            if (byOptToken.isEmpty()) {
-                ChangeRecord change = new ChangeRecord();
-                change.setChangeField("orderStorage");
-                change.setChangeType("decrease");
-                change.setChangeValues(map);
-                change.setOptToken(optToken);
-                changeRepo.save(change);
-                map.keySet().forEach(productDetailId -> {
-                    getById.andThen(decreaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
-                });
-            }
+            ChangeRecord change = new ChangeRecord();
+            change.setChangeField("orderStorage");
+            change.setChangeType("decrease");
+            change.setChangeValues(map);
+            change.setOptToken(optToken);
+            changeRepo.save(change);
+            map.keySet().forEach(productDetailId -> {
+                getById.andThen(decreaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+            });
         }
     };
 
@@ -125,20 +126,17 @@ public class ProductServiceLambda {
                 getById.andThen(decreaseActualStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
             });
         } else {
-            Optional<ChangeRecord> byOptToken = changeRepo.findByOptToken(optToken);
-            if (byOptToken.isEmpty()) {
-                ChangeRecord change = new ChangeRecord();
-                change.setChangeField("actualStorage");
-                change.setChangeType("decrease");
-                change.setChangeValues(map);
-                change.setOptToken(optToken);
-                changeRepo.save(change);
-                map.keySet().forEach(productDetailId -> {
-                    synchronized (productDetailRepo) {
-                        getById.andThen(decreaseActualStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
-                    }
-                });
-            }
+            ChangeRecord change = new ChangeRecord();
+            change.setChangeField("actualStorage");
+            change.setChangeType("decrease");
+            change.setChangeValues(map);
+            change.setOptToken(optToken);
+            changeRepo.save(change);
+            map.keySet().forEach(productDetailId -> {
+                synchronized (productDetailRepo) {
+                    getById.andThen(decreaseActualStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+                }
+            });
         }
     };
 

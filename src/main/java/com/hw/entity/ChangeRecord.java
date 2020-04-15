@@ -19,7 +19,7 @@ public class ChangeRecord extends Auditable {
     @Setter(AccessLevel.NONE)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String optToken;
 
     @Column(nullable = false)
