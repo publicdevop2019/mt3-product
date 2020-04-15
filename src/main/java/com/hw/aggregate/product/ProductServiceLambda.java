@@ -3,7 +3,6 @@ package com.hw.aggregate.product;
 import com.hw.aggregate.product.command.UpdateProductAdminCommand;
 import com.hw.aggregate.product.exception.NotEnoughActualStorageException;
 import com.hw.aggregate.product.exception.NotEnoughOrderStorageException;
-import com.hw.aggregate.product.exception.ProductException;
 import com.hw.aggregate.product.exception.ProductNotFoundException;
 import com.hw.aggregate.product.model.ProductDetail;
 import com.hw.entity.ChangeRecord;
@@ -42,7 +41,7 @@ public class ProductServiceLambda {
         productDetailRepo.save(productDetail);
     };
 
-    private ThrowingBiConsumer<ProductDetail, Integer, ProductException> decreaseOrderStorage = (pd, decreaseBy) -> {
+    private ThrowingBiConsumer<ProductDetail, Integer, NotEnoughOrderStorageException> decreaseOrderStorage = (pd, decreaseBy) -> {
         Integer apply = pd.getOrderStorage() - decreaseBy;
         log.info("after calc, new order storage value is " + apply);
         if (apply < 0)
@@ -52,7 +51,7 @@ public class ProductServiceLambda {
     };
 
 
-    private ThrowingBiConsumer<ProductDetail, Integer, ProductException> decreaseActualStorage = (pd, decreaseBy) -> {
+    private ThrowingBiConsumer<ProductDetail, Integer, RuntimeException> decreaseActualStorage = (pd, decreaseBy) -> {
         Integer apply = pd.getOrderStorage() - decreaseBy;
         if (apply < 0)
             throw new NotEnoughActualStorageException();
@@ -65,26 +64,21 @@ public class ProductServiceLambda {
         productDetailRepo.save(pd);
     };
 
-    public ThrowingFunction<Long, ProductDetail, ProductException> getById = (productDetailId) -> {
+    public ThrowingFunction<Long, ProductDetail, RuntimeException> getById = (productDetailId) -> {
         Optional<ProductDetail> findById = productDetailRepo.findByIdForUpdate(productDetailId);
         if (findById.isEmpty())
             throw new ProductNotFoundException();
         return findById.get();
     };
 
-    public ThrowingFunction<Long, ProductDetail, ProductException> getByIdReadOnly = (productDetailId) -> {
+    public ThrowingFunction<Long, ProductDetail, RuntimeException> getByIdReadOnly = (productDetailId) -> {
         Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
         if (findById.isEmpty())
             throw new ProductNotFoundException();
         return findById.get();
     };
 
-    public void delete(Long productDetailId) {
-        productDetailRepo.delete(getById.apply(productDetailId));
-    }
-
-
-    public ThrowingBiConsumer<Map<String, String>, String, ProductException> increaseOrderStorageForMappedProducts = (map, optToken) -> {
+    public ThrowingBiConsumer<Map<String, String>, String, RuntimeException> increaseOrderStorageForMappedProducts = (map, optToken) -> {
         SortedSet<String> keys = new TreeSet<>(map.keySet());
         keys.forEach(productDetailId -> {
             getById.andThen(increaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
@@ -99,7 +93,7 @@ public class ProductServiceLambda {
         }
     };
 
-    public ThrowingBiConsumer<Map<String, String>, String, ProductException> decreaseOrderStorageForMappedProducts = (map, optToken) -> {
+    public ThrowingBiConsumer<Map<String, String>, String, NotEnoughOrderStorageException> decreaseOrderStorageForMappedProducts = (map, optToken) -> {
         // sort key so deadlock will not happen
         SortedSet<String> keys = new TreeSet<>(map.keySet());
         keys.forEach(productDetailId -> {
@@ -116,7 +110,7 @@ public class ProductServiceLambda {
     };
 
 
-    public ThrowingBiConsumer<Map<String, String>, String, ProductException> decreaseActualStorageForMappedProducts = (map, optToken) -> {
+    public ThrowingBiConsumer<Map<String, String>, String, RuntimeException> decreaseActualStorageForMappedProducts = (map, optToken) -> {
         SortedSet<String> keys = new TreeSet<>(map.keySet());
         keys.forEach(productDetailId -> {
             getById.andThen(decreaseActualStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
@@ -131,7 +125,7 @@ public class ProductServiceLambda {
         }
     };
 
-    public ThrowingConsumer<String, ProductException> revoke = (optToken) -> {
+    public ThrowingConsumer<String, RuntimeException> revoke = (optToken) -> {
         Optional<ChangeRecord> byOptToken = changeRepo.findByOptToken(optToken);
         if (byOptToken.isPresent()) {
             ChangeRecord change = byOptToken.get();
@@ -154,7 +148,7 @@ public class ProductServiceLambda {
         }
     };
 
-    public ThrowingBiConsumer<ProductDetail, UpdateProductAdminCommand, ProductException> update = (old, next) -> {
+    public ThrowingBiConsumer<ProductDetail, UpdateProductAdminCommand, RuntimeException> update = (old, next) -> {
         Integer orderStorageCopied = old.getOrderStorage();
         Integer actualStorageCopied = old.getActualStorage();
         BeanUtils.copyProperties(next, old);

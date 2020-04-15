@@ -181,8 +181,8 @@ public class ProductService {
     }
 
     @Transactional
-    public void delete(DeleteProductAdminCommand productDetailId) {
-        productServiceLambda.delete(productDetailId.getId());
+    public void delete(DeleteProductAdminCommand command) {
+        productDetailRepo.deleteById(command.getId());
     }
 
     @Transactional
