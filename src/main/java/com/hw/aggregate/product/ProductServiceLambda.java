@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.function.BiConsumer;
 
 /**
@@ -84,59 +86,49 @@ public class ProductServiceLambda {
 
 
     public ThrowingBiConsumer<Map<String, String>, String, ProductException> increaseOrderStorageForMappedProducts = (map, optToken) -> {
-        if (optToken == null) {
-            map.keySet().forEach(productDetailId -> {
-                getById.andThen(increaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
-            });
-        } else {
+        SortedSet<String> keys = new TreeSet<>(map.keySet());
+        keys.forEach(productDetailId -> {
+            getById.andThen(increaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+        });
+        if (optToken != null) {
             ChangeRecord change = new ChangeRecord();
             change.setChangeField("actualStorage");
             change.setChangeType("decrease");
             change.setChangeValues(map);
             change.setOptToken(optToken);
-            map.keySet().forEach(productDetailId -> {
-                getById.andThen(increaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
-            });
             changeRepo.save(change);
         }
     };
 
     public ThrowingBiConsumer<Map<String, String>, String, ProductException> decreaseOrderStorageForMappedProducts = (map, optToken) -> {
-        if (optToken == null) {
-            map.keySet().forEach(productDetailId -> {
-                getById.andThen(decreaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
-            });
-        } else {
+        // sort key so deadlock will not happen
+        SortedSet<String> keys = new TreeSet<>(map.keySet());
+        keys.forEach(productDetailId -> {
+            getById.andThen(decreaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+        });
+        if (optToken != null) {
             ChangeRecord change = new ChangeRecord();
             change.setChangeField("orderStorage");
             change.setChangeType("decrease");
             change.setChangeValues(map);
             change.setOptToken(optToken);
             changeRepo.save(change);
-            map.keySet().forEach(productDetailId -> {
-                getById.andThen(decreaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
-            });
         }
     };
 
 
     public ThrowingBiConsumer<Map<String, String>, String, ProductException> decreaseActualStorageForMappedProducts = (map, optToken) -> {
-        if (optToken == null) {
-            map.keySet().forEach(productDetailId -> {
-                getById.andThen(decreaseActualStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
-            });
-        } else {
+        SortedSet<String> keys = new TreeSet<>(map.keySet());
+        keys.forEach(productDetailId -> {
+            getById.andThen(decreaseActualStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+        });
+        if (optToken != null) {
             ChangeRecord change = new ChangeRecord();
             change.setChangeField("actualStorage");
             change.setChangeType("decrease");
             change.setChangeValues(map);
             change.setOptToken(optToken);
             changeRepo.save(change);
-            map.keySet().forEach(productDetailId -> {
-                synchronized (productDetailRepo) {
-                    getById.andThen(decreaseActualStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
-                }
-            });
         }
     };
 
