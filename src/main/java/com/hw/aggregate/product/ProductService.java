@@ -1,7 +1,7 @@
 package com.hw.aggregate.product;
 
 import com.hw.aggregate.product.command.*;
-import com.hw.aggregate.product.exception.ProductException;
+import com.hw.aggregate.product.exception.CategoryNotFoundException;
 import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.*;
 import com.hw.service.CategoryService;
@@ -29,9 +29,6 @@ public class ProductService {
 
     @Autowired
     private ProductServiceLambda productServiceLambda;
-
-    @Autowired
-    private ProductServiceLambdaTransactionalWrapper productServiceLambdaTransactionalWrapper;
 
     @Autowired
     private CategoryService categoryService;
@@ -64,7 +61,7 @@ public class ProductService {
         }
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, finalSort);
         if (categoryService.getAll().stream().noneMatch(e -> e.getTitle().equals(categoryName)))
-            throw new ProductException("categoryName :: " + categoryName + " not found");
+            throw new CategoryNotFoundException();
         return new ProductCategorySummaryRepresentation(productDetailRepo.findProductByCategory(categoryName, pageRequest).getContent());
     }
 

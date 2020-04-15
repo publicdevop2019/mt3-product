@@ -1,12 +1,14 @@
 package com.hw.aggregate.product;
 
 import com.hw.aggregate.product.command.UpdateProductAdminCommand;
+import com.hw.aggregate.product.exception.NotEnoughActualStorageException;
+import com.hw.aggregate.product.exception.NotEnoughOrderStorageException;
 import com.hw.aggregate.product.exception.ProductException;
+import com.hw.aggregate.product.exception.ProductNotFoundException;
 import com.hw.aggregate.product.model.ProductDetail;
 import com.hw.entity.ChangeRecord;
 import com.hw.repo.ChangeRepo;
 import com.hw.shared.ThrowingBiConsumer;
-import com.hw.shared.ThrowingBiFunction;
 import com.hw.shared.ThrowingConsumer;
 import com.hw.shared.ThrowingFunction;
 import lombok.extern.slf4j.Slf4j;
@@ -35,29 +37,26 @@ public class ProductServiceLambda {
     @Autowired
     private ChangeRepo changeRepo;
 
-    private ThrowingBiFunction<Integer, Integer, Integer, ProductException> calcNextStorageValue = (storage, decreaseBy) -> {
-        if (0 == storage)
-            throw new ProductException("product storage is empty");
-        Integer output = storage - decreaseBy;
-        if (output < 0)
-            throw new ProductException("product storage not enough");
-        return output;
-    };
     private BiConsumer<ProductDetail, Integer> increaseOrderStorage = (productDetail, increaseBy) -> {
         productDetail.setOrderStorage(productDetail.getOrderStorage() + increaseBy);
         productDetailRepo.save(productDetail);
     };
 
     private ThrowingBiConsumer<ProductDetail, Integer, ProductException> decreaseOrderStorage = (pd, decreaseBy) -> {
-        Integer apply = calcNextStorageValue.apply(pd.getOrderStorage(), decreaseBy);
+        Integer apply = pd.getOrderStorage() - decreaseBy;
         log.info("after calc, new order storage value is " + apply);
+        if (apply < 0)
+            throw new NotEnoughOrderStorageException();
         pd.setOrderStorage(apply);
         productDetailRepo.save(pd);
     };
 
 
     private ThrowingBiConsumer<ProductDetail, Integer, ProductException> decreaseActualStorage = (pd, decreaseBy) -> {
-        pd.setActualStorage(calcNextStorageValue.apply(pd.getActualStorage(), decreaseBy));
+        Integer apply = pd.getOrderStorage() - decreaseBy;
+        if (apply < 0)
+            throw new NotEnoughActualStorageException();
+        pd.setActualStorage(apply);
         if (pd.getSales() == null) {
             pd.setSales(decreaseBy);
         } else {
@@ -69,14 +68,14 @@ public class ProductServiceLambda {
     public ThrowingFunction<Long, ProductDetail, ProductException> getById = (productDetailId) -> {
         Optional<ProductDetail> findById = productDetailRepo.findByIdForUpdate(productDetailId);
         if (findById.isEmpty())
-            throw new ProductException("productDetailId not found :: " + productDetailId);
+            throw new ProductNotFoundException();
         return findById.get();
     };
 
     public ThrowingFunction<Long, ProductDetail, ProductException> getByIdReadOnly = (productDetailId) -> {
         Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
         if (findById.isEmpty())
-            throw new ProductException("productDetailId not found :: " + productDetailId);
+            throw new ProductNotFoundException();
         return findById.get();
     };
 
@@ -163,13 +162,21 @@ public class ProductServiceLambda {
         old.setActualStorage(actualStorageCopied);
         if (next.getIncreaseOrderStorageBy() != null)
             old.setOrderStorage(old.getOrderStorage() + next.getIncreaseOrderStorageBy());
-        if (next.getDecreaseOrderStorageBy() != null)
-            old.setOrderStorage(old.getOrderStorage() - (next.getDecreaseOrderStorageBy()));
+        if (next.getDecreaseOrderStorageBy() != null) {
+            int i = old.getOrderStorage() - next.getDecreaseOrderStorageBy();
+            if (i < 0)
+                throw new NotEnoughOrderStorageException();
+            old.setOrderStorage(i);
+        }
 
         if (next.getIncreaseActualStorageBy() != null)
             old.setActualStorage(old.getActualStorage() + next.getIncreaseActualStorageBy());
-        if (next.getDecreaseActualStorageBy() != null)
-            old.setActualStorage(old.getActualStorage() - (next.getDecreaseActualStorageBy()));
+        if (next.getDecreaseActualStorageBy() != null) {
+            int i = old.getActualStorage() - next.getDecreaseActualStorageBy();
+            if (i < 0)
+                throw new NotEnoughActualStorageException();
+            old.setActualStorage(i);
+        }
         productDetailRepo.save(old);
     };
 
