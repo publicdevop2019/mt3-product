@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Service
-public class ProductService {
+public class ProductApplicationService {
 
     @Autowired
     private ProductDetailRepo productDetailRepo;

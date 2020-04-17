@@ -28,7 +28,7 @@ import java.util.function.BiConsumer;
 @Slf4j
 public class ProductServiceLambda {
     @Autowired
-    private ProductService productService;
+    private ProductApplicationService productService;
 
     @Autowired
     private ProductDetailRepo productDetailRepo;
@@ -85,8 +85,8 @@ public class ProductServiceLambda {
         });
         if (optToken != null) {
             ChangeRecord change = new ChangeRecord();
-            change.setChangeField("actualStorage");
-            change.setChangeType("decrease");
+            change.setChangeField("orderStorage");
+            change.setChangeType("increase");
             change.setChangeValues(map);
             change.setOptToken(optToken);
             changeRepo.save(change);
@@ -99,14 +99,12 @@ public class ProductServiceLambda {
         keys.forEach(productDetailId -> {
             getById.andThen(decreaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
         });
-        if (optToken != null) {
-            ChangeRecord change = new ChangeRecord();
-            change.setChangeField("orderStorage");
-            change.setChangeType("decrease");
-            change.setChangeValues(map);
-            change.setOptToken(optToken);
-            changeRepo.save(change);
-        }
+        ChangeRecord change = new ChangeRecord();
+        change.setChangeField("orderStorage");
+        change.setChangeType("decrease");
+        change.setChangeValues(map);
+        change.setOptToken(optToken);
+        changeRepo.save(change);
     };
 
 
@@ -115,14 +113,12 @@ public class ProductServiceLambda {
         keys.forEach(productDetailId -> {
             getById.andThen(decreaseActualStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
         });
-        if (optToken != null) {
-            ChangeRecord change = new ChangeRecord();
-            change.setChangeField("actualStorage");
-            change.setChangeType("decrease");
-            change.setChangeValues(map);
-            change.setOptToken(optToken);
-            changeRepo.save(change);
-        }
+        ChangeRecord change = new ChangeRecord();
+        change.setChangeField("actualStorage");
+        change.setChangeType("decrease");
+        change.setChangeValues(map);
+        change.setOptToken(optToken);
+        changeRepo.save(change);
     };
 
     public ThrowingConsumer<String, RuntimeException> revoke = (optToken) -> {
@@ -134,9 +130,9 @@ public class ProductServiceLambda {
             Map<String, String> changeValue = change.getChangeValues();
             if (changeField.equals("orderStorage")) {
                 if (changeType.equals("increase")) {
-                    decreaseOrderStorageForMappedProducts.accept(changeValue, null);
+                    decreaseOrderStorageForMappedProducts.accept(changeValue, optToken + "_revoke_increase");
                 } else if (changeType.equals("decrease")) {
-                    increaseOrderStorageForMappedProducts.accept(changeValue, null);
+                    increaseOrderStorageForMappedProducts.accept(changeValue, optToken + "_revoke_decrease");
                 } else {
                     // do nothing
                 }
