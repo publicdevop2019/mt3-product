@@ -52,7 +52,7 @@ public class ProductServiceLambda {
 
 
     private ThrowingBiConsumer<ProductDetail, Integer, RuntimeException> decreaseActualStorage = (pd, decreaseBy) -> {
-        Integer apply = pd.getOrderStorage() - decreaseBy;
+        Integer apply = pd.getActualStorage() - decreaseBy;
         if (apply < 0)
             throw new NotEnoughActualStorageException();
         pd.setActualStorage(apply);
