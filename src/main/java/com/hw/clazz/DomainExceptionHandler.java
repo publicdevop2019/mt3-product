@@ -28,6 +28,9 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
             ProductNotFoundException.class,
     })
     protected ResponseEntity<?> handle400Exception(RuntimeException ex, WebRequest request) {
-        return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+        ErrorMessage errorMessage = new ErrorMessage(ex);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Error-Id", errorMessage.errorId);
+        return handleExceptionInternal(ex, errorMessage, httpHeaders, HttpStatus.BAD_REQUEST, request);
     }
 }
