@@ -23,10 +23,6 @@ public class Category extends Auditable {
 
     @NotNull
     @Column(nullable = false)
-    private String url;
-
-    @NotNull
-    @Column(nullable = false)
     private String title;
 
 }
