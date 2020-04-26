@@ -38,7 +38,7 @@ public class ProductController {
      */
     @GetMapping("productDetails/search")
     public ResponseEntity<?> searchProduct(@RequestParam("key") String key, @RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
-        return ResponseEntity.ok(productService.searchProduct(key, pageNumber, pageSize));
+        return ResponseEntity.ok(productService.searchProduct(key, pageNumber, pageSize).getProductSearchRepresentations());
     }
 
     @PostMapping("productDetails/validate")
