@@ -6,6 +6,7 @@ import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.*;
 import com.hw.service.CategoryService;
 import com.hw.shared.BadRequestException;
+import com.hw.shared.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,6 +33,9 @@ public class ProductApplicationService {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private IdGenerator idGenerator;
 
     @Transactional(readOnly = true)
     public ProductTotalSummaryPaginatedRepresentation getAll(Integer pageNumber, Integer pageSize) {
@@ -167,7 +171,9 @@ public class ProductApplicationService {
 
     @Transactional
     public synchronized ProductCreatedRepresentation createProduct(CreateProductAdminCommand productDetail) {
-        ProductDetail productDetail1 = ProductDetail.create(productDetail.getImageUrlSmall(), productDetail.getName(), productDetail.getOrderStorage()
+        ProductDetail productDetail1 = ProductDetail.create(
+                idGenerator.getId(),
+                productDetail.getImageUrlSmall(), productDetail.getName(), productDetail.getOrderStorage()
                 , productDetail.getActualStorage(), productDetail.getDescription(),
                 productDetail.getRate(), productDetail.getPrice(), productDetail.getSales(),
                 productDetail.getCategory(), productDetail.getSelectedOptions(),

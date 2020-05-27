@@ -15,14 +15,11 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "product_simple")
-@Inheritance
-@SequenceGenerator(name = "productSimpleId_gen", sequenceName = "productSimpleId_gen", initialValue = 500000)
+@Table(name = "product_detail")
 @NoArgsConstructor
 public class ProductDetail extends Auditable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "productSimpleId_gen")
     private Long id;
 
     @Column
@@ -88,18 +85,19 @@ public class ProductDetail extends Auditable {
     @Version
     private Integer version;
 
-    public static ProductDetail create(String imageUrlSmall, String name, Integer orderStorage, Integer actualStorage,
+    public static ProductDetail create(Long id, String imageUrlSmall, String name, Integer orderStorage, Integer actualStorage,
                                        String description, String rate, BigDecimal price,
                                        Integer sales, String category, List<ProductOption> selectedOptions,
                                        Set<String> imageUrlLarge, Set<String> specification) {
-        return new ProductDetail(imageUrlSmall, name, orderStorage, actualStorage,
+        return new ProductDetail(id, imageUrlSmall, name, orderStorage, actualStorage,
                 description, rate, price, sales, category, selectedOptions, imageUrlLarge, specification);
     }
 
-    public ProductDetail(String imageUrlSmall, String name, Integer orderStorage, Integer actualStorage,
+    public ProductDetail(Long id, String imageUrlSmall, String name, Integer orderStorage, Integer actualStorage,
                          String description, String rate, BigDecimal price,
                          Integer sales, String category, List<ProductOption> selectedOptions,
                          Set<String> imageUrlLarge, Set<String> specification) {
+        this.id = id;
         this.imageUrlSmall = imageUrlSmall;
         this.name = name;
         this.orderStorage = orderStorage;

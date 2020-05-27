@@ -7,6 +7,7 @@ import com.hw.aggregate.product.exception.ProductNotFoundException;
 import com.hw.aggregate.product.model.ProductDetail;
 import com.hw.entity.ChangeRecord;
 import com.hw.repo.ChangeRepo;
+import com.hw.shared.IdGenerator;
 import com.hw.shared.ThrowingBiConsumer;
 import com.hw.shared.ThrowingConsumer;
 import com.hw.shared.ThrowingFunction;
@@ -35,6 +36,8 @@ public class ProductServiceLambda {
 
     @Autowired
     private ChangeRepo changeRepo;
+    @Autowired
+    private IdGenerator idGenerator;
 
     private BiConsumer<ProductDetail, Integer> increaseOrderStorage = (productDetail, increaseBy) -> {
         productDetail.setOrderStorage(productDetail.getOrderStorage() + increaseBy);
@@ -85,6 +88,7 @@ public class ProductServiceLambda {
         });
         if (optToken != null) {
             ChangeRecord change = new ChangeRecord();
+            change.setId(idGenerator.getId());
             change.setChangeField("orderStorage");
             change.setChangeType("increase");
             change.setChangeValues(map);
@@ -100,6 +104,7 @@ public class ProductServiceLambda {
             getById.andThen(decreaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
         });
         ChangeRecord change = new ChangeRecord();
+        change.setId(idGenerator.getId());
         change.setChangeField("orderStorage");
         change.setChangeType("decrease");
         change.setChangeValues(map);
@@ -114,6 +119,7 @@ public class ProductServiceLambda {
             getById.andThen(decreaseActualStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
         });
         ChangeRecord change = new ChangeRecord();
+        change.setId(idGenerator.getId());
         change.setChangeField("actualStorage");
         change.setChangeType("decrease");
         change.setChangeValues(map);
