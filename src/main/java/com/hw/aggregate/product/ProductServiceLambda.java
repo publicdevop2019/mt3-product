@@ -1,9 +1,7 @@
 package com.hw.aggregate.product;
 
 import com.hw.aggregate.product.command.UpdateProductAdminCommand;
-import com.hw.aggregate.product.exception.NotEnoughActualStorageException;
-import com.hw.aggregate.product.exception.NotEnoughOrderStorageException;
-import com.hw.aggregate.product.exception.ProductNotFoundException;
+import com.hw.aggregate.product.exception.*;
 import com.hw.aggregate.product.model.ProductDetail;
 import com.hw.entity.ChangeRecord;
 import com.hw.repo.ChangeRepo;
@@ -20,7 +18,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.function.BiConsumer;
 
 /**
  * Transactional will make all fields null
@@ -36,45 +33,34 @@ public class ProductServiceLambda {
 
     @Autowired
     private ChangeRepo changeRepo;
+
     @Autowired
     private IdGenerator idGenerator;
 
-    private BiConsumer<ProductDetail, Integer> increaseOrderStorage = (productDetail, increaseBy) -> {
-        productDetail.setOrderStorage(productDetail.getOrderStorage() + increaseBy);
-        productDetailRepo.save(productDetail);
+    private ThrowingBiConsumer<ProductDetail, Integer, OrderStorageIncreaseException> increaseOrderStorageNew = (pd, increaseBy) -> {
+        Integer integer = productDetailRepo.increaseOrderStorage(pd.getId(), increaseBy);
+        if (integer != 1)
+            throw new OrderStorageIncreaseException();
     };
 
-    private ThrowingBiConsumer<ProductDetail, Integer, NotEnoughOrderStorageException> decreaseOrderStorage = (pd, decreaseBy) -> {
-        Integer apply = pd.getOrderStorage() - decreaseBy;
-        log.info("after calc, new order storage value is " + apply);
-        if (apply < 0)
-            throw new NotEnoughOrderStorageException();
-        pd.setOrderStorage(apply);
-        productDetailRepo.save(pd);
+    private ThrowingBiConsumer<ProductDetail, Integer, OrderStorageDecreaseException> decreaseOrderStorageNew = (pd, decreaseBy) -> {
+        Integer integer = productDetailRepo.decreaseOrderStorage(pd.getId(), decreaseBy);
+        if (integer != 1)
+            throw new OrderStorageDecreaseException();
     };
 
-
-    private ThrowingBiConsumer<ProductDetail, Integer, RuntimeException> decreaseActualStorage = (pd, decreaseBy) -> {
-        Integer apply = pd.getActualStorage() - decreaseBy;
-        if (apply < 0)
-            throw new NotEnoughActualStorageException();
-        pd.setActualStorage(apply);
-        if (pd.getSales() == null) {
-            pd.setSales(decreaseBy);
-        } else {
-            pd.setSales(pd.getSales() + decreaseBy);
-        }
-        productDetailRepo.save(pd);
+    private ThrowingBiConsumer<ProductDetail, Integer, RuntimeException> decreaseActualStorageNew = (pd, decreaseBy) -> {
+        Integer integer = productDetailRepo.decreaseActualStorageAndIncreaseSales(pd.getId(), decreaseBy);
+        if (integer != 1)
+            throw new ActualStorageDecreaseException();
+    };
+    private ThrowingBiConsumer<ProductDetail, Integer, RuntimeException> increaseActualStorageNew = (pd, decreaseBy) -> {
+        Integer integer = productDetailRepo.increaseActualStorageAndDecreaseSales(pd.getId(), decreaseBy);
+        if (integer != 1)
+            throw new ActualStorageIncreaseException();
     };
 
     public ThrowingFunction<Long, ProductDetail, RuntimeException> getById = (productDetailId) -> {
-        Optional<ProductDetail> findById = productDetailRepo.findByIdForUpdate(productDetailId);
-        if (findById.isEmpty())
-            throw new ProductNotFoundException();
-        return findById.get();
-    };
-
-    public ThrowingFunction<Long, ProductDetail, RuntimeException> getByIdReadOnly = (productDetailId) -> {
         Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
         if (findById.isEmpty())
             throw new ProductNotFoundException();
@@ -84,7 +70,7 @@ public class ProductServiceLambda {
     public ThrowingBiConsumer<Map<String, String>, String, RuntimeException> increaseOrderStorageForMappedProducts = (map, optToken) -> {
         SortedSet<String> keys = new TreeSet<>(map.keySet());
         keys.forEach(productDetailId -> {
-            getById.andThen(increaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+            getById.andThen(increaseOrderStorageNew).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
         });
         if (optToken != null) {
             ChangeRecord change = new ChangeRecord();
@@ -97,12 +83,11 @@ public class ProductServiceLambda {
         }
     };
 
-    public ThrowingBiConsumer<Map<String, String>, String, NotEnoughOrderStorageException> decreaseOrderStorageForMappedProducts = (map, optToken) -> {
+    public ThrowingBiConsumer<Map<String, String>, String, OrderStorageDecreaseException> decreaseOrderStorageForMappedProducts = (map, optToken) -> {
         // sort key so deadlock will not happen
         SortedSet<String> keys = new TreeSet<>(map.keySet());
-        keys.forEach(productDetailId -> {
-            getById.andThen(decreaseOrderStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
-        });
+        keys.forEach(productDetailId ->
+                getById.andThen(decreaseOrderStorageNew).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId))));
         ChangeRecord change = new ChangeRecord();
         change.setId(idGenerator.getId());
         change.setChangeField("orderStorage");
@@ -116,12 +101,26 @@ public class ProductServiceLambda {
     public ThrowingBiConsumer<Map<String, String>, String, RuntimeException> decreaseActualStorageForMappedProducts = (map, optToken) -> {
         SortedSet<String> keys = new TreeSet<>(map.keySet());
         keys.forEach(productDetailId -> {
-            getById.andThen(decreaseActualStorage).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+            getById.andThen(decreaseActualStorageNew).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
         });
         ChangeRecord change = new ChangeRecord();
         change.setId(idGenerator.getId());
         change.setChangeField("actualStorage");
         change.setChangeType("decrease");
+        change.setChangeValues(map);
+        change.setOptToken(optToken);
+        changeRepo.save(change);
+    };
+
+    public ThrowingBiConsumer<Map<String, String>, String, RuntimeException> increaseActualStorageForMappedProducts = (map, optToken) -> {
+        SortedSet<String> keys = new TreeSet<>(map.keySet());
+        keys.forEach(productDetailId -> {
+            getById.andThen(increaseActualStorageNew).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
+        });
+        ChangeRecord change = new ChangeRecord();
+        change.setId(idGenerator.getId());
+        change.setChangeField("actualStorage");
+        change.setChangeType("increase");
         change.setChangeValues(map);
         change.setOptToken(optToken);
         changeRepo.save(change);
@@ -136,9 +135,21 @@ public class ProductServiceLambda {
             Map<String, String> changeValue = change.getChangeValues();
             if (changeField.equals("orderStorage")) {
                 if (changeType.equals("increase")) {
+                    log.info("revoke by decrease {}", changeField);
                     decreaseOrderStorageForMappedProducts.accept(changeValue, optToken + "_revoke_increase");
                 } else if (changeType.equals("decrease")) {
+                    log.info("revoke by increase {}", changeField);
                     increaseOrderStorageForMappedProducts.accept(changeValue, optToken + "_revoke_decrease");
+                } else {
+                    // do nothing
+                }
+
+            }
+            if (changeField.equals("actualStorage")) {
+                if (changeType.equals("increase")) {
+                    decreaseActualStorageForMappedProducts.accept(changeValue, optToken + "_revoke_increase");
+                } else if (changeType.equals("decrease")) {
+                    increaseActualStorageForMappedProducts.accept(changeValue, optToken + "_revoke_decrease");
                 } else {
                     // do nothing
                 }
@@ -149,7 +160,7 @@ public class ProductServiceLambda {
 
         }
     };
-
+    //@todo review this block, since strategy has changed
     public ThrowingBiConsumer<ProductDetail, UpdateProductAdminCommand, RuntimeException> update = (old, next) -> {
         Integer orderStorageCopied = old.getOrderStorage();
         Integer actualStorageCopied = old.getActualStorage();
@@ -161,7 +172,7 @@ public class ProductServiceLambda {
         if (next.getDecreaseOrderStorageBy() != null) {
             int i = old.getOrderStorage() - next.getDecreaseOrderStorageBy();
             if (i < 0)
-                throw new NotEnoughOrderStorageException();
+                throw new OrderStorageDecreaseException();
             old.setOrderStorage(i);
         }
 

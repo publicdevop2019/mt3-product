@@ -105,7 +105,7 @@ public class ProductDetail extends Auditable {
         this.description = description;
         this.rate = rate;
         this.price = price;
-        this.sales = sales;
+        this.sales = sales == null ? 0 : sales;
         this.category = category;
         this.selectedOptions = selectedOptions;
         this.imageUrlLarge = imageUrlLarge;

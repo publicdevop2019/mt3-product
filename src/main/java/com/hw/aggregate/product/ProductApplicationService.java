@@ -161,12 +161,12 @@ public class ProductApplicationService {
 
     @Transactional(readOnly = true)
     public ProductDetailCustomRepresentation getProductByIdForCustomer(Long productDetailId) {
-        return new ProductDetailCustomRepresentation(productServiceLambda.getByIdReadOnly.apply(productDetailId));
+        return new ProductDetailCustomRepresentation(productServiceLambda.getById.apply(productDetailId));
     }
 
     @Transactional(readOnly = true)
     public ProductDetailAdminRepresentation getProductByIdForAdmin(Long productDetailId) {
-        return new ProductDetailAdminRepresentation(productServiceLambda.getByIdReadOnly.apply(productDetailId));
+        return new ProductDetailAdminRepresentation(productServiceLambda.getById.apply(productDetailId));
     }
 
     @Transactional
@@ -208,6 +208,7 @@ public class ProductApplicationService {
 
     @Transactional
     public void revoke(RevokeRecordedChangeCommand command) {
+        log.info("start of revoke transaction {}", command.getOptToken());
         productServiceLambda.revoke.accept(command.getOptToken());
     }
 }

@@ -4,13 +4,11 @@ import com.hw.aggregate.product.model.ProductDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.LockModeType;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
@@ -21,7 +19,19 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
     @Query("SELECT p FROM #{#entityName} as p WHERE p.name LIKE ?1%")
     List<ProductDetail> searchProductByName(String searchKey, Pageable pageable);
 
-    @Lock(LockModeType.OPTIMISTIC_FORCE_INCREMENT)
-    @Query("SELECT p FROM #{#entityName} as p WHERE p.id = ?1")
-    Optional<ProductDetail> findByIdForUpdate(Long id);
+    @Modifying
+    @Query("UPDATE #{#entityName} as p SET p.orderStorage = p.orderStorage - ?2 WHERE p.id = ?1 AND p.orderStorage - ?2 >= 0")
+    Integer decreaseOrderStorage(Long id, Integer amountDecreased);
+
+    @Modifying
+    @Query("UPDATE #{#entityName} as p SET p.orderStorage = p.orderStorage + ?2 WHERE p.id = ?1")
+    Integer increaseOrderStorage(Long id, Integer amountIncreased);
+
+    @Modifying
+    @Query("UPDATE #{#entityName} as p SET p.actualStorage = p.actualStorage - ?2 , p.sales = p.sales + ?2 WHERE p.id = ?1 AND p.actualStorage - ?2 >= 0")
+    Integer decreaseActualStorageAndIncreaseSales(Long id, Integer amount);
+
+    @Modifying
+    @Query("UPDATE #{#entityName} as p SET p.actualStorage = p.actualStorage + ?2 , p.sales = p.sales - ?2 WHERE p.id = ?1 AND p.sales - ?2 >= 0")
+    Integer increaseActualStorageAndDecreaseSales(Long id, Integer amount);
 }
