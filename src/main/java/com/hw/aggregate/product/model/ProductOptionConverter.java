@@ -1,4 +1,4 @@
-package com.hw.converter;
+package com.hw.aggregate.product.model;
 
 import com.hw.aggregate.product.model.OptionItem;
 import com.hw.aggregate.product.model.ProductOption;

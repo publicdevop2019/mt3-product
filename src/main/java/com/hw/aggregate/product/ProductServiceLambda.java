@@ -3,8 +3,7 @@ package com.hw.aggregate.product;
 import com.hw.aggregate.product.command.UpdateProductAdminCommand;
 import com.hw.aggregate.product.exception.*;
 import com.hw.aggregate.product.model.ProductDetail;
-import com.hw.entity.TransactionRecord;
-import com.hw.repo.TransactionHistoryRepository;
+import com.hw.aggregate.product.model.TransactionRecord;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.ThrowingBiConsumer;
 import com.hw.shared.ThrowingConsumer;
@@ -73,7 +72,7 @@ public class ProductServiceLambda {
     };
 
     public ThrowingBiConsumer<Map<String, String>, String, RuntimeException> increaseOrderStorageForMappedProducts = (map, txId) -> {
-        if (txRepo.findByOptToken(txId + REVOKE).isPresent()) {
+        if (txRepo.findByTransactionId(txId + REVOKE).isPresent()) {
             throw new HangingTransactionException();
         }
         SortedSet<String> keys = new TreeSet<>(map.keySet());
@@ -92,7 +91,7 @@ public class ProductServiceLambda {
     };
 
     public ThrowingBiConsumer<Map<String, String>, String, OrderStorageDecreaseException> decreaseOrderStorageForMappedProducts = (map, txId) -> {
-        if (txRepo.findByOptToken(txId + REVOKE).isPresent()) {
+        if (txRepo.findByTransactionId(txId + REVOKE).isPresent()) {
             throw new HangingTransactionException();
         }
         // sort key so deadlock will not happen
@@ -110,7 +109,7 @@ public class ProductServiceLambda {
 
 
     public ThrowingBiConsumer<Map<String, String>, String, RuntimeException> decreaseActualStorageForMappedProducts = (map, txId) -> {
-        if (txRepo.findByOptToken(txId + REVOKE).isPresent()) {
+        if (txRepo.findByTransactionId(txId + REVOKE).isPresent()) {
             throw new HangingTransactionException();
         }
         SortedSet<String> keys = new TreeSet<>(map.keySet());
@@ -127,7 +126,7 @@ public class ProductServiceLambda {
     };
 
     public ThrowingBiConsumer<Map<String, String>, String, RuntimeException> increaseActualStorageForMappedProducts = (map, txId) -> {
-        if (txRepo.findByOptToken(txId + REVOKE).isPresent()) {
+        if (txRepo.findByTransactionId(txId + REVOKE).isPresent()) {
             throw new HangingTransactionException();
         }
         SortedSet<String> keys = new TreeSet<>(map.keySet());
@@ -144,7 +143,7 @@ public class ProductServiceLambda {
     };
 
     public ThrowingConsumer<String, RuntimeException> revoke = (txId) -> {
-        Optional<TransactionRecord> byOptToken = txRepo.findByOptToken(txId);
+        Optional<TransactionRecord> byOptToken = txRepo.findByTransactionId(txId);
         if (byOptToken.isPresent()) {
             TransactionRecord change = byOptToken.get();
             String changeField = change.getChangeField();
@@ -198,7 +197,7 @@ public class ProductServiceLambda {
         if (next.getDecreaseActualStorageBy() != null) {
             int i = old.getActualStorage() - next.getDecreaseActualStorageBy();
             if (i < 0)
-                throw new NotEnoughActualStorageException();
+                throw new ActualStorageDecreaseException();
             old.setActualStorage(i);
         }
         productDetailRepo.save(old);

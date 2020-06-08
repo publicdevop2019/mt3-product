@@ -1,4 +1,4 @@
-package com.hw.converter;
+package com.hw.aggregate.product.model;
 
 import javax.persistence.AttributeConverter;
 import java.util.Arrays;

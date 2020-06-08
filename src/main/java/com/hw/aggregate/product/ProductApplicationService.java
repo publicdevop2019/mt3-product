@@ -4,7 +4,7 @@ import com.hw.aggregate.product.command.*;
 import com.hw.aggregate.product.exception.CategoryNotFoundException;
 import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.*;
-import com.hw.service.CategoryService;
+import com.hw.aggregate.category.CategoryApplicationService;
 import com.hw.shared.BadRequestException;
 import com.hw.shared.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ public class ProductApplicationService {
     private ProductServiceLambda productServiceLambda;
 
     @Autowired
-    private CategoryService categoryService;
+    private CategoryApplicationService categoryService;
 
     @Autowired
     private IdGenerator idGenerator;
@@ -64,13 +64,13 @@ public class ProductApplicationService {
             throw new BadRequestException("unsupported sort order");
         }
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, finalSort);
-        if (categoryService.getAll().stream().noneMatch(e -> e.getTitle().equals(categoryName)))
+        if (categoryService.getAll().getCategoryList().stream().noneMatch(e -> e.getTitle().equals(categoryName)))
             throw new CategoryNotFoundException();
         return new ProductCategorySummaryRepresentation(productDetailRepo.findProductByCategory(categoryName, pageRequest).getContent());
     }
 
     @Transactional(readOnly = true)
-    public ProductValidationResultRepresentation validateProduct(List<ProductValidationRepresentation> products) {
+    public ProductValidationResultRepresentation validateProduct(List<ProductValidationCommand> products) {
         boolean containInvalidValue;
         if (products.stream().anyMatch(user_product -> {
             Optional<ProductDetail> byId = productDetailRepo.findById(Long.parseLong(user_product.getProductId()));

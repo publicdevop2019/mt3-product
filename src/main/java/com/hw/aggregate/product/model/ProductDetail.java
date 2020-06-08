@@ -1,8 +1,6 @@
 package com.hw.aggregate.product.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hw.converter.ProductOptionConverter;
-import com.hw.converter.StringSetConverter;
 import com.hw.shared.Auditable;
 import lombok.Data;
 import lombok.NoArgsConstructor;

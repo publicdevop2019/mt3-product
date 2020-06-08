@@ -1,4 +1,4 @@
-package com.hw.aggregate.product.representation;
+package com.hw.aggregate.product.command;
 
 import com.hw.aggregate.product.model.ProductOption;
 import lombok.Data;
@@ -10,7 +10,7 @@ import java.util.Objects;
  * copied from user-profile service
  */
 @Data
-public class ProductValidationRepresentation {
+public class ProductValidationCommand {
     private String name;
     private List<ProductOption> selectedOptions;
     private String finalPrice;
@@ -21,7 +21,7 @@ public class ProductValidationRepresentation {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ProductValidationRepresentation product = (ProductValidationRepresentation) o;
+        ProductValidationCommand product = (ProductValidationCommand) o;
         return Objects.equals(name, product.name) &&
                 /**
                  * use deepEquals for JPA persistentBag workaround, otherwise equals will return incorrect result

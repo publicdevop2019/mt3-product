@@ -1,9 +1,6 @@
-package com.hw.clazz;
+package com.hw.config;
 
-import com.hw.aggregate.product.exception.CategoryNotFoundException;
-import com.hw.aggregate.product.exception.NotEnoughActualStorageException;
-import com.hw.aggregate.product.exception.OrderStorageDecreaseException;
-import com.hw.aggregate.product.exception.ProductNotFoundException;
+import com.hw.aggregate.product.exception.*;
 import com.hw.shared.ErrorMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -16,6 +13,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import static com.hw.shared.AppConstant.HTTP_HEADER_ERROR_ID;
+
 @Slf4j
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -23,14 +22,26 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {
             CategoryNotFoundException.class,
-            NotEnoughActualStorageException.class,
+            ActualStorageDecreaseException.class,
             OrderStorageDecreaseException.class,
             ProductNotFoundException.class,
     })
     protected ResponseEntity<?> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set("Error-Id", errorMessage.getErrorId());
+        httpHeaders.set(HTTP_HEADER_ERROR_ID, errorMessage.getErrorId());
         return handleExceptionInternal(ex, errorMessage, httpHeaders, HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value = {
+            OrderStorageIncreaseException.class,
+            ActualStorageIncreaseException.class,
+            HangingTransactionException.class,
+    })
+    protected ResponseEntity<Object> handle500Exception(RuntimeException ex, WebRequest request) {
+        ErrorMessage errorMessage = new ErrorMessage(ex);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set(HTTP_HEADER_ERROR_ID, errorMessage.getErrorId());
+        return handleExceptionInternal(ex, errorMessage, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 }

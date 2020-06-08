@@ -1,7 +1,7 @@
 package com.hw.aggregate.product;
 
 import com.hw.aggregate.product.command.*;
-import com.hw.aggregate.product.representation.ProductValidationRepresentation;
+import com.hw.aggregate.product.command.ProductValidationCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +42,7 @@ public class ProductController {
     }
 
     @PostMapping("productDetails/validate")
-    public ResponseEntity<?> validateProduct(@RequestBody List<ProductValidationRepresentation> products) {
+    public ResponseEntity<?> validateProduct(@RequestBody List<ProductValidationCommand> products) {
         return ResponseEntity.ok(productService.validateProduct(products).getResult());
     }
 

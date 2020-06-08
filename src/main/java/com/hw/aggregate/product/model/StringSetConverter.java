@@ -1,4 +1,4 @@
-package com.hw.converter;
+package com.hw.aggregate.product.model;
 
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;

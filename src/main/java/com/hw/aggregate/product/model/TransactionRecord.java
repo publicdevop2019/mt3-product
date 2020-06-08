@@ -1,6 +1,5 @@
-package com.hw.entity;
+package com.hw.aggregate.product.model;
 
-import com.hw.converter.MapConverter;
 import com.hw.shared.Auditable;
 import lombok.Data;
 

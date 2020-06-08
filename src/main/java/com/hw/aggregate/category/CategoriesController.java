@@ -1,7 +1,7 @@
-package com.hw.controller;
+package com.hw.aggregate.category;
 
-import com.hw.entity.Category;
-import com.hw.service.CategoryService;
+import com.hw.aggregate.category.command.CreateCategoryCommand;
+import com.hw.aggregate.category.command.UpdateCategoryCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 public class CategoriesController {
 
     @Autowired
-    private CategoryService categoryService;
+    private CategoryApplicationService categoryService;
 
     @GetMapping("categories")
     public ResponseEntity<?> getCategoryList() {
@@ -20,14 +20,14 @@ public class CategoriesController {
 
 
     @PostMapping("categories")
-    public ResponseEntity<?> createCategory(@RequestBody Category category) {
-        return ResponseEntity.ok().header("Location", categoryService.create(category)).build();
+    public ResponseEntity<?> createCategory(@RequestBody CreateCategoryCommand command) {
+        return ResponseEntity.ok().header("Location", categoryService.create(command).getId().toString()).build();
     }
 
 
     @PutMapping("categories/{categoryId}")
-    public ResponseEntity<?> updateCategory(@PathVariable(name = "categoryId") Long categoryId, @RequestBody Category newCategory) {
-        categoryService.update(categoryId, newCategory);
+    public ResponseEntity<?> updateCategory(@PathVariable(name = "categoryId") Long categoryId, @RequestBody UpdateCategoryCommand command) {
+        categoryService.update(categoryId, command);
         return ResponseEntity.ok().build();
     }
 
