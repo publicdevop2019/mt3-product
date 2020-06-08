@@ -80,28 +80,28 @@ public class ProductController {
     }
 
     @PutMapping("productDetails/decreaseStorageBy")
-    public ResponseEntity<?> decreaseOrderStorage(@RequestBody Map<String, String> productMap, @RequestParam(name = "optToken") String optToken) {
-        productService.decreaseOrderStorageForMappedProducts(new DecreaseOrderStorageCommand(productMap, optToken));
+    public ResponseEntity<?> decreaseOrderStorage(@RequestBody Map<String, String> productMap, @RequestParam(name = "optToken") String txId) {
+        productService.decreaseOrderStorageForMappedProducts(new DecreaseOrderStorageCommand(productMap, txId));
         return ResponseEntity.ok().build();
     }
 
 
     @PutMapping("productDetails/sold")
-    public ResponseEntity<?> decreaseActualStorage(@RequestBody Map<String, String> productMap, @RequestParam(name = "optToken") String optToken) {
-        productService.decreaseActualStorageForMappedProducts(new DecreaseActualStorageCommand(productMap, optToken));
+    public ResponseEntity<?> decreaseActualStorage(@RequestBody Map<String, String> productMap, @RequestParam(name = "optToken") String txId) {
+        productService.decreaseActualStorageForMappedProducts(new DecreaseActualStorageCommand(productMap, txId));
         return ResponseEntity.ok().build();
     }
 
 
     @PutMapping("productDetails/increaseStorageBy")
-    public ResponseEntity<?> increaseOrderStorage(@RequestBody Map<String, String> productMap, @RequestParam(name = "optToken") String optToken) {
-        productService.increaseOrderStorageForMappedProducts(new IncreaseOrderStorageCommand(productMap, optToken));
+    public ResponseEntity<?> increaseOrderStorage(@RequestBody Map<String, String> productMap, @RequestParam(name = "optToken") String txId) {
+        productService.increaseOrderStorageForMappedProducts(new IncreaseOrderStorageCommand(productMap, txId));
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("productDetails/revoke")
-    public ResponseEntity<?> revoke(@RequestParam(name = "optToken") String optToken) {
-        productService.revoke(new RevokeRecordedChangeCommand(optToken));
+    public ResponseEntity<?> revoke(@RequestParam(name = "optToken") String txId) {
+        productService.revoke(new RevokeRecordedChangeCommand(txId));
         return ResponseEntity.ok().build();
     }
 }

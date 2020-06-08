@@ -4,7 +4,7 @@ import com.hw.aggregate.product.command.UpdateProductAdminCommand;
 import com.hw.aggregate.product.exception.*;
 import com.hw.aggregate.product.model.ProductDetail;
 import com.hw.entity.ChangeRecord;
-import com.hw.repo.ChangeRepo;
+import com.hw.repo.TransactionHistoryRepository;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.ThrowingBiConsumer;
 import com.hw.shared.ThrowingConsumer;
@@ -19,8 +19,13 @@ import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import static com.hw.aggregate.product.model.AppConstant.*;
+
 /**
- * Transactional will make all fields null
+ * @note Transactional will make all fields null
+ * @note what if rollback request reached first then change request reached ?
+ * resource will be changed however this change should not happen.
+ * solution: store each transaction in a table, check if rollback exit before execute change
  */
 @Service
 @Slf4j
@@ -32,7 +37,7 @@ public class ProductServiceLambda {
     private ProductDetailRepo productDetailRepo;
 
     @Autowired
-    private ChangeRepo changeRepo;
+    private TransactionHistoryRepository txRepo;
 
     @Autowired
     private IdGenerator idGenerator;
@@ -67,89 +72,101 @@ public class ProductServiceLambda {
         return findById.get();
     };
 
-    public ThrowingBiConsumer<Map<String, String>, String, RuntimeException> increaseOrderStorageForMappedProducts = (map, optToken) -> {
+    public ThrowingBiConsumer<Map<String, String>, String, RuntimeException> increaseOrderStorageForMappedProducts = (map, txId) -> {
+        if (txRepo.findByOptToken(txId + REVOKE).isPresent()) {
+            throw new HangingTransactionException();
+        }
         SortedSet<String> keys = new TreeSet<>(map.keySet());
         keys.forEach(productDetailId -> {
             getById.andThen(increaseOrderStorageNew).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
         });
-        if (optToken != null) {
+        if (txId != null) {
             ChangeRecord change = new ChangeRecord();
             change.setId(idGenerator.getId());
-            change.setChangeField("orderStorage");
-            change.setChangeType("increase");
+            change.setChangeField(ORDER_STORAGE);
+            change.setChangeType(INCREASE);
             change.setChangeValues(map);
-            change.setOptToken(optToken);
-            changeRepo.save(change);
+            change.setOptToken(txId);
+            txRepo.save(change);
         }
     };
 
-    public ThrowingBiConsumer<Map<String, String>, String, OrderStorageDecreaseException> decreaseOrderStorageForMappedProducts = (map, optToken) -> {
+    public ThrowingBiConsumer<Map<String, String>, String, OrderStorageDecreaseException> decreaseOrderStorageForMappedProducts = (map, txId) -> {
+        if (txRepo.findByOptToken(txId + REVOKE).isPresent()) {
+            throw new HangingTransactionException();
+        }
         // sort key so deadlock will not happen
         SortedSet<String> keys = new TreeSet<>(map.keySet());
         keys.forEach(productDetailId ->
                 getById.andThen(decreaseOrderStorageNew).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId))));
         ChangeRecord change = new ChangeRecord();
         change.setId(idGenerator.getId());
-        change.setChangeField("orderStorage");
-        change.setChangeType("decrease");
+        change.setChangeField(ORDER_STORAGE);
+        change.setChangeType(DECREASE);
         change.setChangeValues(map);
-        change.setOptToken(optToken);
-        changeRepo.save(change);
+        change.setOptToken(txId);
+        txRepo.save(change);
     };
 
 
-    public ThrowingBiConsumer<Map<String, String>, String, RuntimeException> decreaseActualStorageForMappedProducts = (map, optToken) -> {
+    public ThrowingBiConsumer<Map<String, String>, String, RuntimeException> decreaseActualStorageForMappedProducts = (map, txId) -> {
+        if (txRepo.findByOptToken(txId + REVOKE).isPresent()) {
+            throw new HangingTransactionException();
+        }
         SortedSet<String> keys = new TreeSet<>(map.keySet());
         keys.forEach(productDetailId -> {
             getById.andThen(decreaseActualStorageNew).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
         });
         ChangeRecord change = new ChangeRecord();
         change.setId(idGenerator.getId());
-        change.setChangeField("actualStorage");
-        change.setChangeType("decrease");
+        change.setChangeField(ACTUAL_STORAGE);
+        change.setChangeType(DECREASE);
         change.setChangeValues(map);
-        change.setOptToken(optToken);
-        changeRepo.save(change);
+        change.setOptToken(txId);
+        txRepo.save(change);
     };
 
-    public ThrowingBiConsumer<Map<String, String>, String, RuntimeException> increaseActualStorageForMappedProducts = (map, optToken) -> {
+    public ThrowingBiConsumer<Map<String, String>, String, RuntimeException> increaseActualStorageForMappedProducts = (map, txId) -> {
+        if (txRepo.findByOptToken(txId + REVOKE).isPresent()) {
+            throw new HangingTransactionException();
+        }
         SortedSet<String> keys = new TreeSet<>(map.keySet());
         keys.forEach(productDetailId -> {
             getById.andThen(increaseActualStorageNew).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
         });
         ChangeRecord change = new ChangeRecord();
         change.setId(idGenerator.getId());
-        change.setChangeField("actualStorage");
-        change.setChangeType("increase");
+        change.setChangeField(ACTUAL_STORAGE);
+        change.setChangeType(INCREASE);
         change.setChangeValues(map);
-        change.setOptToken(optToken);
-        changeRepo.save(change);
+        change.setOptToken(txId);
+        txRepo.save(change);
     };
 
-    public ThrowingConsumer<String, RuntimeException> revoke = (optToken) -> {
-        Optional<ChangeRecord> byOptToken = changeRepo.findByOptToken(optToken);
+    public ThrowingConsumer<String, RuntimeException> revoke = (txId) -> {
+        Optional<ChangeRecord> byOptToken = txRepo.findByOptToken(txId);
         if (byOptToken.isPresent()) {
             ChangeRecord change = byOptToken.get();
             String changeField = change.getChangeField();
             String changeType = change.getChangeType();
             Map<String, String> changeValue = change.getChangeValues();
-            if (changeField.equals("orderStorage")) {
-                if (changeType.equals("increase")) {
+            if (changeField.equals(ORDER_STORAGE)) {
+                if (changeType.equals(INCREASE)) {
                     log.info("revoke by decrease {}", changeField);
-                    decreaseOrderStorageForMappedProducts.accept(changeValue, optToken + "_revoke_increase");
-                } else if (changeType.equals("decrease")) {
+                    decreaseOrderStorageForMappedProducts.accept(changeValue, txId + REVOKE);
+                } else if (changeType.equals(DECREASE)) {
                     log.info("revoke by increase {}", changeField);
-                    increaseOrderStorageForMappedProducts.accept(changeValue, optToken + "_revoke_decrease");
+                    increaseOrderStorageForMappedProducts.accept(changeValue, txId + REVOKE);
                 } else {
                     // do nothing
                 }
 
             }
-            if (changeField.equals("actualStorage")) {
-                if (changeType.equals("increase")) {
-                    decreaseActualStorageForMappedProducts.accept(changeValue, optToken + "_revoke_increase");
-                } else if (changeType.equals("decrease")) {
-                    increaseActualStorageForMappedProducts.accept(changeValue, optToken + "_revoke_decrease");
+            if (changeField.equals(ACTUAL_STORAGE)) {
+                if (changeType.equals(INCREASE)) {
+                    decreaseActualStorageForMappedProducts.accept(changeValue, txId + REVOKE);
+                } else if (changeType.equals(DECREASE)) {
+                    increaseActualStorageForMappedProducts.accept(changeValue, txId + REVOKE);
                 } else {
                     // do nothing
                 }

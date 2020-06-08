@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface ChangeRepo extends JpaRepository<ChangeRecord, Long> {
+public interface TransactionHistoryRepository extends JpaRepository<ChangeRecord, Long> {
     Optional<ChangeRecord> findByOptToken(String optToken);
 }
