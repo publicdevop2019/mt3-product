@@ -10,12 +10,12 @@ import java.util.Map;
 @Entity
 @Table
 @Data
-public class ChangeRecord extends Auditable {
+public class TransactionRecord extends Auditable {
     @Id
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String optToken;
+    private String transactionId;
 
     @Column(nullable = false)
     private String changeField;

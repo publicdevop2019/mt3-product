@@ -3,7 +3,7 @@ package com.hw.aggregate.product;
 import com.hw.aggregate.product.command.UpdateProductAdminCommand;
 import com.hw.aggregate.product.exception.*;
 import com.hw.aggregate.product.model.ProductDetail;
-import com.hw.entity.ChangeRecord;
+import com.hw.entity.TransactionRecord;
 import com.hw.repo.TransactionHistoryRepository;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.ThrowingBiConsumer;
@@ -81,12 +81,12 @@ public class ProductServiceLambda {
             getById.andThen(increaseOrderStorageNew).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
         });
         if (txId != null) {
-            ChangeRecord change = new ChangeRecord();
+            TransactionRecord change = new TransactionRecord();
             change.setId(idGenerator.getId());
             change.setChangeField(ORDER_STORAGE);
             change.setChangeType(INCREASE);
             change.setChangeValues(map);
-            change.setOptToken(txId);
+            change.setTransactionId(txId);
             txRepo.save(change);
         }
     };
@@ -99,12 +99,12 @@ public class ProductServiceLambda {
         SortedSet<String> keys = new TreeSet<>(map.keySet());
         keys.forEach(productDetailId ->
                 getById.andThen(decreaseOrderStorageNew).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId))));
-        ChangeRecord change = new ChangeRecord();
+        TransactionRecord change = new TransactionRecord();
         change.setId(idGenerator.getId());
         change.setChangeField(ORDER_STORAGE);
         change.setChangeType(DECREASE);
         change.setChangeValues(map);
-        change.setOptToken(txId);
+        change.setTransactionId(txId);
         txRepo.save(change);
     };
 
@@ -117,13 +117,13 @@ public class ProductServiceLambda {
         keys.forEach(productDetailId -> {
             getById.andThen(decreaseActualStorageNew).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
         });
-        ChangeRecord change = new ChangeRecord();
-        change.setId(idGenerator.getId());
-        change.setChangeField(ACTUAL_STORAGE);
-        change.setChangeType(DECREASE);
-        change.setChangeValues(map);
-        change.setOptToken(txId);
-        txRepo.save(change);
+        TransactionRecord tx = new TransactionRecord();
+        tx.setId(idGenerator.getId());
+        tx.setChangeField(ACTUAL_STORAGE);
+        tx.setChangeType(DECREASE);
+        tx.setChangeValues(map);
+        tx.setTransactionId(txId);
+        txRepo.save(tx);
     };
 
     public ThrowingBiConsumer<Map<String, String>, String, RuntimeException> increaseActualStorageForMappedProducts = (map, txId) -> {
@@ -134,19 +134,19 @@ public class ProductServiceLambda {
         keys.forEach(productDetailId -> {
             getById.andThen(increaseActualStorageNew).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
         });
-        ChangeRecord change = new ChangeRecord();
+        TransactionRecord change = new TransactionRecord();
         change.setId(idGenerator.getId());
         change.setChangeField(ACTUAL_STORAGE);
         change.setChangeType(INCREASE);
         change.setChangeValues(map);
-        change.setOptToken(txId);
+        change.setTransactionId(txId);
         txRepo.save(change);
     };
 
     public ThrowingConsumer<String, RuntimeException> revoke = (txId) -> {
-        Optional<ChangeRecord> byOptToken = txRepo.findByOptToken(txId);
+        Optional<TransactionRecord> byOptToken = txRepo.findByOptToken(txId);
         if (byOptToken.isPresent()) {
-            ChangeRecord change = byOptToken.get();
+            TransactionRecord change = byOptToken.get();
             String changeField = change.getChangeField();
             String changeType = change.getChangeType();
             Map<String, String> changeValue = change.getChangeValues();
