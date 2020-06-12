@@ -5,13 +5,14 @@ import lombok.Data;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 @Data
-public class CategorySummaryRepresentation {
+public class CategorySummaryAdminRepresentation {
 
     private List<CategorySummaryCardRepresentation> categoryList;
 
-    public CategorySummaryRepresentation(List<Category> categoryList) {
-        this.categoryList = categoryList.stream().map(CategorySummaryRepresentation.CategorySummaryCardRepresentation::new).collect(Collectors.toList());
+    public CategorySummaryAdminRepresentation(List<Category> categoryList) {
+        this.categoryList = categoryList.stream().map(CategorySummaryAdminRepresentation.CategorySummaryCardRepresentation::new).collect(Collectors.toList());
     }
 
     @Data

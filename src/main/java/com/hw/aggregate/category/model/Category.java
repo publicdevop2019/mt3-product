@@ -7,6 +7,7 @@ import com.hw.aggregate.category.exception.CategoryNotFoundException;
 import com.hw.shared.Auditable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,6 +20,7 @@ import java.util.Optional;
 @Table(name = "Category")
 @Data
 @EqualsAndHashCode(callSuper = false)
+@NoArgsConstructor
 public class Category extends Auditable {
 
     @Id

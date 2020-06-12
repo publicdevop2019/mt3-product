@@ -4,7 +4,7 @@ import com.hw.aggregate.category.command.CreateCategoryCommand;
 import com.hw.aggregate.category.command.UpdateCategoryCommand;
 import com.hw.aggregate.category.model.Category;
 import com.hw.aggregate.category.representation.CategoryRepresentation;
-import com.hw.aggregate.category.representation.CategorySummaryRepresentation;
+import com.hw.aggregate.category.representation.CategorySummaryCustomerRepresentation;
 import com.hw.shared.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +20,8 @@ public class CategoryApplicationService {
     @Autowired
     private IdGenerator idGenerator;
 
-    public CategorySummaryRepresentation getAll() {
-        return new CategorySummaryRepresentation(categoryRepo.findAll());
+    public CategorySummaryCustomerRepresentation getAll() {
+        return new CategorySummaryCustomerRepresentation(categoryRepo.findAll());
     }
 
     public CategoryRepresentation create(CreateCategoryCommand command) {
