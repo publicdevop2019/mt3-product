@@ -15,8 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 import static com.hw.aggregate.product.model.AppConstant.*;
 
@@ -75,8 +74,8 @@ public class ProductServiceLambda {
         if (txRepo.findByTransactionId(txId + REVOKE).isPresent()) {
             throw new HangingTransactionException();
         }
-        SortedSet<String> keys = new TreeSet<>(map.keySet());
-        keys.forEach(productDetailId -> {
+        Map<String, String> treeMap = new TreeMap<>(map);
+        treeMap.keySet().forEach(productDetailId -> {
             getById.andThen(increaseOrderStorageNew).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
         });
         if (txId != null) {
@@ -84,7 +83,7 @@ public class ProductServiceLambda {
             change.setId(idGenerator.getId());
             change.setChangeField(ORDER_STORAGE);
             change.setChangeType(INCREASE);
-            change.setChangeValues(map);
+            change.setChangeValues(treeMap);
             change.setTransactionId(txId);
             txRepo.save(change);
         }
@@ -95,14 +94,14 @@ public class ProductServiceLambda {
             throw new HangingTransactionException();
         }
         // sort key so deadlock will not happen
-        SortedSet<String> keys = new TreeSet<>(map.keySet());
-        keys.forEach(productDetailId ->
+        Map<String, String> treeMap = new TreeMap<>(map);
+        treeMap.keySet().forEach(productDetailId ->
                 getById.andThen(decreaseOrderStorageNew).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId))));
         TransactionRecord change = new TransactionRecord();
         change.setId(idGenerator.getId());
         change.setChangeField(ORDER_STORAGE);
         change.setChangeType(DECREASE);
-        change.setChangeValues(map);
+        change.setChangeValues(treeMap);
         change.setTransactionId(txId);
         txRepo.save(change);
     };
@@ -112,15 +111,15 @@ public class ProductServiceLambda {
         if (txRepo.findByTransactionId(txId + REVOKE).isPresent()) {
             throw new HangingTransactionException();
         }
-        SortedSet<String> keys = new TreeSet<>(map.keySet());
-        keys.forEach(productDetailId -> {
+        Map<String, String> treeMap = new TreeMap<>(map);
+        treeMap.keySet().forEach(productDetailId -> {
             getById.andThen(decreaseActualStorageNew).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
         });
         TransactionRecord tx = new TransactionRecord();
         tx.setId(idGenerator.getId());
         tx.setChangeField(ACTUAL_STORAGE);
         tx.setChangeType(DECREASE);
-        tx.setChangeValues(map);
+        tx.setChangeValues(treeMap);
         tx.setTransactionId(txId);
         txRepo.save(tx);
     };
@@ -129,15 +128,15 @@ public class ProductServiceLambda {
         if (txRepo.findByTransactionId(txId + REVOKE).isPresent()) {
             throw new HangingTransactionException();
         }
-        SortedSet<String> keys = new TreeSet<>(map.keySet());
-        keys.forEach(productDetailId -> {
+        Map<String, String> treeMap = new TreeMap<>(map);
+        treeMap.keySet().forEach(productDetailId -> {
             getById.andThen(increaseActualStorageNew).accept(Long.parseLong(productDetailId), Integer.parseInt(map.get(productDetailId)));
         });
         TransactionRecord change = new TransactionRecord();
         change.setId(idGenerator.getId());
         change.setChangeField(ACTUAL_STORAGE);
         change.setChangeType(INCREASE);
-        change.setChangeValues(map);
+        change.setChangeValues(treeMap);
         change.setTransactionId(txId);
         txRepo.save(change);
     };
@@ -151,10 +150,10 @@ public class ProductServiceLambda {
             Map<String, String> changeValue = change.getChangeValues();
             if (changeField.equals(ORDER_STORAGE)) {
                 if (changeType.equals(INCREASE)) {
-                    log.info("revoke by decrease {}", changeField);
+                    log.info("revoke orderStorage by decrease {}", changeField);
                     decreaseOrderStorageForMappedProducts.accept(changeValue, txId + REVOKE);
                 } else if (changeType.equals(DECREASE)) {
-                    log.info("revoke by increase {}", changeField);
+                    log.info("revoke orderStorage by increase {}", changeField);
                     increaseOrderStorageForMappedProducts.accept(changeValue, txId + REVOKE);
                 } else {
                     // do nothing
@@ -163,8 +162,10 @@ public class ProductServiceLambda {
             }
             if (changeField.equals(ACTUAL_STORAGE)) {
                 if (changeType.equals(INCREASE)) {
+                    log.info("revoke actualStorage by decrease {}", changeField);
                     decreaseActualStorageForMappedProducts.accept(changeValue, txId + REVOKE);
                 } else if (changeType.equals(DECREASE)) {
+                    log.info("revoke actualStorage by increase {}", changeField);
                     increaseActualStorageForMappedProducts.accept(changeValue, txId + REVOKE);
                 } else {
                     // do nothing
