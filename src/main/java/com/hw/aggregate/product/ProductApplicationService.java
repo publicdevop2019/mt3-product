@@ -1,10 +1,10 @@
 package com.hw.aggregate.product;
 
+import com.hw.aggregate.category.CategoryApplicationService;
 import com.hw.aggregate.product.command.*;
 import com.hw.aggregate.product.exception.CategoryNotFoundException;
 import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.*;
-import com.hw.aggregate.category.CategoryApplicationService;
 import com.hw.shared.BadRequestException;
 import com.hw.shared.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -64,11 +64,17 @@ public class ProductApplicationService {
             throw new BadRequestException("unsupported sort order");
         }
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, finalSort);
-        if (categoryService.getAll().getCategoryList().stream().noneMatch(e -> e.getTitle().equals(categoryName)))
+        if (categoryService.getAllForCustomer().getCategoryList().stream().noneMatch(e -> e.getTitle().equals(categoryName)))
             throw new CategoryNotFoundException();
         return new ProductCategorySummaryRepresentation(productDetailRepo.findProductByCategory(categoryName, pageRequest).getContent());
     }
 
+    /**
+     * product option can be optional or mandatory,review compare logic
+     *
+     * @param products
+     * @return
+     */
     @Transactional(readOnly = true)
     public ProductValidationResultRepresentation validateProduct(List<ProductValidationCommand> products) {
         boolean containInvalidValue;
@@ -82,8 +88,9 @@ public class ProductApplicationService {
             /**
              * if no option present then compare final price
              */
-            if (user_product.getSelectedOptions() == null || user_product.getSelectedOptions().size() == 0)
-                return !user_product.getFinalPrice().equals(byId.get().getPrice().toString());
+            if (user_product.getSelectedOptions() == null || user_product.getSelectedOptions().size() == 0) {
+                return BigDecimal.valueOf(Double.parseDouble(user_product.getFinalPrice())).compareTo(byId.get().getPrice()) != 0;
+            }
             /**
              * validate product option match
              */

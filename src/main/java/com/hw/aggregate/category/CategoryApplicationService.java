@@ -4,6 +4,7 @@ import com.hw.aggregate.category.command.CreateCategoryCommand;
 import com.hw.aggregate.category.command.UpdateCategoryCommand;
 import com.hw.aggregate.category.model.Category;
 import com.hw.aggregate.category.representation.CategoryRepresentation;
+import com.hw.aggregate.category.representation.CategorySummaryAdminRepresentation;
 import com.hw.aggregate.category.representation.CategorySummaryCustomerRepresentation;
 import com.hw.shared.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +21,12 @@ public class CategoryApplicationService {
     @Autowired
     private IdGenerator idGenerator;
 
-    public CategorySummaryCustomerRepresentation getAll() {
+    public CategorySummaryCustomerRepresentation getAllForCustomer() {
         return new CategorySummaryCustomerRepresentation(categoryRepo.findAll());
+    }
+
+    public CategorySummaryAdminRepresentation getAllForAdmin() {
+        return new CategorySummaryAdminRepresentation(categoryRepo.findAll());
     }
 
     public CategoryRepresentation create(CreateCategoryCommand command) {

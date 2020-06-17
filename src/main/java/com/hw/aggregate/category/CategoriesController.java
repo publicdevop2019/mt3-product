@@ -15,7 +15,12 @@ public class CategoriesController {
 
     @GetMapping("categories")
     public ResponseEntity<?> getCategoryList() {
-        return ResponseEntity.ok(categoryService.getAll());
+        return ResponseEntity.ok(categoryService.getAllForCustomer());
+    }
+
+    @GetMapping("admin/categories")
+    public ResponseEntity<?> getCategoryAdminList() {
+        return ResponseEntity.ok(categoryService.getAllForAdmin());
     }
 
 
