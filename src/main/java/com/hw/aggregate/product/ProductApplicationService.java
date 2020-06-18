@@ -1,6 +1,6 @@
 package com.hw.aggregate.product;
 
-import com.hw.aggregate.category.CategoryApplicationService;
+import com.hw.aggregate.catalog.CatalogApplicationService;
 import com.hw.aggregate.product.command.*;
 import com.hw.aggregate.product.exception.CategoryNotFoundException;
 import com.hw.aggregate.product.model.*;
@@ -32,7 +32,7 @@ public class ProductApplicationService {
     private ProductServiceLambda productServiceLambda;
 
     @Autowired
-    private CategoryApplicationService categoryService;
+    private CatalogApplicationService categoryService;
 
     @Autowired
     private IdGenerator idGenerator;

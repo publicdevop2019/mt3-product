@@ -1,17 +1,17 @@
-package com.hw.aggregate.category;
+package com.hw.aggregate.catalog;
 
-import com.hw.aggregate.category.command.CreateCategoryCommand;
-import com.hw.aggregate.category.command.UpdateCategoryCommand;
+import com.hw.aggregate.catalog.command.CreateCatalogCommand;
+import com.hw.aggregate.catalog.command.UpdateCatalogCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(produces = "application/json")
-public class CategoriesController {
+public class CatalogController {
 
     @Autowired
-    private CategoryApplicationService categoryService;
+    private CatalogApplicationService categoryService;
 
     @GetMapping("categories")
     public ResponseEntity<?> getCategoryList() {
@@ -25,13 +25,13 @@ public class CategoriesController {
 
 
     @PostMapping("categories")
-    public ResponseEntity<?> createCategory(@RequestBody CreateCategoryCommand command) {
+    public ResponseEntity<?> createCategory(@RequestBody CreateCatalogCommand command) {
         return ResponseEntity.ok().header("Location", categoryService.create(command).getId().toString()).build();
     }
 
 
     @PutMapping("categories/{categoryId}")
-    public ResponseEntity<?> updateCategory(@PathVariable(name = "categoryId") Long categoryId, @RequestBody UpdateCategoryCommand command) {
+    public ResponseEntity<?> updateCategory(@PathVariable(name = "categoryId") Long categoryId, @RequestBody UpdateCatalogCommand command) {
         categoryService.update(categoryId, command);
         return ResponseEntity.ok().build();
     }
