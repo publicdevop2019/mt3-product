@@ -26,14 +26,14 @@ public class ProductTotalSummaryPaginatedRepresentation {
         private String name;
         private Integer orderStorage;
         private Integer actualStorage;
-        private String category;
+        private String catalog;
 
         public ProductTotalAdminRepresentation(ProductDetail e) {
             this.id = e.getId();
             this.name = e.getName();
             this.orderStorage = e.getOrderStorage();
             this.actualStorage = e.getActualStorage();
-            this.category = e.getCategory();
+            this.catalog = e.getCatalog();
 
         }
     }

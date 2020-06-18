@@ -19,7 +19,7 @@ public class UpdateProductAdminCommand {
     private String rate;
     private BigDecimal price;
     private Integer sales;
-    private String category;
+    private String catalog;
     private List<ProductOption> selectedOptions;
     private Set<String> imageUrlLarge;
     private Set<String> specification;

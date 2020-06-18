@@ -17,7 +17,7 @@ import javax.validation.constraints.NotBlank;
 import java.util.Optional;
 
 @Entity
-@Table(name = "Category")
+@Table(name = "biz_catalog")
 @Data
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
@@ -41,15 +41,15 @@ public class Catalog extends Auditable {
         return findById.get();
     }
 
-    public static void update(Long id, UpdateCatalogCommand command, CatalogRepo categoryRepo) {
-        Catalog category = get(id, categoryRepo);
-        category.setTitle(command.getTitle());
-        categoryRepo.save(category);
+    public static void update(Long id, UpdateCatalogCommand command, CatalogRepo repo) {
+        Catalog catalog = get(id, repo);
+        catalog.setTitle(command.getTitle());
+        repo.save(catalog);
     }
 
-    public static void delete(Long id, CatalogRepo categoryRepo) {
-        Catalog category = get(id, categoryRepo);
-        categoryRepo.delete(category);
+    public static void delete(Long id, CatalogRepo repo) {
+        Catalog catalog = get(id, repo);
+        repo.delete(catalog);
     }
 
     private Catalog(Long id, CreateCatalogCommand command) {

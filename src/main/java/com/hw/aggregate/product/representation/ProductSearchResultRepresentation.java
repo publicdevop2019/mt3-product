@@ -24,7 +24,7 @@ public class ProductSearchResultRepresentation {
         private String rate;
         private BigDecimal price;
         private Integer sales;
-        private String category;
+        private String catalog;
 
         public ProductSearchRepresentation(ProductDetail productDetail) {
             this.id = productDetail.getId();
@@ -34,7 +34,7 @@ public class ProductSearchResultRepresentation {
             this.rate = productDetail.getRate();
             this.price = productDetail.getPrice();
             this.sales = productDetail.getSales();
-            this.category = productDetail.getCategory();
+            this.catalog = productDetail.getCatalog();
         }
 
     }

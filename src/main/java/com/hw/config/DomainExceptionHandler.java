@@ -1,5 +1,6 @@
 package com.hw.config;
 
+import com.hw.aggregate.catalog.exception.CatalogNotFoundException;
 import com.hw.aggregate.product.exception.*;
 import com.hw.shared.ErrorMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,7 @@ import static com.hw.shared.AppConstant.HTTP_HEADER_ERROR_ID;
 public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {
-            CategoryNotFoundException.class,
+            CatalogNotFoundException.class,
             ActualStorageDecreaseException.class,
             OrderStorageDecreaseException.class,
             ProductNotFoundException.class,

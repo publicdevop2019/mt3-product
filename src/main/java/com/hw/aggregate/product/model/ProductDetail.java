@@ -13,7 +13,7 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "product_detail")
+@Table
 @NoArgsConstructor
 public class ProductDetail extends Auditable {
 
@@ -66,7 +66,7 @@ public class ProductDetail extends Auditable {
 
     @NotNull
     @Column
-    private String category;
+    private String catalog;
 
     @Column(length = 10000)
     @Convert(converter = ProductOptionConverter.class)
@@ -85,15 +85,15 @@ public class ProductDetail extends Auditable {
 
     public static ProductDetail create(Long id, String imageUrlSmall, String name, Integer orderStorage, Integer actualStorage,
                                        String description, String rate, BigDecimal price,
-                                       Integer sales, String category, List<ProductOption> selectedOptions,
+                                       Integer sales, String catalog, List<ProductOption> selectedOptions,
                                        Set<String> imageUrlLarge, Set<String> specification) {
         return new ProductDetail(id, imageUrlSmall, name, orderStorage, actualStorage,
-                description, rate, price, sales, category, selectedOptions, imageUrlLarge, specification);
+                description, rate, price, sales, catalog, selectedOptions, imageUrlLarge, specification);
     }
 
     public ProductDetail(Long id, String imageUrlSmall, String name, Integer orderStorage, Integer actualStorage,
                          String description, String rate, BigDecimal price,
-                         Integer sales, String category, List<ProductOption> selectedOptions,
+                         Integer sales, String catalog, List<ProductOption> selectedOptions,
                          Set<String> imageUrlLarge, Set<String> specification) {
         this.id = id;
         this.imageUrlSmall = imageUrlSmall;
@@ -104,7 +104,7 @@ public class ProductDetail extends Auditable {
         this.rate = rate;
         this.price = price;
         this.sales = sales == null ? 0 : sales;
-        this.category = category;
+        this.catalog = catalog;
         this.selectedOptions = selectedOptions;
         this.imageUrlLarge = imageUrlLarge;
         this.specification = specification;

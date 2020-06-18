@@ -21,14 +21,14 @@ public class ProductController {
     /**
      * public access
      */
-    @GetMapping("categories/{categoryName}")
-    public ResponseEntity<?> getProductsByCategory(@PathVariable(name = "categoryName") String categoryName, @RequestParam("pageNum") Integer pageNumber,
-                                                   @RequestParam("pageSize") Integer pageSize, @RequestParam("sortBy") String sortBy,
-                                                   @RequestParam("sortOrder") String sortOrder) {
-        return ResponseEntity.ok(productService.getByCategory(categoryName, pageNumber, pageSize, sortBy, sortOrder).getProductSimpleList());
+    @GetMapping("catalogs/{catalogName}")
+    public ResponseEntity<?> getProductsByCatalog(@PathVariable(name = "catalogName") String catalogName, @RequestParam("pageNum") Integer pageNumber,
+                                                  @RequestParam("pageSize") Integer pageSize, @RequestParam("sortBy") String sortBy,
+                                                  @RequestParam("sortOrder") String sortOrder) {
+        return ResponseEntity.ok(productService.getByCatalog(catalogName, pageNumber, pageSize, sortBy, sortOrder).getProductSimpleList());
     }
 
-    @GetMapping("categories/all")
+    @GetMapping("catalogs/all")
     public ResponseEntity<?> getAllProducts(@RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
         return ResponseEntity.ok(productService.getAll(pageNumber, pageSize));
     }

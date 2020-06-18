@@ -13,8 +13,8 @@ import java.util.List;
 @Repository
 public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
 
-    @Query("SELECT p FROM #{#entityName} as p WHERE p.category = ?1")
-    Page<ProductDetail> findProductByCategory(String categoryName, Pageable pageable);
+    @Query("SELECT p FROM #{#entityName} as p WHERE p.catalog = ?1")
+    Page<ProductDetail> findProductByCatalog(String catalog, Pageable pageable);
 
     @Query("SELECT p FROM #{#entityName} as p WHERE p.name LIKE ?1%")
     List<ProductDetail> searchProductByName(String searchKey, Pageable pageable);

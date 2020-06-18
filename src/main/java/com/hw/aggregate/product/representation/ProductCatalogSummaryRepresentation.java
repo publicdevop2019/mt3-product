@@ -8,15 +8,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-public class ProductCategorySummaryRepresentation {
-    private List<ProductCategoryRepresentation> productSimpleList;
+public class ProductCatalogSummaryRepresentation {
+    private List<ProductCatalogRepresentation> productSimpleList;
 
-    public ProductCategorySummaryRepresentation(List<ProductDetail> productSimpleList) {
-        this.productSimpleList = productSimpleList.stream().map(ProductCategoryRepresentation::new).collect(Collectors.toList());
+    public ProductCatalogSummaryRepresentation(List<ProductDetail> productSimpleList) {
+        this.productSimpleList = productSimpleList.stream().map(ProductCatalogRepresentation::new).collect(Collectors.toList());
     }
 
     @Data
-    private class ProductCategoryRepresentation {
+    private class ProductCatalogRepresentation {
         private Long id;
         private String imageUrlSmall;
         private String name;
@@ -24,10 +24,10 @@ public class ProductCategorySummaryRepresentation {
         private String rate;
         private BigDecimal price;
         private Integer sales;
-        private String category;
+        private String catalog;
         private Integer orderStorage;
 
-        public ProductCategoryRepresentation(ProductDetail productDetail) {
+        public ProductCatalogRepresentation(ProductDetail productDetail) {
             this.id = productDetail.getId();
             this.imageUrlSmall = productDetail.getImageUrlSmall();
             this.name = productDetail.getName();
@@ -35,7 +35,7 @@ public class ProductCategorySummaryRepresentation {
             this.rate = productDetail.getRate();
             this.price = productDetail.getPrice();
             this.sales = productDetail.getSales();
-            this.category = productDetail.getCategory();
+            this.catalog = productDetail.getCatalog();
             this.orderStorage = productDetail.getOrderStorage();
         }
 

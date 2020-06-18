@@ -8,8 +8,8 @@ public class CatalogRepresentation {
     private Long id;
     private String title;
 
-    public CatalogRepresentation(Catalog category) {
-        id = category.getId();
-        title = category.getTitle();
+    public CatalogRepresentation(Catalog catalog) {
+        id = catalog.getId();
+        title = catalog.getTitle();
     }
 }

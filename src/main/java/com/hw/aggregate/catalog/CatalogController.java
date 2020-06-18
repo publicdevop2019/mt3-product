@@ -11,35 +11,35 @@ import org.springframework.web.bind.annotation.*;
 public class CatalogController {
 
     @Autowired
-    private CatalogApplicationService categoryService;
+    private CatalogApplicationService catalogApplicationService;
 
-    @GetMapping("categories")
-    public ResponseEntity<?> getCategoryList() {
-        return ResponseEntity.ok(categoryService.getAllForCustomer());
+    @GetMapping("catalogs")
+    public ResponseEntity<?> getList() {
+        return ResponseEntity.ok(catalogApplicationService.getAllForCustomer());
     }
 
-    @GetMapping("admin/categories")
-    public ResponseEntity<?> getCategoryAdminList() {
-        return ResponseEntity.ok(categoryService.getAllForAdmin());
-    }
-
-
-    @PostMapping("categories")
-    public ResponseEntity<?> createCategory(@RequestBody CreateCatalogCommand command) {
-        return ResponseEntity.ok().header("Location", categoryService.create(command).getId().toString()).build();
+    @GetMapping("admin/catalogs")
+    public ResponseEntity<?> getAdminList() {
+        return ResponseEntity.ok(catalogApplicationService.getAllForAdmin());
     }
 
 
-    @PutMapping("categories/{categoryId}")
-    public ResponseEntity<?> updateCategory(@PathVariable(name = "categoryId") Long categoryId, @RequestBody UpdateCatalogCommand command) {
-        categoryService.update(categoryId, command);
+    @PostMapping("catalogs")
+    public ResponseEntity<?> create(@RequestBody CreateCatalogCommand command) {
+        return ResponseEntity.ok().header("Location", catalogApplicationService.create(command).getId().toString()).build();
+    }
+
+
+    @PutMapping("catalogs/{catalogId}")
+    public ResponseEntity<?> update(@PathVariable(name = "catalogId") Long catalogId, @RequestBody UpdateCatalogCommand command) {
+        catalogApplicationService.update(catalogId, command);
         return ResponseEntity.ok().build();
     }
 
 
-    @DeleteMapping("categories/{categoryId}")
-    public ResponseEntity<?> deleteCategory(@PathVariable(name = "categoryId") Long categoryId) {
-        categoryService.delete(categoryId);
+    @DeleteMapping("catalogs/{catalogId}")
+    public ResponseEntity<?> delete(@PathVariable(name = "catalogId") Long catalogId) {
+        catalogApplicationService.delete(catalogId);
         return ResponseEntity.ok().build();
     }
 }

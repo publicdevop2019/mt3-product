@@ -1,8 +1,8 @@
 package com.hw.aggregate.product;
 
 import com.hw.aggregate.catalog.CatalogApplicationService;
+import com.hw.aggregate.catalog.exception.CatalogNotFoundException;
 import com.hw.aggregate.product.command.*;
-import com.hw.aggregate.product.exception.CategoryNotFoundException;
 import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.*;
 import com.hw.shared.BadRequestException;
@@ -32,7 +32,7 @@ public class ProductApplicationService {
     private ProductServiceLambda productServiceLambda;
 
     @Autowired
-    private CatalogApplicationService categoryService;
+    private CatalogApplicationService catalogApplicationService;
 
     @Autowired
     private IdGenerator idGenerator;
@@ -53,7 +53,7 @@ public class ProductApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public ProductCategorySummaryRepresentation getByCategory(String categoryName, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public ProductCatalogSummaryRepresentation getByCatalog(String catalog, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
         Sort initialSort = new Sort(Sort.Direction.ASC, SortCriteriaEnum.fromString(sortBy).getSortCriteria());
         Sort finalSort;
         if (sortOrder.equalsIgnoreCase(SortOrderEnum.ASC.getSortOrder())) {
@@ -64,9 +64,9 @@ public class ProductApplicationService {
             throw new BadRequestException("unsupported sort order");
         }
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, finalSort);
-        if (categoryService.getAllForCustomer().getCategoryList().stream().noneMatch(e -> e.getTitle().equals(categoryName)))
-            throw new CategoryNotFoundException();
-        return new ProductCategorySummaryRepresentation(productDetailRepo.findProductByCategory(categoryName, pageRequest).getContent());
+        if (catalogApplicationService.getAllForCustomer().getList().stream().noneMatch(e -> e.getTitle().equals(catalog)))
+            throw new CatalogNotFoundException();
+        return new ProductCatalogSummaryRepresentation(productDetailRepo.findProductByCatalog(catalog, pageRequest).getContent());
     }
 
     /**
@@ -183,7 +183,7 @@ public class ProductApplicationService {
                 productDetail.getImageUrlSmall(), productDetail.getName(), productDetail.getOrderStorage()
                 , productDetail.getActualStorage(), productDetail.getDescription(),
                 productDetail.getRate(), productDetail.getPrice(), productDetail.getSales(),
-                productDetail.getCategory(), productDetail.getSelectedOptions(),
+                productDetail.getCatalog(), productDetail.getSelectedOptions(),
                 productDetail.getImageUrlLarge(), productDetail.getSpecification());
         return new ProductCreatedRepresentation(productDetailRepo.save(productDetail1).getId().toString());
     }
