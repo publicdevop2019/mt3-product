@@ -10,6 +10,6 @@ public class CatalogRepresentation {
 
     public CatalogRepresentation(Catalog catalog) {
         id = catalog.getId();
-        title = catalog.getTitle();
+        title = catalog.getName();
     }
 }

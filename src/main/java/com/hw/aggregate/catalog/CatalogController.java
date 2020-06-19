@@ -13,31 +13,36 @@ public class CatalogController {
     @Autowired
     private CatalogApplicationService catalogApplicationService;
 
-    @GetMapping("catalogs")
+    @GetMapping("public/catalogs")
     public ResponseEntity<?> getList() {
         return ResponseEntity.ok(catalogApplicationService.getAllForCustomer());
     }
 
-    @GetMapping("admin/catalogs")
-    public ResponseEntity<?> getAdminList() {
-        return ResponseEntity.ok(catalogApplicationService.getAllForAdmin());
+    @GetMapping("admin/backend/catalogs")
+    public ResponseEntity<?> getAdminListBackend() {
+        return ResponseEntity.ok(catalogApplicationService.getAllForAdminBackend());
+    }
+
+    @GetMapping("admin/frontend/catalogs")
+    public ResponseEntity<?> getAdminListFrontend() {
+        return ResponseEntity.ok(catalogApplicationService.getAllForAdminFrontend());
     }
 
 
-    @PostMapping("catalogs")
+    @PostMapping("admin/catalogs")
     public ResponseEntity<?> create(@RequestBody CreateCatalogCommand command) {
         return ResponseEntity.ok().header("Location", catalogApplicationService.create(command).getId().toString()).build();
     }
 
 
-    @PutMapping("catalogs/{catalogId}")
+    @PutMapping("admin/catalogs/{catalogId}")
     public ResponseEntity<?> update(@PathVariable(name = "catalogId") Long catalogId, @RequestBody UpdateCatalogCommand command) {
         catalogApplicationService.update(catalogId, command);
         return ResponseEntity.ok().build();
     }
 
 
-    @DeleteMapping("catalogs/{catalogId}")
+    @DeleteMapping("admin/catalogs/{catalogId}")
     public ResponseEntity<?> delete(@PathVariable(name = "catalogId") Long catalogId) {
         catalogApplicationService.delete(catalogId);
         return ResponseEntity.ok().build();

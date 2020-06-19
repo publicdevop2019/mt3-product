@@ -64,7 +64,7 @@ public class ProductApplicationService {
             throw new BadRequestException("unsupported sort order");
         }
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, finalSort);
-        if (catalogApplicationService.getAllForCustomer().getList().stream().noneMatch(e -> e.getTitle().equals(catalog)))
+        if (catalogApplicationService.getAllForCustomer().getData().stream().noneMatch(e -> e.getName().equals(catalog)))
             throw new CatalogNotFoundException();
         return new ProductCatalogSummaryRepresentation(productDetailRepo.findProductByCatalog(catalog, pageRequest).getContent());
     }

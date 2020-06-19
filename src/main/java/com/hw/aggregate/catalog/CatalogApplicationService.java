@@ -3,6 +3,7 @@ package com.hw.aggregate.catalog;
 import com.hw.aggregate.catalog.command.CreateCatalogCommand;
 import com.hw.aggregate.catalog.command.UpdateCatalogCommand;
 import com.hw.aggregate.catalog.model.Catalog;
+import com.hw.aggregate.catalog.model.CatalogType;
 import com.hw.aggregate.catalog.representation.CatalogRepresentation;
 import com.hw.aggregate.catalog.representation.CatalogTreeAdminRepresentation;
 import com.hw.aggregate.catalog.representation.CatalogTreeCustomerRepresentation;
@@ -25,8 +26,12 @@ public class CatalogApplicationService {
         return new CatalogTreeCustomerRepresentation(repo.findAll());
     }
 
-    public CatalogTreeAdminRepresentation getAllForAdmin() {
-        return new CatalogTreeAdminRepresentation(repo.findAll());
+    public CatalogTreeAdminRepresentation getAllForAdminBackend() {
+        return new CatalogTreeAdminRepresentation(repo.findByType(CatalogType.BACKEND));
+    }
+
+    public CatalogTreeAdminRepresentation getAllForAdminFrontend() {
+        return new CatalogTreeAdminRepresentation(repo.findByType(CatalogType.FRONTEND));
     }
 
     public CatalogRepresentation create(CreateCatalogCommand command) {

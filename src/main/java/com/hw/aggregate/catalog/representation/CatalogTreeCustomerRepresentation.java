@@ -4,23 +4,27 @@ import com.hw.aggregate.catalog.model.Catalog;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
 public class CatalogTreeCustomerRepresentation {
 
-    private List<CatalogSummaryCardRepresentation> list;
+    private List<CatalogSummaryCardRepresentation> data;
 
-    public CatalogTreeCustomerRepresentation(List<Catalog> list) {
-        this.list = list.stream().map(CatalogSummaryCardRepresentation::new).collect(Collectors.toList());
+
+    public CatalogTreeCustomerRepresentation(List<Catalog> data) {
+        this.data = data.stream().map(CatalogSummaryCardRepresentation::new).collect(Collectors.toList());
     }
 
     @Data
     public class CatalogSummaryCardRepresentation {
-        private String title;
+        private String name;
+        private Set<String> tags;
 
         public CatalogSummaryCardRepresentation(Catalog catalog) {
-            this.title = catalog.getTitle();
+            this.name = catalog.getName();
+            this.tags=catalog.getTags();
         }
     }
 }

@@ -1,28 +1,36 @@
 package com.hw.aggregate.catalog.representation;
 
 import com.hw.aggregate.catalog.model.Catalog;
+import com.hw.aggregate.catalog.model.CatalogType;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
 public class CatalogTreeAdminRepresentation {
 
-    private List<CatalogSummaryCardRepresentation> list;
+    private List<CatalogSummaryCardRepresentation> data;
 
-    public CatalogTreeAdminRepresentation(List<Catalog> list) {
-        this.list = list.stream().map(CatalogSummaryCardRepresentation::new).collect(Collectors.toList());
+    public CatalogTreeAdminRepresentation(List<Catalog> data) {
+        this.data = data.stream().map(CatalogSummaryCardRepresentation::new).collect(Collectors.toList());
     }
 
     @Data
-    public class CatalogSummaryCardRepresentation {
+    public static class CatalogSummaryCardRepresentation {
         private Long id;
-        private String title;
+        private String name;
+        private Long parentId;
+        private Set<String> tags;
+        private CatalogType catalogType;
 
         public CatalogSummaryCardRepresentation(Catalog catalog) {
             this.id = catalog.getId();
-            this.title = catalog.getTitle();
+            this.name = catalog.getName();
+            this.parentId = catalog.getParentId();
+            this.tags = catalog.getTags();
+            this.catalogType = catalog.getType();
         }
     }
 }
