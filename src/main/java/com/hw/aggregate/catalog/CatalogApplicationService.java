@@ -4,7 +4,7 @@ import com.hw.aggregate.catalog.command.CreateCatalogCommand;
 import com.hw.aggregate.catalog.command.UpdateCatalogCommand;
 import com.hw.aggregate.catalog.model.Catalog;
 import com.hw.aggregate.catalog.model.CatalogType;
-import com.hw.aggregate.catalog.representation.CatalogRepresentation;
+import com.hw.aggregate.catalog.representation.CatalogCreatedRepresentation;
 import com.hw.aggregate.catalog.representation.CatalogTreeAdminRepresentation;
 import com.hw.aggregate.catalog.representation.CatalogTreeCustomerRepresentation;
 import com.hw.shared.IdGenerator;
@@ -34,8 +34,8 @@ public class CatalogApplicationService {
         return new CatalogTreeAdminRepresentation(repo.findByType(CatalogType.FRONTEND));
     }
 
-    public CatalogRepresentation create(CreateCatalogCommand command) {
-        return new CatalogRepresentation(Catalog.create(idGenerator.getId(), command, repo));
+    public CatalogCreatedRepresentation create(CreateCatalogCommand command) {
+        return new CatalogCreatedRepresentation(Catalog.create(idGenerator.getId(), command, repo));
     }
 
     public void update(Long id, UpdateCatalogCommand command) {

@@ -18,88 +18,79 @@ public class ProductController {
     @Autowired
     private ProductApplicationService productService;
 
-    /**
-     * public access
-     */
-    @GetMapping("catalogs/{catalogName}")
-    public ResponseEntity<?> getProductsByCatalog(@PathVariable(name = "catalogName") String catalogName, @RequestParam("pageNum") Integer pageNumber,
-                                                  @RequestParam("pageSize") Integer pageSize, @RequestParam("sortBy") String sortBy,
-                                                  @RequestParam("sortOrder") String sortOrder) {
-        return ResponseEntity.ok(productService.getByCatalog(catalogName, pageNumber, pageSize, sortBy, sortOrder).getProductSimpleList());
+    @GetMapping("public/productDetails")
+    public ResponseEntity<?> getProductsByTags(@RequestParam(name = "tags") String tags, @RequestParam("pageNum") Integer pageNumber,
+                                               @RequestParam("pageSize") Integer pageSize, @RequestParam("sortBy") String sortBy,
+                                               @RequestParam("sortOrder") String sortOrder) {
+        return ResponseEntity.ok(productService.searchByTags(tags, pageNumber, pageSize, sortBy, sortOrder).getProductSimpleList());
     }
 
-    @GetMapping("catalogs/all")
+    @GetMapping("admin/productDetails")
     public ResponseEntity<?> getAllProducts(@RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
         return ResponseEntity.ok(productService.getAll(pageNumber, pageSize));
     }
 
-    /**
-     * public access
-     */
-    @GetMapping("productDetails/search")
+    @GetMapping("public/productDetails/search")
     public ResponseEntity<?> searchProduct(@RequestParam("key") String key, @RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
         return ResponseEntity.ok(productService.searchProduct(key, pageNumber, pageSize).getProductSearchRepresentations());
     }
 
-    @PostMapping("productDetails/validate")
+    @PostMapping("internal/productDetails/validate")
     public ResponseEntity<?> validateProduct(@RequestBody List<ProductValidationCommand> products) {
         return ResponseEntity.ok(productService.validateProduct(products).getResult());
     }
 
-    /**
-     * public access
-     */
-    @GetMapping("productDetails/{productDetailId}")
+    @GetMapping("public/productDetails/{productDetailId}")
     public ResponseEntity<?> getProductByIdForCustomer(@PathVariable(name = "productDetailId") Long productDetailId) {
         return ResponseEntity.ok(productService.getProductByIdForCustomer(productDetailId));
     }
 
-    @GetMapping("productDetails/admin/{productDetailId}")
+    @GetMapping("admin/productDetails/{productDetailId}")
     public ResponseEntity<?> getProductByIdForAdmin(@PathVariable(name = "productDetailId") Long productDetailId) {
         return ResponseEntity.ok(productService.getProductByIdForAdmin(productDetailId));
     }
 
 
-    @PostMapping("productDetails")
+    @PostMapping("admin/productDetails")
     public ResponseEntity<?> createProduct(@RequestBody CreateProductAdminCommand productDetail) {
         return ResponseEntity.ok().header("Location", productService.createProduct(productDetail).getId()).build();
     }
 
 
-    @PutMapping("productDetails/{productDetailId}")
+    @PutMapping("admin/productDetails/{productDetailId}")
     public ResponseEntity<?> updateProduct(@PathVariable(name = "productDetailId") Long productDetailId, @RequestBody UpdateProductAdminCommand newProductDetail) {
         productService.updateProduct(productDetailId, newProductDetail);
         return ResponseEntity.ok().build();
     }
 
 
-    @DeleteMapping("productDetails/{productDetailId}")
+    @DeleteMapping("admin/productDetails/{productDetailId}")
     public ResponseEntity<?> deleteProduct(@PathVariable(name = "productDetailId") Long productDetailId) {
         productService.delete(new DeleteProductAdminCommand(productDetailId));
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("productDetails/decreaseStorageBy")
+    @PutMapping("shared/productDetails/decreaseStorageBy")
     public ResponseEntity<?> decreaseOrderStorage(@RequestBody Map<String, String> productMap, @RequestParam(name = "optToken") String txId) {
         productService.decreaseOrderStorageForMappedProducts(new DecreaseOrderStorageCommand(productMap, txId));
         return ResponseEntity.ok().build();
     }
 
 
-    @PutMapping("productDetails/sold")
+    @PutMapping("internal/productDetails/sold")
     public ResponseEntity<?> decreaseActualStorage(@RequestBody Map<String, String> productMap, @RequestParam(name = "optToken") String txId) {
         productService.decreaseActualStorageForMappedProducts(new DecreaseActualStorageCommand(productMap, txId));
         return ResponseEntity.ok().build();
     }
 
 
-    @PutMapping("productDetails/increaseStorageBy")
+    @PutMapping("shared/productDetails/increaseStorageBy")
     public ResponseEntity<?> increaseOrderStorage(@RequestBody Map<String, String> productMap, @RequestParam(name = "optToken") String txId) {
         productService.increaseOrderStorageForMappedProducts(new IncreaseOrderStorageCommand(productMap, txId));
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("productDetails/revoke")
+    @PutMapping("internal/productDetails/revoke")
     public ResponseEntity<?> revoke(@RequestParam(name = "optToken") String txId) {
         productService.revoke(new RevokeRecordedChangeCommand(txId));
         return ResponseEntity.ok().build();

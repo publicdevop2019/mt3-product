@@ -53,7 +53,7 @@ public class ProductApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public ProductCatalogSummaryRepresentation getByCatalog(String catalog, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public ProductCatalogSummaryRepresentation searchByTags(String catalog, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
         Sort initialSort = new Sort(Sort.Direction.ASC, SortCriteriaEnum.fromString(sortBy).getSortCriteria());
         Sort finalSort;
         if (sortOrder.equalsIgnoreCase(SortOrderEnum.ASC.getSortOrder())) {
@@ -66,7 +66,7 @@ public class ProductApplicationService {
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, finalSort);
         if (catalogApplicationService.getAllForCustomer().getData().stream().noneMatch(e -> e.getName().equals(catalog)))
             throw new CatalogNotFoundException();
-        return new ProductCatalogSummaryRepresentation(productDetailRepo.findProductByCatalog(catalog, pageRequest).getContent());
+        return new ProductCatalogSummaryRepresentation(productDetailRepo.findProductByTags(catalog, pageRequest).getContent());
     }
 
     /**
@@ -177,7 +177,7 @@ public class ProductApplicationService {
     }
 
     @Transactional
-    public synchronized ProductCreatedRepresentation createProduct(CreateProductAdminCommand productDetail) {
+    public ProductCreatedRepresentation createProduct(CreateProductAdminCommand productDetail) {
         ProductDetail productDetail1 = ProductDetail.create(
                 idGenerator.getId(),
                 productDetail.getImageUrlSmall(), productDetail.getName(), productDetail.getOrderStorage()
