@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -66,7 +68,8 @@ public class ProductDetail extends Auditable {
 
     @NotNull
     @Column
-    private String catalog;
+    @Convert(converter = com.hw.aggregate.catalog.model.StringSetConverter.class)
+    private Set<String> tags;
 
     @Column(length = 10000)
     @Convert(converter = ProductOptionConverter.class)
@@ -83,6 +86,17 @@ public class ProductDetail extends Auditable {
     @Version
     private Integer version;
 
+    public ProductDetail(Long id, String name, BigDecimal price, Integer sales, String tags, Integer orderStorage, Integer actualStorage) {
+        this.id = id;
+        this.name = name;
+        this.orderStorage = orderStorage;
+        this.actualStorage = actualStorage;
+        this.price = price;
+        this.sales = sales;
+        HashSet<String> hashSet = new HashSet<>(Arrays.asList(tags.split(",")));
+        this.tags = hashSet;
+    }
+
     public static ProductDetail create(Long id, String imageUrlSmall, String name, Integer orderStorage, Integer actualStorage,
                                        String description, String rate, BigDecimal price,
                                        Integer sales, String catalog, List<ProductOption> selectedOptions,
@@ -93,7 +107,7 @@ public class ProductDetail extends Auditable {
 
     public ProductDetail(Long id, String imageUrlSmall, String name, Integer orderStorage, Integer actualStorage,
                          String description, String rate, BigDecimal price,
-                         Integer sales, String catalog, List<ProductOption> selectedOptions,
+                         Integer sales, String tags, List<ProductOption> selectedOptions,
                          Set<String> imageUrlLarge, Set<String> specification) {
         this.id = id;
         this.imageUrlSmall = imageUrlSmall;
@@ -104,7 +118,7 @@ public class ProductDetail extends Auditable {
         this.rate = rate;
         this.price = price;
         this.sales = sales == null ? 0 : sales;
-        this.catalog = catalog;
+//        this.tags = tags;
         this.selectedOptions = selectedOptions;
         this.imageUrlLarge = imageUrlLarge;
         this.specification = specification;

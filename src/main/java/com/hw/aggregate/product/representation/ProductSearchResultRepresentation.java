@@ -5,14 +5,15 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
 public class ProductSearchResultRepresentation {
-    private List<ProductSearchRepresentation> productSearchRepresentations;
+    private List<ProductSearchRepresentation> data;
 
     public ProductSearchResultRepresentation(List<ProductDetail> productSimpleList) {
-        this.productSearchRepresentations = productSimpleList.stream().map(ProductSearchResultRepresentation.ProductSearchRepresentation::new).collect(Collectors.toList());
+        this.data = productSimpleList.stream().map(ProductSearchResultRepresentation.ProductSearchRepresentation::new).collect(Collectors.toList());
     }
 
     @Data
@@ -24,7 +25,7 @@ public class ProductSearchResultRepresentation {
         private String rate;
         private BigDecimal price;
         private Integer sales;
-        private String catalog;
+        private Set<String> tags;
 
         public ProductSearchRepresentation(ProductDetail productDetail) {
             this.id = productDetail.getId();
@@ -34,7 +35,7 @@ public class ProductSearchResultRepresentation {
             this.rate = productDetail.getRate();
             this.price = productDetail.getPrice();
             this.sales = productDetail.getSales();
-            this.catalog = productDetail.getCatalog();
+            this.tags = productDetail.getTags();
         }
 
     }

@@ -5,13 +5,14 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class ProductCatalogSummaryRepresentation {
+public class ProductSearchTagsCustomerSummaryRepresentation {
     private List<ProductCatalogRepresentation> productSimpleList;
 
-    public ProductCatalogSummaryRepresentation(List<ProductDetail> productSimpleList) {
+    public ProductSearchTagsCustomerSummaryRepresentation(List<ProductDetail> productSimpleList) {
         this.productSimpleList = productSimpleList.stream().map(ProductCatalogRepresentation::new).collect(Collectors.toList());
     }
 
@@ -24,7 +25,7 @@ public class ProductCatalogSummaryRepresentation {
         private String rate;
         private BigDecimal price;
         private Integer sales;
-        private String catalog;
+        private Set<String> tags;
         private Integer orderStorage;
 
         public ProductCatalogRepresentation(ProductDetail productDetail) {
@@ -35,7 +36,7 @@ public class ProductCatalogSummaryRepresentation {
             this.rate = productDetail.getRate();
             this.price = productDetail.getPrice();
             this.sales = productDetail.getSales();
-            this.catalog = productDetail.getCatalog();
+            this.tags = productDetail.getTags();
             this.orderStorage = productDetail.getOrderStorage();
         }
 

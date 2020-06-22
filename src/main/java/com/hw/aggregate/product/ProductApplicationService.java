@@ -1,7 +1,6 @@
 package com.hw.aggregate.product;
 
 import com.hw.aggregate.catalog.CatalogApplicationService;
-import com.hw.aggregate.catalog.exception.CatalogNotFoundException;
 import com.hw.aggregate.product.command.*;
 import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.*;
@@ -15,9 +14,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
+import java.math.BigInteger;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,23 +37,26 @@ public class ProductApplicationService {
     @Autowired
     private IdGenerator idGenerator;
 
+    @Autowired
+    private EntityManager entityManager;
+
     @Transactional(readOnly = true)
-    public ProductTotalSummaryPaginatedRepresentation getAll(Integer pageNumber, Integer pageSize) {
+    public ProductSearchAdminPaginatedSummaryRepresentation getAllForAdmin(Integer pageNumber, Integer pageSize) {
         Sort orders = new Sort(Sort.Direction.ASC, "id");
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, orders);
         Page<ProductDetail> all = productDetailRepo.findAll(pageRequest);
-        return new ProductTotalSummaryPaginatedRepresentation(all.getContent(), all.getTotalPages(), all.getTotalElements());
+        return new ProductSearchAdminPaginatedSummaryRepresentation(all.getContent(), all.getTotalPages(), all.getTotalElements());
     }
 
     @Transactional(readOnly = true)
-    public ProductSearchResultRepresentation searchProduct(String key, Integer pageNumber, Integer pageSize) {
+    public ProductSearchResultRepresentation searchProductForCustomer(String key, Integer pageNumber, Integer pageSize) {
         Sort orders = new Sort(Sort.Direction.ASC, "id");
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, orders);
         return new ProductSearchResultRepresentation(productDetailRepo.searchProductByName(key, pageRequest));
     }
 
     @Transactional(readOnly = true)
-    public ProductCatalogSummaryRepresentation searchByTags(String catalog, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public ProductSearchTagsCustomerSummaryRepresentation searchByTagsForCustomer(String tags, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
         Sort initialSort = new Sort(Sort.Direction.ASC, SortCriteriaEnum.fromString(sortBy).getSortCriteria());
         Sort finalSort;
         if (sortOrder.equalsIgnoreCase(SortOrderEnum.ASC.getSortOrder())) {
@@ -64,9 +67,8 @@ public class ProductApplicationService {
             throw new BadRequestException("unsupported sort order");
         }
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, finalSort);
-        if (catalogApplicationService.getAllForCustomer().getData().stream().noneMatch(e -> e.getName().equals(catalog)))
-            throw new CatalogNotFoundException();
-        return new ProductCatalogSummaryRepresentation(productDetailRepo.findProductByTags(catalog, pageRequest).getContent());
+        HashSet<String> strings = new HashSet<>(Arrays.asList(tags.split(",")));
+        return new ProductSearchTagsCustomerSummaryRepresentation(productDetailRepo.findProductByTags(strings, pageRequest).getContent());
     }
 
     /**
@@ -217,6 +219,26 @@ public class ProductApplicationService {
     public void revoke(RevokeRecordedChangeCommand command) {
         log.info("start of revoke transaction {}", command.getOptToken());
         productServiceLambda.revoke.accept(command.getOptToken());
+    }
+
+    public ProductSearchAdminPaginatedSummaryRepresentation searchByTagsForAdmin(String tags, Integer pageNumber, Integer pageSize) {
+        List<Object[]> resultList = entityManager.createNativeQuery("SELECT id, name, price, sales,tags, order_storage, actual_storage" +
+                " FROM product_detail pd WHERE " + getWhereClause(tags) + " ORDER BY price ASC LIMIT ?1, ?2")
+                .setParameter(1, pageNumber * pageSize)
+                .setParameter(2, pageSize)
+                .getResultList();
+        List<ProductDetail> productDetails = new ArrayList<>(resultList.size());
+        for (Object[] row : resultList) {
+            productDetails.add(new ProductDetail(((BigInteger) row[0]).longValue(), (String) row[1], (BigDecimal) row[2],
+                    (Integer) row[3], (String) row[4], (Integer) row[5], (Integer) row[6]));
+        }
+        return new ProductSearchAdminPaginatedSummaryRepresentation(productDetails);
+    }
+
+    private String getWhereClause(String tags) {
+        HashSet<String> hashSet = new HashSet<>(Arrays.asList(tags.split(",")));
+        List<String> collect = hashSet.stream().map(tag -> "pd.tags LIKE '%" + tag + "%'").collect(Collectors.toList());
+        return String.join(" AND ", collect);
     }
 }
 

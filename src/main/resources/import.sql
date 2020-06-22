@@ -1,0 +1,47 @@
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(0,'手机数码',null,'','FRONTEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(1,'华为',0,'','FRONTEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(2,'苹果',0,'','FRONTEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(3,'小米',0,'','FRONTEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(4,'三星',0,'','FRONTEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(5,'平板电脑',null,'','FRONTEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(6,'华为',5,'','FRONTEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(7,'苹果',5,'','FRONTEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(8,'小米',5,'','FRONTEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(9,'三星',5,'','FRONTEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(10,'台式电脑',null,'','FRONTEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(11,'华为',10,'','FRONTEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(12,'苹果',10,'','FRONTEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(13,'小米',10,'','FRONTEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(14,'三星',10,'','FRONTEND');
+
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(15,'华为',null,'huawei','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(16,'苹果',null,'apple','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(17,'小米',null,'xiaomi','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(18,'三星',null,'samsung','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(19,'手机数码',15,'huawei,mobile','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(21,'台式电脑',15,'huawei,desktop','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(22,'手机数码',16,'apple,mobile','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(23,'平板电脑',16,'apple,tablet','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(24,'台式电脑',16,'apple,desktop','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(31,'无线耳机',16,'apple,wireless ear phone','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(25,'手机数码',17,'xiaomi,mobile','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(26,'平板电脑',17,'xiaomi,tablet','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(27,'台式电脑',17,'xiaomi,desktop','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(28,'手机数码',18,'samsung,mobile','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(29,'平板电脑',18,'samsung,tablet','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(30,'智能电视',18,'samsung,smart tv','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(32,'60寸',30,'samsung,smart tv,60inch','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(33,'50寸',30,'samsung,smart tv,50inch','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(34,'40寸',30,'samsung,smart tv,40inch','BACKEND');
+INSERT INTO  biz_catalog (id,name,parent_id,tags,type) VALUES(35,'笔记本电脑',16,'apple,laptop','BACKEND');
+
+INSERT INTO  product_detail (id,name,tags,order_storage,actual_storage,sales,price,version) VALUES(0,'华为 P30Pro 64G','huawei,mobile',100,100,0,3899.99,0);
+INSERT INTO  product_detail (id,name,tags,order_storage,actual_storage,sales,price,version) VALUES(1,'华为 P30Pro 128G','huawei,mobile',100,100,0,3999.99,0);
+INSERT INTO  product_detail (id,name,tags,order_storage,actual_storage,sales,price,version) VALUES(2,'华为 matebook 128G','huawei,desktop',100,100,0,6999.99,0);
+INSERT INTO  product_detail (id,name,tags,order_storage,actual_storage,sales,price,version) VALUES(3,'华为 matebook 256G','huawei,desktop',100,100,0,7499.99,0);
+INSERT INTO  product_detail (id,name,tags,order_storage,actual_storage,sales,price,version) VALUES(4,'苹果 iphone11 64G','apple,mobile',100,100,0,5699.99,0);
+INSERT INTO  product_detail (id,name,tags,order_storage,actual_storage,sales,price,version) VALUES(5,'苹果 iphone11 128G','apple,mobile',100,100,0,5899.99,0);
+INSERT INTO  product_detail (id,name,tags,order_storage,actual_storage,sales,price,version) VALUES(6,'苹果 earpods','apple,wireless ear phone',100,100,0,1899.99,0);
+INSERT INTO  product_detail (id,name,tags,order_storage,actual_storage,sales,price,version) VALUES(7,'苹果 macbook','apple,laptop',100,100,0,11899.99,0);
+INSERT INTO  product_detail (id,name,tags,order_storage,actual_storage,sales,price,version) VALUES(8,'苹果 macbook pro','apple,laptop',100,100,0,15899.99,0);
+

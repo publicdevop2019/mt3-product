@@ -1,7 +1,6 @@
 package com.hw.aggregate.product;
 
 import com.hw.aggregate.product.command.*;
-import com.hw.aggregate.product.command.ProductValidationCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,17 +21,21 @@ public class ProductController {
     public ResponseEntity<?> getProductsByTags(@RequestParam(name = "tags") String tags, @RequestParam("pageNum") Integer pageNumber,
                                                @RequestParam("pageSize") Integer pageSize, @RequestParam("sortBy") String sortBy,
                                                @RequestParam("sortOrder") String sortOrder) {
-        return ResponseEntity.ok(productService.searchByTags(tags, pageNumber, pageSize, sortBy, sortOrder).getProductSimpleList());
+        return ResponseEntity.ok(productService.searchByTagsForCustomer(tags, pageNumber, pageSize, sortBy, sortOrder).getProductSimpleList());
     }
 
     @GetMapping("admin/productDetails")
-    public ResponseEntity<?> getAllProducts(@RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
-        return ResponseEntity.ok(productService.getAll(pageNumber, pageSize));
+    public ResponseEntity<?> getProducts(@RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
+        return ResponseEntity.ok(productService.getAllForAdmin(pageNumber, pageSize));
+    }
+    @GetMapping("admin/productDetails/search")
+    public ResponseEntity<?> getProducts(@RequestParam(name = "tags") String tags, @RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
+        return ResponseEntity.ok(productService.searchByTagsForAdmin(tags,pageNumber, pageSize));
     }
 
     @GetMapping("public/productDetails/search")
     public ResponseEntity<?> searchProduct(@RequestParam("key") String key, @RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
-        return ResponseEntity.ok(productService.searchProduct(key, pageNumber, pageSize).getProductSearchRepresentations());
+        return ResponseEntity.ok(productService.searchProductForCustomer(key, pageNumber, pageSize).getData());
     }
 
     @PostMapping("internal/productDetails/validate")

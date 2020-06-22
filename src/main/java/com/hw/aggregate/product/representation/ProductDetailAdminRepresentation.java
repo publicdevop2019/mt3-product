@@ -22,7 +22,7 @@ public class ProductDetailAdminRepresentation {
     private String rate;
     private BigDecimal price;
     private Integer sales;
-    private String catalog;
+    private Set<String> tags;
     private List<ProductOption> selectedOptions;
     private Set<String> imageUrlLarge;
     private Set<String> specification;
@@ -36,7 +36,7 @@ public class ProductDetailAdminRepresentation {
         this.rate = productDetail.getRate();
         this.price = productDetail.getPrice();
         this.sales = productDetail.getSales();
-        this.catalog = productDetail.getCatalog();
+        this.tags = productDetail.getTags();
         this.selectedOptions = productDetail.getSelectedOptions();
         this.imageUrlLarge = productDetail.getImageUrlLarge();
         this.specification = productDetail.getSpecification();
