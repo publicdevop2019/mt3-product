@@ -68,7 +68,7 @@ public class ProductApplicationService {
         }
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, finalSort);
         HashSet<String> strings = new HashSet<>(Arrays.asList(tags.split(",")));
-        return new ProductSearchTagsCustomerSummaryRepresentation(productDetailRepo.findProductByTags(strings, pageRequest).getContent());
+        return new ProductSearchTagsCustomerSummaryRepresentation(productDetailRepo.findProductByAttributes(strings, pageRequest).getContent());
     }
 
     /**
@@ -222,7 +222,7 @@ public class ProductApplicationService {
     }
 
     public ProductSearchAdminPaginatedSummaryRepresentation searchByTagsForAdmin(String tags, Integer pageNumber, Integer pageSize) {
-        List<Object[]> resultList = entityManager.createNativeQuery("SELECT id, name, price, sales,tags, order_storage, actual_storage" +
+        List<Object[]> resultList = entityManager.createNativeQuery("SELECT id, name, price, sales,attributes, order_storage, actual_storage" +
                 " FROM product_detail pd WHERE " + getWhereClause(tags) + " ORDER BY price ASC LIMIT ?1, ?2")
                 .setParameter(1, pageNumber * pageSize)
                 .setParameter(2, pageSize)
@@ -235,9 +235,9 @@ public class ProductApplicationService {
         return new ProductSearchAdminPaginatedSummaryRepresentation(productDetails);
     }
 
-    private String getWhereClause(String tags) {
-        HashSet<String> hashSet = new HashSet<>(Arrays.asList(tags.split(",")));
-        List<String> collect = hashSet.stream().map(tag -> "pd.tags LIKE '%" + tag + "%'").collect(Collectors.toList());
+    private String getWhereClause(String attributes) {
+        HashSet<String> hashSet = new HashSet<>(Arrays.asList(attributes.split(",")));
+        List<String> collect = hashSet.stream().map(e -> "pd.attributes LIKE '%" + e + "%'").collect(Collectors.toList());
         return String.join(" AND ", collect);
     }
 }

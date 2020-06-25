@@ -36,7 +36,7 @@ public class ProductSearchTagsCustomerSummaryRepresentation {
             this.rate = productDetail.getRate();
             this.price = productDetail.getPrice();
             this.sales = productDetail.getSales();
-            this.tags = productDetail.getTags();
+            this.tags = productDetail.getAttributes();
             this.orderStorage = productDetail.getOrderStorage();
         }
 

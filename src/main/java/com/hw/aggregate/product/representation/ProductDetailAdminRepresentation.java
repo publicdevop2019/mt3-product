@@ -36,7 +36,7 @@ public class ProductDetailAdminRepresentation {
         this.rate = productDetail.getRate();
         this.price = productDetail.getPrice();
         this.sales = productDetail.getSales();
-        this.tags = productDetail.getTags();
+        this.tags = productDetail.getAttributes();
         this.selectedOptions = productDetail.getSelectedOptions();
         this.imageUrlLarge = productDetail.getImageUrlLarge();
         this.specification = productDetail.getSpecification();

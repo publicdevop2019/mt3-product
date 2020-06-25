@@ -39,7 +39,7 @@ public class ProductSearchAdminPaginatedSummaryRepresentation {
             this.name = productDetail.getName();
             this.price = productDetail.getPrice();
             this.sales = productDetail.getSales();
-            this.tags = productDetail.getTags();
+            this.tags = productDetail.getAttributes();
             this.orderStorage = productDetail.getOrderStorage();
             this.actualStorage = productDetail.getActualStorage();
         }

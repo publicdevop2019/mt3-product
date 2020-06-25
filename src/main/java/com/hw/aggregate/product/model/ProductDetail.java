@@ -69,7 +69,7 @@ public class ProductDetail extends Auditable {
     @NotNull
     @Column
     @Convert(converter = com.hw.aggregate.catalog.model.StringSetConverter.class)
-    private Set<String> tags;
+    private Set<String> attributes;
 
     @Column(length = 10000)
     @Convert(converter = ProductOptionConverter.class)
@@ -86,15 +86,15 @@ public class ProductDetail extends Auditable {
     @Version
     private Integer version;
 
-    public ProductDetail(Long id, String name, BigDecimal price, Integer sales, String tags, Integer orderStorage, Integer actualStorage) {
+    public ProductDetail(Long id, String name, BigDecimal price, Integer sales, String attributes, Integer orderStorage, Integer actualStorage) {
         this.id = id;
         this.name = name;
         this.orderStorage = orderStorage;
         this.actualStorage = actualStorage;
         this.price = price;
         this.sales = sales;
-        HashSet<String> hashSet = new HashSet<>(Arrays.asList(tags.split(",")));
-        this.tags = hashSet;
+        HashSet<String> hashSet = new HashSet<>(Arrays.asList(attributes.split(",")));
+        this.attributes = hashSet;
     }
 
     public static ProductDetail create(Long id, String imageUrlSmall, String name, Integer orderStorage, Integer actualStorage,
@@ -107,7 +107,7 @@ public class ProductDetail extends Auditable {
 
     public ProductDetail(Long id, String imageUrlSmall, String name, Integer orderStorage, Integer actualStorage,
                          String description, String rate, BigDecimal price,
-                         Integer sales, String tags, List<ProductOption> selectedOptions,
+                         Integer sales, String attributes, List<ProductOption> selectedOptions,
                          Set<String> imageUrlLarge, Set<String> specification) {
         this.id = id;
         this.imageUrlSmall = imageUrlSmall;

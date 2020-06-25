@@ -14,8 +14,8 @@ import java.util.Set;
 @Repository
 public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
 
-    @Query("SELECT p FROM #{#entityName} as p WHERE p.tags = ?1")
-    Page<ProductDetail> findProductByTags(Set<String> tags, Pageable pageable);
+    @Query("SELECT p FROM #{#entityName} as p WHERE p.attributes = ?1")
+    Page<ProductDetail> findProductByAttributes(Set<String> tags, Pageable pageable);
 
     @Query("SELECT p FROM #{#entityName} as p WHERE p.name LIKE ?1%")
     List<ProductDetail> searchProductByName(String searchKey, Pageable pageable);

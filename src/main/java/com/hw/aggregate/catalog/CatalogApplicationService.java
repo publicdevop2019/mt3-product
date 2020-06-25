@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class CatalogApplicationService {
 
     @Autowired
-    private CatalogRepo repo;
+    private CatalogRepository repo;
 
     @Autowired
     private IdGenerator idGenerator;
