@@ -1,4 +1,4 @@
-package com.hw.aggregate.product.model;
+package com.hw.config;
 
 public class AppConstant {
     public static final String REVOKE = "_REVOKED";

@@ -1,9 +1,10 @@
 package com.hw.aggregate.product.representation;
 
-import com.hw.aggregate.product.model.ProductDetail;
-import com.hw.aggregate.product.model.ProductOption;
+import com.hw.aggregate.product.model.*;
 import lombok.Data;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
@@ -11,34 +12,38 @@ import java.util.Set;
 @Data
 public class ProductDetailAdminRepresentation {
     private Long id;
-    private String imageUrlSmall;
+
     private String name;
-    private Integer orderStorage;
-    private Integer increaseOrderStorageBy;
-    private Integer decreaseOrderStorageBy;
-    private Integer increaseActualStorageBy;
-    private Integer decreaseActualStorageBy;
-    private String description;
-    private String rate;
-    private BigDecimal price;
-    private Integer sales;
-    private Set<String> tags;
-    private List<ProductOption> selectedOptions;
+
+    private String imageUrlSmall;
+
     private Set<String> imageUrlLarge;
+
+    private String description;
+
     private Set<String> specification;
+
+    private List<ProductOption> selectedOptions;
+
+    private Set<String> attrKey;
+
+    private Set<String> attrProd;
+
+    private Set<String> attrGen;
+
+    private List<ProductSku> productSkuList;
 
     public ProductDetailAdminRepresentation(ProductDetail productDetail) {
         this.id = productDetail.getId();
-        this.imageUrlSmall = productDetail.getImageUrlSmall();
         this.name = productDetail.getName();
-        this.orderStorage = productDetail.getOrderStorage();
+        this.imageUrlSmall = productDetail.getImageUrlSmall();
         this.description = productDetail.getDescription();
-        this.rate = productDetail.getRate();
-        this.price = productDetail.getPrice();
-        this.sales = productDetail.getSales();
-        this.tags = productDetail.getAttributes();
         this.selectedOptions = productDetail.getSelectedOptions();
         this.imageUrlLarge = productDetail.getImageUrlLarge();
         this.specification = productDetail.getSpecification();
+        this.attrKey = productDetail.getAttrKey();
+        this.attrProd = productDetail.getAttrProd();
+        this.attrGen = productDetail.getAttrGen();
+        this.productSkuList = productDetail.getProductSkuList();
     }
 }

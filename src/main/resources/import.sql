@@ -35,17 +35,17 @@ INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(33,'50寸',3
 INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(34,'40寸',30,'屏幕尺寸:40英尺','BACKEND');
 INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(35,'笔记本电脑',16,'品牌:苹果,分类:笔记本','BACKEND');
 
-INSERT INTO  biz_attribute (id,name,method,select_values) VALUES(0,'品牌','SELECT','华为,苹果,小米,三星');
-INSERT INTO  biz_attribute (id,name,method,select_values) VALUES(1,'分类','SELECT','台式,平板,笔记本,手机,无线耳机,智能电视');
-INSERT INTO  biz_attribute (id,name,method,select_values) VALUES(2,'屏幕尺寸','SELECT','60英尺,50英尺,40英尺');
+INSERT INTO  biz_attribute (id,name,method,select_values,type) VALUES(0,'品牌','SELECT','华为,苹果,小米,三星','KEY_ATTR');
+INSERT INTO  biz_attribute (id,name,method,select_values,type) VALUES(1,'分类','SELECT','台式,平板,笔记本,手机,无线耳机,智能电视','KEY_ATTR');
+INSERT INTO  biz_attribute (id,name,method,select_values,type) VALUES(2,'屏幕尺寸','SELECT','60英尺,50英尺,40英尺','PROD_ATTR');
 
-INSERT INTO  product_detail (id,name,attributes,order_storage,actual_storage,sales,price,version) VALUES(0,'华为 P30Pro 64G','品牌:华为,分类:手机',100,100,0,3899.99,0);
-INSERT INTO  product_detail (id,name,attributes,order_storage,actual_storage,sales,price,version) VALUES(1,'华为 P30Pro 128G','品牌:华为,分类:手机',100,100,0,3999.99,0);
-INSERT INTO  product_detail (id,name,attributes,order_storage,actual_storage,sales,price,version) VALUES(2,'华为 matebook 128G','品牌:华为,分类:台式',100,100,0,6999.99,0);
-INSERT INTO  product_detail (id,name,attributes,order_storage,actual_storage,sales,price,version) VALUES(3,'华为 matebook 256G','品牌:华为,分类:台式',100,100,0,7499.99,0);
-INSERT INTO  product_detail (id,name,attributes,order_storage,actual_storage,sales,price,version) VALUES(4,'苹果 iphone11 64G','品牌:苹果,分类:手机',100,100,0,5699.99,0);
-INSERT INTO  product_detail (id,name,attributes,order_storage,actual_storage,sales,price,version) VALUES(5,'苹果 iphone11 128G','品牌:苹果,分类:手机',100,100,0,5899.99,0);
-INSERT INTO  product_detail (id,name,attributes,order_storage,actual_storage,sales,price,version) VALUES(6,'苹果 earpods','品牌:苹果,分类:无线耳机',100,100,0,1899.99,0);
-INSERT INTO  product_detail (id,name,attributes,order_storage,actual_storage,sales,price,version) VALUES(7,'苹果 macbook','品牌:苹果,分类:笔记本',100,100,0,11899.99,0);
-INSERT INTO  product_detail (id,name,attributes,order_storage,actual_storage,sales,price,version) VALUES(8,'苹果 macbook pro','品牌:苹果,分类:笔记本',100,100,0,15899.99,0);
+INSERT INTO  product_detail (id,name,attr_key) VALUES(0,'华为 P30Pro 64G','品牌:华为,分类:手机');
+INSERT INTO  product_detail (id,name,attr_key) VALUES(1,'华为 P30Pro 128G','品牌:华为,分类:手机');
+INSERT INTO  product_detail (id,name,attr_key) VALUES(2,'华为 matebook 128G','品牌:华为,分类:台式');
+INSERT INTO  product_detail (id,name,attr_key) VALUES(3,'华为 matebook 256G','品牌:华为,分类:台式');
+INSERT INTO  product_detail (id,name,attr_key) VALUES(4,'苹果 iphone11 64G','品牌:苹果,分类:手机');
+INSERT INTO  product_detail (id,name,attr_key) VALUES(5,'苹果 iphone11 128G','品牌:苹果,分类:手机');
+INSERT INTO  product_detail (id,name,attr_key) VALUES(6,'苹果 earpods','品牌:苹果,分类:无线耳机');
+INSERT INTO  product_detail (id,name,attr_key) VALUES(7,'苹果 macbook','品牌:苹果,分类:笔记本');
+INSERT INTO  product_detail (id,name,attr_key) VALUES(8,'苹果 macbook pro','品牌:苹果,分类:笔记本');
 

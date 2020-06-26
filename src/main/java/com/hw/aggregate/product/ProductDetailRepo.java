@@ -14,25 +14,25 @@ import java.util.Set;
 @Repository
 public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
 
-    @Query("SELECT p FROM #{#entityName} as p WHERE p.attributes = ?1")
-    Page<ProductDetail> findProductByAttributes(Set<String> tags, Pageable pageable);
+    @Query("SELECT p FROM #{#entityName} as p WHERE p.attrKey = ?1")
+    Page<ProductDetail> searchProductByAttributes(Set<String> tags, Pageable pageable);
 
     @Query("SELECT p FROM #{#entityName} as p WHERE p.name LIKE ?1%")
-    List<ProductDetail> searchProductByName(String searchKey, Pageable pageable);
+    Page<ProductDetail> searchProductByName(String searchKey, Pageable pageable);
 
-    @Modifying
-    @Query("UPDATE #{#entityName} as p SET p.orderStorage = p.orderStorage - ?2 WHERE p.id = ?1 AND p.orderStorage - ?2 >= 0")
-    Integer decreaseOrderStorage(Long id, Integer amountDecreased);
+//    @Modifying
+//    @Query("UPDATE #{#entityName} as p SET p.orderStorage = p.orderStorage - ?2 WHERE p.id = ?1 AND p.orderStorage - ?2 >= 0")
+//    Integer decreaseOrderStorage(Long id, Integer amountDecreased);
 
-    @Modifying
-    @Query("UPDATE #{#entityName} as p SET p.orderStorage = p.orderStorage + ?2 WHERE p.id = ?1")
-    Integer increaseOrderStorage(Long id, Integer amountIncreased);
+//    @Modifying
+//    @Query("UPDATE #{#entityName} as p SET p.orderStorage = p.orderStorage + ?2 WHERE p.id = ?1")
+//    Integer increaseOrderStorage(Long id, Integer amountIncreased);
 
-    @Modifying
-    @Query("UPDATE #{#entityName} as p SET p.actualStorage = p.actualStorage - ?2 , p.sales = p.sales + ?2 WHERE p.id = ?1 AND p.actualStorage - ?2 >= 0")
-    Integer decreaseActualStorageAndIncreaseSales(Long id, Integer amount);
+//    @Modifying
+//    @Query("UPDATE #{#entityName} as p SET p.actualStorage = p.actualStorage - ?2 , p.sales = p.sales + ?2 WHERE p.id = ?1 AND p.actualStorage - ?2 >= 0")
+//    Integer decreaseActualStorageAndIncreaseSales(Long id, Integer amount);
 
-    @Modifying
-    @Query("UPDATE #{#entityName} as p SET p.actualStorage = p.actualStorage + ?2 , p.sales = p.sales - ?2 WHERE p.id = ?1 AND p.sales - ?2 >= 0")
-    Integer increaseActualStorageAndDecreaseSales(Long id, Integer amount);
+//    @Modifying
+//    @Query("UPDATE #{#entityName} as p SET p.actualStorage = p.actualStorage + ?2 , p.sales = p.sales - ?2 WHERE p.id = ?1 AND p.sales - ?2 >= 0")
+//    Integer increaseActualStorageAndDecreaseSales(Long id, Integer amount);
 }

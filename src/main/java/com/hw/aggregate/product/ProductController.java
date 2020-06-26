@@ -1,6 +1,8 @@
 package com.hw.aggregate.product;
 
 import com.hw.aggregate.product.command.*;
+import com.hw.aggregate.product.representation.ProductAdminGetAllPaginatedSummaryRepresentation;
+import com.hw.aggregate.product.representation.ProductCustomerSearchByAttributesSummaryPaginatedRepresentation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,24 +20,27 @@ public class ProductController {
     private ProductApplicationService productService;
 
     @GetMapping("public/productDetails")
-    public ResponseEntity<?> getProductsByTags(@RequestParam(name = "tags") String tags, @RequestParam("pageNum") Integer pageNumber,
-                                               @RequestParam("pageSize") Integer pageSize, @RequestParam("sortBy") String sortBy,
-                                               @RequestParam("sortOrder") String sortOrder) {
-        return ResponseEntity.ok(productService.searchByTagsForCustomer(tags, pageNumber, pageSize, sortBy, sortOrder).getProductSimpleList());
+    public ResponseEntity<ProductCustomerSearchByAttributesSummaryPaginatedRepresentation> searchProductsByAttributes(
+            @RequestParam(name = "attributes") String attributes, @RequestParam("pageNum") Integer pageNumber,
+            @RequestParam("pageSize") Integer pageSize, @RequestParam("sortBy") String sortBy,
+            @RequestParam("sortOrder") String sortOrder) {
+        return ResponseEntity.ok(productService.searchByAttributesForCustomer(attributes, pageNumber, pageSize, sortBy, sortOrder));
     }
 
     @GetMapping("admin/productDetails")
-    public ResponseEntity<?> getProducts(@RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
+    public ResponseEntity<ProductAdminGetAllPaginatedSummaryRepresentation> getProducts(
+            @RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
         return ResponseEntity.ok(productService.getAllForAdmin(pageNumber, pageSize));
     }
+
     @GetMapping("admin/productDetails/search")
-    public ResponseEntity<?> getProducts(@RequestParam(name = "tags") String tags, @RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
-        return ResponseEntity.ok(productService.searchByTagsForAdmin(tags,pageNumber, pageSize));
+    public ResponseEntity<?> getProducts(@RequestParam(name = "attributes") String attributes, @RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
+        return ResponseEntity.ok(productService.searchByAttributesForAdmin(attributes, pageNumber, pageSize));
     }
 
     @GetMapping("public/productDetails/search")
-    public ResponseEntity<?> searchProduct(@RequestParam("key") String key, @RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
-        return ResponseEntity.ok(productService.searchProductForCustomer(key, pageNumber, pageSize).getData());
+    public ResponseEntity<?> searchProductByName(@RequestParam("key") String key, @RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
+        return ResponseEntity.ok(productService.searchProductForCustomer(key, pageNumber, pageSize));
     }
 
     @PostMapping("internal/productDetails/validate")
@@ -68,8 +73,8 @@ public class ProductController {
 
 
     @DeleteMapping("admin/productDetails/{productDetailId}")
-    public ResponseEntity<?> deleteProduct(@PathVariable(name = "productDetailId") Long productDetailId) {
-        productService.delete(new DeleteProductAdminCommand(productDetailId));
+    public ResponseEntity<?> deleteProduct(@PathVariable(name = "productDetailId") Long id) {
+        productService.delete(id);
         return ResponseEntity.ok().build();
     }
 
@@ -88,8 +93,8 @@ public class ProductController {
 
 
     @PutMapping("shared/productDetails/increaseStorageBy")
-    public ResponseEntity<?> increaseOrderStorage(@RequestBody Map<String, String> productMap, @RequestParam(name = "optToken") String txId) {
-        productService.increaseOrderStorageForMappedProducts(new IncreaseOrderStorageCommand(productMap, txId));
+    public ResponseEntity<?> increaseOrderStorage(@RequestBody IncreaseOrderStorageCommand command) {
+        productService.increaseOrderStorageForMappedProducts(command);
         return ResponseEntity.ok().build();
     }
 

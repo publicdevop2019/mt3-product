@@ -20,11 +20,11 @@ public class CatalogTreeCustomerRepresentation {
     @Data
     public class CatalogSummaryCardRepresentation {
         private String name;
-        private Set<String> attributesSearch;
+        private Set<String> attributesKey;
 
         public CatalogSummaryCardRepresentation(Catalog catalog) {
             this.name = catalog.getName();
-            this.attributesSearch =catalog.getAttributes();
+            this.attributesKey =catalog.getAttributes();
         }
     }
 }

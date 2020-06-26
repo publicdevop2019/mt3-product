@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 public class ProductApplicationService {
 
     @Autowired
-    private ProductDetailRepo productDetailRepo;
+    private ProductDetailRepo repo;
 
     @Autowired
     private ProductServiceLambda productServiceLambda;
@@ -41,22 +41,23 @@ public class ProductApplicationService {
     private EntityManager entityManager;
 
     @Transactional(readOnly = true)
-    public ProductSearchAdminPaginatedSummaryRepresentation getAllForAdmin(Integer pageNumber, Integer pageSize) {
+    public ProductAdminGetAllPaginatedSummaryRepresentation getAllForAdmin(Integer pageNumber, Integer pageSize) {
         Sort orders = new Sort(Sort.Direction.ASC, "id");
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, orders);
-        Page<ProductDetail> all = productDetailRepo.findAll(pageRequest);
-        return new ProductSearchAdminPaginatedSummaryRepresentation(all.getContent(), all.getTotalPages(), all.getTotalElements());
+        Page<ProductDetail> all = repo.findAll(pageRequest);
+        return new ProductAdminGetAllPaginatedSummaryRepresentation(all.getContent(), all.getTotalPages(), all.getTotalElements());
     }
 
     @Transactional(readOnly = true)
-    public ProductSearchResultRepresentation searchProductForCustomer(String key, Integer pageNumber, Integer pageSize) {
+    public ProductCustomerSearchByNameSummaryPaginatedRepresentation searchProductForCustomer(String key, Integer pageNumber, Integer pageSize) {
         Sort orders = new Sort(Sort.Direction.ASC, "id");
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, orders);
-        return new ProductSearchResultRepresentation(productDetailRepo.searchProductByName(key, pageRequest));
+        Page<ProductDetail> pd = repo.searchProductByName(key, pageRequest);
+        return new ProductCustomerSearchByNameSummaryPaginatedRepresentation(pd.getContent(), pd.getTotalPages(), pd.getTotalElements());
     }
 
     @Transactional(readOnly = true)
-    public ProductSearchTagsCustomerSummaryRepresentation searchByTagsForCustomer(String tags, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public ProductCustomerSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForCustomer(String tags, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
         Sort initialSort = new Sort(Sort.Direction.ASC, SortCriteriaEnum.fromString(sortBy).getSortCriteria());
         Sort finalSort;
         if (sortOrder.equalsIgnoreCase(SortOrderEnum.ASC.getSortOrder())) {
@@ -68,7 +69,8 @@ public class ProductApplicationService {
         }
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, finalSort);
         HashSet<String> strings = new HashSet<>(Arrays.asList(tags.split(",")));
-        return new ProductSearchTagsCustomerSummaryRepresentation(productDetailRepo.findProductByAttributes(strings, pageRequest).getContent());
+        Page<ProductDetail> pd = repo.searchProductByAttributes(strings, pageRequest);
+        return new ProductCustomerSearchByAttributesSummaryPaginatedRepresentation(pd.getContent(), pd.getTotalPages(), pd.getTotalElements());
     }
 
     /**
@@ -81,7 +83,7 @@ public class ProductApplicationService {
     public ProductValidationResultRepresentation validateProduct(List<ProductValidationCommand> products) {
         boolean containInvalidValue;
         if (products.stream().anyMatch(user_product -> {
-            Optional<ProductDetail> byId = productDetailRepo.findById(Long.parseLong(user_product.getProductId()));
+            Optional<ProductDetail> byId = repo.findById(Long.parseLong(user_product.getProductId()));
             /**
              * validate product match
              */
@@ -90,9 +92,9 @@ public class ProductApplicationService {
             /**
              * if no option present then compare final price
              */
-            if (user_product.getSelectedOptions() == null || user_product.getSelectedOptions().size() == 0) {
-                return BigDecimal.valueOf(Double.parseDouble(user_product.getFinalPrice())).compareTo(byId.get().getPrice()) != 0;
-            }
+//            if (user_product.getSelectedOptions() == null || user_product.getSelectedOptions().size() == 0) {
+//                return BigDecimal.valueOf(Double.parseDouble(user_product.getFinalPrice())).compareTo(byId.get().getPrice()) != 0;
+//            }
             /**
              * validate product option match
              */
@@ -158,10 +160,11 @@ public class ProductApplicationService {
                     log.error("unknown operation type");
                 }
             }
-            if (calc.add(byId.get().getPrice()).compareTo(BigDecimal.valueOf(Double.parseDouble(finalPrice))) == 0) {
-                log.error("value does match for product {}, expected {} actual {}", user_product.getProductId(), calc.add(byId.get().getPrice()), BigDecimal.valueOf(Double.parseDouble(finalPrice)));
-                return false;
-            }
+            //@todo review
+//            if (calc.add(byId.get().getPrice()).compareTo(BigDecimal.valueOf(Double.parseDouble(finalPrice))) == 0) {
+//                log.error("value does match for product {}, expected {} actual {}", user_product.getProductId(), calc.add(byId.get().getPrice()), BigDecimal.valueOf(Double.parseDouble(finalPrice)));
+//                return false;
+//            }
             return true;
         })) containInvalidValue = true;
         else containInvalidValue = false;
@@ -179,25 +182,20 @@ public class ProductApplicationService {
     }
 
     @Transactional
-    public ProductCreatedRepresentation createProduct(CreateProductAdminCommand productDetail) {
-        ProductDetail productDetail1 = ProductDetail.create(
-                idGenerator.getId(),
-                productDetail.getImageUrlSmall(), productDetail.getName(), productDetail.getOrderStorage()
-                , productDetail.getActualStorage(), productDetail.getDescription(),
-                productDetail.getRate(), productDetail.getPrice(), productDetail.getSales(),
-                productDetail.getCatalog(), productDetail.getSelectedOptions(),
-                productDetail.getImageUrlLarge(), productDetail.getSpecification());
-        return new ProductCreatedRepresentation(productDetailRepo.save(productDetail1).getId().toString());
+    public ProductCreatedRepresentation createProduct(CreateProductAdminCommand command) {
+        ProductDetail pd = ProductDetail.create(idGenerator.getId(), command, repo);
+        return new ProductCreatedRepresentation(pd);
     }
 
     @Transactional
-    public void updateProduct(Long productDetailId, UpdateProductAdminCommand newProductDetail) {
-        productServiceLambda.getById.andThen(productServiceLambda.update).accept(productDetailId, newProductDetail);
+    public void updateProduct(Long id, UpdateProductAdminCommand command) {
+        ProductDetail read = ProductDetail.read(id, repo);
+        read.update(command);
     }
 
     @Transactional
-    public void delete(DeleteProductAdminCommand command) {
-        productDetailRepo.deleteById(command.getId());
+    public void delete(Long id) {
+        ProductDetail.delete(id, repo);
     }
 
     @Transactional
@@ -212,7 +210,7 @@ public class ProductApplicationService {
 
     @Transactional
     public void increaseOrderStorageForMappedProducts(IncreaseOrderStorageCommand command) {
-        productServiceLambda.increaseOrderStorageForMappedProducts.accept(command.getProductMap(), command.getOptToken());
+        productServiceLambda.increaseOrderStorageForMappedProducts.accept(command);
     }
 
     @Transactional
@@ -221,8 +219,8 @@ public class ProductApplicationService {
         productServiceLambda.revoke.accept(command.getOptToken());
     }
 
-    public ProductSearchAdminPaginatedSummaryRepresentation searchByTagsForAdmin(String tags, Integer pageNumber, Integer pageSize) {
-        List<Object[]> resultList = entityManager.createNativeQuery("SELECT id, name, price, sales,attributes, order_storage, actual_storage" +
+    public ProductAdminSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForAdmin(String tags, Integer pageNumber, Integer pageSize) {
+        List<Object[]> resultList = entityManager.createNativeQuery("SELECT id, name, price, sales,attrKey, order_storage, actual_storage" +
                 " FROM product_detail pd WHERE " + getWhereClause(tags) + " ORDER BY price ASC LIMIT ?1, ?2")
                 .setParameter(1, pageNumber * pageSize)
                 .setParameter(2, pageSize)
@@ -232,12 +230,12 @@ public class ProductApplicationService {
             productDetails.add(new ProductDetail(((BigInteger) row[0]).longValue(), (String) row[1], (BigDecimal) row[2],
                     (Integer) row[3], (String) row[4], (Integer) row[5], (Integer) row[6]));
         }
-        return new ProductSearchAdminPaginatedSummaryRepresentation(productDetails);
+        return new ProductAdminSearchByAttributesSummaryPaginatedRepresentation(productDetails,null,null);
     }
 
     private String getWhereClause(String attributes) {
         HashSet<String> hashSet = new HashSet<>(Arrays.asList(attributes.split(",")));
-        List<String> collect = hashSet.stream().map(e -> "pd.attributes LIKE '%" + e + "%'").collect(Collectors.toList());
+        List<String> collect = hashSet.stream().map(e -> "pd.attrKey LIKE '%" + e + "%'").collect(Collectors.toList());
         return String.join(" AND ", collect);
     }
 }

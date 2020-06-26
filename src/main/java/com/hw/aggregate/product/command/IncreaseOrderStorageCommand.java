@@ -1,16 +1,12 @@
 package com.hw.aggregate.product.command;
 
+import com.hw.aggregate.product.model.StorageChangeDetail;
 import lombok.Data;
 
-import java.util.Map;
+import java.util.List;
 
 @Data
 public class IncreaseOrderStorageCommand {
-    private String optToken;
-    private Map<String, String> productMap;
-
-    public IncreaseOrderStorageCommand(Map<String, String> productMap, String optToken) {
-        this.productMap = productMap;
-        this.optToken = optToken;
-    }
+    private String txId;
+    private List<StorageChangeDetail> changeList;
 }

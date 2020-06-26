@@ -20,8 +20,8 @@ public class TransactionRecord extends Auditable {
     private String changeField;
 
     @Column(nullable = false)
-    @Convert(converter = MapConverter.class)
-    private Map<String, String> changeValues;
+    @Convert(converter = LongIntegerMapConverter.class)
+    private Map<Long, Integer> changeValues;
 
     @Column(nullable = false)
     private String changeType;

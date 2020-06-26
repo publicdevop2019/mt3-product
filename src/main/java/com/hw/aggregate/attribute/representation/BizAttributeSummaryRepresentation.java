@@ -1,7 +1,8 @@
 package com.hw.aggregate.attribute.representation;
 
 import com.hw.aggregate.attribute.model.BizAttribute;
-import com.hw.aggregate.attribute.model.MethodEnum;
+import com.hw.aggregate.attribute.model.AttributeMethod;
+import com.hw.aggregate.attribute.model.BizAttributeType;
 import lombok.Data;
 
 import java.util.List;
@@ -21,13 +22,15 @@ public class BizAttributeSummaryRepresentation {
         private Long id;
         private String name;
         private Set<String> selectValues;
-        private MethodEnum method;
+        private AttributeMethod method;
+        private BizAttributeType type;
 
         public BizAttributeCardRepresentation(BizAttribute attribute) {
             this.id = attribute.getId();
             this.name = attribute.getName();
             this.selectValues = attribute.getSelectValues();
             this.method = attribute.getMethod();
+            this.type = attribute.getType();
         }
     }
 }

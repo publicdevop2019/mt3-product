@@ -24,10 +24,12 @@ public class BizAttribute extends Auditable {
     @Id
     private Long id;
     private String name;
-    @Convert(converter = MethodEnum.DBConverter.class)
-    private MethodEnum method;
+    @Convert(converter = AttributeMethod.DBConverter.class)
+    private AttributeMethod method;
     @Convert(converter = StringSetConverter.class)
     private Set<String> selectValues;
+    @Convert(converter = BizAttributeType.DBConverter.class)
+    private BizAttributeType type;
 
     public static BizAttribute create(Long id, CreateBizAttributeCommand command, BizAttributeRepository attributeRepository) {
         BizAttribute attribute = new BizAttribute(id, command);
@@ -40,12 +42,14 @@ public class BizAttribute extends Auditable {
         this.name = command.getName();
         this.method = command.getMethod();
         this.selectValues = command.getSelectValues();
+        this.type = command.getType();
     }
 
     public static void update(Long attributeId, UpdateBizAttributeCommand command, BizAttributeRepository attributeRepository) {
         BizAttribute read = read(attributeId, attributeRepository);
         read.setMethod(command.getMethod());
         read.setSelectValues(command.getSelectValues());
+        read.setType(command.getType());
         attributeRepository.save(read);
     }
 

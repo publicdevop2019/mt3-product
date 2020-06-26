@@ -1,17 +1,16 @@
 package com.hw.aggregate.product.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.hw.aggregate.product.ProductDetailRepo;
+import com.hw.aggregate.product.command.CreateProductAdminCommand;
+import com.hw.aggregate.product.command.UpdateProductAdminCommand;
+import com.hw.aggregate.product.exception.ProductNotFoundException;
 import com.hw.shared.Auditable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Entity
@@ -22,105 +21,88 @@ public class ProductDetail extends Auditable {
     @Id
     private Long id;
 
-    @Column
     private String imageUrlSmall;
 
-    @NotNull
-    @Column
     private String name;
 
-    @Column
-    private Integer orderStorage;
-
-    @Column
-    private Integer actualStorage;
-    /**
-     * use increase | decrease to make sure storage does not get overwritten
-     */
-    @Transient
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Integer increaseOrderStorageBy;
-
-    @Transient
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Integer decreaseOrderStorageBy;
-
-    @Transient
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Integer increaseActualStorageBy;
-
-    @Transient
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Integer decreaseActualStorageBy;
-
-    @Column
     private String description;
-
-    @Column
-    private String rate;
-
-    @NotNull
-    @Column
-    private BigDecimal price;
-
-    @Column
-    private Integer sales;
-
-    @NotNull
-    @Column
-    @Convert(converter = com.hw.aggregate.catalog.model.StringSetConverter.class)
-    private Set<String> attributes;
 
     @Column(length = 10000)
     @Convert(converter = ProductOptionConverter.class)
     private List<ProductOption> selectedOptions;
 
-    @Column
     @Convert(converter = StringSetConverter.class)
     private Set<String> imageUrlLarge;
 
-    @Column
     @Convert(converter = StringSetConverter.class)
     private Set<String> specification;
 
-    @Version
-    private Integer version;
+    @Convert(converter = StringSetConverter.class)
+    private Set<String> attrKey;
 
-    public ProductDetail(Long id, String name, BigDecimal price, Integer sales, String attributes, Integer orderStorage, Integer actualStorage) {
+    @Convert(converter = StringSetConverter.class)
+    private Set<String> attrProd;
+
+    @Convert(converter = StringSetConverter.class)
+    private Set<String> attrGen;
+
+    @ElementCollection
+    @CollectionTable(name = "product_sku_map", joinColumns = @JoinColumn(name = "product_id"))
+    private List<ProductSku> productSkuList;
+
+    public ProductDetail(Long id, String name, BigDecimal price, Integer totalSales, String attributes, Integer orderStorage, Integer actualStorage) {
         this.id = id;
         this.name = name;
-        this.orderStorage = orderStorage;
-        this.actualStorage = actualStorage;
-        this.price = price;
-        this.sales = sales;
-        HashSet<String> hashSet = new HashSet<>(Arrays.asList(attributes.split(",")));
-        this.attributes = hashSet;
+        this.attrKey = new HashSet<>(Arrays.asList(attributes.split(",")));
     }
 
-    public static ProductDetail create(Long id, String imageUrlSmall, String name, Integer orderStorage, Integer actualStorage,
-                                       String description, String rate, BigDecimal price,
-                                       Integer sales, String catalog, List<ProductOption> selectedOptions,
-                                       Set<String> imageUrlLarge, Set<String> specification) {
-        return new ProductDetail(id, imageUrlSmall, name, orderStorage, actualStorage,
-                description, rate, price, sales, catalog, selectedOptions, imageUrlLarge, specification);
+    public static ProductDetail create(Long id, CreateProductAdminCommand command, ProductDetailRepo repo) {
+        ProductDetail productDetail = new ProductDetail(id, command);
+        return repo.save(productDetail);
     }
 
-    public ProductDetail(Long id, String imageUrlSmall, String name, Integer orderStorage, Integer actualStorage,
-                         String description, String rate, BigDecimal price,
-                         Integer sales, String attributes, List<ProductOption> selectedOptions,
-                         Set<String> imageUrlLarge, Set<String> specification) {
+    public static ProductDetail read(Long id, ProductDetailRepo repo) {
+        Optional<ProductDetail> findById = repo.findById(id);
+        if (findById.isEmpty())
+            throw new ProductNotFoundException();
+        return findById.get();
+    }
+
+    public void update(UpdateProductAdminCommand command) {
+        this.imageUrlSmall = command.getImageUrlSmall();
+        this.name = command.getName();
+        this.description = command.getDescription();
+        this.selectedOptions = command.getSelectedOptions();
+        this.imageUrlLarge = command.getImageUrlLarge();
+        this.specification = command.getSpecification();
+        this.attrKey = command.getAttributesKey();
+        this.attrProd = command.getAttributesProd();
+        this.attrGen = command.getAttributesGen();
+        command.getSkus().forEach(e -> {
+            e.setAttributeSales(new TreeSet(e.getAttributeSales()));
+        });
+        this.productSkuList = command.getSkus();
+    }
+
+    public static void delete(Long id, ProductDetailRepo repo) {
+        ProductDetail read = read(id, repo);
+        repo.delete(read);
+    }
+
+    private ProductDetail(Long id, CreateProductAdminCommand command) {
         this.id = id;
-        this.imageUrlSmall = imageUrlSmall;
-        this.name = name;
-        this.orderStorage = orderStorage;
-        this.actualStorage = actualStorage;
-        this.description = description;
-        this.rate = rate;
-        this.price = price;
-        this.sales = sales == null ? 0 : sales;
-//        this.tags = tags;
-        this.selectedOptions = selectedOptions;
-        this.imageUrlLarge = imageUrlLarge;
-        this.specification = specification;
+        this.imageUrlSmall = command.getImageUrlSmall();
+        this.name = command.getName();
+        this.description = command.getDescription();
+        this.selectedOptions = command.getSelectedOptions();
+        this.imageUrlLarge = command.getImageUrlLarge();
+        this.specification = command.getSpecification();
+        this.attrKey = command.getAttributesKey();
+        this.attrProd = command.getAttributesProd();
+        this.attrGen = command.getAttributesGen();
+        command.getSkus().forEach(e -> {
+            e.setAttributeSales(new TreeSet(e.getAttributeSales()));
+        });
+        this.productSkuList = command.getSkus();
     }
 }
