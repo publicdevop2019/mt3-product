@@ -6,10 +6,10 @@ import com.hw.aggregate.product.command.IncreaseActualStorageCommand;
 import com.hw.aggregate.product.command.IncreaseOrderStorageCommand;
 import com.hw.aggregate.product.exception.*;
 import com.hw.aggregate.product.model.ProductDetail;
+import com.hw.aggregate.product.model.StorageChangeCommon;
 import com.hw.aggregate.product.model.StorageChangeDetail;
 import com.hw.aggregate.product.model.TransactionRecord;
 import com.hw.shared.IdGenerator;
-import com.hw.shared.ThrowingBiConsumer;
 import com.hw.shared.ThrowingConsumer;
 import com.hw.shared.ThrowingFunction;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import java.util.*;
+import java.util.function.BiFunction;
 
 import static com.hw.config.AppConstant.*;
 
@@ -25,7 +26,7 @@ import static com.hw.config.AppConstant.*;
  * @note Transactional will make all fields null
  * @note what if rollback request reached first then change request reached ?
  * resource will be changed however this change should not happen.
- * solution: store each transaction in a table, check if rollback exit before execute change
+ * solution: store each transaction in a table, check if rollback exit before making any change
  */
 @Service
 @Slf4j
@@ -45,64 +46,48 @@ public class ProductServiceLambda {
     @Autowired
     private EntityManager entityManager;
 
-    private ThrowingConsumer<StorageChangeDetail, OrderStorageIncreaseException> increaseOrderStorage = (changeDetail) -> {
+    private BiFunction<StorageChangeDetail, String, Integer> executeStorageChange = (changeDetail, nativeQuery) -> {
         //sort to make sure order is fixed
         TreeSet sorted = new TreeSet(changeDetail.getAttributeSales());
-        int i = entityManager.createNativeQuery(
-                "UPDATE product_sku_map AS p " +
-                        "SET p.storage_order = p.storage_order + ?1 " +
-                        "WHERE p.product_id = ?2 AND p.attributes_sales = ?3 ")
+        int i = entityManager.createNativeQuery(nativeQuery)
                 .setParameter(1, changeDetail.getAmount())
                 .setParameter(2, changeDetail.getProductId())
                 .setParameter(3, sorted)
                 .executeUpdate();
-        if (i != 1)
+        return i;
+    };
+
+    private ThrowingConsumer<StorageChangeDetail, OrderStorageIncreaseException> increaseOrderStorage = (changeDetail) -> {
+        Integer apply = executeStorageChange.apply(changeDetail, "UPDATE product_sku_map AS p " +
+                "SET p.storage_order = p.storage_order + ?1 " +
+                "WHERE p.product_id = ?2 AND p.attributes_sales = ?3");
+        if (apply.equals(1))
             throw new OrderStorageIncreaseException();
     };
 
     private ThrowingConsumer<StorageChangeDetail, OrderStorageDecreaseException> decreaseOrderStorage = (changeDetail) -> {
-        //sort to make sure order is fixed
-        TreeSet sorted = new TreeSet(changeDetail.getAttributeSales());
-        int i = entityManager.createNativeQuery(
-                "UPDATE product_sku_map AS p " +
-                        "SET p.storage_order = p.storage_order - ?1 " +
-                        "WHERE p.product_id = ?2 AND p.attributes_sales = ?3 AND p.storage_order - ?1 >= 0")
-                .setParameter(1, changeDetail.getAmount())
-                .setParameter(2, changeDetail.getProductId())
-                .setParameter(3, sorted)
-                .executeUpdate();
-        if (i != 1)
+        Integer apply = executeStorageChange.apply(changeDetail, "UPDATE product_sku_map AS p " +
+                "SET p.storage_order = p.storage_order - ?1 " +
+                "WHERE p.product_id = ?2 AND p.attributes_sales = ?3 AND p.storage_order - ?1 >= 0");
+        if (apply.equals(1))
             throw new OrderStorageDecreaseException();
     };
 
     private ThrowingConsumer<StorageChangeDetail, RuntimeException> decreaseActualStorage = (changeDetail) -> {
-        //sort to make sure order is fixed
-        TreeSet sorted = new TreeSet(changeDetail.getAttributeSales());
-        int i = entityManager.createNativeQuery(
-                "UPDATE product_sku_map AS p " +
-                        "SET p.storage_actual = p.storage_actual - ?1 , p.sales = p.sales + ?2 " +
-                        "WHERE p.product_id = ?2 AND p.attributes_sales = ?3 AND p.storage_actual - ?1 >= 0")
-                .setParameter(1, changeDetail.getAmount())
-                .setParameter(2, changeDetail.getProductId())
-                .setParameter(3, sorted)
-                .executeUpdate();
-        if (i != 1)
+        Integer apply = executeStorageChange.apply(changeDetail, "UPDATE product_sku_map AS p " +
+                "SET p.storage_actual = p.storage_actual - ?1 , p.sales = p.sales + ?2 " +
+                "WHERE p.product_id = ?2 AND p.attributes_sales = ?3 AND p.storage_actual - ?1 >= 0");
+        if (apply.equals(1))
             throw new ActualStorageDecreaseException();
     };
     private ThrowingConsumer<StorageChangeDetail, RuntimeException> increaseActualStorage = (changeDetail) -> {
-        //sort to make sure order is fixed
-        TreeSet sorted = new TreeSet(changeDetail.getAttributeSales());
-        int i = entityManager.createNativeQuery(
-                "UPDATE product_sku_map AS p " +
-                        "SET p.storage_actual = p.storage_actual + ?1 , p.sales = p.sales - ?2 " +
-                        "WHERE p.product_id = ?2 AND p.attributes_sales = ?3 AND p.sales - ?1 >= 0")
-                .setParameter(1, changeDetail.getAmount())
-                .setParameter(2, changeDetail.getProductId())
-                .setParameter(3, sorted)
-                .executeUpdate();
-        if (i != 1)
+        Integer apply = executeStorageChange.apply(changeDetail, "UPDATE product_sku_map AS p " +
+                "SET p.storage_actual = p.storage_actual + ?1 , p.sales = p.sales - ?2 " +
+                "WHERE p.product_id = ?2 AND p.attributes_sales = ?3 AND p.sales - ?1 >= 0");
+        if (apply.equals(1))
             throw new ActualStorageIncreaseException();
     };
+
 
     public ThrowingFunction<Long, ProductDetail, RuntimeException> getById = (productDetailId) -> {
         Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
@@ -112,69 +97,48 @@ public class ProductServiceLambda {
     };
 
     public ThrowingConsumer<IncreaseOrderStorageCommand, RuntimeException> increaseOrderStorageForMappedProducts = (command) -> {
-        if (txRepo.findByTransactionId(command.getTxId() + REVOKE).isPresent()) {
-            throw new HangingTransactionException();
-        }
-        // sort key so deadlock will not happen
-        Collections.sort(command.getChangeList());
+        beforeUpdateStorage(command);
         command.getChangeList().forEach(changeDetail -> increaseOrderStorage.accept(changeDetail));
-        TransactionRecord tx = new TransactionRecord();
-        tx.setId(idGenerator.getId());
-        tx.setChangeField(ORDER_STORAGE);
-        tx.setChangeType(INCREASE);
-        tx.setChangeValues(new ArrayList<>(command.getChangeList()));
-        tx.setTransactionId(command.getTxId());
-        txRepo.save(tx);
+        SaveTx(ORDER_STORAGE, INCREASE, command.getChangeList(), command.getTxId());
     };
 
     public ThrowingConsumer<DecreaseOrderStorageCommand, OrderStorageDecreaseException> decreaseOrderStorageForMappedProducts = (command) -> {
-        if (txRepo.findByTransactionId(command.getTxId() + REVOKE).isPresent()) {
-            throw new HangingTransactionException();
-        }
-        // sort key so deadlock will not happen
+        beforeUpdateStorage(command);
         Collections.sort(command.getChangeList());
-        command.getChangeList().forEach(changeDetail -> decreaseOrderStorage.accept(changeDetail));
-        TransactionRecord tx = new TransactionRecord();
-        tx.setId(idGenerator.getId());
-        tx.setChangeField(ORDER_STORAGE);
-        tx.setChangeType(DECREASE);
-        tx.setChangeValues(new ArrayList<>(command.getChangeList()));
-        tx.setTransactionId(command.getTxId());
-        txRepo.save(tx);
+        SaveTx(ORDER_STORAGE, DECREASE, command.getChangeList(), command.getTxId());
     };
 
 
     public ThrowingConsumer<DecreaseActualStorageCommand, RuntimeException> decreaseActualStorageForMappedProducts = (command) -> {
-        if (txRepo.findByTransactionId(command.getTxId() + REVOKE).isPresent()) {
-            throw new HangingTransactionException();
-        }
-        // sort key so deadlock will not happen
+        beforeUpdateStorage(command);
         Collections.sort(command.getChangeList());
         command.getChangeList().forEach(changeDetail -> decreaseActualStorage.accept(changeDetail));
-        TransactionRecord tx = new TransactionRecord();
-        tx.setId(idGenerator.getId());
-        tx.setChangeField(ACTUAL_STORAGE);
-        tx.setChangeType(DECREASE);
-        tx.setChangeValues(new ArrayList<>(command.getChangeList()));
-        tx.setTransactionId(command.getTxId());
-        txRepo.save(tx);
+        SaveTx(ACTUAL_STORAGE, DECREASE, command.getChangeList(), command.getTxId());
     };
 
     public ThrowingConsumer<IncreaseActualStorageCommand, RuntimeException> increaseActualStorageForMappedProducts = (command) -> {
-        if (txRepo.findByTransactionId(command.getTxId() + REVOKE).isPresent()) {
+        beforeUpdateStorage(command);
+        command.getChangeList().forEach(changeDetail -> increaseActualStorage.accept(changeDetail));
+        SaveTx(ACTUAL_STORAGE, INCREASE, command.getChangeList(), command.getTxId());
+    };
+
+    private void beforeUpdateStorage(StorageChangeCommon common) {
+        if (txRepo.findByTransactionId(common.getTxId() + REVOKE).isPresent()) {
             throw new HangingTransactionException();
         }
         // sort key so deadlock will not happen
-        Collections.sort(command.getChangeList());
-        command.getChangeList().forEach(changeDetail -> increaseActualStorage.accept(changeDetail));
+        Collections.sort(common.getChangeList());
+    }
+
+    private void SaveTx(String changeField, String changeType, List<StorageChangeDetail> details, String txId) {
         TransactionRecord tx = new TransactionRecord();
         tx.setId(idGenerator.getId());
-        tx.setChangeField(ACTUAL_STORAGE);
-        tx.setChangeType(INCREASE);
-        tx.setChangeValues(new ArrayList<>(command.getChangeList()));
-        tx.setTransactionId(command.getTxId());
+        tx.setChangeField(changeField);
+        tx.setChangeType(changeType);
+        tx.setChangeValues(new ArrayList<>(details));
+        tx.setTransactionId(txId);
         txRepo.save(tx);
-    };
+    }
 
     public ThrowingConsumer<String, RuntimeException> rollbackTx = (txId) -> {
         Optional<TransactionRecord> byOptToken = txRepo.findByTransactionId(txId);
