@@ -4,5 +4,5 @@ import com.hw.aggregate.product.model.StorageChangeCommon;
 import lombok.Data;
 
 @Data
-public class DecreaseActualStorageCommand extends StorageChangeCommon {
+public class IncreaseActualStorageCommand extends StorageChangeCommon {
 }

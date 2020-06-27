@@ -2,10 +2,13 @@ package com.hw.aggregate.product.model;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Set;
 
 @Data
-public class StorageChangeDetail implements Comparable<StorageChangeDetail> {
+public class StorageChangeDetail implements Comparable<StorageChangeDetail>, Serializable {
+    private static final long serialVersionUID = 1;
+
     private Long productId;
     private Set<String> attributeSales;
     private Integer amount;

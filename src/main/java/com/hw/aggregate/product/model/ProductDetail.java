@@ -46,7 +46,7 @@ public class ProductDetail extends Auditable {
     private Set<String> attrGen;
 
     @ElementCollection
-    @CollectionTable(name = "product_sku_map", joinColumns = @JoinColumn(name = "product_id"))
+    @CollectionTable(name = "product_sku_map", joinColumns = @JoinColumn(name = "product_id"), uniqueConstraints= @UniqueConstraint(columnNames={"attributesSales","product_id"}))
     private List<ProductSku> productSkuList;
 
     public ProductDetail(Long id, String name, String attributes) {

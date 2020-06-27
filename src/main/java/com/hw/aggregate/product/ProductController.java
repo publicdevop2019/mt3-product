@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -79,29 +78,29 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("shared/productDetails/decreaseStorageBy")
-    public ResponseEntity<?> decreaseOrderStorage(@RequestBody Map<String, String> productMap, @RequestParam(name = "optToken") String txId) {
-        productService.decreaseOrderStorageForMappedProducts(new DecreaseOrderStorageCommand(productMap, txId));
+    @PutMapping("shared/productDetails/storageOrder/decrease")
+    public ResponseEntity<?> decreaseOrderStorage(@RequestBody DecreaseOrderStorageCommand command) {
+        productService.decreaseOrderStorageForMappedProducts(command);
         return ResponseEntity.ok().build();
     }
 
 
-    @PutMapping("internal/productDetails/sold")
-    public ResponseEntity<?> decreaseActualStorage(@RequestBody Map<String, String> productMap, @RequestParam(name = "optToken") String txId) {
-        productService.decreaseActualStorageForMappedProducts(new DecreaseActualStorageCommand(productMap, txId));
+    @PutMapping("internal/productDetails/storageActual/decrease")
+    public ResponseEntity<?> decreaseActualStorage(@RequestBody DecreaseActualStorageCommand command) {
+        productService.decreaseActualStorageForMappedProducts(command);
         return ResponseEntity.ok().build();
     }
 
 
-    @PutMapping("shared/productDetails/increaseStorageBy")
+    @PutMapping("shared/productDetails/storageOrder/increase")
     public ResponseEntity<?> increaseOrderStorage(@RequestBody IncreaseOrderStorageCommand command) {
         productService.increaseOrderStorageForMappedProducts(command);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("internal/productDetails/revoke")
-    public ResponseEntity<?> revoke(@RequestParam(name = "optToken") String txId) {
-        productService.revoke(new RevokeRecordedChangeCommand(txId));
+    @PutMapping("internal/productDetails/rollback")
+    public ResponseEntity<?> rollbackTx(@RequestParam(name = "txId") String txId) {
+        productService.rollbackTx(new RevokeRecordedChangeCommand(txId));
         return ResponseEntity.ok().build();
     }
 }

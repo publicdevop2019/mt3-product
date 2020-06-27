@@ -4,19 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Convert;
+import javax.persistence.Embeddable;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Set;
 
 @Embeddable
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"attributeSales", "productDetail"}))
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 public class ProductSku {
-    @ManyToOne
-    private transient ProductDetail productDetail;
     @Convert(converter = StringSetConverter.class)
     private Set<String> attributesSales;
     @NotNull
@@ -29,7 +27,7 @@ public class ProductSku {
 
     public ProductSku(Object attributesSales, Object storageOrder, Object storageActual, Object price, Object sales) {
         StringSetConverter stringSetConverter = new StringSetConverter();
-        this.attributesSales = stringSetConverter.convertToEntityAttribute((String)attributesSales);
+        this.attributesSales = stringSetConverter.convertToEntityAttribute((String) attributesSales);
         this.storageOrder = (Integer) storageOrder;
         this.storageActual = (Integer) storageActual;
         this.price = (BigDecimal) price;

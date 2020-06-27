@@ -70,38 +70,34 @@ public class ProductApplicationService {
     /**
      * product option can be optional or mandatory,review compare logic
      *
-     * @param products
+     * @param commands
      * @return
      */
     @Transactional(readOnly = true)
-    public ProductValidationResultRepresentation validateProduct(List<ProductValidationCommand> products) {
+    public ProductValidationResultRepresentation validateProduct(List<ProductValidationCommand> commands) {
         boolean containInvalidValue;
-        if (products.stream().anyMatch(user_product -> {
-            Optional<ProductDetail> byId = repo.findById(Long.parseLong(user_product.getProductId()));
-            /**
-             * validate product match
-             */
+        if (commands.stream().anyMatch(command -> {
+            Optional<ProductDetail> byId = repo.findById(Long.parseLong(command.getProductId()));
+            //validate product match
             if (byId.isEmpty())
                 return true;
-            /**
-             * if no option present then compare final price
-             */
-//            if (user_product.getSelectedOptions() == null || user_product.getSelectedOptions().size() == 0) {
-//                return BigDecimal.valueOf(Double.parseDouble(user_product.getFinalPrice())).compareTo(byId.get().getPrice()) != 0;
-//            }
-            /**
-             * validate product option match
-             */
+            List<ProductSku> collect = byId.get().getProductSkuList().stream().filter(productSku -> new TreeSet(productSku.getAttributesSales()).equals(new TreeSet(command.getAttributesSales()))).collect(Collectors.toList());
+            BigDecimal skuPrice = collect.get(0).getPrice();
+            //if no option present then compare final price
+            if (command.getSelectedOptions() == null || command.getSelectedOptions().size() == 0) {
+                return skuPrice.compareTo(command.getFinalPrice()) != 0;
+            }
+            //validate product option match
             List<ProductOption> storedOption = byId.get().getSelectedOptions();
             if (storedOption == null || storedOption.size() == 0)
                 return true;
-            boolean optionAllMatch = user_product.getSelectedOptions().stream().allMatch(userSelected -> {
-                /** check selected option is valid option */
+            boolean optionAllMatch = command.getSelectedOptions().stream().allMatch(userSelected -> {
+                //check selected option is valid option
                 Optional<ProductOption> first = storedOption.stream().filter(storedOptionItem -> {
-                    /** compare title */
+                    // compare title
                     if (!storedOptionItem.title.equals(userSelected.title))
                         return false;
-                    /**compare option value for each title*/
+                    //compare option value for each title
                     String optionValue = userSelected.getOptions().get(0).getOptionValue();
                     Optional<OptionItem> first1 = storedOptionItem.options.stream().filter(optionItem -> optionItem.getOptionValue().equals(optionValue)).findFirst();
                     if (first1.isEmpty())
@@ -116,21 +112,17 @@ public class ProductApplicationService {
             });
             if (!optionAllMatch)
                 return true;
-            /**
-             * validate product final price
-             */
-            String finalPrice = user_product.getFinalPrice();
-            /** get all price variable */
-            List<String> userSelectedAddOnTitles = user_product.getSelectedOptions().stream().map(ProductOption::getTitle).collect(Collectors.toList());
-            /** filter option based on title */
-            Stream<ProductOption> storedAddonMacthingUserSelection = byId.get().getSelectedOptions().stream().filter(var1 -> userSelectedAddOnTitles.contains(var1.getTitle()));
-            /** map to value detail for each title */
-            List<String> priceVarCollection = storedAddonMacthingUserSelection.map(storedMatchAddon -> {
+            //validate product final price
+            BigDecimal finalPrice = command.getFinalPrice();
+            // get all price variable
+            List<String> userSelectedAddOnTitles = command.getSelectedOptions().stream().map(ProductOption::getTitle).collect(Collectors.toList());
+            // filter option based on title
+            Stream<ProductOption> storedAddonMatchingUserSelection = byId.get().getSelectedOptions().stream().filter(var1 -> userSelectedAddOnTitles.contains(var1.getTitle()));
+            // map to value detail for each title
+            List<String> priceVarCollection = storedAddonMatchingUserSelection.map(storedMatchAddon -> {
                 String title = storedMatchAddon.getTitle();
-                /**
-                 * find right option for title
-                 */
-                Optional<ProductOption> user_addon_option = user_product.getSelectedOptions().stream().filter(e -> e.getTitle().equals(title)).findFirst();
+                //find right option for title
+                Optional<ProductOption> user_addon_option = command.getSelectedOptions().stream().filter(e -> e.getTitle().equals(title)).findFirst();
                 OptionItem user_optionItem = user_addon_option.get().getOptions().get(0);
                 Optional<OptionItem> first = storedMatchAddon.getOptions().stream().filter(db_optionItem -> db_optionItem.getOptionValue().equals(user_optionItem.getOptionValue())).findFirst();
                 return first.get().getPriceVar();
@@ -154,11 +146,10 @@ public class ProductApplicationService {
                     log.error("unknown operation type");
                 }
             }
-            //@todo review
-//            if (calc.add(byId.get().getPrice()).compareTo(BigDecimal.valueOf(Double.parseDouble(finalPrice))) == 0) {
-//                log.error("value does match for product {}, expected {} actual {}", user_product.getProductId(), calc.add(byId.get().getPrice()), BigDecimal.valueOf(Double.parseDouble(finalPrice)));
-//                return false;
-//            }
+            if (calc.add(skuPrice).compareTo(finalPrice) == 0) {
+                log.error("value does match for product {}, expected {} actual {}", command.getProductId(), calc.add(skuPrice), finalPrice);
+                return false;
+            }
             return true;
         })) containInvalidValue = true;
         else containInvalidValue = false;
@@ -194,12 +185,12 @@ public class ProductApplicationService {
 
     @Transactional
     public void decreaseActualStorageForMappedProducts(DecreaseActualStorageCommand command) {
-        productServiceLambda.decreaseActualStorageForMappedProducts.accept(command.getProductMap(), command.getOptToken());
+        productServiceLambda.decreaseActualStorageForMappedProducts.accept(command);
     }
 
     @Transactional
     public void decreaseOrderStorageForMappedProducts(DecreaseOrderStorageCommand command) {
-        productServiceLambda.decreaseOrderStorageForMappedProducts.accept(command.getProductMap(), command.getOptToken());
+        productServiceLambda.decreaseOrderStorageForMappedProducts.accept(command);
     }
 
     @Transactional
@@ -208,9 +199,9 @@ public class ProductApplicationService {
     }
 
     @Transactional
-    public void revoke(RevokeRecordedChangeCommand command) {
-        log.info("start of revoke transaction {}", command.getOptToken());
-        productServiceLambda.revoke.accept(command.getOptToken());
+    public void rollbackTx(RevokeRecordedChangeCommand command) {
+        log.info("start of rollback transaction {}", command.getTxId());
+        productServiceLambda.rollbackTx.accept(command.getTxId());
     }
 
     public ProductAdminSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForAdmin(String tags, Integer pageNumber, Integer pageSize) {

@@ -4,9 +4,9 @@ import lombok.Data;
 
 @Data
 public class RevokeRecordedChangeCommand {
-    private String optToken;
+    private String txId;
 
-    public RevokeRecordedChangeCommand(String optToken) {
-        this.optToken = optToken;
+    public RevokeRecordedChangeCommand(String txId) {
+        this.txId = txId;
     }
 }
