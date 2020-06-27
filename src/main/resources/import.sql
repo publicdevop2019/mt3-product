@@ -1,18 +1,6 @@
-INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(0,'手机数码',null,'','FRONTEND');
-INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(1,'华为',0,'','FRONTEND');
-INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(2,'苹果',0,'','FRONTEND');
-INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(3,'小米',0,'','FRONTEND');
-INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(4,'三星',0,'','FRONTEND');
-INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(5,'平板电脑',null,'','FRONTEND');
-INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(6,'华为',5,'','FRONTEND');
-INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(7,'苹果',5,'','FRONTEND');
-INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(8,'小米',5,'','FRONTEND');
-INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(9,'三星',5,'','FRONTEND');
-INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(10,'台式电脑',null,'','FRONTEND');
-INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(11,'华为',10,'','FRONTEND');
-INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(12,'苹果',10,'','FRONTEND');
-INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(13,'小米',10,'','FRONTEND');
-INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(14,'三星',10,'','FRONTEND');
+INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(0,'手机数码',null,'分类:手机','FRONTEND');
+INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(5,'平板电脑',null,'分类:平板','FRONTEND');
+INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(10,'台式电脑',null,'分类:台式','FRONTEND');
 
 INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(15,'华为',null,'品牌:华为','BACKEND');
 INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(16,'苹果',null,'品牌:苹果','BACKEND');
@@ -38,14 +26,6 @@ INSERT INTO  biz_catalog (id,name,parent_id,attributes,type) VALUES(35,'笔记�
 INSERT INTO  biz_attribute (id,name,method,select_values,type) VALUES(0,'品牌','SELECT','华为,苹果,小米,三星','KEY_ATTR');
 INSERT INTO  biz_attribute (id,name,method,select_values,type) VALUES(1,'分类','SELECT','台式,平板,笔记本,手机,无线耳机,智能电视','KEY_ATTR');
 INSERT INTO  biz_attribute (id,name,method,select_values,type) VALUES(2,'屏幕尺寸','SELECT','60英尺,50英尺,40英尺','PROD_ATTR');
-
-INSERT INTO  product_detail (id,name,attr_key) VALUES(0,'华为 P30Pro 64G','品牌:华为,分类:手机');
-INSERT INTO  product_detail (id,name,attr_key) VALUES(1,'华为 P30Pro 128G','品牌:华为,分类:手机');
-INSERT INTO  product_detail (id,name,attr_key) VALUES(2,'华为 matebook 128G','品牌:华为,分类:台式');
-INSERT INTO  product_detail (id,name,attr_key) VALUES(3,'华为 matebook 256G','品牌:华为,分类:台式');
-INSERT INTO  product_detail (id,name,attr_key) VALUES(4,'苹果 iphone11 64G','品牌:苹果,分类:手机');
-INSERT INTO  product_detail (id,name,attr_key) VALUES(5,'苹果 iphone11 128G','品牌:苹果,分类:手机');
-INSERT INTO  product_detail (id,name,attr_key) VALUES(6,'苹果 earpods','品牌:苹果,分类:无线耳机');
-INSERT INTO  product_detail (id,name,attr_key) VALUES(7,'苹果 macbook','品牌:苹果,分类:笔记本');
-INSERT INTO  product_detail (id,name,attr_key) VALUES(8,'苹果 macbook pro','品牌:苹果,分类:笔记本');
+INSERT INTO  biz_attribute (id,name,method,select_values,type) VALUES(3,'新款','SELECT','是,否','GEN_ATTR');
+INSERT INTO  biz_attribute (id,name,method,select_values,type) VALUES(4,'内存','SELECT','64g,128g,256g','SALES_ATTR');
 

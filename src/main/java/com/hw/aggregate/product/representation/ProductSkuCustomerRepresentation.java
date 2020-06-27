@@ -11,7 +11,7 @@ public class ProductSkuCustomerRepresentation {
     private BigDecimal price;
 
     public ProductSkuCustomerRepresentation(ProductSku e) {
-        this.attributeSales = e.getAttributeSales();
+        this.attributeSales = e.getAttributesSales();
         this.storageOrder = e.getStorageOrder();
         this.price = e.getPrice();
     }

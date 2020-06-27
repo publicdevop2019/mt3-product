@@ -3,9 +3,6 @@ package com.hw.aggregate.product.representation;
 import com.hw.aggregate.product.model.*;
 import lombok.Data;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -25,13 +22,13 @@ public class ProductDetailAdminRepresentation {
 
     private List<ProductOption> selectedOptions;
 
-    private Set<String> attrKey;
+    private Set<String> attributesKey;
 
-    private Set<String> attrProd;
+    private Set<String> attributesProd;
 
-    private Set<String> attrGen;
+    private Set<String> attributesGen;
 
-    private List<ProductSku> productSkuList;
+    private List<ProductSku> skus;
 
     public ProductDetailAdminRepresentation(ProductDetail productDetail) {
         this.id = productDetail.getId();
@@ -41,9 +38,9 @@ public class ProductDetailAdminRepresentation {
         this.selectedOptions = productDetail.getSelectedOptions();
         this.imageUrlLarge = productDetail.getImageUrlLarge();
         this.specification = productDetail.getSpecification();
-        this.attrKey = productDetail.getAttrKey();
-        this.attrProd = productDetail.getAttrProd();
-        this.attrGen = productDetail.getAttrGen();
-        this.productSkuList = productDetail.getProductSkuList();
+        this.attributesKey = productDetail.getAttrKey();
+        this.attributesProd = productDetail.getAttrProd();
+        this.attributesGen = productDetail.getAttrGen();
+        this.skus = productDetail.getProductSkuList();
     }
 }

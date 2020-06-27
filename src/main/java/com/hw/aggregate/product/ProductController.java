@@ -30,7 +30,8 @@ public class ProductController {
     @GetMapping("admin/productDetails")
     public ResponseEntity<ProductAdminGetAllPaginatedSummaryRepresentation> getProducts(
             @RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
-        return ResponseEntity.ok(productService.getAllForAdmin(pageNumber, pageSize));
+        ProductAdminGetAllPaginatedSummaryRepresentation allForAdmin = productService.getAllForAdmin(pageNumber, pageSize);
+        return ResponseEntity.ok(allForAdmin);
     }
 
     @GetMapping("admin/productDetails/search")
@@ -40,7 +41,7 @@ public class ProductController {
 
     @GetMapping("public/productDetails/search")
     public ResponseEntity<?> searchProductByName(@RequestParam("key") String key, @RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
-        return ResponseEntity.ok(productService.searchProductForCustomer(key, pageNumber, pageSize));
+        return ResponseEntity.ok(productService.searchProductByNameForCustomer(key, pageNumber, pageSize));
     }
 
     @PostMapping("internal/productDetails/validate")
@@ -48,14 +49,14 @@ public class ProductController {
         return ResponseEntity.ok(productService.validateProduct(products).getResult());
     }
 
-    @GetMapping("public/productDetails/{productDetailId}")
-    public ResponseEntity<?> getProductByIdForCustomer(@PathVariable(name = "productDetailId") Long productDetailId) {
-        return ResponseEntity.ok(productService.getProductByIdForCustomer(productDetailId));
+    @GetMapping("public/productDetails/{id}")
+    public ResponseEntity<?> getProductByIdForCustomer(@PathVariable(name = "id") Long id) {
+        return ResponseEntity.ok(productService.getProductByIdForCustomer(id));
     }
 
-    @GetMapping("admin/productDetails/{productDetailId}")
-    public ResponseEntity<?> getProductByIdForAdmin(@PathVariable(name = "productDetailId") Long productDetailId) {
-        return ResponseEntity.ok(productService.getProductByIdForAdmin(productDetailId));
+    @GetMapping("admin/productDetails/{id}")
+    public ResponseEntity<?> getProductByIdForAdmin(@PathVariable(name = "id") Long id) {
+        return ResponseEntity.ok(productService.getProductByIdForAdmin(id));
     }
 
 
@@ -65,15 +66,15 @@ public class ProductController {
     }
 
 
-    @PutMapping("admin/productDetails/{productDetailId}")
-    public ResponseEntity<?> updateProduct(@PathVariable(name = "productDetailId") Long productDetailId, @RequestBody UpdateProductAdminCommand newProductDetail) {
-        productService.updateProduct(productDetailId, newProductDetail);
+    @PutMapping("admin/productDetails/{id}")
+    public ResponseEntity<?> updateProduct(@PathVariable(name = "id") Long id, @RequestBody UpdateProductAdminCommand newProductDetail) {
+        productService.updateProduct(id, newProductDetail);
         return ResponseEntity.ok().build();
     }
 
 
-    @DeleteMapping("admin/productDetails/{productDetailId}")
-    public ResponseEntity<?> deleteProduct(@PathVariable(name = "productDetailId") Long id) {
+    @DeleteMapping("admin/productDetails/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable(name = "id") Long id) {
         productService.delete(id);
         return ResponseEntity.ok().build();
     }

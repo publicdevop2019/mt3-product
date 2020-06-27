@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.util.*;
 
 @Data
@@ -50,7 +49,7 @@ public class ProductDetail extends Auditable {
     @CollectionTable(name = "product_sku_map", joinColumns = @JoinColumn(name = "product_id"))
     private List<ProductSku> productSkuList;
 
-    public ProductDetail(Long id, String name, BigDecimal price, Integer totalSales, String attributes, Integer orderStorage, Integer actualStorage) {
+    public ProductDetail(Long id, String name, String attributes) {
         this.id = id;
         this.name = name;
         this.attrKey = new HashSet<>(Arrays.asList(attributes.split(",")));
@@ -79,7 +78,9 @@ public class ProductDetail extends Auditable {
         this.attrProd = command.getAttributesProd();
         this.attrGen = command.getAttributesGen();
         command.getSkus().forEach(e -> {
-            e.setAttributeSales(new TreeSet(e.getAttributeSales()));
+            if (e.getSales() == null)
+                e.setSales(0);
+            e.setAttributesSales(new TreeSet(e.getAttributesSales()));
         });
         this.productSkuList = command.getSkus();
     }
@@ -101,7 +102,9 @@ public class ProductDetail extends Auditable {
         this.attrProd = command.getAttributesProd();
         this.attrGen = command.getAttributesGen();
         command.getSkus().forEach(e -> {
-            e.setAttributeSales(new TreeSet(e.getAttributeSales()));
+            if (e.getSales() == null)
+                e.setSales(0);
+            e.setAttributesSales(new TreeSet(e.getAttributesSales()));
         });
         this.productSkuList = command.getSkus();
     }
