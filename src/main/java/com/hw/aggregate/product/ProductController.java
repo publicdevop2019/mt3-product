@@ -27,7 +27,7 @@ public class ProductController {
     }
 
     @GetMapping("admin/productDetails")
-    public ResponseEntity<ProductAdminGetAllPaginatedSummaryRepresentation> getProducts(
+    public ResponseEntity<ProductAdminGetAllPaginatedSummaryRepresentation> getAllProducts(
             @RequestParam("pageNum") Integer pageNumber, @RequestParam("pageSize") Integer pageSize) {
         ProductAdminGetAllPaginatedSummaryRepresentation allForAdmin = productService.getAllForAdmin(pageNumber, pageSize);
         return ResponseEntity.ok(allForAdmin);

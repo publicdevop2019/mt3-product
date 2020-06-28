@@ -61,7 +61,7 @@ public class ProductServiceLambda {
         Integer apply = executeStorageChange.apply(changeDetail, "UPDATE product_sku_map AS p " +
                 "SET p.storage_order = p.storage_order + ?1 " +
                 "WHERE p.product_id = ?2 AND p.attributes_sales = ?3");
-        if (apply.equals(1))
+        if (!apply.equals(1))
             throw new OrderStorageIncreaseException();
     };
 
@@ -69,7 +69,7 @@ public class ProductServiceLambda {
         Integer apply = executeStorageChange.apply(changeDetail, "UPDATE product_sku_map AS p " +
                 "SET p.storage_order = p.storage_order - ?1 " +
                 "WHERE p.product_id = ?2 AND p.attributes_sales = ?3 AND p.storage_order - ?1 >= 0");
-        if (apply.equals(1))
+        if (!apply.equals(1))
             throw new OrderStorageDecreaseException();
     };
 
@@ -77,14 +77,14 @@ public class ProductServiceLambda {
         Integer apply = executeStorageChange.apply(changeDetail, "UPDATE product_sku_map AS p " +
                 "SET p.storage_actual = p.storage_actual - ?1 , p.sales = p.sales + ?2 " +
                 "WHERE p.product_id = ?2 AND p.attributes_sales = ?3 AND p.storage_actual - ?1 >= 0");
-        if (apply.equals(1))
+        if (!apply.equals(1))
             throw new ActualStorageDecreaseException();
     };
     private ThrowingConsumer<StorageChangeDetail, RuntimeException> increaseActualStorage = (changeDetail) -> {
         Integer apply = executeStorageChange.apply(changeDetail, "UPDATE product_sku_map AS p " +
                 "SET p.storage_actual = p.storage_actual + ?1 , p.sales = p.sales - ?2 " +
                 "WHERE p.product_id = ?2 AND p.attributes_sales = ?3 AND p.sales - ?1 >= 0");
-        if (apply.equals(1))
+        if (!apply.equals(1))
             throw new ActualStorageIncreaseException();
     };
 

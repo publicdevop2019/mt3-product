@@ -23,7 +23,7 @@ public class CatalogApplicationService {
     private IdGenerator idGenerator;
 
     public CatalogTreeCustomerRepresentation getAllForCustomer() {
-        return new CatalogTreeCustomerRepresentation(repo.findAll());
+        return new CatalogTreeCustomerRepresentation(repo.findByType(CatalogType.FRONTEND));
     }
 
     public CatalogTreeAdminRepresentation getAllForAdminBackend() {
