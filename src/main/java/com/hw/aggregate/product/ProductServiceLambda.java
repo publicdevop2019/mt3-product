@@ -48,11 +48,12 @@ public class ProductServiceLambda {
 
     private BiFunction<StorageChangeDetail, String, Integer> executeStorageChange = (changeDetail, nativeQuery) -> {
         //sort to make sure order is fixed
-        TreeSet sorted = new TreeSet(changeDetail.getAttributeSales());
+        TreeSet<String> sorted = new TreeSet<>(changeDetail.getAttributeSales());
+        String collect = String.join(",", sorted);
         int i = entityManager.createNativeQuery(nativeQuery)
                 .setParameter(1, changeDetail.getAmount())
                 .setParameter(2, changeDetail.getProductId())
-                .setParameter(3, sorted)
+                .setParameter(3, collect)
                 .executeUpdate();
         return i;
     };
@@ -75,14 +76,14 @@ public class ProductServiceLambda {
 
     private ThrowingConsumer<StorageChangeDetail, RuntimeException> decreaseActualStorage = (changeDetail) -> {
         Integer apply = executeStorageChange.apply(changeDetail, "UPDATE product_sku_map AS p " +
-                "SET p.storage_actual = p.storage_actual - ?1 , p.sales = p.sales + ?2 " +
+                "SET p.storage_actual = p.storage_actual - ?1 , p.sales = p.sales + ?1 " +
                 "WHERE p.product_id = ?2 AND p.attributes_sales = ?3 AND p.storage_actual - ?1 >= 0");
         if (!apply.equals(1))
             throw new ActualStorageDecreaseException();
     };
     private ThrowingConsumer<StorageChangeDetail, RuntimeException> increaseActualStorage = (changeDetail) -> {
         Integer apply = executeStorageChange.apply(changeDetail, "UPDATE product_sku_map AS p " +
-                "SET p.storage_actual = p.storage_actual + ?1 , p.sales = p.sales - ?2 " +
+                "SET p.storage_actual = p.storage_actual + ?1 , p.sales = p.sales - ?1 " +
                 "WHERE p.product_id = ?2 AND p.attributes_sales = ?3 AND p.sales - ?1 >= 0");
         if (!apply.equals(1))
             throw new ActualStorageIncreaseException();
