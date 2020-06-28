@@ -104,14 +104,13 @@ public class ProductServiceLambda {
 
     public ThrowingConsumer<DecreaseOrderStorageCommand, OrderStorageDecreaseException> decreaseOrderStorageForMappedProducts = (command) -> {
         beforeUpdateStorage(command);
-        Collections.sort(command.getChangeList());
+        command.getChangeList().forEach(changeDetail -> decreaseOrderStorage.accept(changeDetail));
         SaveTx(ORDER_STORAGE, DECREASE, command.getChangeList(), command.getTxId());
     };
 
 
     public ThrowingConsumer<DecreaseActualStorageCommand, RuntimeException> decreaseActualStorageForMappedProducts = (command) -> {
         beforeUpdateStorage(command);
-        Collections.sort(command.getChangeList());
         command.getChangeList().forEach(changeDetail -> decreaseActualStorage.accept(changeDetail));
         SaveTx(ACTUAL_STORAGE, DECREASE, command.getChangeList(), command.getTxId());
     };
