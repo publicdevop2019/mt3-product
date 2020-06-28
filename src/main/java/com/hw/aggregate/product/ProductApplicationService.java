@@ -199,9 +199,9 @@ public class ProductApplicationService {
     }
 
     @Transactional
-    public void rollbackTx(RevokeRecordedChangeCommand command) {
-        log.info("start of rollback transaction {}", command.getTxId());
-        productServiceLambda.rollbackTx.accept(command.getTxId());
+    public void rollbackTx(String txId) {
+        log.info("start of rollback transaction {}", txId);
+        productServiceLambda.rollbackTx.accept(txId);
     }
 
     public ProductAdminSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForAdmin(String tags, Integer pageNumber, Integer pageSize) {

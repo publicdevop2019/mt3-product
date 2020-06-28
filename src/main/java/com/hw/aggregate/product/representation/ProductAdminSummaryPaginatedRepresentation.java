@@ -5,18 +5,19 @@ import com.hw.aggregate.product.model.ProductSku;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
 public class ProductAdminSummaryPaginatedRepresentation {
-    private List<ProductAdminCardRepresentation> data;
+    private List<ProductAdminCardRepresentation> data = new ArrayList<>();
     private Integer totalPageCount;
     private Long totalProductCount;
 
     public ProductAdminSummaryPaginatedRepresentation(List<ProductDetail> data, Integer totalPageCount, Long totalProductCount) {
-        this.data = data.stream().map(ProductAdminCardRepresentation::new).collect(Collectors.toList());
+        this.data.addAll(data.stream().map(ProductAdminCardRepresentation::new).collect(Collectors.toList()));
         this.totalPageCount = totalPageCount;
         this.totalProductCount = totalProductCount;
     }

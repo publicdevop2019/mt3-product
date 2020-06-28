@@ -100,7 +100,7 @@ public class ProductController {
 
     @PutMapping("internal/productDetails/rollback")
     public ResponseEntity<?> rollbackTx(@RequestParam(name = "txId") String txId) {
-        productService.rollbackTx(new RevokeRecordedChangeCommand(txId));
+        productService.rollbackTx(txId);
         return ResponseEntity.ok().build();
     }
 }

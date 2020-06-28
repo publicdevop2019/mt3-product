@@ -140,6 +140,9 @@ public class ProductServiceLambda {
     }
 
     public ThrowingConsumer<String, RuntimeException> rollbackTx = (txId) -> {
+        if (txRepo.findByTransactionId(txId + REVOKE).isPresent()) {
+            throw new HangingTransactionException();
+        }
         Optional<TransactionRecord> byOptToken = txRepo.findByTransactionId(txId);
         if (byOptToken.isPresent()) {
             TransactionRecord tr = byOptToken.get();

@@ -6,17 +6,19 @@ import com.hw.aggregate.product.model.ProductSku;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
 @Data
 public class ProductCustomerSummaryPaginatedRepresentation {
-    private List<ProductSearchRepresentation> data;
+    private List<ProductSearchRepresentation> data = new ArrayList<>();
     private Integer totalPageCount;
     private Long totalProductCount;
 
     public ProductCustomerSummaryPaginatedRepresentation(List<ProductDetail> productSimpleList, Integer totalPageCount, Long totalProductCount) {
-        this.data = productSimpleList.stream().map(ProductSearchRepresentation::new).collect(Collectors.toList());
+        this.data.addAll(productSimpleList.stream().map(ProductSearchRepresentation::new).collect(Collectors.toList()));
         this.totalPageCount = totalPageCount;
         this.totalProductCount = totalProductCount;
     }
