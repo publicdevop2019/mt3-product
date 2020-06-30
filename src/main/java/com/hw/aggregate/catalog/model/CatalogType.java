@@ -1,5 +1,7 @@
 package com.hw.aggregate.catalog.model;
 
+import com.hw.shared.EnumDBConverter;
+
 public enum CatalogType {
     FRONTEND,
     BACKEND,

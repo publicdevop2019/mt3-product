@@ -1,5 +1,6 @@
 package com.hw.aggregate.product.model;
 
+import com.hw.shared.StringSetConverter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

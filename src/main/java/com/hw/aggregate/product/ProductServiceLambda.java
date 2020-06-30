@@ -5,10 +5,7 @@ import com.hw.aggregate.product.command.DecreaseOrderStorageCommand;
 import com.hw.aggregate.product.command.IncreaseActualStorageCommand;
 import com.hw.aggregate.product.command.IncreaseOrderStorageCommand;
 import com.hw.aggregate.product.exception.*;
-import com.hw.aggregate.product.model.ProductDetail;
-import com.hw.aggregate.product.model.StorageChangeCommon;
-import com.hw.aggregate.product.model.StorageChangeDetail;
-import com.hw.aggregate.product.model.TransactionRecord;
+import com.hw.aggregate.product.model.*;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.ThrowingConsumer;
 import com.hw.shared.ThrowingFunction;
@@ -90,10 +87,18 @@ public class ProductServiceLambda {
     };
 
 
-    public ThrowingFunction<Long, ProductDetail, RuntimeException> getById = (productDetailId) -> {
+    public ThrowingFunction<Long, ProductDetail, RuntimeException> getByIdForAdmin = (productDetailId) -> {
         Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
         if (findById.isEmpty())
             throw new ProductNotFoundException();
+        return findById.get();
+    };
+    public ThrowingFunction<Long, ProductDetail, RuntimeException> getByIdForCustomer = (productDetailId) -> {
+        Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
+        if (findById.isEmpty())
+            throw new ProductNotFoundException();
+        if (findById.get().getStatus().equals(ProductStatus.UNAVAILABLE))
+            throw new ProductNotAvailableException();
         return findById.get();
     };
 

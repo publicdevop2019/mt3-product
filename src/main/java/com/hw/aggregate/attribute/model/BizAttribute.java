@@ -4,8 +4,8 @@ import com.hw.aggregate.attribute.BizAttributeRepository;
 import com.hw.aggregate.attribute.command.CreateBizAttributeCommand;
 import com.hw.aggregate.attribute.command.UpdateBizAttributeCommand;
 import com.hw.aggregate.attribute.exception.BizAttributeNotFoundException;
-import com.hw.aggregate.catalog.model.StringSetConverter;
 import com.hw.shared.Auditable;
+import com.hw.shared.StringSetConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

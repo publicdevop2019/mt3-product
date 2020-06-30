@@ -54,17 +54,16 @@ public class ProductApplicationService {
     public ProductCustomerSearchByNameSummaryPaginatedRepresentation searchProductByNameForCustomer(String key, Integer pageNumber, Integer pageSize) {
         Sort orders = new Sort(Sort.Direction.ASC, "id");
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, orders);
-        Page<ProductDetail> pd = repo.searchProductByName(key, pageRequest);
+        Page<ProductDetail> pd = repo.searchProductByNameForCustomer(key, pageRequest);
         return new ProductCustomerSearchByNameSummaryPaginatedRepresentation(pd.getContent(), pd.getTotalPages(), pd.getTotalElements());
     }
 
     @Transactional(readOnly = true)
-    //@todo support sortBy sortOrder
     public ProductCustomerSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForCustomer(String attributes, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
         //sort before search
         Set<String> strings = new TreeSet<>(Arrays.asList(attributes.split(",")));
         return new ProductCustomerSearchByAttributesSummaryPaginatedRepresentation(
-                searchByAttributes(String.join(",", strings), pageNumber, pageSize), null, null);
+                searchByAttributes(String.join(",", strings), pageNumber, pageSize, true), null, null);
     }
 
     /**
@@ -158,12 +157,13 @@ public class ProductApplicationService {
 
     @Transactional(readOnly = true)
     public ProductDetailCustomRepresentation getProductByIdForCustomer(Long productDetailId) {
-        return new ProductDetailCustomRepresentation(productServiceLambda.getById.apply(productDetailId));
+        ProductDetail apply = productServiceLambda.getByIdForAdmin.apply(productDetailId);
+        return new ProductDetailCustomRepresentation(productServiceLambda.getByIdForCustomer.apply(productDetailId));
     }
 
     @Transactional(readOnly = true)
     public ProductDetailAdminRepresentation getProductByIdForAdmin(Long productDetailId) {
-        return new ProductDetailAdminRepresentation(productServiceLambda.getById.apply(productDetailId));
+        return new ProductDetailAdminRepresentation(productServiceLambda.getByIdForAdmin.apply(productDetailId));
     }
 
     @Transactional
@@ -205,12 +205,12 @@ public class ProductApplicationService {
     }
 
     public ProductAdminSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForAdmin(String tags, Integer pageNumber, Integer pageSize) {
-        return new ProductAdminSearchByAttributesSummaryPaginatedRepresentation(searchByAttributes(tags, pageNumber, pageSize), null, null);
+        return new ProductAdminSearchByAttributesSummaryPaginatedRepresentation(searchByAttributes(tags, pageNumber, pageSize, false), null, null);
     }
 
-    private List<ProductDetail> searchByAttributes(String tags, Integer pageNumber, Integer pageSize) {
+    private List<ProductDetail> searchByAttributes(String tags, Integer pageNumber, Integer pageSize, boolean customerSearch) {
         List<Object[]> resultList = entityManager.createNativeQuery("SELECT id, name, attr_key" +
-                " FROM product_detail pd WHERE " + getWhereClause(tags) + " ORDER BY id ASC LIMIT ?1, ?2")
+                " FROM product_detail pd WHERE " + getWhereClause(tags) + (customerSearch ? "AND status='AVAILABLE'" : "") + " ORDER BY id ASC LIMIT ?1, ?2")
                 .setParameter(1, pageNumber * pageSize)
                 .setParameter(2, pageSize)
                 .getResultList();
@@ -231,6 +231,7 @@ public class ProductApplicationService {
         });
         return productDetails;
     }
+
 
     private String getWhereClause(String attributes) {
         HashSet<String> hashSet = new HashSet<>(Arrays.asList(attributes.split(",")));

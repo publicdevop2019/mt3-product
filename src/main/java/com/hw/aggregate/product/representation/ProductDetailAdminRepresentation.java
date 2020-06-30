@@ -18,6 +18,8 @@ public class ProductDetailAdminRepresentation {
 
     private String description;
 
+    private ProductStatus status;
+
     private Set<String> specification;
 
     private List<ProductOption> selectedOptions;
@@ -35,6 +37,7 @@ public class ProductDetailAdminRepresentation {
         this.name = productDetail.getName();
         this.imageUrlSmall = productDetail.getImageUrlSmall();
         this.description = productDetail.getDescription();
+        this.status = productDetail.getStatus();
         this.selectedOptions = productDetail.getSelectedOptions();
         this.imageUrlLarge = productDetail.getImageUrlLarge();
         this.specification = productDetail.getSpecification();

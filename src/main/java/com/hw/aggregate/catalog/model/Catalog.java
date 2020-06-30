@@ -5,6 +5,7 @@ import com.hw.aggregate.catalog.command.CreateCatalogCommand;
 import com.hw.aggregate.catalog.command.UpdateCatalogCommand;
 import com.hw.aggregate.catalog.exception.CatalogNotFoundException;
 import com.hw.shared.Auditable;
+import com.hw.shared.StringSetConverter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;

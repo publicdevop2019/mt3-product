@@ -26,6 +26,7 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
             CatalogNotFoundException.class,
             OrderStorageDecreaseException.class,
             ProductNotFoundException.class,
+            ProductNotAvailableException.class
     })
     protected ResponseEntity<?> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);

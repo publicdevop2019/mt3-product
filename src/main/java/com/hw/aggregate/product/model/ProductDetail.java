@@ -5,6 +5,7 @@ import com.hw.aggregate.product.command.CreateProductAdminCommand;
 import com.hw.aggregate.product.command.UpdateProductAdminCommand;
 import com.hw.aggregate.product.exception.ProductNotFoundException;
 import com.hw.shared.Auditable;
+import com.hw.shared.StringSetConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -26,6 +27,9 @@ public class ProductDetail extends Auditable {
 
     private String description;
 
+    @Convert(converter = ProductStatus.DBConverter.class)
+    private ProductStatus status;
+
     @Column(length = 10000)
     @Convert(converter = ProductOptionConverter.class)
     private List<ProductOption> selectedOptions;
@@ -46,7 +50,7 @@ public class ProductDetail extends Auditable {
     private Set<String> attrGen;
 
     @ElementCollection
-    @CollectionTable(name = "product_sku_map", joinColumns = @JoinColumn(name = "product_id"), uniqueConstraints= @UniqueConstraint(columnNames={"attributesSales","product_id"}))
+    @CollectionTable(name = "product_sku_map", joinColumns = @JoinColumn(name = "product_id"), uniqueConstraints = @UniqueConstraint(columnNames = {"attributesSales", "product_id"}))
     private List<ProductSku> productSkuList;
 
     public ProductDetail(Long id, String name, String attributes) {
@@ -77,6 +81,7 @@ public class ProductDetail extends Auditable {
         this.attrKey = command.getAttributesKey();
         this.attrProd = command.getAttributesProd();
         this.attrGen = command.getAttributesGen();
+        this.status = command.getStatus();
         command.getSkus().forEach(e -> {
             if (e.getSales() == null)
                 e.setSales(0);
@@ -101,6 +106,7 @@ public class ProductDetail extends Auditable {
         this.attrKey = command.getAttributesKey();
         this.attrProd = command.getAttributesProd();
         this.attrGen = command.getAttributesGen();
+        this.status = command.getStatus();
         command.getSkus().forEach(e -> {
             if (e.getSales() == null)
                 e.setSales(0);
