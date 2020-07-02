@@ -3,6 +3,7 @@ package com.hw.aggregate.product.command;
 import com.hw.aggregate.product.model.ProductOption;
 import com.hw.aggregate.product.model.ProductSku;
 import com.hw.aggregate.product.model.ProductStatus;
+import com.hw.aggregate.product.model.UpdateProductAdminSkuCommand;
 import lombok.Data;
 
 import java.util.List;
@@ -20,5 +21,5 @@ public class UpdateProductAdminCommand {
     private Set<String> attributesKey;
     private Set<String> attributesProd;
     private Set<String> attributesGen;
-    private List<ProductSku> skus;
+    private List<UpdateProductAdminSkuCommand> skus;
 }

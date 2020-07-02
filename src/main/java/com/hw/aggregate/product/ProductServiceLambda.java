@@ -86,6 +86,21 @@ public class ProductServiceLambda {
             throw new ActualStorageIncreaseException();
     };
 
+    private ThrowingConsumer<StorageChangeDetail, RuntimeException> adminDecreaseActualStorage = (changeDetail) -> {
+        Integer apply = executeStorageChange.apply(changeDetail, "UPDATE product_sku_map AS p " +
+                "SET p.storage_actual = p.storage_actual - ?1 " +
+                "WHERE p.product_id = ?2 AND p.attributes_sales = ?3 AND p.storage_actual - ?1 >= 0");
+        if (!apply.equals(1))
+            throw new ActualStorageDecreaseException();
+    };
+    private ThrowingConsumer<StorageChangeDetail, RuntimeException> adminIncreaseActualStorage = (changeDetail) -> {
+        Integer apply = executeStorageChange.apply(changeDetail, "UPDATE product_sku_map AS p " +
+                "SET p.storage_actual = p.storage_actual + ?1 " +
+                "WHERE p.product_id = ?2 AND p.attributes_sales = ?3");
+        if (!apply.equals(1))
+            throw new ActualStorageIncreaseException();
+    };
+
 
     public ThrowingFunction<Long, ProductDetail, RuntimeException> getByIdForAdmin = (productDetailId) -> {
         Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
@@ -120,10 +135,20 @@ public class ProductServiceLambda {
         command.getChangeList().forEach(changeDetail -> decreaseActualStorage.accept(changeDetail));
         SaveTx(ACTUAL_STORAGE, DECREASE, command.getChangeList(), command.getTxId());
     };
+    public ThrowingConsumer<DecreaseActualStorageCommand, RuntimeException> adminDecreaseActualStorageForMappedProducts = (command) -> {
+        beforeUpdateStorage(command);
+        command.getChangeList().forEach(changeDetail -> adminDecreaseActualStorage.accept(changeDetail));
+        SaveTx(ACTUAL_STORAGE, DECREASE, command.getChangeList(), command.getTxId());
+    };
 
     public ThrowingConsumer<IncreaseActualStorageCommand, RuntimeException> increaseActualStorageForMappedProducts = (command) -> {
         beforeUpdateStorage(command);
         command.getChangeList().forEach(changeDetail -> increaseActualStorage.accept(changeDetail));
+        SaveTx(ACTUAL_STORAGE, INCREASE, command.getChangeList(), command.getTxId());
+    };
+    public ThrowingConsumer<IncreaseActualStorageCommand, RuntimeException> adminIncreaseActualStorageForMappedProducts = (command) -> {
+        beforeUpdateStorage(command);
+        command.getChangeList().forEach(changeDetail -> adminIncreaseActualStorage.accept(changeDetail));
         SaveTx(ACTUAL_STORAGE, INCREASE, command.getChangeList(), command.getTxId());
     };
 

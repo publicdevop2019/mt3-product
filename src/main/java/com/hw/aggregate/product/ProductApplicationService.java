@@ -175,7 +175,7 @@ public class ProductApplicationService {
     @Transactional
     public void updateProduct(Long id, UpdateProductAdminCommand command) {
         ProductDetail read = ProductDetail.read(id, repo);
-        read.update(command);
+        read.update(command,this);
     }
 
     @Transactional
@@ -189,6 +189,11 @@ public class ProductApplicationService {
     }
 
     @Transactional
+    public void decreaseActualStorageForMappedProductsAdmin(DecreaseActualStorageCommand command) {
+        productServiceLambda.adminDecreaseActualStorageForMappedProducts.accept(command);
+    }
+
+    @Transactional
     public void decreaseOrderStorageForMappedProducts(DecreaseOrderStorageCommand command) {
         productServiceLambda.decreaseOrderStorageForMappedProducts.accept(command);
     }
@@ -196,6 +201,14 @@ public class ProductApplicationService {
     @Transactional
     public void increaseOrderStorageForMappedProducts(IncreaseOrderStorageCommand command) {
         productServiceLambda.increaseOrderStorageForMappedProducts.accept(command);
+    }
+    @Transactional
+    public void increaseActualStorageForMappedProducts(IncreaseActualStorageCommand command) {
+        productServiceLambda.increaseActualStorageForMappedProducts.accept(command);
+    }
+    @Transactional
+    public void increaseActualStorageForMappedProductsAdmin(IncreaseActualStorageCommand command) {
+        productServiceLambda.adminIncreaseActualStorageForMappedProducts.accept(command);
     }
 
     @Transactional
