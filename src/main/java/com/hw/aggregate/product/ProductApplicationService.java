@@ -222,14 +222,14 @@ public class ProductApplicationService {
     }
 
     private List<ProductDetail> searchByAttributes(String tags, Integer pageNumber, Integer pageSize, boolean customerSearch) {
-        List<Object[]> resultList = entityManager.createNativeQuery("SELECT id, name, attr_key" +
+        List<Object[]> resultList = entityManager.createNativeQuery("SELECT id, name, attr_key, image_url_small" +
                 " FROM product_detail pd WHERE " + getWhereClause(tags) + (customerSearch ? "AND status='AVAILABLE'" : "") + " ORDER BY id ASC LIMIT ?1, ?2")
                 .setParameter(1, pageNumber * pageSize)
                 .setParameter(2, pageSize)
                 .getResultList();
         List<ProductDetail> productDetails = new ArrayList<>(resultList.size());
         for (Object[] row : resultList) {
-            productDetails.add(new ProductDetail(((BigInteger) row[0]).longValue(), (String) row[1], (String) row[2]));
+            productDetails.add(new ProductDetail(((BigInteger) row[0]).longValue(), (String) row[1], (String) row[2],(String)row[3]));
         }
         productDetails.forEach(pd -> {
             List<Object[]> resultList1 = entityManager.createNativeQuery("SELECT attributes_sales, storage_order, storage_actual, price, sales" +

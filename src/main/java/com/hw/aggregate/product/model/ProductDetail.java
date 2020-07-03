@@ -58,10 +58,11 @@ public class ProductDetail extends Auditable {
     @CollectionTable(name = "product_sku_map", joinColumns = @JoinColumn(name = "product_id"), uniqueConstraints = @UniqueConstraint(columnNames = {"attributesSales", "product_id"}))
     private List<ProductSku> productSkuList;
 
-    public ProductDetail(Long id, String name, String attributes) {
+    public ProductDetail(Long id, String name, String attributes, String imageUrlSmall) {
         this.id = id;
         this.name = name;
         this.attrKey = new HashSet<>(Arrays.asList(attributes.split(",")));
+        this.imageUrlSmall = imageUrlSmall;
     }
 
     public static ProductDetail create(Long id, CreateProductAdminCommand command, ProductDetailRepo repo) {

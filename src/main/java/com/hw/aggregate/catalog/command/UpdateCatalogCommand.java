@@ -9,6 +9,6 @@ import java.util.Set;
 public class UpdateCatalogCommand {
     private String name;
     private Long parentId;
-    private Set<String> attributesSearch;
+    private Set<String> attributesKey;
     private CatalogType catalogType;
 }

@@ -52,7 +52,7 @@ public class Catalog extends Auditable {
         Catalog catalog = get(id, repo);
         catalog.setName(command.getName());
         catalog.setParentId(command.getParentId());
-        catalog.setAttributes(command.getAttributesSearch());
+        catalog.setAttributes(command.getAttributesKey());
         catalog.setType(command.getCatalogType());
         repo.save(catalog);
     }
