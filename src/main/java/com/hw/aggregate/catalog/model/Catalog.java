@@ -66,7 +66,7 @@ public class Catalog extends Auditable {
         this.id = id;
         this.name = command.getName();
         this.parentId = command.getParentId();
-        this.attributes = command.getAttributesSearch();
+        this.attributes = command.getAttributesKey();
         this.type = command.getCatalogType();
     }
 }

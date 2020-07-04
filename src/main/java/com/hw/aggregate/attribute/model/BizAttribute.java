@@ -50,6 +50,7 @@ public class BizAttribute extends Auditable {
         read.setMethod(command.getMethod());
         read.setSelectValues(command.getSelectValues());
         read.setType(command.getType());
+        read.setName(command.getName());
         attributeRepository.save(read);
     }
 
