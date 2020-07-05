@@ -19,12 +19,16 @@ public class CatalogTreeCustomerRepresentation {
 
     @Data
     public class CatalogSummaryCardRepresentation {
+        private Long id;
         private String name;
         private Set<String> attributesKey;
+        private Long parentId;
 
         public CatalogSummaryCardRepresentation(Catalog catalog) {
+            this.id = catalog.getId();
             this.name = catalog.getName();
-            this.attributesKey =catalog.getAttributes();
+            this.attributesKey = catalog.getAttributes();
+            this.parentId = catalog.getParentId();
         }
     }
 }
