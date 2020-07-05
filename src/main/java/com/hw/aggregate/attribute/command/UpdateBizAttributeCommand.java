@@ -9,6 +9,7 @@ import java.util.Set;
 @Data
 public class UpdateBizAttributeCommand {
     private String name;
+    private String description;
     private AttributeMethod method;
     private Set<String> selectValues;
     private BizAttributeType type;

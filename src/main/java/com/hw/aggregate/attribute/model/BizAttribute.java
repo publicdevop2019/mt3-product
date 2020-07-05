@@ -24,6 +24,7 @@ public class BizAttribute extends Auditable {
     @Id
     private Long id;
     private String name;
+    private String description;
     @Convert(converter = AttributeMethod.DBConverter.class)
     private AttributeMethod method;
     @Convert(converter = StringSetConverter.class)
@@ -40,6 +41,7 @@ public class BizAttribute extends Auditable {
     private BizAttribute(Long id, CreateBizAttributeCommand command) {
         this.id = id;
         this.name = command.getName();
+        this.description = command.getDescription();
         this.method = command.getMethod();
         this.selectValues = command.getSelectValues();
         this.type = command.getType();
@@ -47,10 +49,11 @@ public class BizAttribute extends Auditable {
 
     public static void update(Long attributeId, UpdateBizAttributeCommand command, BizAttributeRepository attributeRepository) {
         BizAttribute read = read(attributeId, attributeRepository);
+        read.setName(command.getName());
+        read.setDescription(command.getDescription());
         read.setMethod(command.getMethod());
         read.setSelectValues(command.getSelectValues());
         read.setType(command.getType());
-        read.setName(command.getName());
         attributeRepository.save(read);
     }
 

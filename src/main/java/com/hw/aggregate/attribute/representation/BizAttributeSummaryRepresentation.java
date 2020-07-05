@@ -21,6 +21,7 @@ public class BizAttributeSummaryRepresentation {
     public static class BizAttributeCardRepresentation {
         private Long id;
         private String name;
+        private String description;
         private Set<String> selectValues;
         private AttributeMethod method;
         private BizAttributeType type;
@@ -28,6 +29,7 @@ public class BizAttributeSummaryRepresentation {
         public BizAttributeCardRepresentation(BizAttribute attribute) {
             this.id = attribute.getId();
             this.name = attribute.getName();
+            this.description = attribute.getDescription();
             this.selectValues = attribute.getSelectValues();
             this.method = attribute.getMethod();
             this.type = attribute.getType();
