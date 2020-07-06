@@ -21,13 +21,13 @@ public class CatalogTreeCustomerRepresentation {
     public class CatalogSummaryCardRepresentation {
         private Long id;
         private String name;
-        private Set<String> attributesKey;
+        private Set<String> attributes;
         private Long parentId;
 
         public CatalogSummaryCardRepresentation(Catalog catalog) {
             this.id = catalog.getId();
             this.name = catalog.getName();
-            this.attributesKey = catalog.getAttributes();
+            this.attributes = catalog.getAttributes();
             this.parentId = catalog.getParentId();
         }
     }

@@ -52,7 +52,7 @@ public class Catalog extends Auditable {
         Catalog catalog = get(id, repo);
         catalog.setName(command.getName());
         catalog.setParentId(command.getParentId());
-        catalog.setAttributes(command.getAttributesKey());
+        catalog.setAttributes(command.getAttributes());
         catalog.setType(command.getCatalogType());
         repo.save(catalog);
     }
@@ -66,7 +66,7 @@ public class Catalog extends Auditable {
         this.id = id;
         this.name = command.getName();
         this.parentId = command.getParentId();
-        this.attributes = command.getAttributesKey();
+        this.attributes = command.getAttributes();
         this.type = command.getCatalogType();
     }
 }

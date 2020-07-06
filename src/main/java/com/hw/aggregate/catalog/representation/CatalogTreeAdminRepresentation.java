@@ -22,14 +22,14 @@ public class CatalogTreeAdminRepresentation {
         private Long id;
         private String name;
         private Long parentId;
-        private Set<String> attributesKey;
+        private Set<String> attributes;
         private CatalogType catalogType;
 
         public CatalogSummaryCardRepresentation(Catalog catalog) {
             this.id = catalog.getId();
             this.name = catalog.getName();
             this.parentId = catalog.getParentId();
-            this.attributesKey = catalog.getAttributes();
+            this.attributes = catalog.getAttributes();
             this.catalogType = catalog.getType();
         }
     }

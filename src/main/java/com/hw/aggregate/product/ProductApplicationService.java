@@ -60,10 +60,8 @@ public class ProductApplicationService {
 
     @Transactional(readOnly = true)
     public ProductCustomerSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForCustomer(String attributes, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
-        //sort before search
-        Set<String> strings = new TreeSet<>(Arrays.asList(attributes.split(",")));
         return new ProductCustomerSearchByAttributesSummaryPaginatedRepresentation(
-                searchByAttributes(String.join(",", strings), pageNumber, pageSize, true), null, null);
+                searchByAttributesDynamic(attributes, pageNumber, pageSize, true, null), null, null);
     }
 
     /**
@@ -175,7 +173,7 @@ public class ProductApplicationService {
     @Transactional
     public void updateProduct(Long id, UpdateProductAdminCommand command) {
         ProductDetail read = ProductDetail.read(id, repo);
-        read.update(command,this);
+        read.update(command, this);
     }
 
     @Transactional
@@ -202,10 +200,12 @@ public class ProductApplicationService {
     public void increaseOrderStorageForMappedProducts(IncreaseOrderStorageCommand command) {
         productServiceLambda.increaseOrderStorageForMappedProducts.accept(command);
     }
+
     @Transactional
     public void increaseActualStorageForMappedProducts(IncreaseActualStorageCommand command) {
         productServiceLambda.increaseActualStorageForMappedProducts.accept(command);
     }
+
     @Transactional
     public void increaseActualStorageForMappedProductsAdmin(IncreaseActualStorageCommand command) {
         productServiceLambda.adminIncreaseActualStorageForMappedProducts.accept(command);
@@ -218,18 +218,21 @@ public class ProductApplicationService {
     }
 
     public ProductAdminSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForAdmin(String tags, Integer pageNumber, Integer pageSize) {
-        return new ProductAdminSearchByAttributesSummaryPaginatedRepresentation(searchByAttributes(tags, pageNumber, pageSize, false), null, null);
+        return new ProductAdminSearchByAttributesSummaryPaginatedRepresentation(searchByAttributesDynamic(tags, pageNumber, pageSize, false, false), null, null);
     }
 
-    private List<ProductDetail> searchByAttributes(String tags, Integer pageNumber, Integer pageSize, boolean customerSearch) {
+    private List<ProductDetail> searchByAttributesDynamic(String attributes, Integer pageNumber, Integer pageSize, boolean customerSearch, Boolean fullSearch) {
+        if ("".equals(attributes) || attributes == null) {
+            return new ArrayList<>(0);
+        }
         List<Object[]> resultList = entityManager.createNativeQuery("SELECT id, name, attr_key, image_url_small" +
-                " FROM product_detail pd WHERE " + getWhereClause(tags) + (customerSearch ? "AND status='AVAILABLE'" : "") + " ORDER BY id ASC LIMIT ?1, ?2")
+                " FROM product_detail pd WHERE " + getWhereClause(attributes, customerSearch, fullSearch) + (customerSearch ? "AND status='AVAILABLE'" : "") + " ORDER BY id ASC LIMIT ?1, ?2")
                 .setParameter(1, pageNumber * pageSize)
                 .setParameter(2, pageSize)
                 .getResultList();
         List<ProductDetail> productDetails = new ArrayList<>(resultList.size());
         for (Object[] row : resultList) {
-            productDetails.add(new ProductDetail(((BigInteger) row[0]).longValue(), (String) row[1], (String) row[2],(String)row[3]));
+            productDetails.add(new ProductDetail(((BigInteger) row[0]).longValue(), (String) row[1], (String) row[2], (String) row[3]));
         }
         productDetails.forEach(pd -> {
             List<Object[]> resultList1 = entityManager.createNativeQuery("SELECT attributes_sales, storage_order, storage_actual, price, sales" +
@@ -245,11 +248,33 @@ public class ProductApplicationService {
         return productDetails;
     }
 
-
-    private String getWhereClause(String attributes) {
-        HashSet<String> hashSet = new HashSet<>(Arrays.asList(attributes.split(",")));
-        List<String> collect = hashSet.stream().map(e -> "pd.attr_key LIKE '%" + e + "%'").collect(Collectors.toList());
+    private String getWhereClause(String attributes, boolean customerSearch, Boolean fullSearch) {
+        //sort before search
+        Set<String> strings = new TreeSet<>(Arrays.asList(attributes.split(",")));
+        List<String> collect;
+        if (customerSearch) {
+            collect = getWhereClauseKeyAndProdAndGen(strings);
+        } else {
+            if (Boolean.TRUE.equals(fullSearch)) {
+                collect = getWhereClauseKeyAndProdAndGen(strings);
+            } else {
+                collect = getWhereClauseKey(strings);
+            }
+        }
         return String.join(" AND ", collect);
+    }
+
+
+    private List<String> getWhereClauseKey(Set<String> strings) {
+        return strings.stream().map(e -> "pd.attr_key LIKE '%" + e + "%'").collect(Collectors.toList());
+    }
+
+    private List<String> getWhereClauseKeyAndProd(Set<String> strings) {
+        return strings.stream().map(e -> "( pd.attr_key LIKE '%" + e + "%' OR pd.attr_prod LIKE '%" + e + "%' )").collect(Collectors.toList());
+    }
+
+    private List<String> getWhereClauseKeyAndProdAndGen(Set<String> strings) {
+        return strings.stream().map(e -> "( pd.attr_key LIKE '%" + e + "%' OR pd.attr_prod LIKE '%" + e + "%' OR pd.attr_gen LIKE '%" + e + "%' )").collect(Collectors.toList());
     }
 }
 
