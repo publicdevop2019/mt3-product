@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface CatalogRepo extends JpaRepository<Catalog, Long> {
+public interface CatalogRepository extends JpaRepository<Catalog, Long> {
     @Query("SELECT p FROM #{#entityName} as p WHERE p.type = ?1")
     List<Catalog> findByType(CatalogType type);
 }

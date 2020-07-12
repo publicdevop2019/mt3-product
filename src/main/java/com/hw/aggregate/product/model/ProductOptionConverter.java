@@ -1,8 +1,5 @@
 package com.hw.aggregate.product.model;
 
-import com.hw.aggregate.product.model.OptionItem;
-import com.hw.aggregate.product.model.ProductOption;
-
 import javax.persistence.AttributeConverter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,13 +14,13 @@ public class ProductOptionConverter implements AttributeConverter<List<ProductOp
          *  qty:1&1*2&2*3&3,color:white&0.35*black&0.37
          */
         if (productOptions == null)
-            return "";
+            return null;
         return productOptions.stream().map(e -> e.title + ":" + e.options.stream().map(el -> el.optionValue + "&" + el.priceVar).collect(Collectors.joining("="))).collect(Collectors.joining(","));
     }
 
     @Override
     public List<ProductOption> convertToEntityAttribute(String s) {
-        if (s.equals(""))
+        if (s == null || s.equals(""))
             return null;
         List<ProductOption> optionList = new ArrayList<>();
         Arrays.stream(s.split(",")).forEach(e -> {

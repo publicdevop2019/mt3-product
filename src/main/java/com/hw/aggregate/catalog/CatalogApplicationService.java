@@ -17,13 +17,13 @@ import org.springframework.stereotype.Service;
 public class CatalogApplicationService {
 
     @Autowired
-    private CatalogRepo repo;
+    private CatalogRepository repo;
 
     @Autowired
     private IdGenerator idGenerator;
 
     public CatalogTreeCustomerRepresentation getAllForCustomer() {
-        return new CatalogTreeCustomerRepresentation(repo.findAll());
+        return new CatalogTreeCustomerRepresentation(repo.findByType(CatalogType.FRONTEND));
     }
 
     public CatalogTreeAdminRepresentation getAllForAdminBackend() {

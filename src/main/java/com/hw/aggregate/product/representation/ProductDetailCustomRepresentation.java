@@ -1,40 +1,56 @@
 package com.hw.aggregate.product.representation;
 
+import com.hw.aggregate.attribute.representation.BizAttributeSummaryRepresentation;
+import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
 import com.hw.aggregate.product.model.ProductDetail;
 import com.hw.aggregate.product.model.ProductOption;
+import com.hw.aggregate.product.model.ProductSku;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 public class ProductDetailCustomRepresentation {
     private Long id;
-    private String imageUrlSmall;
     private String name;
-    private Integer orderStorage;
-    private String description;
-    private String rate;
-    private BigDecimal price;
-    private Integer sales;
-    private String catalog;
-    private List<ProductOption> selectedOptions;
+    private String imageUrlSmall;
     private Set<String> imageUrlLarge;
+    private String description;
     private Set<String> specification;
+    private BigDecimal lowestPrice;
+    private Integer totalSales;
+    private List<ProductSkuCustomerRepresentation> skus;
+    private List<ProductOption> selectedOptions;
 
-    public ProductDetailCustomRepresentation(ProductDetail productDetail) {
+    public ProductDetailCustomRepresentation(ProductDetail productDetail, BizAttributeSummaryRepresentation attributeSummaryRepresentation) {
         this.id = productDetail.getId();
-        this.imageUrlSmall = productDetail.getImageUrlSmall();
         this.name = productDetail.getName();
-        this.orderStorage = productDetail.getOrderStorage();
-        this.description = productDetail.getDescription();
-        this.rate = productDetail.getRate();
-        this.price = productDetail.getPrice();
-        this.sales = productDetail.getSales();
-        this.catalog = productDetail.getCatalog();
-        this.selectedOptions = productDetail.getSelectedOptions();
+        this.imageUrlSmall = productDetail.getImageUrlSmall();
         this.imageUrlLarge = productDetail.getImageUrlLarge();
+        this.description = productDetail.getDescription();
         this.specification = productDetail.getSpecification();
+        this.lowestPrice = findLowestPrice(productDetail);
+        this.totalSales = calcTotalSales(productDetail);
+        this.skus = getCustomerSku(productDetail, attributeSummaryRepresentation);
+        this.selectedOptions = productDetail.getSelectedOptions();
+
+    }
+
+    private List<ProductSkuCustomerRepresentation> getCustomerSku(ProductDetail productDetail, BizAttributeSummaryRepresentation attributeSummaryRepresentation) {
+        List<ProductSku> productSkuList = productDetail.getProductSkuList();
+        return productSkuList.stream().map(e -> new ProductSkuCustomerRepresentation(e, attributeSummaryRepresentation)).collect(Collectors.toList());
+    }
+
+    private Integer calcTotalSales(ProductDetail productDetail) {
+        return productDetail.getProductSkuList().stream().map(ProductSku::getSales).reduce(0, Integer::sum);
+    }
+
+    private BigDecimal findLowestPrice(ProductDetail productDetail) {
+        ProductSku productSku = productDetail.getProductSkuList().stream().min(Comparator.comparing(ProductSku::getPrice)).orElseThrow(NoLowestPriceFoundException::new);
+        return productSku.getPrice();
     }
 }

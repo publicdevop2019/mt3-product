@@ -1,4 +1,4 @@
-package com.hw.aggregate.product.model;
+package com.hw.shared;
 
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;

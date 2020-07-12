@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface TransactionHistoryRepository extends JpaRepository<TransactionRecord, Long> {
-    Optional<TransactionRecord> findByTransactionId(String optToken);
+    Optional<TransactionRecord> findByTransactionId(String txId);
 }

@@ -1,10 +1,11 @@
 package com.hw.aggregate.catalog.model;
 
-import com.hw.aggregate.catalog.CatalogRepo;
+import com.hw.aggregate.catalog.CatalogRepository;
 import com.hw.aggregate.catalog.command.CreateCatalogCommand;
 import com.hw.aggregate.catalog.command.UpdateCatalogCommand;
 import com.hw.aggregate.catalog.exception.CatalogNotFoundException;
 import com.hw.shared.Auditable;
+import com.hw.shared.StringSetConverter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -31,32 +32,32 @@ public class Catalog extends Auditable {
     private Long parentId;
 
     @Convert(converter = StringSetConverter.class)
-    private Set<String> tags;
+    private Set<String> attributes;
 
     @Convert(converter = CatalogType.DBConverter.class)
     private CatalogType type;
 
-    public static Catalog create(Long id, CreateCatalogCommand command, CatalogRepo repo) {
+    public static Catalog create(Long id, CreateCatalogCommand command, CatalogRepository repo) {
         return repo.save(new Catalog(id, command));
     }
 
-    public static Catalog get(Long id, CatalogRepo repo) {
+    public static Catalog get(Long id, CatalogRepository repo) {
         Optional<Catalog> findById = repo.findById(id);
         if (findById.isEmpty())
             throw new CatalogNotFoundException();
         return findById.get();
     }
 
-    public static void update(Long id, UpdateCatalogCommand command, CatalogRepo repo) {
+    public static void update(Long id, UpdateCatalogCommand command, CatalogRepository repo) {
         Catalog catalog = get(id, repo);
         catalog.setName(command.getName());
         catalog.setParentId(command.getParentId());
-        catalog.setTags(command.getTags());
+        catalog.setAttributes(command.getAttributes());
         catalog.setType(command.getCatalogType());
         repo.save(catalog);
     }
 
-    public static void delete(Long id, CatalogRepo repo) {
+    public static void delete(Long id, CatalogRepository repo) {
         Catalog catalog = get(id, repo);
         repo.delete(catalog);
     }
@@ -65,7 +66,7 @@ public class Catalog extends Auditable {
         this.id = id;
         this.name = command.getName();
         this.parentId = command.getParentId();
-        this.tags = command.getTags();
+        this.attributes = command.getAttributes();
         this.type = command.getCatalogType();
     }
 }
