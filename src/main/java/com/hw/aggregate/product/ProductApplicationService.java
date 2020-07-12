@@ -1,5 +1,7 @@
 package com.hw.aggregate.product;
 
+import com.hw.aggregate.attribute.BizAttributeApplicationService;
+import com.hw.aggregate.attribute.representation.BizAttributeSummaryRepresentation;
 import com.hw.aggregate.catalog.CatalogApplicationService;
 import com.hw.aggregate.product.command.*;
 import com.hw.aggregate.product.model.OptionItem;
@@ -35,6 +37,9 @@ public class ProductApplicationService {
 
     @Autowired
     private CatalogApplicationService catalogApplicationService;
+
+    @Autowired
+    private BizAttributeApplicationService attributeApplicationService;
 
     @Autowired
     private IdGenerator idGenerator;
@@ -156,7 +161,8 @@ public class ProductApplicationService {
     @Transactional(readOnly = true)
     public ProductDetailCustomRepresentation getProductByIdForCustomer(Long productDetailId) {
         ProductDetail apply = productServiceLambda.getByIdForAdmin.apply(productDetailId);
-        return new ProductDetailCustomRepresentation(productServiceLambda.getByIdForCustomer.apply(productDetailId));
+        BizAttributeSummaryRepresentation allAttributes = attributeApplicationService.getAllAttributes();
+        return new ProductDetailCustomRepresentation(apply,allAttributes);
     }
 
     @Transactional(readOnly = true)

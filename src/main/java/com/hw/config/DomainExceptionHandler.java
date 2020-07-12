@@ -42,6 +42,7 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
             HangingTransactionException.class,
             NoLowestPriceFoundException.class,
             OrderStorageIncreaseException.class,
+            AttributeNameNotFoundException.class
     })
     protected ResponseEntity<Object> handle500Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);

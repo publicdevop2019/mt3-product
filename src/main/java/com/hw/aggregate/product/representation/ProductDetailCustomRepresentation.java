@@ -1,5 +1,6 @@
 package com.hw.aggregate.product.representation;
 
+import com.hw.aggregate.attribute.representation.BizAttributeSummaryRepresentation;
 import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
 import com.hw.aggregate.product.model.ProductDetail;
 import com.hw.aggregate.product.model.ProductOption;
@@ -25,7 +26,7 @@ public class ProductDetailCustomRepresentation {
     private List<ProductSkuCustomerRepresentation> skus;
     private List<ProductOption> selectedOptions;
 
-    public ProductDetailCustomRepresentation(ProductDetail productDetail) {
+    public ProductDetailCustomRepresentation(ProductDetail productDetail, BizAttributeSummaryRepresentation attributeSummaryRepresentation) {
         this.id = productDetail.getId();
         this.name = productDetail.getName();
         this.imageUrlSmall = productDetail.getImageUrlSmall();
@@ -34,14 +35,14 @@ public class ProductDetailCustomRepresentation {
         this.specification = productDetail.getSpecification();
         this.lowestPrice = findLowestPrice(productDetail);
         this.totalSales = calcTotalSales(productDetail);
-        this.skus = getCustomerSku(productDetail);
+        this.skus = getCustomerSku(productDetail, attributeSummaryRepresentation);
         this.selectedOptions = productDetail.getSelectedOptions();
 
     }
 
-    private List<ProductSkuCustomerRepresentation> getCustomerSku(ProductDetail productDetail) {
+    private List<ProductSkuCustomerRepresentation> getCustomerSku(ProductDetail productDetail, BizAttributeSummaryRepresentation attributeSummaryRepresentation) {
         List<ProductSku> productSkuList = productDetail.getProductSkuList();
-        return productSkuList.stream().map(ProductSkuCustomerRepresentation::new).collect(Collectors.toList());
+        return productSkuList.stream().map(e -> new ProductSkuCustomerRepresentation(e, attributeSummaryRepresentation)).collect(Collectors.toList());
     }
 
     private Integer calcTotalSales(ProductDetail productDetail) {
