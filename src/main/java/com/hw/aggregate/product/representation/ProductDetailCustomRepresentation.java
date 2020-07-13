@@ -1,6 +1,7 @@
 package com.hw.aggregate.product.representation;
 
 import com.hw.aggregate.attribute.representation.BizAttributeSummaryRepresentation;
+import com.hw.aggregate.product.exception.AttributeNameNotFoundException;
 import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
 import com.hw.aggregate.product.model.ProductDetail;
 import com.hw.aggregate.product.model.ProductOption;
@@ -8,9 +9,7 @@ import com.hw.aggregate.product.model.ProductSku;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -25,6 +24,7 @@ public class ProductDetailCustomRepresentation {
     private Integer totalSales;
     private List<ProductSkuCustomerRepresentation> skus;
     private List<ProductOption> selectedOptions;
+    private Map<String, String> attrIdMap;
 
     public ProductDetailCustomRepresentation(ProductDetail productDetail, BizAttributeSummaryRepresentation attributeSummaryRepresentation) {
         this.id = productDetail.getId();
@@ -37,12 +37,21 @@ public class ProductDetailCustomRepresentation {
         this.totalSales = calcTotalSales(productDetail);
         this.skus = getCustomerSku(productDetail, attributeSummaryRepresentation);
         this.selectedOptions = productDetail.getSelectedOptions();
+        this.attrIdMap = new HashMap<>();
+        this.skus.stream().map(e -> e.getAttributeSales()).flatMap(list -> list.stream()).collect(Collectors.toList())
+                .stream().map(e -> e.split(":")[0]).forEach(el -> attrIdMap.put(el, findName(el, attributeSummaryRepresentation)));
+    }
 
+    private String findName(String id, BizAttributeSummaryRepresentation attributeSummaryRepresentation) {
+        Optional<BizAttributeSummaryRepresentation.BizAttributeCardRepresentation> first = attributeSummaryRepresentation.getData().stream().filter(e -> e.getId().toString().equals(id)).findFirst();
+        if (first.isEmpty())
+            throw new AttributeNameNotFoundException();
+        return first.get().getName();
     }
 
     private List<ProductSkuCustomerRepresentation> getCustomerSku(ProductDetail productDetail, BizAttributeSummaryRepresentation attributeSummaryRepresentation) {
         List<ProductSku> productSkuList = productDetail.getProductSkuList();
-        return productSkuList.stream().map(e -> new ProductSkuCustomerRepresentation(e, attributeSummaryRepresentation)).collect(Collectors.toList());
+        return productSkuList.stream().map(ProductSkuCustomerRepresentation::new).collect(Collectors.toList());
     }
 
     private Integer calcTotalSales(ProductDetail productDetail) {
