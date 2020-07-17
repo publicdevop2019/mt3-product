@@ -7,6 +7,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.*;
+
 @RunWith(JUnit4.class)
 public class SortEnumTest {
     @Test
@@ -31,5 +33,30 @@ public class SortEnumTest {
     public void create_enum_price() {
         SortCriteriaEnum name = SortCriteriaEnum.fromString("price");
         Assert.assertEquals(SortCriteriaEnum.PRICE, name);
+    }
+
+    @Test
+    public void collectStringOrderTest() {
+        Collection<String> test = new HashSet<>();
+        test.add("S");
+        test.add("M");
+        test.add("L");
+        test.add("XL");
+        ArrayList<String> strings = new ArrayList<>();
+        strings.add("S");
+        strings.add("M");
+        strings.add("L");
+        strings.add("XL");
+        TreeSet<String> strings1 = new TreeSet<>();
+        strings1.add("S");
+        strings1.add("M");
+        strings1.add("L");
+        strings1.add("XL");
+        LinkedHashSet<String> strings2 = new LinkedHashSet<>();
+        strings2.add("S");
+        strings2.add("M");
+        strings2.add("L");
+        strings2.add("XL");
+
     }
 }

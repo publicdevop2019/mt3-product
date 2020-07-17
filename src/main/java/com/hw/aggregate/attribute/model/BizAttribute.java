@@ -5,6 +5,7 @@ import com.hw.aggregate.attribute.command.CreateBizAttributeCommand;
 import com.hw.aggregate.attribute.command.UpdateBizAttributeCommand;
 import com.hw.aggregate.attribute.exception.BizAttributeNotFoundException;
 import com.hw.shared.Auditable;
+import com.hw.shared.LinkedHashSetConverter;
 import com.hw.shared.StringSetConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,7 +28,7 @@ public class BizAttribute extends Auditable {
     private String description;
     @Convert(converter = AttributeMethod.DBConverter.class)
     private AttributeMethod method;
-    @Convert(converter = StringSetConverter.class)
+    @Convert(converter = LinkedHashSetConverter.class)
     private Set<String> selectValues;
     @Convert(converter = BizAttributeType.DBConverter.class)
     private BizAttributeType type;
