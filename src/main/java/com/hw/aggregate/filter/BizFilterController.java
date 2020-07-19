@@ -19,7 +19,7 @@ public class BizFilterController {
     }
 
     @GetMapping("public/filters/search")
-    public ResponseEntity<?> getFilter(@RequestParam("catalog") String catalog) {
+    public ResponseEntity<?> getFilter(@RequestParam("catalogId") String catalog) {
         return ResponseEntity.ok(bizFilterApplicationService.getByCatalog(catalog));
     }
 

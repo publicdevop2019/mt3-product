@@ -57,6 +57,8 @@ public class BizFilterApplicationService {
                 " FROM biz_filter pd WHERE pd.linked_catalog LIKE '%" + catalog + "%'")
                 .getResultList();
 
+        if(resultList.size()==0)
+            return new BizFilterCustomerRepresentation(null);
         BizFilter byCatalog = new BizFilter();
         BigInteger bigInteger = (BigInteger) resultList.get(0)[0];
         byte[] bytes = (byte[]) resultList.get(0)[1];

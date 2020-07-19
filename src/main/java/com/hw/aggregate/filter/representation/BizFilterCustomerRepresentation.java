@@ -3,16 +3,18 @@ package com.hw.aggregate.filter.representation;
 import com.hw.aggregate.filter.model.BizFilter;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
 public class BizFilterCustomerRepresentation {
-    private List<BizFilterItemCustomerRepresentation> data;
+    private List<BizFilterItemCustomerRepresentation> data = new ArrayList<>();
 
     public BizFilterCustomerRepresentation(BizFilter byCatalog) {
-        data = byCatalog.getFilterItems().stream().map(BizFilterItemCustomerRepresentation::new).collect(Collectors.toList());
+        if (byCatalog != null)
+            data = byCatalog.getFilterItems().stream().map(BizFilterItemCustomerRepresentation::new).collect(Collectors.toList());
     }
 
     @Data
