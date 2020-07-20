@@ -162,7 +162,7 @@ public class ProductApplicationService {
     public ProductDetailCustomRepresentation getProductByIdForCustomer(Long productDetailId) {
         ProductDetail apply = productServiceLambda.getByIdForAdmin.apply(productDetailId);
         BizAttributeSummaryRepresentation allAttributes = attributeApplicationService.getAllAttributes();
-        return new ProductDetailCustomRepresentation(apply,allAttributes);
+        return new ProductDetailCustomRepresentation(apply, allAttributes);
     }
 
     @Transactional(readOnly = true)
@@ -259,10 +259,10 @@ public class ProductApplicationService {
         Set<String> strings = new TreeSet<>(Arrays.asList(attributes.split(",")));
         List<String> collect;
         if (customerSearch) {
-            collect = getWhereClauseKeyAndProdAndGenAndSales(strings);
+            collect = getWhereClauseKeyAndProdAndGenAndSalesOr(strings);
         } else {
             if (Boolean.TRUE.equals(fullSearch)) {
-                collect = getWhereClauseKeyAndProdAndGenAndSales(strings);
+                collect = getWhereClauseKeyAndProdAndGenAndSalesOr(strings);
             } else {
                 collect = getWhereClauseKey(strings);
             }
@@ -282,8 +282,37 @@ public class ProductApplicationService {
     private List<String> getWhereClauseKeyAndProdAndGen(Set<String> strings) {
         return strings.stream().map(e -> "( pd.attr_key LIKE '%" + e + "%' OR pd.attr_prod LIKE '%" + e + "%' OR pd.attr_gen LIKE '%" + e + "%' )").collect(Collectors.toList());
     }
+
     private List<String> getWhereClauseKeyAndProdAndGenAndSales(Set<String> strings) {
         return strings.stream().map(e -> "( pd.attr_key LIKE '%" + e + "%' OR pd.attr_prod LIKE '%" + e + "%' OR pd.attr_gen LIKE '%" + e + "%' OR pd.attr_sales_total LIKE '%" + e + "%' )").collect(Collectors.toList());
     }
+
+    private List<String> getWhereClauseKeyAndProdAndGenAndSalesOr(Set<String> strings) {
+        List<String> list1 = strings.stream().filter(e -> !e.contains("$")).map(e -> "( " + getDefaultExpression(e) + " )").collect(Collectors.toList());
+        List<String> list2 = strings.stream().filter(e -> e.contains("$")).map(e -> "( " + getOrExpression(e) + " )").collect(Collectors.toList());
+        list1.addAll(list2);
+        return list1;
+    }
+
+    private String getOrExpression(String input) {
+        String name = input.split(":")[0];
+        String[] values = input.split(":")[1].split("\\$");
+        Set<String> collect = Arrays.stream(values).map(el -> name + ":" + el).collect(Collectors.toSet());
+        String[] strs = {"pd.attr_key", "pd.attr_prod", "pd.attr_gen", "pd.attr_sales_total"};
+        Set<String> collect1 = Arrays.stream(strs)
+                .map(ee -> collect.stream().map(e -> ee + " LIKE '%" + e + "%'").collect(Collectors.toSet()))
+                .flatMap(Collection::stream).collect(Collectors.toSet());
+
+        return String.join(" OR ", collect1);
+    }
+
+    private String getDefaultExpression(String input) {
+        String[] strs = {"pd.attr_key", "pd.attr_prod", "pd.attr_gen", "pd.attr_sales_total"};
+        Set<String> collect1 = Arrays.stream(strs)
+                .map(ee -> ee + " LIKE '%" + input + "%'")
+                .collect(Collectors.toSet());
+        return String.join(" OR ", collect1);
+    }
+
 }
 

@@ -38,7 +38,7 @@ public class ProductDetailCustomRepresentation {
         this.skus = getCustomerSku(productDetail, attributeSummaryRepresentation);
         this.selectedOptions = productDetail.getSelectedOptions();
         this.attrIdMap = new HashMap<>();
-        this.skus.stream().map(e -> e.getAttributeSales()).flatMap(list -> list.stream()).collect(Collectors.toList())
+        this.skus.stream().map(ProductSkuCustomerRepresentation::getAttributeSales).flatMap(Collection::stream).collect(Collectors.toList())
                 .stream().map(e -> e.split(":")[0]).forEach(el -> attrIdMap.put(el, findName(el, attributeSummaryRepresentation)));
     }
 
