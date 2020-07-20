@@ -54,6 +54,9 @@ public class ProductDetail extends Auditable {
     @Convert(converter = StringSetConverter.class)
     private Set<String> attrGen;
 
+    @Convert(converter = StringSetConverter.class)
+    private Set<String> attrSalesTotal;
+
     @ElementCollection
     @CollectionTable(name = "product_sku_map", joinColumns = @JoinColumn(name = "product_id"), uniqueConstraints = @UniqueConstraint(columnNames = {"attributesSales", "product_id"}))
     private List<ProductSku> productSkuList;
@@ -94,6 +97,7 @@ public class ProductDetail extends Auditable {
             e.setAttributesSales(new TreeSet(e.getAttributesSales()));
         });
         adjustSku(command.getSkus(), productApplicationService);
+        this.attrSalesTotal = command.getSkus().stream().map(UpdateProductAdminSkuCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
     private void adjustSku(List<UpdateProductAdminSkuCommand> commands, ProductApplicationService productApplicationService) {
@@ -182,6 +186,7 @@ public class ProductDetail extends Auditable {
                 e.setSales(0);
             e.setAttributesSales(new TreeSet(e.getAttributesSales()));
         });
+        this.attrSalesTotal = command.getSkus().stream().map(ProductSku::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
         this.productSkuList = command.getSkus();
     }
 }

@@ -259,10 +259,10 @@ public class ProductApplicationService {
         Set<String> strings = new TreeSet<>(Arrays.asList(attributes.split(",")));
         List<String> collect;
         if (customerSearch) {
-            collect = getWhereClauseKeyAndProdAndGen(strings);
+            collect = getWhereClauseKeyAndProdAndGenAndSales(strings);
         } else {
             if (Boolean.TRUE.equals(fullSearch)) {
-                collect = getWhereClauseKeyAndProdAndGen(strings);
+                collect = getWhereClauseKeyAndProdAndGenAndSales(strings);
             } else {
                 collect = getWhereClauseKey(strings);
             }
@@ -281,6 +281,9 @@ public class ProductApplicationService {
 
     private List<String> getWhereClauseKeyAndProdAndGen(Set<String> strings) {
         return strings.stream().map(e -> "( pd.attr_key LIKE '%" + e + "%' OR pd.attr_prod LIKE '%" + e + "%' OR pd.attr_gen LIKE '%" + e + "%' )").collect(Collectors.toList());
+    }
+    private List<String> getWhereClauseKeyAndProdAndGenAndSales(Set<String> strings) {
+        return strings.stream().map(e -> "( pd.attr_key LIKE '%" + e + "%' OR pd.attr_prod LIKE '%" + e + "%' OR pd.attr_gen LIKE '%" + e + "%' OR pd.attr_sales_total LIKE '%" + e + "%' )").collect(Collectors.toList());
     }
 }
 
