@@ -101,7 +101,7 @@ public class ProductDetail extends Auditable {
             e.setAttributesSales(new TreeSet(e.getAttributesSales()));
         });
         adjustSku(command.getSkus(), productApplicationService);
-        this.attrSalesTotal = command.getSkus().stream().map(UpdateProductAdminSkuCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
+        this.attrSalesTotal = command.getSkus().stream().map(UpdateProductAdminCommand.UpdateProductAdminSkuCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
     public void updateStatus(ProductStatus status, ProductDetailRepo repo) {
@@ -109,7 +109,7 @@ public class ProductDetail extends Auditable {
         repo.save(this);
     }
 
-    private void adjustSku(List<UpdateProductAdminSkuCommand> commands, ProductApplicationService productApplicationService) {
+    private void adjustSku(List<UpdateProductAdminCommand.UpdateProductAdminSkuCommand> commands, ProductApplicationService productApplicationService) {
         commands.forEach(command -> {
             if (command.getStorageActual() != null && command.getStorageOrder() != null) {
                 // new sku
@@ -163,7 +163,7 @@ public class ProductDetail extends Auditable {
         this.productSkuList.removeAll(collect);
     }
 
-    private List<StorageChangeDetail> getStorageChangeDetail(UpdateProductAdminSkuCommand command, Integer increaseOrderStorage) {
+    private List<StorageChangeDetail> getStorageChangeDetail(UpdateProductAdminCommand.UpdateProductAdminSkuCommand command, Integer increaseOrderStorage) {
         ArrayList<StorageChangeDetail> objects = new ArrayList<>(1);
         StorageChangeDetail storageChangeDetail = new StorageChangeDetail();
         storageChangeDetail.setAmount(increaseOrderStorage);
