@@ -1,10 +1,12 @@
 package com.hw.aggregate.product;
 
 import com.hw.aggregate.product.command.*;
+import com.hw.aggregate.product.model.ProductStatus;
 import com.hw.aggregate.product.representation.ProductAdminGetAllPaginatedSummaryRepresentation;
 import com.hw.aggregate.product.representation.ProductCustomerSearchByAttributesSummaryPaginatedRepresentation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,6 +70,12 @@ public class ProductController {
     @PutMapping("admin/productDetails/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable(name = "id") Long id, @RequestBody UpdateProductAdminCommand newProductDetail) {
         productService.updateProduct(id, newProductDetail);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("admin/productDetails/{id}/status")
+    public ResponseEntity<?> updateProductStatus(@PathVariable(name = "id") Long id,@RequestParam(name = "status") ProductStatus status) {
+        productService.updateProductStatus(id,status);
         return ResponseEntity.ok().build();
     }
 

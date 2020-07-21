@@ -6,6 +6,7 @@ import com.hw.aggregate.product.model.ProductStatus;
 import com.hw.aggregate.product.model.UpdateProductAdminSkuCommand;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ public class UpdateProductAdminCommand {
     private Set<String> imageUrlLarge;
     private String description;
     private ProductStatus status;
+    private Date expireAt;
     private List<ProductOption> selectedOptions;
     private Set<String> specification;
     private Set<String> attributesKey;

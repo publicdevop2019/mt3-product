@@ -4,10 +4,7 @@ import com.hw.aggregate.attribute.BizAttributeApplicationService;
 import com.hw.aggregate.attribute.representation.BizAttributeSummaryRepresentation;
 import com.hw.aggregate.catalog.CatalogApplicationService;
 import com.hw.aggregate.product.command.*;
-import com.hw.aggregate.product.model.OptionItem;
-import com.hw.aggregate.product.model.ProductDetail;
-import com.hw.aggregate.product.model.ProductOption;
-import com.hw.aggregate.product.model.ProductSku;
+import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.*;
 import com.hw.shared.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -231,8 +229,9 @@ public class ProductApplicationService {
         if ("".equals(attributes) || attributes == null) {
             return new ArrayList<>(0);
         }
-        List<Object[]> resultList = entityManager.createNativeQuery("SELECT id, name, attr_key, image_url_small" +
-                " FROM product_detail pd WHERE " + getWhereClause(attributes, customerSearch, fullSearch) + (customerSearch ? "AND status='AVAILABLE'" : "") + " ORDER BY id ASC LIMIT ?1, ?2")
+        String query = "SELECT id, name, attr_key, image_url_small" +
+                " FROM product_detail pd WHERE " + getWhereClause(attributes, customerSearch, fullSearch) + (customerSearch ? getExpireClause() : "") + " ORDER BY id ASC LIMIT ?1, ?2";
+        List<Object[]> resultList = entityManager.createNativeQuery(query)
                 .setParameter(1, pageNumber * pageSize)
                 .setParameter(2, pageSize)
                 .getResultList();
@@ -252,6 +251,10 @@ public class ProductApplicationService {
             pd.setProductSkuList(productSkus);
         });
         return productDetails;
+    }
+
+    private String getExpireClause() {
+        return " AND status='AVAILABLE' AND (expire_at > '" + Instant.now().toString() + "' OR expire_at IS NULL)";
     }
 
     private String getWhereClause(String attributes, boolean customerSearch, Boolean fullSearch) {
@@ -314,5 +317,9 @@ public class ProductApplicationService {
         return String.join(" OR ", collect1);
     }
 
+    public void updateProductStatus(Long id, ProductStatus status) {
+        ProductDetail read = ProductDetail.read(id, repo);
+        read.updateStatus(status, repo);
+    }
 }
 

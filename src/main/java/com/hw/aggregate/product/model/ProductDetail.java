@@ -35,6 +35,9 @@ public class ProductDetail extends Auditable {
     @Convert(converter = ProductStatus.DBConverter.class)
     private ProductStatus status;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date expireAt;
+
     @Column(length = 10000)
     @Convert(converter = ProductOptionConverter.class)
     private List<ProductOption> selectedOptions;
@@ -91,6 +94,7 @@ public class ProductDetail extends Auditable {
         this.attrProd = command.getAttributesProd();
         this.attrGen = command.getAttributesGen();
         this.status = command.getStatus();
+        this.expireAt = command.getExpireAt();
         command.getSkus().forEach(e -> {
             if (e.getSales() == null)
                 e.setSales(0);
@@ -98,6 +102,11 @@ public class ProductDetail extends Auditable {
         });
         adjustSku(command.getSkus(), productApplicationService);
         this.attrSalesTotal = command.getSkus().stream().map(UpdateProductAdminSkuCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
+    }
+
+    public void updateStatus(ProductStatus status, ProductDetailRepo repo) {
+        this.status = status;
+        repo.save(this);
     }
 
     private void adjustSku(List<UpdateProductAdminSkuCommand> commands, ProductApplicationService productApplicationService) {
@@ -180,11 +189,12 @@ public class ProductDetail extends Auditable {
         this.attrKey = command.getAttributesKey();
         this.attrProd = command.getAttributesProd();
         this.attrGen = command.getAttributesGen();
+        this.expireAt = command.getExpireAt();
         this.status = command.getStatus();
         command.getSkus().forEach(e -> {
             if (e.getSales() == null)
                 e.setSales(0);
-            e.setAttributesSales(new TreeSet(e.getAttributesSales()));
+            e.setAttributesSales(e.getAttributesSales());
         });
         this.attrSalesTotal = command.getSkus().stream().map(ProductSku::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
         this.productSkuList = command.getSkus();
