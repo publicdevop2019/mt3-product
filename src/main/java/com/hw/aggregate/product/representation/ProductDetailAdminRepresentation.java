@@ -1,6 +1,8 @@
 package com.hw.aggregate.product.representation;
 
-import com.hw.aggregate.product.model.*;
+import com.hw.aggregate.product.model.ProductDetail;
+import com.hw.aggregate.product.model.ProductOption;
+import com.hw.aggregate.product.model.ProductSku;
 import lombok.Data;
 
 import java.util.List;
@@ -18,7 +20,8 @@ public class ProductDetailAdminRepresentation {
 
     private String description;
 
-    private ProductStatus status;
+    private Long startAt;
+    private Long endAt;
 
     private Set<String> specification;
 
@@ -37,7 +40,8 @@ public class ProductDetailAdminRepresentation {
         this.name = productDetail.getName();
         this.imageUrlSmall = productDetail.getImageUrlSmall();
         this.description = productDetail.getDescription();
-        this.status = productDetail.getStatus();
+        this.startAt = productDetail.getStartAt();
+        this.endAt = productDetail.getEndAt();
         this.selectedOptions = productDetail.getSelectedOptions();
         this.imageUrlLarge = productDetail.getImageUrlLarge();
         this.specification = productDetail.getSpecification();

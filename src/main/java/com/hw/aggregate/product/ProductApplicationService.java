@@ -57,7 +57,7 @@ public class ProductApplicationService {
     public ProductCustomerSearchByNameSummaryPaginatedRepresentation searchProductByNameForCustomer(String key, Integer pageNumber, Integer pageSize) {
         Sort orders = new Sort(Sort.Direction.ASC, "id");
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, orders);
-        Page<ProductDetail> pd = repo.searchProductByNameForCustomer(key, pageRequest);
+        Page<ProductDetail> pd = repo.searchProductByNameForCustomer(key, new Date(), pageRequest);
         return new ProductCustomerSearchByNameSummaryPaginatedRepresentation(pd.getContent(), pd.getTotalPages(), pd.getTotalElements());
     }
 
@@ -230,7 +230,7 @@ public class ProductApplicationService {
             return new ArrayList<>(0);
         }
         String query = "SELECT id, name, attr_key, image_url_small" +
-                " FROM product_detail pd WHERE " + getWhereClause(attributes, customerSearch, fullSearch) + (customerSearch ? getExpireClause() : "") + " ORDER BY id ASC LIMIT ?1, ?2";
+                " FROM product_detail pd WHERE " + getWhereClause(attributes, customerSearch, fullSearch) + (customerSearch ? getStatusClause() : "") + " ORDER BY id ASC LIMIT ?1, ?2";
         List<Object[]> resultList = entityManager.createNativeQuery(query)
                 .setParameter(1, pageNumber * pageSize)
                 .setParameter(2, pageSize)
@@ -253,8 +253,8 @@ public class ProductApplicationService {
         return productDetails;
     }
 
-    private String getExpireClause() {
-        return " AND status='AVAILABLE' AND (expire_at > '" + Instant.now().toString() + "' OR expire_at IS NULL)";
+    private String getStatusClause() {
+        return " AND (start_at IS NOT NULL AND start_at <='" + Instant.now().toString() + "' ) AND (end_at > '" + Instant.now().toString() + "' OR end_at IS NULL)";
     }
 
     private String getWhereClause(String attributes, boolean customerSearch, Boolean fullSearch) {

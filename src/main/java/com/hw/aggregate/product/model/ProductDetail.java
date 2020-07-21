@@ -32,11 +32,9 @@ public class ProductDetail extends Auditable {
 
     private String description;
 
-    @Convert(converter = ProductStatus.DBConverter.class)
-    private ProductStatus status;
+    private Long endAt;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date expireAt;
+    private Long startAt;
 
     @Column(length = 10000)
     @Convert(converter = ProductOptionConverter.class)
@@ -93,8 +91,8 @@ public class ProductDetail extends Auditable {
         this.attrKey = command.getAttributesKey();
         this.attrProd = command.getAttributesProd();
         this.attrGen = command.getAttributesGen();
-        this.status = command.getStatus();
-        this.expireAt = command.getExpireAt();
+        this.startAt = command.getStartAt();
+        this.endAt = command.getEndAt();
         command.getSkus().forEach(e -> {
             if (e.getSales() == null)
                 e.setSales(0);
@@ -105,8 +103,75 @@ public class ProductDetail extends Auditable {
     }
 
     public void updateStatus(ProductStatus status, ProductDetailRepo repo) {
-        this.status = status;
+        Long current = new Date().getTime();
+        if (ProductStatus.AVAILABLE.equals(status)) {
+            //make product available
+            if (this.startAt != null && this.endAt != null) {
+                if (this.startAt.compareTo(current) <= 0 && this.endAt.compareTo(current) > 0) {
+                    //do nothing, product is already available
+                } else {
+                    if (this.startAt.compareTo(current) > 0) {
+                        this.startAt = new Date().getTime();
+                    } else {
+                        //this.endAt.compareTo(current) <= 0
+                        //set endAt to null, user need to manual update endAt
+                        this.endAt = null;
+                    }
+                }
+            } else if (this.startAt != null && this.endAt == null) {
+                if (this.startAt.compareTo(current) >= 0) {
+                    this.startAt = current;
+                } else {
+                    //do nothing
+                }
+            } else if (this.startAt == null && this.endAt == null) {
+                this.startAt = current;
+            } else if (this.startAt == null && this.endAt != null) {
+                this.startAt = current;
+                if (this.endAt.compareTo(current) > 0) {
+                    //do nothing
+                } else {
+                    this.endAt = null;
+                }
+            }
+        } else {
+            //make product unavailable
+            if (this.startAt != null && this.endAt != null) {
+                if (this.startAt.compareTo(current) <= 0 && this.endAt.compareTo(current) > 0) {
+                    this.endAt = current;
+                } else {
+                    if (this.startAt.compareTo(current) > 0) {
+                        this.startAt = null;
+                    } else {
+                        //do nothing
+                    }
+                }
+            } else if (this.startAt != null && this.endAt == null) {
+                this.startAt = null;
+            } else if (this.startAt == null && this.endAt == null) {
+                //do nothing
+            } else if (this.startAt == null && this.endAt != null) {
+                //do nothing
+            }
+        }
         repo.save(this);
+    }
+
+    public static boolean isAvailable(ProductDetail productDetail) {
+        Long current = new Date().getTime();
+        if (productDetail.getStartAt() == null)
+            return false;
+        if (current.compareTo(productDetail.getStartAt()) < 0) {
+            return false;
+        } else {
+            if (productDetail.getEndAt() == null) {
+                return true;
+            } else if (current.compareTo(productDetail.getEndAt()) < 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     private void adjustSku(List<UpdateProductAdminCommand.UpdateProductAdminSkuCommand> commands, ProductApplicationService productApplicationService) {
@@ -189,8 +254,8 @@ public class ProductDetail extends Auditable {
         this.attrKey = command.getAttributesKey();
         this.attrProd = command.getAttributesProd();
         this.attrGen = command.getAttributesGen();
-        this.expireAt = command.getExpireAt();
-        this.status = command.getStatus();
+        this.startAt = (command.getStartAt());
+        this.endAt = (command.getEndAt());
         command.getSkus().forEach(e -> {
             if (e.getSales() == null)
                 e.setSales(0);
@@ -199,4 +264,5 @@ public class ProductDetail extends Auditable {
         this.attrSalesTotal = command.getSkus().stream().map(ProductSku::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
         this.productSkuList = command.getSkus();
     }
+
 }

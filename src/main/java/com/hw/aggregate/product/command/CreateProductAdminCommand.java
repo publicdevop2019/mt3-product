@@ -15,8 +15,8 @@ public class CreateProductAdminCommand {
     private String imageUrlSmall;
     private Set<String> imageUrlLarge;
     private String description;
-    private ProductStatus status;
-    private Date expireAt;
+    private Long startAt;
+    private Long endAt;
     private List<ProductOption> selectedOptions;
     private Set<String> specification;
     private Set<String> attributesKey;

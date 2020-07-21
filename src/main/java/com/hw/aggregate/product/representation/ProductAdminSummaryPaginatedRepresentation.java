@@ -32,7 +32,8 @@ public class ProductAdminSummaryPaginatedRepresentation {
         private List<BigDecimal> priceList;
         private Set<String> attributesKey;
         private ProductStatus status;
-        private Date expireAt;
+        private Long startAt;
+        private Long endAt;
 
         public ProductAdminCardRepresentation(ProductDetail productDetail) {
             this.id = productDetail.getId();
@@ -40,8 +41,8 @@ public class ProductAdminSummaryPaginatedRepresentation {
             this.totalSales = calcTotalSales(productDetail);
             this.priceList = productDetail.getProductSkuList().stream().map(ProductSku::getPrice).collect(Collectors.toList());
             this.attributesKey = productDetail.getAttrKey();
-            this.status = productDetail.getStatus();
-            this.expireAt = productDetail.getExpireAt();
+            this.startAt = productDetail.getStartAt();
+            this.endAt = productDetail.getEndAt();
         }
 
         private Integer calcTotalSales(ProductDetail productDetail) {

@@ -15,8 +15,8 @@ public class UpdateProductAdminCommand {
     private String imageUrlSmall;
     private Set<String> imageUrlLarge;
     private String description;
-    private ProductStatus status;
-    private Date expireAt;
+    private Long endAt;
+    private Long startAt;
     private List<ProductOption> selectedOptions;
     private Set<String> specification;
     private Set<String> attributesKey;
