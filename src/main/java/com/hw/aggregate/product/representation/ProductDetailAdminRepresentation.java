@@ -5,8 +5,10 @@ import com.hw.aggregate.product.model.ProductOption;
 import com.hw.aggregate.product.model.ProductSku;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 public class ProductDetailAdminRepresentation {
@@ -33,7 +35,7 @@ public class ProductDetailAdminRepresentation {
 
     private Set<String> attributesGen;
 
-    private List<ProductSku> skus;
+    private List<ProductSkuAdminRepresentation> skus;
 
     public ProductDetailAdminRepresentation(ProductDetail productDetail) {
         this.id = productDetail.getId();
@@ -48,6 +50,23 @@ public class ProductDetailAdminRepresentation {
         this.attributesKey = productDetail.getAttrKey();
         this.attributesProd = productDetail.getAttrProd();
         this.attributesGen = productDetail.getAttrGen();
-        this.skus = productDetail.getProductSkuList();
+        this.skus = productDetail.getProductSkuList().stream().map(ProductSkuAdminRepresentation::new).collect(Collectors.toList());
+    }
+
+    @Data
+    public static class ProductSkuAdminRepresentation {
+        private Set<String> attributesSales;
+        private Integer storageOrder;
+        private Integer storageActual;
+        private BigDecimal price;
+        private Integer sales;
+
+        public ProductSkuAdminRepresentation(ProductSku sku) {
+            this.attributesSales = sku.getAttributesSales();
+            this.storageOrder = sku.getStorageOrder();
+            this.storageActual = sku.getStorageActual();
+            this.price = sku.getPrice();
+            this.sales = sku.getSales();
+        }
     }
 }

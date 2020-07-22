@@ -3,6 +3,7 @@ package com.hw.aggregate.product.model;
 import com.hw.aggregate.product.ProductApplicationService;
 import com.hw.aggregate.product.ProductDetailRepo;
 import com.hw.aggregate.product.command.*;
+import com.hw.aggregate.product.exception.ProductNotAvailableException;
 import com.hw.aggregate.product.exception.ProductNotFoundException;
 import com.hw.aggregate.product.exception.SkuAlreadyExistException;
 import com.hw.aggregate.product.exception.SkuNotExistException;
@@ -74,10 +75,19 @@ public class ProductDetail extends Auditable {
         return repo.save(productDetail);
     }
 
-    public static ProductDetail read(Long id, ProductDetailRepo repo) {
+    public static ProductDetail readAdmin(Long id, ProductDetailRepo repo) {
         Optional<ProductDetail> findById = repo.findById(id);
         if (findById.isEmpty())
             throw new ProductNotFoundException();
+        return findById.get();
+    }
+
+    public static ProductDetail readCustomer(Long id, ProductDetailRepo repo) {
+        Optional<ProductDetail> findById = repo.findById(id);
+        if (findById.isEmpty())
+            throw new ProductNotFoundException();
+        if (!ProductDetail.isAvailable(findById.get()))
+            throw new ProductNotAvailableException();
         return findById.get();
     }
 
@@ -239,7 +249,7 @@ public class ProductDetail extends Auditable {
     }
 
     public static void delete(Long id, ProductDetailRepo repo) {
-        ProductDetail read = read(id, repo);
+        ProductDetail read = readAdmin(id, repo);
         repo.delete(read);
     }
 
@@ -261,8 +271,16 @@ public class ProductDetail extends Auditable {
                 e.setSales(0);
             e.setAttributesSales(e.getAttributesSales());
         });
-        this.attrSalesTotal = command.getSkus().stream().map(ProductSku::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
-        this.productSkuList = command.getSkus();
+        this.attrSalesTotal = command.getSkus().stream().map(CreateProductAdminCommand.CreateProductSkuAdminCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
+        this.productSkuList = command.getSkus().stream().map(e -> {
+            ProductSku productSku = new ProductSku();
+            productSku.setPrice(e.getPrice());
+            productSku.setAttributesSales(e.getAttributesSales());
+            productSku.setStorageOrder(e.getStorageOrder());
+            productSku.setStorageActual(e.getStorageActual());
+            productSku.setSales(e.getSales());
+            return productSku;
+        }).collect(Collectors.toList());
     }
 
 }

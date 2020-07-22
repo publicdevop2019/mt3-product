@@ -12,5 +12,5 @@ import java.util.Date;
 @Repository
 public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
     @Query("SELECT p FROM #{#entityName} as p WHERE p.name LIKE ?1% AND (start_at IS NOT NULL AND start_at <=?2 ) AND (end_at > ?2 OR end_at IS NULL)")
-    Page<ProductDetail> searchProductByNameForCustomer(String searchKey, Date current, Pageable pageable);
+    Page<ProductDetail> searchProductByNameForCustomer(String searchKey, Long current, Pageable pageable);
 }

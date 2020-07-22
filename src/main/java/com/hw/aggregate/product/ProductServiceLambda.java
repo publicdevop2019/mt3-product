@@ -104,22 +104,6 @@ public class ProductServiceLambda {
             throw new ActualStorageIncreaseException();
     };
 
-
-    public ThrowingFunction<Long, ProductDetail, RuntimeException> getByIdForAdmin = (productDetailId) -> {
-        Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
-        if (findById.isEmpty())
-            throw new ProductNotFoundException();
-        return findById.get();
-    };
-    public ThrowingFunction<Long, ProductDetail, RuntimeException> getByIdForCustomer = (productDetailId) -> {
-        Optional<ProductDetail> findById = productDetailRepo.findById(productDetailId);
-        if (findById.isEmpty())
-            throw new ProductNotFoundException();
-        if (ProductDetail.isAvailable(findById.get()))
-            throw new ProductNotAvailableException();
-        return findById.get();
-    };
-
     public ThrowingConsumer<IncreaseOrderStorageCommand, RuntimeException> increaseOrderStorageForMappedProducts = (command) -> {
         beforeUpdateStorage(command);
         command.getChangeList().forEach(changeDetail -> increaseOrderStorage.accept(changeDetail));

@@ -57,7 +57,7 @@ public class ProductApplicationService {
     public ProductCustomerSearchByNameSummaryPaginatedRepresentation searchProductByNameForCustomer(String key, Integer pageNumber, Integer pageSize) {
         Sort orders = new Sort(Sort.Direction.ASC, "id");
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, orders);
-        Page<ProductDetail> pd = repo.searchProductByNameForCustomer(key, new Date(), pageRequest);
+        Page<ProductDetail> pd = repo.searchProductByNameForCustomer(key, Instant.now().toEpochMilli(), pageRequest);
         return new ProductCustomerSearchByNameSummaryPaginatedRepresentation(pd.getContent(), pd.getTotalPages(), pd.getTotalElements());
     }
 
@@ -158,14 +158,14 @@ public class ProductApplicationService {
 
     @Transactional(readOnly = true)
     public ProductDetailCustomRepresentation getProductByIdForCustomer(Long productDetailId) {
-        ProductDetail apply = productServiceLambda.getByIdForAdmin.apply(productDetailId);
+        ProductDetail productDetail = ProductDetail.readCustomer(productDetailId, repo);
         BizAttributeSummaryRepresentation allAttributes = attributeApplicationService.getAllAttributes();
-        return new ProductDetailCustomRepresentation(apply, allAttributes);
+        return new ProductDetailCustomRepresentation(productDetail, allAttributes);
     }
 
     @Transactional(readOnly = true)
     public ProductDetailAdminRepresentation getProductByIdForAdmin(Long productDetailId) {
-        return new ProductDetailAdminRepresentation(productServiceLambda.getByIdForAdmin.apply(productDetailId));
+        return new ProductDetailAdminRepresentation(ProductDetail.readAdmin(productDetailId, repo));
     }
 
     @Transactional
@@ -176,7 +176,7 @@ public class ProductApplicationService {
 
     @Transactional
     public void updateProduct(Long id, UpdateProductAdminCommand command) {
-        ProductDetail read = ProductDetail.read(id, repo);
+        ProductDetail read = ProductDetail.readAdmin(id, repo);
         read.update(command, this);
     }
 
@@ -254,7 +254,7 @@ public class ProductApplicationService {
     }
 
     private String getStatusClause() {
-        return " AND (start_at IS NOT NULL AND start_at <='" + Instant.now().toString() + "' ) AND (end_at > '" + Instant.now().toString() + "' OR end_at IS NULL)";
+        return " AND (start_at IS NOT NULL AND start_at <=" + Instant.now().toEpochMilli() + " ) AND (end_at > " + Instant.now().toEpochMilli() + " OR end_at IS NULL)";
     }
 
     private String getWhereClause(String attributes, boolean customerSearch, Boolean fullSearch) {
@@ -276,18 +276,6 @@ public class ProductApplicationService {
 
     private List<String> getWhereClauseKey(Set<String> strings) {
         return strings.stream().map(e -> "pd.attr_key LIKE '%" + e + "%'").collect(Collectors.toList());
-    }
-
-    private List<String> getWhereClauseKeyAndProd(Set<String> strings) {
-        return strings.stream().map(e -> "( pd.attr_key LIKE '%" + e + "%' OR pd.attr_prod LIKE '%" + e + "%' )").collect(Collectors.toList());
-    }
-
-    private List<String> getWhereClauseKeyAndProdAndGen(Set<String> strings) {
-        return strings.stream().map(e -> "( pd.attr_key LIKE '%" + e + "%' OR pd.attr_prod LIKE '%" + e + "%' OR pd.attr_gen LIKE '%" + e + "%' )").collect(Collectors.toList());
-    }
-
-    private List<String> getWhereClauseKeyAndProdAndGenAndSales(Set<String> strings) {
-        return strings.stream().map(e -> "( pd.attr_key LIKE '%" + e + "%' OR pd.attr_prod LIKE '%" + e + "%' OR pd.attr_gen LIKE '%" + e + "%' OR pd.attr_sales_total LIKE '%" + e + "%' )").collect(Collectors.toList());
     }
 
     private List<String> getWhereClauseKeyAndProdAndGenAndSalesOr(Set<String> strings) {
@@ -318,7 +306,7 @@ public class ProductApplicationService {
     }
 
     public void updateProductStatus(Long id, ProductStatus status) {
-        ProductDetail read = ProductDetail.read(id, repo);
+        ProductDetail read = ProductDetail.readAdmin(id, repo);
         read.updateStatus(status, repo);
     }
 }

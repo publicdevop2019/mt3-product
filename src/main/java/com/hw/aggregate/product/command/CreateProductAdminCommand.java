@@ -1,11 +1,9 @@
 package com.hw.aggregate.product.command;
 
 import com.hw.aggregate.product.model.ProductOption;
-import com.hw.aggregate.product.model.ProductSku;
-import com.hw.aggregate.product.model.ProductStatus;
 import lombok.Data;
 
-import java.util.Date;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -22,5 +20,14 @@ public class CreateProductAdminCommand {
     private Set<String> attributesKey;
     private Set<String> attributesProd;
     private Set<String> attributesGen;
-    private List<ProductSku> skus;
+    private List<CreateProductSkuAdminCommand> skus;
+
+    @Data
+    public static class CreateProductSkuAdminCommand {
+        private Set<String> attributesSales;
+        private Integer storageOrder;
+        private Integer storageActual;
+        private BigDecimal price;
+        private Integer sales;
+    }
 }

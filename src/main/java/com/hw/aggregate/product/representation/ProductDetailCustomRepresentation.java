@@ -62,4 +62,18 @@ public class ProductDetailCustomRepresentation {
         ProductSku productSku = productDetail.getProductSkuList().stream().min(Comparator.comparing(ProductSku::getPrice)).orElseThrow(NoLowestPriceFoundException::new);
         return productSku.getPrice();
     }
+
+    @Data
+    public static class ProductSkuCustomerRepresentation {
+        private Set<String> attributeSales;
+        private Integer storageOrder;
+        private BigDecimal price;
+
+        public ProductSkuCustomerRepresentation(ProductSku productSku) {
+            this.attributeSales = productSku.getAttributesSales();
+            this.storageOrder = productSku.getStorageOrder();
+            this.price = productSku.getPrice();
+        }
+
+    }
 }
