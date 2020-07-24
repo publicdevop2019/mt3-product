@@ -63,6 +63,9 @@ public class ProductDetail extends Auditable {
     @CollectionTable(name = "product_sku_map", joinColumns = @JoinColumn(name = "product_id"), uniqueConstraints = @UniqueConstraint(columnNames = {"attributesSales", "product_id"}))
     private List<ProductSku> productSkuList;
 
+    @Column(length = 10000)
+    private ArrayList<ProductAttrSaleImages> attributeSaleImages;
+
     public ProductDetail(Long id, String name, String attributes, String imageUrlSmall) {
         this.id = id;
         this.name = name;
@@ -106,10 +109,18 @@ public class ProductDetail extends Auditable {
         command.getSkus().forEach(e -> {
             if (e.getSales() == null)
                 e.setSales(0);
-            e.setAttributesSales(new TreeSet(e.getAttributesSales()));
+            e.setAttributesSales(new TreeSet<>(e.getAttributesSales()));
         });
         adjustSku(command.getSkus(), productApplicationService);
         this.attrSalesTotal = command.getSkus().stream().map(UpdateProductAdminCommand.UpdateProductAdminSkuCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
+        this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e ->
+                {
+                    ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
+                    productAttrSaleImages.setAttributeSales(e.getAttributeSales());
+                    productAttrSaleImages.setImageUrls(e.getImageUrls());
+                    return productAttrSaleImages;
+                }
+        ).collect(Collectors.toCollection(ArrayList::new));
     }
 
     public void updateStatus(ProductStatus status, ProductDetailRepo repo) {
@@ -281,6 +292,14 @@ public class ProductDetail extends Auditable {
             productSku.setSales(e.getSales());
             return productSku;
         }).collect(Collectors.toList());
+        this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e ->
+                {
+                    ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
+                    productAttrSaleImages.setAttributeSales(e.getAttributeSales());
+                    productAttrSaleImages.setImageUrls(e.getImageUrls());
+                    return productAttrSaleImages;
+                }
+        ).collect(Collectors.toCollection(ArrayList::new));
     }
 
 }

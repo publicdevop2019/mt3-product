@@ -1,5 +1,6 @@
 package com.hw.aggregate.product.representation;
 
+import com.hw.aggregate.product.model.ProductAttrSaleImages;
 import com.hw.aggregate.product.model.ProductDetail;
 import com.hw.aggregate.product.model.ProductOption;
 import com.hw.aggregate.product.model.ProductSku;
@@ -37,6 +38,8 @@ public class ProductDetailAdminRepresentation {
 
     private List<ProductSkuAdminRepresentation> skus;
 
+    private List<ProductAttrSaleImagesAdminRepresentation> attributeSaleImages;
+
     public ProductDetailAdminRepresentation(ProductDetail productDetail) {
         this.id = productDetail.getId();
         this.name = productDetail.getName();
@@ -51,6 +54,8 @@ public class ProductDetailAdminRepresentation {
         this.attributesProd = productDetail.getAttrProd();
         this.attributesGen = productDetail.getAttrGen();
         this.skus = productDetail.getProductSkuList().stream().map(ProductSkuAdminRepresentation::new).collect(Collectors.toList());
+        if (productDetail.getAttributeSaleImages() != null)
+            this.attributeSaleImages = productDetail.getAttributeSaleImages().stream().map(ProductAttrSaleImagesAdminRepresentation::new).collect(Collectors.toList());
     }
 
     @Data
@@ -67,6 +72,17 @@ public class ProductDetailAdminRepresentation {
             this.storageActual = sku.getStorageActual();
             this.price = sku.getPrice();
             this.sales = sku.getSales();
+        }
+    }
+
+    @Data
+    public static class ProductAttrSaleImagesAdminRepresentation {
+        private String attributeSales;
+        private List<String> imageUrls;
+
+        public ProductAttrSaleImagesAdminRepresentation(ProductAttrSaleImages productAttrSaleImages) {
+            this.attributeSales = productAttrSaleImages.getAttributeSales();
+            this.imageUrls = productAttrSaleImages.getImageUrls();
         }
     }
 }

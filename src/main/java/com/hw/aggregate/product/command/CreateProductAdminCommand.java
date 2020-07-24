@@ -21,6 +21,7 @@ public class CreateProductAdminCommand {
     private Set<String> attributesProd;
     private Set<String> attributesGen;
     private List<CreateProductSkuAdminCommand> skus;
+    private List<CreateProductAttrImageAdminCommand> attributeSaleImages;
 
     @Data
     public static class CreateProductSkuAdminCommand {
@@ -29,5 +30,11 @@ public class CreateProductAdminCommand {
         private Integer storageActual;
         private BigDecimal price;
         private Integer sales;
+    }
+
+    @Data
+    public static class CreateProductAttrImageAdminCommand {
+        private String attributeSales;
+        private List<String> imageUrls;
     }
 }
