@@ -81,11 +81,16 @@ public class ProductApplicationService {
             //validate product match
             if (byId.isEmpty())
                 return true;
-            List<ProductSku> collect = byId.get().getProductSkuList().stream().filter(productSku -> new TreeSet(productSku.getAttributesSales()).equals(new TreeSet(command.getAttributesSales()))).collect(Collectors.toList());
-            BigDecimal skuPrice = collect.get(0).getPrice();
+            BigDecimal price;
+            if (byId.get().getProductSkuList() != null) {
+                List<ProductSku> collect = byId.get().getProductSkuList().stream().filter(productSku -> new TreeSet(productSku.getAttributesSales()).equals(new TreeSet(command.getAttributesSales()))).collect(Collectors.toList());
+                price = collect.get(0).getPrice();
+            } else {
+                price = byId.get().getPrice();
+            }
             //if no option present then compare final price
             if (command.getSelectedOptions() == null || command.getSelectedOptions().size() == 0) {
-                return skuPrice.compareTo(command.getFinalPrice()) != 0;
+                return price.compareTo(command.getFinalPrice()) != 0;
             }
             //validate product option match
             List<ProductOption> storedOption = byId.get().getSelectedOptions();
@@ -146,8 +151,8 @@ public class ProductApplicationService {
                     log.error("unknown operation type");
                 }
             }
-            if (calc.add(skuPrice).compareTo(finalPrice) == 0) {
-                log.error("value does match for product {}, expected {} actual {}", command.getProductId(), calc.add(skuPrice), finalPrice);
+            if (calc.add(price).compareTo(finalPrice) == 0) {
+                log.error("value does match for product {}, expected {} actual {}", command.getProductId(), calc.add(price), finalPrice);
                 return false;
             }
             return true;

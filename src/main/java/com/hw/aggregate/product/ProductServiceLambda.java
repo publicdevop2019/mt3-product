@@ -5,13 +5,11 @@ import com.hw.aggregate.product.command.DecreaseOrderStorageCommand;
 import com.hw.aggregate.product.command.IncreaseActualStorageCommand;
 import com.hw.aggregate.product.command.IncreaseOrderStorageCommand;
 import com.hw.aggregate.product.exception.*;
-import com.hw.aggregate.product.model.ProductDetail;
 import com.hw.aggregate.product.model.StorageChangeCommon;
 import com.hw.aggregate.product.model.StorageChangeDetail;
 import com.hw.aggregate.product.model.TransactionRecord;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.ThrowingConsumer;
-import com.hw.shared.ThrowingFunction;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -88,7 +86,36 @@ public class ProductServiceLambda {
         if (!apply.equals(1))
             throw new ActualStorageIncreaseException();
     };
-
+    private ThrowingConsumer<StorageChangeDetail, RuntimeException> increaseOrderStorageNoSku = (changeDetail) -> {
+        Integer integer = productDetailRepo.increaseOrderStorage(changeDetail.getProductId(), changeDetail.getAmount());
+        if (integer != 1)
+            throw new OrderStorageIncreaseException();
+    };
+    private ThrowingConsumer<StorageChangeDetail, RuntimeException> decreaseOrderStorageNoSku = (changeDetail) -> {
+        Integer integer = productDetailRepo.decreaseOrderStorage(changeDetail.getProductId(), changeDetail.getAmount());
+        if (integer != 1)
+            throw new OrderStorageDecreaseException();
+    };
+    private ThrowingConsumer<StorageChangeDetail, RuntimeException> increaseActualStorageNoSku = (changeDetail) -> {
+        Integer integer = productDetailRepo.increaseActualStorageAndDecreaseSales(changeDetail.getProductId(), changeDetail.getAmount());
+        if (integer != 1)
+            throw new ActualStorageIncreaseException();
+    };
+    private ThrowingConsumer<StorageChangeDetail, RuntimeException> decreaseActualStorageNoSku = (changeDetail) -> {
+        Integer integer = productDetailRepo.decreaseActualStorageAndIncreaseSales(changeDetail.getProductId(), changeDetail.getAmount());
+        if (integer != 1)
+            throw new ActualStorageDecreaseException();
+    };
+    private ThrowingConsumer<StorageChangeDetail, RuntimeException> adminDecreaseActualStorageNoSku = (changeDetail) -> {
+        Integer integer = productDetailRepo.decreaseActualStorage(changeDetail.getProductId(), changeDetail.getAmount());
+        if (integer != 1)
+            throw new ActualStorageDecreaseException();
+    };
+    private ThrowingConsumer<StorageChangeDetail, RuntimeException> adminIncreaseActualStorageNoSku = (changeDetail) -> {
+        Integer integer = productDetailRepo.increaseActualStorage(changeDetail.getProductId(), changeDetail.getAmount());
+        if (integer != 1)
+            throw new ActualStorageIncreaseException();
+    };
     private ThrowingConsumer<StorageChangeDetail, RuntimeException> adminDecreaseActualStorage = (changeDetail) -> {
         Integer apply = executeStorageChange.apply(changeDetail, "UPDATE product_sku_map AS p " +
                 "SET p.storage_actual = p.storage_actual - ?1 " +
@@ -106,37 +133,73 @@ public class ProductServiceLambda {
 
     public ThrowingConsumer<IncreaseOrderStorageCommand, RuntimeException> increaseOrderStorageForMappedProducts = (command) -> {
         beforeUpdateStorage(command);
-        command.getChangeList().forEach(changeDetail -> increaseOrderStorage.accept(changeDetail));
-        SaveTx(ORDER_STORAGE, INCREASE, command.getChangeList(), command.getTxId());
+        command.getChangeList().forEach(changeDetail -> {
+            if (changeDetail.getAttributeSales() != null) {
+                increaseOrderStorage.accept(changeDetail);
+            } else {
+                increaseOrderStorageNoSku.accept(changeDetail);
+            }
+        });
+        saveTx(ORDER_STORAGE, INCREASE, command.getChangeList(), command.getTxId());
     };
 
     public ThrowingConsumer<DecreaseOrderStorageCommand, OrderStorageDecreaseException> decreaseOrderStorageForMappedProducts = (command) -> {
         beforeUpdateStorage(command);
-        command.getChangeList().forEach(changeDetail -> decreaseOrderStorage.accept(changeDetail));
-        SaveTx(ORDER_STORAGE, DECREASE, command.getChangeList(), command.getTxId());
+        command.getChangeList().forEach(changeDetail -> {
+            if (changeDetail.getAttributeSales() != null) {
+                decreaseOrderStorage.accept(changeDetail);
+            } else {
+                decreaseOrderStorageNoSku.accept(changeDetail);
+            }
+        });
+        saveTx(ORDER_STORAGE, DECREASE, command.getChangeList(), command.getTxId());
     };
 
 
     public ThrowingConsumer<DecreaseActualStorageCommand, RuntimeException> decreaseActualStorageForMappedProducts = (command) -> {
         beforeUpdateStorage(command);
-        command.getChangeList().forEach(changeDetail -> decreaseActualStorage.accept(changeDetail));
-        SaveTx(ACTUAL_STORAGE, DECREASE, command.getChangeList(), command.getTxId());
+        command.getChangeList().forEach(changeDetail -> {
+            if (changeDetail.getAttributeSales() != null) {
+                decreaseActualStorage.accept(changeDetail);
+            } else {
+                decreaseActualStorageNoSku.accept(changeDetail);
+            }
+        });
+        saveTx(ACTUAL_STORAGE, DECREASE, command.getChangeList(), command.getTxId());
     };
     public ThrowingConsumer<DecreaseActualStorageCommand, RuntimeException> adminDecreaseActualStorageForMappedProducts = (command) -> {
         beforeUpdateStorage(command);
-        command.getChangeList().forEach(changeDetail -> adminDecreaseActualStorage.accept(changeDetail));
-        SaveTx(ACTUAL_STORAGE, DECREASE, command.getChangeList(), command.getTxId());
+        command.getChangeList().forEach(changeDetail -> {
+            if (changeDetail.getAttributeSales() != null) {
+                adminDecreaseActualStorage.accept(changeDetail);
+            } else {
+                adminDecreaseActualStorageNoSku.accept(changeDetail);
+            }
+        });
+        saveTx(ACTUAL_STORAGE, DECREASE, command.getChangeList(), command.getTxId());
     };
 
     public ThrowingConsumer<IncreaseActualStorageCommand, RuntimeException> increaseActualStorageForMappedProducts = (command) -> {
         beforeUpdateStorage(command);
-        command.getChangeList().forEach(changeDetail -> increaseActualStorage.accept(changeDetail));
-        SaveTx(ACTUAL_STORAGE, INCREASE, command.getChangeList(), command.getTxId());
+        command.getChangeList().forEach(changeDetail -> {
+            if (changeDetail.getAttributeSales() != null) {
+                increaseActualStorage.accept(changeDetail);
+            } else {
+                increaseActualStorageNoSku.accept(changeDetail);
+            }
+        });
+        saveTx(ACTUAL_STORAGE, INCREASE, command.getChangeList(), command.getTxId());
     };
     public ThrowingConsumer<IncreaseActualStorageCommand, RuntimeException> adminIncreaseActualStorageForMappedProducts = (command) -> {
         beforeUpdateStorage(command);
-        command.getChangeList().forEach(changeDetail -> adminIncreaseActualStorage.accept(changeDetail));
-        SaveTx(ACTUAL_STORAGE, INCREASE, command.getChangeList(), command.getTxId());
+        command.getChangeList().forEach(changeDetail -> {
+            if (changeDetail.getAttributeSales() != null) {
+                adminIncreaseActualStorage.accept(changeDetail);
+            } else {
+                adminIncreaseActualStorageNoSku.accept(changeDetail);
+            }
+        });
+        saveTx(ACTUAL_STORAGE, INCREASE, command.getChangeList(), command.getTxId());
     };
 
     private void beforeUpdateStorage(StorageChangeCommon common) {
@@ -147,7 +210,7 @@ public class ProductServiceLambda {
         Collections.sort(common.getChangeList());
     }
 
-    private void SaveTx(String changeField, String changeType, List<StorageChangeDetail> details, String txId) {
+    private void saveTx(String changeField, String changeType, List<StorageChangeDetail> details, String txId) {
         TransactionRecord tx = new TransactionRecord();
         tx.setId(idGenerator.getId());
         tx.setChangeField(changeField);

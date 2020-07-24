@@ -13,6 +13,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -66,6 +67,12 @@ public class ProductDetail extends Auditable {
     @Column(length = 10000)
     private ArrayList<ProductAttrSaleImages> attributeSaleImages;
 
+    private Integer storageOrder;
+    private Integer storageActual;
+    private BigDecimal price;
+    private Integer sales;
+
+
     public ProductDetail(Long id, String name, String attributes, String imageUrlSmall) {
         this.id = id;
         this.name = name;
@@ -106,21 +113,50 @@ public class ProductDetail extends Auditable {
         this.attrGen = command.getAttributesGen();
         this.startAt = command.getStartAt();
         this.endAt = command.getEndAt();
-        command.getSkus().forEach(e -> {
-            if (e.getSales() == null)
-                e.setSales(0);
-            e.setAttributesSales(new TreeSet<>(e.getAttributesSales()));
-        });
-        adjustSku(command.getSkus(), productApplicationService);
-        this.attrSalesTotal = command.getSkus().stream().map(UpdateProductAdminCommand.UpdateProductAdminSkuCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
-        this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e ->
-                {
-                    ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
-                    productAttrSaleImages.setAttributeSales(e.getAttributeSales());
-                    productAttrSaleImages.setImageUrls(e.getImageUrls());
-                    return productAttrSaleImages;
-                }
-        ).collect(Collectors.toCollection(ArrayList::new));
+        if (command.getSkus() != null) {
+            command.getSkus().forEach(e -> {
+                if (e.getSales() == null)
+                    e.setSales(0);
+                e.setAttributesSales(new TreeSet<>(e.getAttributesSales()));
+            });
+            adjustSku(command.getSkus(), productApplicationService);
+            this.attrSalesTotal = command.getSkus().stream().map(UpdateProductAdminCommand.UpdateProductAdminSkuCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
+            this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e ->
+                    {
+                        ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
+                        productAttrSaleImages.setAttributeSales(e.getAttributeSales());
+                        productAttrSaleImages.setImageUrls(e.getImageUrls());
+                        return productAttrSaleImages;
+                    }
+            ).collect(Collectors.toCollection(ArrayList::new));
+        } else {
+            this.productSkuList = null;
+            this.price = command.getPrice();
+            if (command.getDecreaseOrderStorage() != null) {
+                DecreaseOrderStorageCommand command1 = new DecreaseOrderStorageCommand();
+                command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
+                command1.setChangeList(getStorageChangeDetail(command.getDecreaseOrderStorage()));
+                productApplicationService.decreaseOrderStorageForMappedProducts(command1);
+            }
+            if (command.getDecreaseActualStorage() != null) {
+                DecreaseActualStorageCommand command1 = new DecreaseActualStorageCommand();
+                command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
+                command1.setChangeList(getStorageChangeDetail(command.getDecreaseActualStorage()));
+                productApplicationService.decreaseActualStorageForMappedProductsAdmin(command1);
+            }
+            if (command.getIncreaseOrderStorage() != null) {
+                IncreaseOrderStorageCommand command1 = new IncreaseOrderStorageCommand();
+                command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
+                command1.setChangeList(getStorageChangeDetail(command.getIncreaseOrderStorage()));
+                productApplicationService.increaseOrderStorageForMappedProducts(command1);
+            }
+            if (command.getIncreaseActualStorage() != null) {
+                IncreaseActualStorageCommand command1 = new IncreaseActualStorageCommand();
+                command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
+                command1.setChangeList(getStorageChangeDetail(command.getIncreaseActualStorage()));
+                productApplicationService.increaseActualStorageForMappedProductsAdmin(command1);
+            }
+        }
     }
 
     public void updateStatus(ProductStatus status, ProductDetailRepo repo) {
@@ -217,30 +253,7 @@ public class ProductDetail extends Auditable {
                 //update price
                 ProductSku productSku = first.get();
                 productSku.setPrice(command.getPrice());
-                if (command.getDecreaseOrderStorage() != null) {
-                    DecreaseOrderStorageCommand command1 = new DecreaseOrderStorageCommand();
-                    command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
-                    command1.setChangeList(getStorageChangeDetail(command, command.getDecreaseOrderStorage()));
-                    productApplicationService.decreaseOrderStorageForMappedProducts(command1);
-                }
-                if (command.getDecreaseActualStorage() != null) {
-                    DecreaseActualStorageCommand command1 = new DecreaseActualStorageCommand();
-                    command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
-                    command1.setChangeList(getStorageChangeDetail(command, command.getDecreaseActualStorage()));
-                    productApplicationService.decreaseActualStorageForMappedProductsAdmin(command1);
-                }
-                if (command.getIncreaseOrderStorage() != null) {
-                    IncreaseOrderStorageCommand command1 = new IncreaseOrderStorageCommand();
-                    command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
-                    command1.setChangeList(getStorageChangeDetail(command, command.getIncreaseOrderStorage()));
-                    productApplicationService.increaseOrderStorageForMappedProducts(command1);
-                }
-                if (command.getIncreaseActualStorage() != null) {
-                    IncreaseActualStorageCommand command1 = new IncreaseActualStorageCommand();
-                    command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
-                    command1.setChangeList(getStorageChangeDetail(command, command.getIncreaseActualStorage()));
-                    productApplicationService.increaseActualStorageForMappedProductsAdmin(command1);
-                }
+                updateStorage(productApplicationService, command);
 
             }
         });
@@ -249,12 +262,48 @@ public class ProductDetail extends Auditable {
         this.productSkuList.removeAll(collect);
     }
 
+    private void updateStorage(ProductApplicationService productApplicationService, UpdateProductAdminCommand.UpdateProductAdminSkuCommand command) {
+        if (command.getDecreaseOrderStorage() != null) {
+            DecreaseOrderStorageCommand command1 = new DecreaseOrderStorageCommand();
+            command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
+            command1.setChangeList(getStorageChangeDetail(command, command.getDecreaseOrderStorage()));
+            productApplicationService.decreaseOrderStorageForMappedProducts(command1);
+        }
+        if (command.getDecreaseActualStorage() != null) {
+            DecreaseActualStorageCommand command1 = new DecreaseActualStorageCommand();
+            command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
+            command1.setChangeList(getStorageChangeDetail(command, command.getDecreaseActualStorage()));
+            productApplicationService.decreaseActualStorageForMappedProductsAdmin(command1);
+        }
+        if (command.getIncreaseOrderStorage() != null) {
+            IncreaseOrderStorageCommand command1 = new IncreaseOrderStorageCommand();
+            command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
+            command1.setChangeList(getStorageChangeDetail(command, command.getIncreaseOrderStorage()));
+            productApplicationService.increaseOrderStorageForMappedProducts(command1);
+        }
+        if (command.getIncreaseActualStorage() != null) {
+            IncreaseActualStorageCommand command1 = new IncreaseActualStorageCommand();
+            command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
+            command1.setChangeList(getStorageChangeDetail(command, command.getIncreaseActualStorage()));
+            productApplicationService.increaseActualStorageForMappedProductsAdmin(command1);
+        }
+    }
+
     private List<StorageChangeDetail> getStorageChangeDetail(UpdateProductAdminCommand.UpdateProductAdminSkuCommand command, Integer increaseOrderStorage) {
         ArrayList<StorageChangeDetail> objects = new ArrayList<>(1);
         StorageChangeDetail storageChangeDetail = new StorageChangeDetail();
         storageChangeDetail.setAmount(increaseOrderStorage);
         storageChangeDetail.setProductId(this.id);
         storageChangeDetail.setAttributeSales(command.getAttributesSales());
+        objects.add(storageChangeDetail);
+        return objects;
+    }
+
+    private List<StorageChangeDetail> getStorageChangeDetail(Integer increaseOrderStorage) {
+        ArrayList<StorageChangeDetail> objects = new ArrayList<>(1);
+        StorageChangeDetail storageChangeDetail = new StorageChangeDetail();
+        storageChangeDetail.setAmount(increaseOrderStorage);
+        storageChangeDetail.setProductId(this.id);
         objects.add(storageChangeDetail);
         return objects;
     }
@@ -277,29 +326,36 @@ public class ProductDetail extends Auditable {
         this.attrGen = command.getAttributesGen();
         this.startAt = (command.getStartAt());
         this.endAt = (command.getEndAt());
-        command.getSkus().forEach(e -> {
-            if (e.getSales() == null)
-                e.setSales(0);
-            e.setAttributesSales(e.getAttributesSales());
-        });
-        this.attrSalesTotal = command.getSkus().stream().map(CreateProductAdminCommand.CreateProductSkuAdminCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
-        this.productSkuList = command.getSkus().stream().map(e -> {
-            ProductSku productSku = new ProductSku();
-            productSku.setPrice(e.getPrice());
-            productSku.setAttributesSales(e.getAttributesSales());
-            productSku.setStorageOrder(e.getStorageOrder());
-            productSku.setStorageActual(e.getStorageActual());
-            productSku.setSales(e.getSales());
-            return productSku;
-        }).collect(Collectors.toList());
-        this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e ->
-                {
-                    ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
-                    productAttrSaleImages.setAttributeSales(e.getAttributeSales());
-                    productAttrSaleImages.setImageUrls(e.getImageUrls());
-                    return productAttrSaleImages;
-                }
-        ).collect(Collectors.toCollection(ArrayList::new));
+        if (command.getSkus() != null) {
+            command.getSkus().forEach(e -> {
+                if (e.getSales() == null)
+                    e.setSales(0);
+                e.setAttributesSales(e.getAttributesSales());
+            });
+            this.attrSalesTotal = command.getSkus().stream().map(CreateProductAdminCommand.CreateProductSkuAdminCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
+            this.productSkuList = command.getSkus().stream().map(e -> {
+                ProductSku productSku = new ProductSku();
+                productSku.setPrice(e.getPrice());
+                productSku.setAttributesSales(e.getAttributesSales());
+                productSku.setStorageOrder(e.getStorageOrder());
+                productSku.setStorageActual(e.getStorageActual());
+                productSku.setSales(e.getSales());
+                return productSku;
+            }).collect(Collectors.toList());
+            this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e ->
+                    {
+                        ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
+                        productAttrSaleImages.setAttributeSales(e.getAttributeSales());
+                        productAttrSaleImages.setImageUrls(e.getImageUrls());
+                        return productAttrSaleImages;
+                    }
+            ).collect(Collectors.toCollection(ArrayList::new));
+        } else {
+            this.storageOrder = command.getStorageOrder();
+            this.storageActual = command.getStorageActual();
+            this.sales = command.getSales();
+            this.price = command.getPrice();
+        }
     }
 
 }
