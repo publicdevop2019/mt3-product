@@ -27,6 +27,7 @@ public class ProductDetailCustomRepresentation {
     private List<ProductAttrSaleImagesCustomerRepresentation> attributeSaleImages;
     private List<ProductOption> selectedOptions;
     private Map<String, String> attrIdMap;
+    private Integer storage;
 
     public ProductDetailCustomRepresentation(ProductDetail productDetail, BizAttributeSummaryRepresentation attributeSummaryRepresentation) {
         this.id = productDetail.getId();
@@ -45,6 +46,7 @@ public class ProductDetailCustomRepresentation {
         } else {
             this.lowestPrice = productDetail.getPrice();
             this.totalSales = productDetail.getSales();
+            this.storage = productDetail.getStorageOrder();
         }
         if (productDetail.getAttributeSaleImages() != null)
             this.attributeSaleImages = productDetail.getAttributeSaleImages().stream().map(ProductAttrSaleImagesCustomerRepresentation::new).collect(Collectors.toList());
@@ -75,12 +77,12 @@ public class ProductDetailCustomRepresentation {
     @Data
     public static class ProductSkuCustomerRepresentation {
         private Set<String> attributeSales;
-        private Integer storageOrder;
+        private Integer storage;
         private BigDecimal price;
 
         public ProductSkuCustomerRepresentation(ProductSku productSku) {
             this.attributeSales = productSku.getAttributesSales();
-            this.storageOrder = productSku.getStorageOrder();
+            this.storage = productSku.getStorageOrder();
             this.price = productSku.getPrice();
         }
 
