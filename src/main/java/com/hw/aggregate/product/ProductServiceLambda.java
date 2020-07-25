@@ -134,7 +134,7 @@ public class ProductServiceLambda {
     public ThrowingConsumer<IncreaseOrderStorageCommand, RuntimeException> increaseOrderStorageForMappedProducts = (command) -> {
         beforeUpdateStorage(command);
         command.getChangeList().forEach(changeDetail -> {
-            if (changeDetail.getAttributeSales() != null) {
+            if (changeDetail.getAttributeSales() != null && changeDetail.getAttributeSales().size() != 0) {
                 increaseOrderStorage.accept(changeDetail);
             } else {
                 increaseOrderStorageNoSku.accept(changeDetail);
@@ -146,7 +146,7 @@ public class ProductServiceLambda {
     public ThrowingConsumer<DecreaseOrderStorageCommand, OrderStorageDecreaseException> decreaseOrderStorageForMappedProducts = (command) -> {
         beforeUpdateStorage(command);
         command.getChangeList().forEach(changeDetail -> {
-            if (changeDetail.getAttributeSales() != null) {
+            if (changeDetail.getAttributeSales() != null && changeDetail.getAttributeSales().size() != 0) {
                 decreaseOrderStorage.accept(changeDetail);
             } else {
                 decreaseOrderStorageNoSku.accept(changeDetail);
@@ -159,7 +159,7 @@ public class ProductServiceLambda {
     public ThrowingConsumer<DecreaseActualStorageCommand, RuntimeException> decreaseActualStorageForMappedProducts = (command) -> {
         beforeUpdateStorage(command);
         command.getChangeList().forEach(changeDetail -> {
-            if (changeDetail.getAttributeSales() != null) {
+            if (changeDetail.getAttributeSales() != null && changeDetail.getAttributeSales().size() != 0) {
                 decreaseActualStorage.accept(changeDetail);
             } else {
                 decreaseActualStorageNoSku.accept(changeDetail);
@@ -170,7 +170,7 @@ public class ProductServiceLambda {
     public ThrowingConsumer<DecreaseActualStorageCommand, RuntimeException> adminDecreaseActualStorageForMappedProducts = (command) -> {
         beforeUpdateStorage(command);
         command.getChangeList().forEach(changeDetail -> {
-            if (changeDetail.getAttributeSales() != null) {
+            if (changeDetail.getAttributeSales() != null && changeDetail.getAttributeSales().size() != 0) {
                 adminDecreaseActualStorage.accept(changeDetail);
             } else {
                 adminDecreaseActualStorageNoSku.accept(changeDetail);
@@ -182,7 +182,7 @@ public class ProductServiceLambda {
     public ThrowingConsumer<IncreaseActualStorageCommand, RuntimeException> increaseActualStorageForMappedProducts = (command) -> {
         beforeUpdateStorage(command);
         command.getChangeList().forEach(changeDetail -> {
-            if (changeDetail.getAttributeSales() != null) {
+            if (changeDetail.getAttributeSales() != null && changeDetail.getAttributeSales().size() != 0) {
                 increaseActualStorage.accept(changeDetail);
             } else {
                 increaseActualStorageNoSku.accept(changeDetail);
@@ -193,7 +193,7 @@ public class ProductServiceLambda {
     public ThrowingConsumer<IncreaseActualStorageCommand, RuntimeException> adminIncreaseActualStorageForMappedProducts = (command) -> {
         beforeUpdateStorage(command);
         command.getChangeList().forEach(changeDetail -> {
-            if (changeDetail.getAttributeSales() != null) {
+            if (changeDetail.getAttributeSales() != null && changeDetail.getAttributeSales().size() != 0) {
                 adminIncreaseActualStorage.accept(changeDetail);
             } else {
                 adminIncreaseActualStorageNoSku.accept(changeDetail);

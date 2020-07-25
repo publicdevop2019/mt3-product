@@ -82,7 +82,7 @@ public class ProductApplicationService {
             if (byId.isEmpty())
                 return true;
             BigDecimal price;
-            if (byId.get().getProductSkuList() != null) {
+            if (byId.get().getProductSkuList() != null && byId.get().getProductSkuList().size() != 0) {
                 List<ProductSku> collect = byId.get().getProductSkuList().stream().filter(productSku -> new TreeSet(productSku.getAttributesSales()).equals(new TreeSet(command.getAttributesSales()))).collect(Collectors.toList());
                 price = collect.get(0).getPrice();
             } else {
@@ -234,7 +234,7 @@ public class ProductApplicationService {
         if ("".equals(attributes) || attributes == null) {
             return new ArrayList<>(0);
         }
-        String query = "SELECT id, name, attr_key, image_url_small" +
+        String query = "SELECT id, name, attr_key, image_url_small, price, sales" +
                 " FROM product_detail pd WHERE " + getWhereClause(attributes, customerSearch, fullSearch) + (customerSearch ? getStatusClause() : "") + " ORDER BY id ASC LIMIT ?1, ?2";
         List<Object[]> resultList = entityManager.createNativeQuery(query)
                 .setParameter(1, pageNumber * pageSize)
@@ -242,7 +242,11 @@ public class ProductApplicationService {
                 .getResultList();
         List<ProductDetail> productDetails = new ArrayList<>(resultList.size());
         for (Object[] row : resultList) {
-            productDetails.add(new ProductDetail(((BigInteger) row[0]).longValue(), (String) row[1], (String) row[2], (String) row[3]));
+            if (row.length == 4) {
+                productDetails.add(new ProductDetail(((BigInteger) row[0]).longValue(), (String) row[1], (String) row[2], (String) row[3]));
+            } else if (row.length == 6) {
+                productDetails.add(new ProductDetail(((BigInteger) row[0]).longValue(), (String) row[1], (String) row[2], (String) row[3], (BigDecimal) row[4], ((Integer) row[5])));
+            }
         }
         productDetails.forEach(pd -> {
             List<Object[]> resultList1 = entityManager.createNativeQuery("SELECT attributes_sales, storage_order, storage_actual, price, sales" +

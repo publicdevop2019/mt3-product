@@ -31,7 +31,6 @@ public class ProductAdminSummaryPaginatedRepresentation {
         private Integer totalSales;
         private List<BigDecimal> priceList;
         private Set<String> attributesKey;
-        private ProductStatus status;
         private Long startAt;
         private Long endAt;
 

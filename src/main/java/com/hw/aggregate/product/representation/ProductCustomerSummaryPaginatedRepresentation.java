@@ -37,8 +37,13 @@ public class ProductCustomerSummaryPaginatedRepresentation {
             this.name = productDetail.getName();
             this.imageUrlSmall = productDetail.getImageUrlSmall();
             this.description = productDetail.getDescription();
-            this.lowestPrice = findLowestPrice(productDetail);
-            this.totalSales = calcTotalSales(productDetail);
+            if (productDetail.getProductSkuList() != null&& productDetail.getProductSkuList().size() != 0) {
+                this.lowestPrice = findLowestPrice(productDetail);
+                this.totalSales = calcTotalSales(productDetail);
+            } else {
+                this.lowestPrice = productDetail.getPrice();
+                this.totalSales = productDetail.getSales();
+            }
         }
 
         private Integer calcTotalSales(ProductDetail productDetail) {

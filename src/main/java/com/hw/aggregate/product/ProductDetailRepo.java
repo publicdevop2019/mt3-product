@@ -16,26 +16,26 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
     Page<ProductDetail> searchProductByNameForCustomer(String searchKey, Long current, Pageable pageable);
 
     @Modifying
-    @Query("UPDATE #{#entityName} as p SET p.orderStorage = p.orderStorage - ?2 WHERE p.id = ?1 AND p.orderStorage - ?2 >= 0")
+    @Query("UPDATE #{#entityName} as p SET p.storageOrder = p.storageOrder - ?2 WHERE p.id = ?1 AND p.storageOrder - ?2 >= 0")
     Integer decreaseOrderStorage(Long id, Integer amountDecreased);
 
     @Modifying
-    @Query("UPDATE #{#entityName} as p SET p.orderStorage = p.orderStorage + ?2 WHERE p.id = ?1")
+    @Query("UPDATE #{#entityName} as p SET p.storageOrder = p.storageOrder + ?2 WHERE p.id = ?1")
     Integer increaseOrderStorage(Long id, Integer amountIncreased);
 
     @Modifying
-    @Query("UPDATE #{#entityName} as p SET p.actualStorage = p.actualStorage - ?2 , p.sales = p.sales + ?2 WHERE p.id = ?1 AND p.actualStorage - ?2 >= 0")
+    @Query("UPDATE #{#entityName} as p SET p.storageActual = p.storageActual - ?2 , p.sales = p.sales + ?2 WHERE p.id = ?1 AND p.storageActual - ?2 >= 0")
     Integer decreaseActualStorageAndIncreaseSales(Long id, Integer amount);
 
     @Modifying
-    @Query("UPDATE #{#entityName} as p SET p.actualStorage = p.actualStorage + ?2 , p.sales = p.sales - ?2 WHERE p.id = ?1 AND p.sales - ?2 >= 0")
+    @Query("UPDATE #{#entityName} as p SET p.storageActual = p.storageActual + ?2 , p.sales = p.sales - ?2 WHERE p.id = ?1 AND p.sales - ?2 >= 0")
     Integer increaseActualStorageAndDecreaseSales(Long id, Integer amount);
 
     @Modifying
-    @Query("UPDATE #{#entityName} as p SET p.actualStorage = p.actualStorage - ?2 WHERE p.id = ?1 AND p.actualStorage - ?2 >= 0")
+    @Query("UPDATE #{#entityName} as p SET p.storageActual = p.storageActual - ?2 WHERE p.id = ?1 AND p.storageActual - ?2 >= 0")
     Integer decreaseActualStorage(Long id, Integer amount);
 
     @Modifying
-    @Query("UPDATE #{#entityName} as p SET p.actualStorage = p.actualStorage + ?2 WHERE p.id = ?1 ")
+    @Query("UPDATE #{#entityName} as p SET p.storageActual = p.storageActual + ?2 WHERE p.id = ?1 ")
     Integer increaseActualStorage(Long id, Integer amount);
 }

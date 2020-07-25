@@ -35,14 +35,20 @@ public class ProductDetailCustomRepresentation {
         this.imageUrlLarge = productDetail.getImageUrlLarge();
         this.description = productDetail.getDescription();
         this.specification = productDetail.getSpecification();
-        this.lowestPrice = findLowestPrice(productDetail);
-        this.totalSales = calcTotalSales(productDetail);
-        this.skus = getCustomerSku(productDetail);
+        if (productDetail.getProductSkuList() != null && productDetail.getProductSkuList().size() != 0) {
+            this.lowestPrice = findLowestPrice(productDetail);
+            this.totalSales = calcTotalSales(productDetail);
+            this.skus = getCustomerSku(productDetail);
+            this.attrIdMap = new HashMap<>();
+            this.skus.stream().map(ProductSkuCustomerRepresentation::getAttributeSales).flatMap(Collection::stream).collect(Collectors.toList())
+                    .stream().map(e -> e.split(":")[0]).forEach(el -> attrIdMap.put(el, findName(el, attributeSummaryRepresentation)));
+        } else {
+            this.lowestPrice = productDetail.getPrice();
+            this.totalSales = productDetail.getSales();
+        }
+        if (productDetail.getAttributeSaleImages() != null)
+            this.attributeSaleImages = productDetail.getAttributeSaleImages().stream().map(ProductAttrSaleImagesCustomerRepresentation::new).collect(Collectors.toList());
         this.selectedOptions = productDetail.getSelectedOptions();
-        this.attrIdMap = new HashMap<>();
-        this.skus.stream().map(ProductSkuCustomerRepresentation::getAttributeSales).flatMap(Collection::stream).collect(Collectors.toList())
-                .stream().map(e -> e.split(":")[0]).forEach(el -> attrIdMap.put(el, findName(el, attributeSummaryRepresentation)));
-        this.attributeSaleImages = productDetail.getAttributeSaleImages().stream().map(ProductAttrSaleImagesCustomerRepresentation::new).collect(Collectors.toList());
     }
 
     private String findName(String id, BizAttributeSummaryRepresentation attributeSummaryRepresentation) {

@@ -39,6 +39,13 @@ public class ProductDetailAdminRepresentation {
     private List<ProductSkuAdminRepresentation> skus;
 
     private List<ProductAttrSaleImagesAdminRepresentation> attributeSaleImages;
+    private Integer storageOrder;
+
+    private Integer storageActual;
+
+    private BigDecimal price;
+
+    private Integer sales;
 
     public ProductDetailAdminRepresentation(ProductDetail productDetail) {
         this.id = productDetail.getId();
@@ -53,7 +60,15 @@ public class ProductDetailAdminRepresentation {
         this.attributesKey = productDetail.getAttrKey();
         this.attributesProd = productDetail.getAttrProd();
         this.attributesGen = productDetail.getAttrGen();
-        this.skus = productDetail.getProductSkuList().stream().map(ProductSkuAdminRepresentation::new).collect(Collectors.toList());
+
+        if (productDetail.getProductSkuList() != null && productDetail.getProductSkuList().size() != 0) {
+            this.skus = productDetail.getProductSkuList().stream().map(ProductSkuAdminRepresentation::new).collect(Collectors.toList());
+        } else {
+            this.price = productDetail.getPrice();
+            this.sales = productDetail.getSales();
+            this.storageActual = productDetail.getStorageActual();
+            this.storageOrder = productDetail.getStorageOrder();
+        }
         if (productDetail.getAttributeSaleImages() != null)
             this.attributeSaleImages = productDetail.getAttributeSaleImages().stream().map(ProductAttrSaleImagesAdminRepresentation::new).collect(Collectors.toList());
     }

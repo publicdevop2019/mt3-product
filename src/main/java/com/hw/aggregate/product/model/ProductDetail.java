@@ -68,11 +68,22 @@ public class ProductDetail extends Auditable {
     private ArrayList<ProductAttrSaleImages> attributeSaleImages;
 
     private Integer storageOrder;
+
     private Integer storageActual;
+
     private BigDecimal price;
+
     private Integer sales;
 
 
+    public ProductDetail(Long id, String name, String attributes, String imageUrlSmall, BigDecimal price, Integer sales) {
+        this.id = id;
+        this.name = name;
+        this.attrKey = new HashSet<>(Arrays.asList(attributes.split(",")));
+        this.imageUrlSmall = imageUrlSmall;
+        this.price = price;
+        this.sales = sales;
+    }
     public ProductDetail(Long id, String name, String attributes, String imageUrlSmall) {
         this.id = id;
         this.name = name;
@@ -113,7 +124,7 @@ public class ProductDetail extends Auditable {
         this.attrGen = command.getAttributesGen();
         this.startAt = command.getStartAt();
         this.endAt = command.getEndAt();
-        if (command.getSkus() != null) {
+        if (command.getSkus() != null && command.getSkus().size() != 0) {
             command.getSkus().forEach(e -> {
                 if (e.getSales() == null)
                     e.setSales(0);
@@ -326,7 +337,7 @@ public class ProductDetail extends Auditable {
         this.attrGen = command.getAttributesGen();
         this.startAt = (command.getStartAt());
         this.endAt = (command.getEndAt());
-        if (command.getSkus() != null) {
+        if (command.getSkus() != null && command.getSkus().size() != 0) {
             command.getSkus().forEach(e -> {
                 if (e.getSales() == null)
                     e.setSales(0);
