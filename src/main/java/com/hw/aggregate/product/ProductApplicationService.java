@@ -79,7 +79,7 @@ public class ProductApplicationService {
         if (commands.stream().anyMatch(command -> {
             Optional<ProductDetail> byId = repo.findById(Long.parseLong(command.getProductId()));
             //validate product match
-            if (byId.isEmpty() || ProductDetail.isAvailable(byId.get()))
+            if (byId.isEmpty() || !ProductDetail.isAvailable(byId.get()))
                 return true;
             BigDecimal price;
             if (byId.get().getProductSkuList() != null && byId.get().getProductSkuList().size() != 0) {
