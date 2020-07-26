@@ -2,12 +2,10 @@ package com.hw.aggregate.product.representation;
 
 import com.hw.aggregate.product.model.ProductDetail;
 import com.hw.aggregate.product.model.ProductSku;
-import com.hw.aggregate.product.model.ProductStatus;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,15 +35,12 @@ public class ProductAdminSummaryPaginatedRepresentation {
         public ProductAdminCardRepresentation(ProductDetail productDetail) {
             this.id = productDetail.getId();
             this.name = productDetail.getName();
-            this.totalSales = calcTotalSales(productDetail);
+            this.totalSales = productDetail.getTotalSales();
             this.priceList = productDetail.getProductSkuList().stream().map(ProductSku::getPrice).collect(Collectors.toList());
             this.attributesKey = productDetail.getAttrKey();
             this.startAt = productDetail.getStartAt();
             this.endAt = productDetail.getEndAt();
         }
 
-        private Integer calcTotalSales(ProductDetail productDetail) {
-            return productDetail.getProductSkuList().stream().map(ProductSku::getSales).reduce(0, Integer::sum);
-        }
     }
 }

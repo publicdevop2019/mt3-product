@@ -64,8 +64,8 @@ public class ProductDetailAdminRepresentation {
         if (productDetail.getProductSkuList() != null && productDetail.getProductSkuList().size() != 0) {
             this.skus = productDetail.getProductSkuList().stream().map(ProductSkuAdminRepresentation::new).collect(Collectors.toList());
         } else {
-            this.price = productDetail.getPrice();
-            this.sales = productDetail.getSales();
+            this.price = productDetail.getLowestPrice();
+            this.sales = productDetail.getTotalSales();
             this.storageActual = productDetail.getStorageActual();
             this.storageOrder = productDetail.getStorageOrder();
         }

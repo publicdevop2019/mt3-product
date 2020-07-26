@@ -8,8 +8,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
-
 @Repository
 public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
     @Query("SELECT p FROM #{#entityName} as p WHERE p.name LIKE ?1% AND (start_at IS NOT NULL AND start_at <=?2 ) AND (end_at > ?2 OR end_at IS NULL)")
@@ -24,11 +22,11 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
     Integer increaseOrderStorage(Long id, Integer amountIncreased);
 
     @Modifying
-    @Query("UPDATE #{#entityName} as p SET p.storageActual = p.storageActual - ?2 , p.sales = p.sales + ?2 WHERE p.id = ?1 AND p.storageActual - ?2 >= 0")
+    @Query("UPDATE #{#entityName} as p SET p.storageActual = p.storageActual - ?2 , p.totalSales = p.totalSales + ?2 WHERE p.id = ?1 AND p.storageActual - ?2 >= 0")
     Integer decreaseActualStorageAndIncreaseSales(Long id, Integer amount);
 
     @Modifying
-    @Query("UPDATE #{#entityName} as p SET p.storageActual = p.storageActual + ?2 , p.sales = p.sales - ?2 WHERE p.id = ?1 AND p.sales - ?2 >= 0")
+    @Query("UPDATE #{#entityName} as p SET p.storageActual = p.storageActual + ?2 , p.totalSales = p.totalSales - ?2 WHERE p.id = ?1 AND p.totalSales - ?2 >= 0")
     Integer increaseActualStorageAndDecreaseSales(Long id, Integer amount);
 
     @Modifying
@@ -38,4 +36,12 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
     @Modifying
     @Query("UPDATE #{#entityName} as p SET p.storageActual = p.storageActual + ?2 WHERE p.id = ?1 ")
     Integer increaseActualStorage(Long id, Integer amount);
+
+    @Modifying
+    @Query("UPDATE #{#entityName} as p SET p.totalSales = p.totalSales + ?2 WHERE p.id = ?1 ")
+    Integer increaseTotalSales(Long id, Integer amount);
+
+    @Modifying
+    @Query("UPDATE #{#entityName} as p SET p.totalSales = p.totalSales - ?2 WHERE p.id = ?1 AND p.totalSales - ?2 >= 0")
+    Integer decreaseTotalSales(Long id, Integer amount);
 }

@@ -3,14 +3,14 @@ package com.hw.aggregate.product.model;
 import com.hw.aggregate.product.ProductApplicationService;
 import com.hw.aggregate.product.ProductDetailRepo;
 import com.hw.aggregate.product.command.*;
-import com.hw.aggregate.product.exception.ProductNotAvailableException;
-import com.hw.aggregate.product.exception.ProductNotFoundException;
-import com.hw.aggregate.product.exception.SkuAlreadyExistException;
-import com.hw.aggregate.product.exception.SkuNotExistException;
+import com.hw.aggregate.product.exception.*;
 import com.hw.shared.Auditable;
 import com.hw.shared.StringSetConverter;
+import com.hw.shared.UnSupportedSortConfigException;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -24,7 +24,6 @@ import static com.hw.config.AppConstant.ADMIN_ADJUST;
 @Table
 @NoArgsConstructor
 public class ProductDetail extends Auditable {
-
     @Id
     private Long id;
 
@@ -71,19 +70,19 @@ public class ProductDetail extends Auditable {
 
     private Integer storageActual;
 
-    private BigDecimal price;
+    private BigDecimal lowestPrice;
 
-    private Integer sales;
+    private Integer totalSales;
 
-
-    public ProductDetail(Long id, String name, String attributes, String imageUrlSmall, BigDecimal price, Integer sales) {
+    public ProductDetail(Long id, String name, String attributes, String imageUrlSmall, BigDecimal lowestPrice, Integer totalSales) {
         this.id = id;
         this.name = name;
         this.attrKey = new HashSet<>(Arrays.asList(attributes.split(",")));
         this.imageUrlSmall = imageUrlSmall;
-        this.price = price;
-        this.sales = sales;
+        this.lowestPrice = lowestPrice;
+        this.totalSales = totalSales;
     }
+
     public ProductDetail(Long id, String name, String attributes, String imageUrlSmall) {
         this.id = id;
         this.name = name;
@@ -140,9 +139,10 @@ public class ProductDetail extends Auditable {
                         return productAttrSaleImages;
                     }
             ).collect(Collectors.toCollection(ArrayList::new));
+            this.lowestPrice = findLowestPrice(this);
         } else {
             this.productSkuList = null;
-            this.price = command.getPrice();
+            this.lowestPrice = command.getPrice();
             if (command.getDecreaseOrderStorage() != null) {
                 DecreaseOrderStorageCommand command1 = new DecreaseOrderStorageCommand();
                 command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
@@ -361,12 +361,95 @@ public class ProductDetail extends Auditable {
                         return productAttrSaleImages;
                     }
             ).collect(Collectors.toCollection(ArrayList::new));
+            this.lowestPrice = findLowestPrice(this);
+            this.totalSales = calcTotalSales(this);
         } else {
             this.storageOrder = command.getStorageOrder();
             this.storageActual = command.getStorageActual();
-            this.sales = command.getSales();
-            this.price = command.getPrice();
+            this.totalSales = command.getSales();
+            this.lowestPrice = command.getPrice();
         }
     }
 
+    public enum AdminSortConfig {
+        id("id"),
+        name("name"),
+        price("lowestPrice"),
+        sales("totalSales"),
+        expireDate("endAt");
+        public static final Integer DEFAULT_PAGE_SIZE = 40;
+        public static final AdminSortConfig DEFAULT_SORT_BY = id;
+        public static final Sort.Direction DEFAULT_SORT_ORDER = Sort.Direction.ASC;
+
+        private final String mappedField;
+
+        AdminSortConfig(String mappedField) {
+            this.mappedField = mappedField;
+        }
+
+        public static AdminSortConfig fromString(String text) {
+            for (AdminSortConfig b : AdminSortConfig.values()) {
+                if (b.mappedField.equalsIgnoreCase(text)) {
+                    return b;
+                }
+            }
+            throw new UnSupportedSortConfigException();
+        }
+
+        public static PageRequest getPageRequestAdmin(Integer pageNumber, Integer pageSize, ProductDetail.AdminSortConfig sortBy, Sort.Direction sortOrder) {
+            if (sortBy == null)
+                sortBy = ProductDetail.AdminSortConfig.DEFAULT_SORT_BY;
+            if (sortOrder == null)
+                sortOrder = ProductDetail.AdminSortConfig.DEFAULT_SORT_ORDER;
+            if (pageSize == null)
+                pageSize = ProductDetail.AdminSortConfig.DEFAULT_PAGE_SIZE;
+            Sort orders = new Sort(sortOrder, sortBy.mappedField);
+            return PageRequest.of(pageNumber, pageSize, orders);
+        }
+    }
+
+    public enum CustomerSortConfig {
+        name("name"),
+        price("lowestPrice"),
+        sales("totalSales"),
+        ;
+        public static final Integer DEFAULT_PAGE_SIZE = 20;
+        public static final CustomerSortConfig DEFAULT_SORT_BY = name;
+        public static final Sort.Direction DEFAULT_SORT_ORDER = Sort.Direction.ASC;
+        private final String mappedField;
+
+        CustomerSortConfig(String mappedField) {
+            this.mappedField = mappedField;
+        }
+
+        public static CustomerSortConfig fromString(String text) {
+            for (CustomerSortConfig b : CustomerSortConfig.values()) {
+                if (b.mappedField.equalsIgnoreCase(text)) {
+                    return b;
+                }
+            }
+            throw new UnSupportedSortConfigException();
+        }
+
+        public static PageRequest getPageRequestCustomer(Integer pageNumber, Integer pageSize, ProductDetail.CustomerSortConfig sortBy, Sort.Direction sortOrder) {
+            if (sortBy == null)
+                sortBy = ProductDetail.CustomerSortConfig.DEFAULT_SORT_BY;
+            if (sortOrder == null)
+                sortOrder = ProductDetail.CustomerSortConfig.DEFAULT_SORT_ORDER;
+            if (pageSize == null)
+                pageSize = ProductDetail.CustomerSortConfig.DEFAULT_PAGE_SIZE;
+            Sort orders = new Sort(sortOrder, sortBy.name());
+            return PageRequest.of(pageNumber, pageSize, orders);
+        }
+    }
+
+
+    private Integer calcTotalSales(ProductDetail productDetail) {
+        return productDetail.getProductSkuList().stream().map(ProductSku::getSales).reduce(0, Integer::sum);
+    }
+
+    private BigDecimal findLowestPrice(ProductDetail productDetail) {
+        ProductSku productSku = productDetail.getProductSkuList().stream().min(Comparator.comparing(ProductSku::getPrice)).orElseThrow(NoLowestPriceFoundException::new);
+        return productSku.getPrice();
+    }
 }

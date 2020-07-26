@@ -78,6 +78,10 @@ public class ProductServiceLambda {
                 "WHERE p.product_id = ?2 AND p.attributes_sales = ?3 AND p.storage_actual - ?1 >= 0");
         if (!apply.equals(1))
             throw new ActualStorageDecreaseException();
+        Integer integer = productDetailRepo.decreaseTotalSales(changeDetail.getProductId(), changeDetail.getAmount());
+        if (!integer.equals(1))
+            throw new TotalSalesDecreaseException();
+
     };
     private ThrowingConsumer<StorageChangeDetail, RuntimeException> increaseActualStorage = (changeDetail) -> {
         Integer apply = executeStorageChange.apply(changeDetail, "UPDATE product_sku_map AS p " +
@@ -85,6 +89,9 @@ public class ProductServiceLambda {
                 "WHERE p.product_id = ?2 AND p.attributes_sales = ?3 AND p.sales - ?1 >= 0");
         if (!apply.equals(1))
             throw new ActualStorageIncreaseException();
+        Integer integer = productDetailRepo.increaseTotalSales(changeDetail.getProductId(), changeDetail.getAmount());
+        if (!integer.equals(1))
+            throw new TotalSalesIncreaseException();
     };
     private ThrowingConsumer<StorageChangeDetail, RuntimeException> increaseOrderStorageNoSku = (changeDetail) -> {
         Integer integer = productDetailRepo.increaseOrderStorage(changeDetail.getProductId(), changeDetail.getAmount());

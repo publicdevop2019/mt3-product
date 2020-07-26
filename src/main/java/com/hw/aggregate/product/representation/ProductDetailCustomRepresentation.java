@@ -44,8 +44,8 @@ public class ProductDetailCustomRepresentation {
             this.skus.stream().map(ProductSkuCustomerRepresentation::getAttributeSales).flatMap(Collection::stream).collect(Collectors.toList())
                     .stream().map(e -> e.split(":")[0]).forEach(el -> attrIdMap.put(el, findName(el, attributeSummaryRepresentation)));
         } else {
-            this.lowestPrice = productDetail.getPrice();
-            this.totalSales = productDetail.getSales();
+            this.lowestPrice = productDetail.getLowestPrice();
+            this.totalSales = productDetail.getTotalSales();
             this.storage = productDetail.getStorageOrder();
         }
         if (productDetail.getAttributeSaleImages() != null)

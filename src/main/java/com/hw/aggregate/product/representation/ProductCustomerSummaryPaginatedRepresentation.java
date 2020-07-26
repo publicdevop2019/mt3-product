@@ -1,13 +1,10 @@
 package com.hw.aggregate.product.representation;
 
-import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
 import com.hw.aggregate.product.model.ProductDetail;
-import com.hw.aggregate.product.model.ProductSku;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,23 +34,10 @@ public class ProductCustomerSummaryPaginatedRepresentation {
             this.name = productDetail.getName();
             this.imageUrlSmall = productDetail.getImageUrlSmall();
             this.description = productDetail.getDescription();
-            if (productDetail.getProductSkuList() != null&& productDetail.getProductSkuList().size() != 0) {
-                this.lowestPrice = findLowestPrice(productDetail);
-                this.totalSales = calcTotalSales(productDetail);
-            } else {
-                this.lowestPrice = productDetail.getPrice();
-                this.totalSales = productDetail.getSales();
-            }
+            this.lowestPrice = productDetail.getLowestPrice();
+            this.totalSales = productDetail.getTotalSales();
         }
 
-        private Integer calcTotalSales(ProductDetail productDetail) {
-            return productDetail.getProductSkuList().stream().map(ProductSku::getSales).reduce(0, Integer::sum);
-        }
-
-        private BigDecimal findLowestPrice(ProductDetail productDetail) {
-            ProductSku productSku = productDetail.getProductSkuList().stream().min(Comparator.comparing(ProductSku::getPrice)).orElseThrow(NoLowestPriceFoundException::new);
-            return productSku.getPrice();
-        }
 
     }
 }

@@ -46,25 +46,32 @@ public class ProductApplicationService {
     private EntityManager entityManager;
 
     @Transactional(readOnly = true)
-    public ProductAdminGetAllPaginatedSummaryRepresentation getAllForAdmin(Integer pageNumber, Integer pageSize) {
-        Sort orders = new Sort(Sort.Direction.ASC, "id");
-        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, orders);
-        Page<ProductDetail> all = repo.findAll(pageRequest);
+    public ProductAdminGetAllPaginatedSummaryRepresentation getAllForAdmin(Integer pageNumber, Integer pageSize, ProductDetail.AdminSortConfig sortBy, Sort.Direction sortOrder) {
+        PageRequest of = ProductDetail.AdminSortConfig.getPageRequestAdmin(pageNumber, pageSize, sortBy, sortOrder);
+        Page<ProductDetail> all = repo.findAll(of);
         return new ProductAdminGetAllPaginatedSummaryRepresentation(all.getContent(), all.getTotalPages(), all.getTotalElements());
     }
 
+
     @Transactional(readOnly = true)
-    public ProductCustomerSearchByNameSummaryPaginatedRepresentation searchProductByNameForCustomer(String key, Integer pageNumber, Integer pageSize) {
-        Sort orders = new Sort(Sort.Direction.ASC, "id");
-        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, orders);
+    public ProductCustomerSearchByNameSummaryPaginatedRepresentation searchProductByNameForCustomer(String key, Integer pageNumber, Integer pageSize, ProductDetail.CustomerSortConfig sortBy, Sort.Direction sortOrder) {
+        PageRequest pageRequest = ProductDetail.CustomerSortConfig.getPageRequestCustomer(pageNumber, pageSize, sortBy, sortOrder);
         Page<ProductDetail> pd = repo.searchProductByNameForCustomer(key, Instant.now().toEpochMilli(), pageRequest);
         return new ProductCustomerSearchByNameSummaryPaginatedRepresentation(pd.getContent(), pd.getTotalPages(), pd.getTotalElements());
     }
 
+
     @Transactional(readOnly = true)
-    public ProductCustomerSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForCustomer(String attributes, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public ProductCustomerSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForCustomer(String attributes, Integer pageNumber, Integer pageSize, ProductDetail.CustomerSortConfig sortBy, Sort.Direction sortOrder) {
+        PageRequest of = ProductDetail.CustomerSortConfig.getPageRequestCustomer(pageNumber, pageSize, sortBy, sortOrder);
         return new ProductCustomerSearchByAttributesSummaryPaginatedRepresentation(
-                searchByAttributesDynamic(attributes, pageNumber, pageSize, true, null), null, null);
+                searchByAttributesDynamic(attributes, true, null, of), null, null);
+    }
+
+    @Transactional(readOnly = true)
+    public ProductAdminSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForAdmin(String tags, Integer pageNumber, Integer pageSize, ProductDetail.AdminSortConfig sortBy, Sort.Direction sortOrder) {
+        PageRequest of = ProductDetail.AdminSortConfig.getPageRequestAdmin(pageNumber, pageSize, sortBy, sortOrder);
+        return new ProductAdminSearchByAttributesSummaryPaginatedRepresentation(searchByAttributesDynamic(tags, false, false, of), null, null);
     }
 
     /**
@@ -86,7 +93,7 @@ public class ProductApplicationService {
                 List<ProductSku> collect = byId.get().getProductSkuList().stream().filter(productSku -> new TreeSet(productSku.getAttributesSales()).equals(new TreeSet(command.getAttributesSales()))).collect(Collectors.toList());
                 price = collect.get(0).getPrice();
             } else {
-                price = byId.get().getPrice();
+                price = byId.get().getLowestPrice();
             }
             //if no option present then compare final price
             if (command.getSelectedOptions() == null || command.getSelectedOptions().size() == 0) {
@@ -226,19 +233,21 @@ public class ProductApplicationService {
         productServiceLambda.rollbackTx.accept(txId);
     }
 
-    public ProductAdminSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForAdmin(String tags, Integer pageNumber, Integer pageSize) {
-        return new ProductAdminSearchByAttributesSummaryPaginatedRepresentation(searchByAttributesDynamic(tags, pageNumber, pageSize, false, false), null, null);
+    @Transactional
+    public void updateProductStatus(Long id, ProductStatus status) {
+        ProductDetail read = ProductDetail.readAdmin(id, repo);
+        read.updateStatus(status, repo);
     }
 
-    private List<ProductDetail> searchByAttributesDynamic(String attributes, Integer pageNumber, Integer pageSize, boolean customerSearch, Boolean fullSearch) {
+    private List<ProductDetail> searchByAttributesDynamic(String attributes, boolean customerSearch, Boolean fullSearch, PageRequest pageRequest) {
         if ("".equals(attributes) || attributes == null) {
             return new ArrayList<>(0);
         }
-        String query = "SELECT id, name, attr_key, image_url_small, price, sales" +
+        String query = "SELECT id, name, attr_key, image_url_small, lowest_price, total_sales" +
                 " FROM product_detail pd WHERE " + getWhereClause(attributes, customerSearch, fullSearch) + (customerSearch ? getStatusClause() : "") + " ORDER BY id ASC LIMIT ?1, ?2";
         List<Object[]> resultList = entityManager.createNativeQuery(query)
-                .setParameter(1, pageNumber * pageSize)
-                .setParameter(2, pageSize)
+                .setParameter(1, pageRequest.getOffset())
+                .setParameter(2, pageRequest.getPageSize())
                 .getResultList();
         List<ProductDetail> productDetails = new ArrayList<>(resultList.size());
         for (Object[] row : resultList) {
@@ -314,9 +323,5 @@ public class ProductApplicationService {
         return String.join(" OR ", collect1);
     }
 
-    public void updateProductStatus(Long id, ProductStatus status) {
-        ProductDetail read = ProductDetail.readAdmin(id, repo);
-        read.updateStatus(status, repo);
-    }
 }
 
