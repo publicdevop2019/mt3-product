@@ -25,13 +25,4 @@ public class ProductSku {
     @NotNull
     private BigDecimal price;
     private Integer sales;
-
-    public ProductSku(Object attributesSales, Object storageOrder, Object storageActual, Object price, Object sales) {
-        StringSetConverter stringSetConverter = new StringSetConverter();
-        this.attributesSales = stringSetConverter.convertToEntityAttribute((String) attributesSales);
-        this.storageOrder = (Integer) storageOrder;
-        this.storageActual = (Integer) storageActual;
-        this.price = (BigDecimal) price;
-        this.sales = (Integer) sales;
-    }
 }
