@@ -5,6 +5,7 @@ import com.hw.aggregate.product.ProductDetailRepo;
 import com.hw.aggregate.product.command.*;
 import com.hw.aggregate.product.exception.*;
 import com.hw.shared.Auditable;
+import com.hw.shared.SortOrder;
 import com.hw.shared.StringSetConverter;
 import com.hw.shared.UnSupportedSortConfigException;
 import lombok.Data;
@@ -396,15 +397,30 @@ public class ProductDetail extends Auditable {
             throw new UnSupportedSortConfigException();
         }
 
-        public static PageRequest getPageRequestAdmin(Integer pageNumber, Integer pageSize, ProductDetail.AdminSortConfig sortBy, Sort.Direction sortOrder) {
+        public static PageRequest getPageRequestAdmin(Integer pageNumber, Integer pageSize, ProductDetail.AdminSortConfig sortBy, SortOrder sortOrder) {
+            Sort sort;
             if (sortBy == null)
                 sortBy = ProductDetail.AdminSortConfig.DEFAULT_SORT_BY;
-            if (sortOrder == null)
-                sortOrder = ProductDetail.AdminSortConfig.DEFAULT_SORT_ORDER;
             if (pageSize == null)
                 pageSize = ProductDetail.AdminSortConfig.DEFAULT_PAGE_SIZE;
-            Sort orders = new Sort(sortOrder, sortBy.mappedField);
-            return PageRequest.of(pageNumber, pageSize, orders);
+            if (sortOrder == null) {
+                sort = new Sort(ProductDetail.AdminSortConfig.DEFAULT_SORT_ORDER, sortBy.mappedField);
+            } else {
+                switch (sortOrder) {
+                    case asc: {
+                        sort = new Sort(Sort.Direction.ASC, sortBy.mappedField);
+                        break;
+                    }
+                    case desc: {
+                        sort = new Sort(Sort.Direction.DESC, sortBy.mappedField);
+                        break;
+                    }
+                    default: {
+                        sort = new Sort(ProductDetail.AdminSortConfig.DEFAULT_SORT_ORDER, sortBy.mappedField);
+                    }
+                }
+            }
+            return PageRequest.of(pageNumber, pageSize, sort);
         }
     }
 
@@ -431,14 +447,29 @@ public class ProductDetail extends Auditable {
             throw new UnSupportedSortConfigException();
         }
 
-        public static PageRequest getPageRequestCustomer(Integer pageNumber, Integer pageSize, ProductDetail.CustomerSortConfig sortBy, Sort.Direction sortOrder) {
+        public static PageRequest getPageRequestCustomer(Integer pageNumber, Integer pageSize, ProductDetail.CustomerSortConfig sortBy, SortOrder sort) {
+            Sort orders;
             if (sortBy == null)
                 sortBy = ProductDetail.CustomerSortConfig.DEFAULT_SORT_BY;
-            if (sortOrder == null)
-                sortOrder = ProductDetail.CustomerSortConfig.DEFAULT_SORT_ORDER;
             if (pageSize == null)
                 pageSize = ProductDetail.CustomerSortConfig.DEFAULT_PAGE_SIZE;
-            Sort orders = new Sort(sortOrder, sortBy.name());
+            if (sort == null) {
+                orders = new Sort(ProductDetail.CustomerSortConfig.DEFAULT_SORT_ORDER, sortBy.mappedField);
+            } else {
+                switch (sort) {
+                    case asc: {
+                        orders = new Sort(Sort.Direction.ASC, sortBy.mappedField);
+                        break;
+                    }
+                    case desc: {
+                        orders = new Sort(Sort.Direction.DESC, sortBy.mappedField);
+                        break;
+                    }
+                    default: {
+                        orders = new Sort(ProductDetail.CustomerSortConfig.DEFAULT_SORT_ORDER, sortBy.mappedField);
+                    }
+                }
+            }
             return PageRequest.of(pageNumber, pageSize, orders);
         }
     }

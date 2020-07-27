@@ -5,9 +5,9 @@ import com.hw.aggregate.product.model.ProductDetail;
 import com.hw.aggregate.product.model.ProductStatus;
 import com.hw.aggregate.product.representation.ProductAdminGetAllPaginatedSummaryRepresentation;
 import com.hw.aggregate.product.representation.ProductCustomerSearchByAttributesSummaryPaginatedRepresentation;
+import com.hw.shared.SortOrder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +29,7 @@ public class ProductController {
             @RequestParam(HTTP_PARAM_SORT_PAGE_NUM_NAME) Integer pageNumber,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
             @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) ProductDetail.CustomerSortConfig sortBy,
-            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) Sort.Direction sortOrder) {
+            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder) {
         return ResponseEntity.ok(productService.searchByAttributesForCustomer(attributes, pageNumber, pageSize, sortBy, sortOrder));
     }
 
@@ -38,8 +38,8 @@ public class ProductController {
             @RequestParam(HTTP_PARAM_SORT_PAGE_NUM_NAME) Integer pageNumber,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
             @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) ProductDetail.AdminSortConfig sortBy,
-            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) Sort.Direction sortOrder) {
-        ProductAdminGetAllPaginatedSummaryRepresentation allForAdmin = productService.getAllForAdmin(pageNumber, pageSize,sortBy,sortOrder);
+            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder) {
+        ProductAdminGetAllPaginatedSummaryRepresentation allForAdmin = productService.getAllForAdmin(pageNumber, pageSize, sortBy, sortOrder);
         return ResponseEntity.ok(allForAdmin);
     }
 
@@ -49,8 +49,8 @@ public class ProductController {
             @RequestParam(HTTP_PARAM_SORT_PAGE_NUM_NAME) Integer pageNumber,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
             @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) ProductDetail.AdminSortConfig sortBy,
-            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) Sort.Direction sortOrder) {
-        return ResponseEntity.ok(productService.searchByAttributesForAdmin(attributes, pageNumber, pageSize,sortBy,sortOrder));
+            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder) {
+        return ResponseEntity.ok(productService.searchByAttributesForAdmin(attributes, pageNumber, pageSize, sortBy, sortOrder));
     }
 
     @GetMapping("public/productDetails/search")
@@ -59,8 +59,8 @@ public class ProductController {
             @RequestParam(HTTP_PARAM_SORT_PAGE_NUM_NAME) Integer pageNumber,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
             @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) ProductDetail.CustomerSortConfig sortBy,
-            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) Sort.Direction sortOrder) {
-        return ResponseEntity.ok(productService.searchProductByNameForCustomer(key, pageNumber, pageSize,sortBy,sortOrder));
+            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder) {
+        return ResponseEntity.ok(productService.searchProductByNameForCustomer(key, pageNumber, pageSize, sortBy, sortOrder));
     }
 
     @PostMapping("internal/productDetails/validate")
@@ -96,7 +96,6 @@ public class ProductController {
         productService.updateProductStatus(id, status);
         return ResponseEntity.ok().build();
     }
-
 
     @DeleteMapping("admin/productDetails/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable(name = "id") Long id) {

@@ -7,17 +7,21 @@ import com.hw.aggregate.product.command.*;
 import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.*;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.SortOrder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -46,7 +50,7 @@ public class ProductApplicationService {
     private EntityManager entityManager;
 
     @Transactional(readOnly = true)
-    public ProductAdminGetAllPaginatedSummaryRepresentation getAllForAdmin(Integer pageNumber, Integer pageSize, ProductDetail.AdminSortConfig sortBy, Sort.Direction sortOrder) {
+    public ProductAdminGetAllPaginatedSummaryRepresentation getAllForAdmin(Integer pageNumber, Integer pageSize, ProductDetail.AdminSortConfig sortBy, SortOrder sortOrder) {
         PageRequest of = ProductDetail.AdminSortConfig.getPageRequestAdmin(pageNumber, pageSize, sortBy, sortOrder);
         Page<ProductDetail> all = repo.findAll(of);
         return new ProductAdminGetAllPaginatedSummaryRepresentation(all.getContent(), all.getTotalPages(), all.getTotalElements());
@@ -54,7 +58,7 @@ public class ProductApplicationService {
 
 
     @Transactional(readOnly = true)
-    public ProductCustomerSearchByNameSummaryPaginatedRepresentation searchProductByNameForCustomer(String key, Integer pageNumber, Integer pageSize, ProductDetail.CustomerSortConfig sortBy, Sort.Direction sortOrder) {
+    public ProductCustomerSearchByNameSummaryPaginatedRepresentation searchProductByNameForCustomer(String key, Integer pageNumber, Integer pageSize, ProductDetail.CustomerSortConfig sortBy, SortOrder sortOrder) {
         PageRequest pageRequest = ProductDetail.CustomerSortConfig.getPageRequestCustomer(pageNumber, pageSize, sortBy, sortOrder);
         Page<ProductDetail> pd = repo.searchProductByNameForCustomer(key, Instant.now().toEpochMilli(), pageRequest);
         return new ProductCustomerSearchByNameSummaryPaginatedRepresentation(pd.getContent(), pd.getTotalPages(), pd.getTotalElements());
@@ -62,16 +66,16 @@ public class ProductApplicationService {
 
 
     @Transactional(readOnly = true)
-    public ProductCustomerSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForCustomer(String attributes, Integer pageNumber, Integer pageSize, ProductDetail.CustomerSortConfig sortBy, Sort.Direction sortOrder) {
+    public ProductCustomerSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForCustomer(String attributes, Integer pageNumber, Integer pageSize, ProductDetail.CustomerSortConfig sortBy, SortOrder sortOrder) {
         PageRequest of = ProductDetail.CustomerSortConfig.getPageRequestCustomer(pageNumber, pageSize, sortBy, sortOrder);
         return new ProductCustomerSearchByAttributesSummaryPaginatedRepresentation(
-                searchByAttributesDynamic(attributes, true, null, of), null, null);
+                searchByAttributesDynamicNew(attributes, true, of), null, null);
     }
 
     @Transactional(readOnly = true)
-    public ProductAdminSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForAdmin(String tags, Integer pageNumber, Integer pageSize, ProductDetail.AdminSortConfig sortBy, Sort.Direction sortOrder) {
+    public ProductAdminSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForAdmin(String tags, Integer pageNumber, Integer pageSize, ProductDetail.AdminSortConfig sortBy, SortOrder sortOrder) {
         PageRequest of = ProductDetail.AdminSortConfig.getPageRequestAdmin(pageNumber, pageSize, sortBy, sortOrder);
-        return new ProductAdminSearchByAttributesSummaryPaginatedRepresentation(searchByAttributesDynamic(tags, false, false, of), null, null);
+        return new ProductAdminSearchByAttributesSummaryPaginatedRepresentation(searchByAttributesDynamicNew(tags, false, of), null, null);
     }
 
     /**
@@ -239,88 +243,63 @@ public class ProductApplicationService {
         read.updateStatus(status, repo);
     }
 
-    private List<ProductDetail> searchByAttributesDynamic(String attributes, boolean customerSearch, Boolean fullSearch, PageRequest pageRequest) {
+    private List<ProductDetail> searchByAttributesDynamicNew(String attributes, boolean customerSearch, PageRequest pageRequest) {
         if ("".equals(attributes) || attributes == null) {
             return new ArrayList<>(0);
         }
-        String query = "SELECT id, name, attr_key, image_url_small, lowest_price, total_sales" +
-                " FROM product_detail pd WHERE " + getWhereClause(attributes, customerSearch, fullSearch) + (customerSearch ? getStatusClause() : "") + " ORDER BY id ASC LIMIT ?1, ?2";
-        List<Object[]> resultList = entityManager.createNativeQuery(query)
-                .setParameter(1, pageRequest.getOffset())
-                .setParameter(2, pageRequest.getPageSize())
-                .getResultList();
-        List<ProductDetail> productDetails = new ArrayList<>(resultList.size());
-        for (Object[] row : resultList) {
-            if (row.length == 4) {
-                productDetails.add(new ProductDetail(((BigInteger) row[0]).longValue(), (String) row[1], (String) row[2], (String) row[3]));
-            } else if (row.length == 6) {
-                productDetails.add(new ProductDetail(((BigInteger) row[0]).longValue(), (String) row[1], (String) row[2], (String) row[3], (BigDecimal) row[4], ((Integer) row[5])));
-            }
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ProductDetail> query = cb.createQuery(ProductDetail.class);
+        Root<ProductDetail> root = query.from(ProductDetail.class);
+        query.select(root);
+        Predicate attrClause = getAttrWhereClause(attributes, cb, root);
+        if (customerSearch) {
+            Predicate statusClause = getStatusClause(cb, root);
+            Predicate and = cb.and(attrClause, statusClause);
+            query.where(and);
+        } else {
+            query.where(attrClause);
         }
-        productDetails.forEach(pd -> {
-            List<Object[]> resultList1 = entityManager.createNativeQuery("SELECT attributes_sales, storage_order, storage_actual, price, sales" +
-                    " FROM product_sku_map pd WHERE pd.product_id = ?1")
-                    .setParameter(1, pd.getId())
-                    .getResultList();
-            ArrayList<ProductSku> productSkus = new ArrayList<>();
-            for (Object[] row : resultList1) {
-                productSkus.add(new ProductSku(row[0], row[1], row[2], row[3], row[4]));
-            }
-            pd.setProductSkuList(productSkus);
-        });
-        return productDetails;
+        TypedQuery<ProductDetail> query1 = entityManager.createQuery(query);
+        return query1.getResultList();
     }
 
-    private String getStatusClause() {
-        return " AND (start_at IS NOT NULL AND start_at <=" + Instant.now().toEpochMilli() + " ) AND (end_at > " + Instant.now().toEpochMilli() + " OR end_at IS NULL)";
+    private Predicate getStatusClause(CriteriaBuilder cb, Root<ProductDetail> root) {
+        Predicate startAtLessThanOrEqualToCurrentEpochMilli = cb.lessThanOrEqualTo(root.get("startAt").as(Long.class), Instant.now().toEpochMilli());
+        Predicate startAtNotNull = cb.isNotNull(root.get("startAt").as(Long.class));
+        Predicate and = cb.and(startAtNotNull, startAtLessThanOrEqualToCurrentEpochMilli);
+        Predicate endAtGreaterThanCurrentEpochMilli = cb.gt(root.get("endAt").as(Long.class), Instant.now().toEpochMilli());
+        Predicate endAtIsNull = cb.isNull(root.get("endAt").as(Long.class));
+        Predicate or = cb.or(endAtGreaterThanCurrentEpochMilli, endAtIsNull);
+        return cb.and(and, or);
     }
 
-    private String getWhereClause(String attributes, boolean customerSearch, Boolean fullSearch) {
+    private Predicate getAttrWhereClause(String attributes, CriteriaBuilder cb, Root<ProductDetail> root) {
         //sort before search
         Set<String> strings = new TreeSet<>(Arrays.asList(attributes.split(",")));
-        List<String> collect;
-        if (customerSearch) {
-            collect = getWhereClauseKeyAndProdAndGenAndSalesOr(strings);
-        } else {
-            if (Boolean.TRUE.equals(fullSearch)) {
-                collect = getWhereClauseKeyAndProdAndGenAndSalesOr(strings);
-            } else {
-                collect = getWhereClauseKey(strings);
-            }
-        }
-        return String.join(" AND ", collect);
-    }
-
-
-    private List<String> getWhereClauseKey(Set<String> strings) {
-        return strings.stream().map(e -> "pd.attr_key LIKE '%" + e + "%'").collect(Collectors.toList());
-    }
-
-    private List<String> getWhereClauseKeyAndProdAndGenAndSalesOr(Set<String> strings) {
-        List<String> list1 = strings.stream().filter(e -> !e.contains("$")).map(e -> "( " + getDefaultExpression(e) + " )").collect(Collectors.toList());
-        List<String> list2 = strings.stream().filter(e -> e.contains("$")).map(e -> "( " + getOrExpression(e) + " )").collect(Collectors.toList());
+        List<Predicate> list1 = strings.stream().filter(e -> !e.contains("$")).map(e -> getAndExpression(e, cb, root)).collect(Collectors.toList());
+        List<Predicate> list2 = strings.stream().filter(e -> e.contains("$")).map(e -> getOrExpression(e, cb, root)).collect(Collectors.toList());
         list1.addAll(list2);
-        return list1;
+        return cb.and(list1.toArray(new Predicate[0]));
     }
 
-    private String getOrExpression(String input) {
+    private Predicate getOrExpression(String input, CriteriaBuilder cb, Root<ProductDetail> root) {
         String name = input.split(":")[0];
         String[] values = input.split(":")[1].split("\\$");
         Set<String> collect = Arrays.stream(values).map(el -> name + ":" + el).collect(Collectors.toSet());
-        String[] strs = {"pd.attr_key", "pd.attr_prod", "pd.attr_gen", "pd.attr_sales_total"};
-        Set<String> collect1 = Arrays.stream(strs)
-                .map(ee -> collect.stream().map(e -> ee + " LIKE '%" + e + "%'").collect(Collectors.toSet()))
-                .flatMap(Collection::stream).collect(Collectors.toSet());
 
-        return String.join(" OR ", collect1);
+        String[] strs = {"attrKey", "attrProd", "attrGen", "attrSalesTotal"};
+        Predicate[] predicates = Arrays.stream(strs)
+                .map(ee -> collect.stream().map(e -> cb.like(root.get(ee).as(String.class), "%" + e + "%")).collect(Collectors.toSet()))
+                .flatMap(Collection::stream).distinct().toArray(Predicate[]::new);
+        return cb.or(predicates);
     }
 
-    private String getDefaultExpression(String input) {
-        String[] strs = {"pd.attr_key", "pd.attr_prod", "pd.attr_gen", "pd.attr_sales_total"};
-        Set<String> collect1 = Arrays.stream(strs)
-                .map(ee -> ee + " LIKE '%" + input + "%'")
-                .collect(Collectors.toSet());
-        return String.join(" OR ", collect1);
+    private Predicate getAndExpression(String input, CriteriaBuilder cb, Root<ProductDetail> root) {
+        String[] strs = {"attrKey", "attrProd", "attrGen", "attrSalesTotal"};
+        Predicate[] predicates = Arrays.stream(strs)
+                .map(ee -> cb.like(root.get(ee).as(String.class), "%" + input + "%"))
+                .collect(Collectors.toSet()).toArray(Predicate[]::new);
+        return cb.or(predicates);
     }
 
 }
