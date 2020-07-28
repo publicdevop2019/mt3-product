@@ -41,24 +41,23 @@ public class Catalog extends Auditable {
         return repo.save(new Catalog(id, command));
     }
 
-    public static Catalog get(Long id, CatalogRepository repo) {
+    public static Catalog read(Long id, CatalogRepository repo) {
         Optional<Catalog> findById = repo.findById(id);
         if (findById.isEmpty())
             throw new CatalogNotFoundException();
         return findById.get();
     }
 
-    public static void update(Long id, UpdateCatalogCommand command, CatalogRepository repo) {
-        Catalog catalog = get(id, repo);
-        catalog.setName(command.getName());
-        catalog.setParentId(command.getParentId());
-        catalog.setAttributes(command.getAttributes());
-        catalog.setType(command.getCatalogType());
-        repo.save(catalog);
+    public void update(UpdateCatalogCommand command, CatalogRepository repo) {
+        this.setName(command.getName());
+        this.setParentId(command.getParentId());
+        this.setAttributes(command.getAttributes());
+        this.setType(command.getCatalogType());
+        repo.save(this);
     }
 
     public static void delete(Long id, CatalogRepository repo) {
-        Catalog catalog = get(id, repo);
+        Catalog catalog = read(id, repo);
         repo.delete(catalog);
     }
 

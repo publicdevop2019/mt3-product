@@ -2,9 +2,13 @@ package com.hw.aggregate.filter;
 
 import com.hw.aggregate.filter.command.CreateBizFilterCommand;
 import com.hw.aggregate.filter.command.UpdateBizFilterCommand;
+import com.hw.aggregate.filter.model.AdminSortConfig;
+import com.hw.shared.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static com.hw.shared.AppConstant.*;
 
 @RestController
 @RequestMapping(produces = "application/json")
@@ -14,18 +18,23 @@ public class BizFilterController {
     private BizFilterApplicationService bizFilterApplicationService;
 
     @GetMapping("admin/filters")
-    public ResponseEntity<?> getList() {
-        return ResponseEntity.ok(bizFilterApplicationService.getAll());
+    public ResponseEntity<?> getList(
+            @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
+            @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
+            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) AdminSortConfig sortBy,
+            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder
+    ) {
+        return ResponseEntity.ok(bizFilterApplicationService.getAll(pageNumber, pageSize, sortBy, sortOrder));
     }
 
     @GetMapping("public/filters/search")
-    public ResponseEntity<?> getFilter(@RequestParam("catalogId") String catalog) {
+    public ResponseEntity<?> searchFilter(@RequestParam("catalogId") String catalog) {
         return ResponseEntity.ok(bizFilterApplicationService.getByCatalog(catalog));
     }
 
-    @GetMapping("admin/filters/{filterId}")
-    public ResponseEntity<?> getById(@PathVariable(name = "filterId") Long filterId) {
-        return ResponseEntity.ok(bizFilterApplicationService.getById(filterId));
+    @GetMapping("admin/filters/{id}")
+    public ResponseEntity<?> getById(@PathVariable(name = "id") Long id) {
+        return ResponseEntity.ok(bizFilterApplicationService.getById(id));
     }
 
     @PostMapping("admin/filters")
@@ -34,16 +43,16 @@ public class BizFilterController {
     }
 
 
-    @PutMapping("admin/filters/{filterId}")
-    public ResponseEntity<?> update(@PathVariable(name = "filterId") Long filterId, @RequestBody UpdateBizFilterCommand command) {
-        bizFilterApplicationService.update(filterId, command);
+    @PutMapping("admin/filters/{id}")
+    public ResponseEntity<?> update(@PathVariable(name = "id") Long id, @RequestBody UpdateBizFilterCommand command) {
+        bizFilterApplicationService.update(id, command);
         return ResponseEntity.ok().build();
     }
 
 
-    @DeleteMapping("admin/filters/{filterId}")
-    public ResponseEntity<?> delete(@PathVariable(name = "filterId") Long filterId) {
-        bizFilterApplicationService.delete(filterId);
+    @DeleteMapping("admin/filters/{id}")
+    public ResponseEntity<?> delete(@PathVariable(name = "id") Long id) {
+        bizFilterApplicationService.delete(id);
         return ResponseEntity.ok().build();
     }
 }

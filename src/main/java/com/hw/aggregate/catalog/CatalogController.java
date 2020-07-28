@@ -2,9 +2,14 @@ package com.hw.aggregate.catalog;
 
 import com.hw.aggregate.catalog.command.CreateCatalogCommand;
 import com.hw.aggregate.catalog.command.UpdateCatalogCommand;
+import com.hw.aggregate.catalog.model.AdminSortConfig;
+import com.hw.aggregate.catalog.model.CustomerSortConfig;
+import com.hw.shared.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static com.hw.shared.AppConstant.*;
 
 @RestController
 @RequestMapping(produces = "application/json")
@@ -14,18 +19,33 @@ public class CatalogController {
     private CatalogApplicationService catalogApplicationService;
 
     @GetMapping("public/catalogs")
-    public ResponseEntity<?> getList() {
-        return ResponseEntity.ok(catalogApplicationService.getAllForCustomer());
+    public ResponseEntity<?> getList(
+            @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
+            @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
+            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) CustomerSortConfig sortBy,
+            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder
+    ) {
+        return ResponseEntity.ok(catalogApplicationService.getAllForCustomer(pageNumber, pageSize, sortBy, sortOrder));
     }
 
     @GetMapping("admin/backend/catalogs")
-    public ResponseEntity<?> getAdminListBackend() {
-        return ResponseEntity.ok(catalogApplicationService.getAllForAdminBackend());
+    public ResponseEntity<?> getAdminListBackend(
+            @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
+            @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
+            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) AdminSortConfig sortBy,
+            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder
+    ) {
+        return ResponseEntity.ok(catalogApplicationService.getAllForAdminBackend(pageNumber, pageSize, sortBy, sortOrder));
     }
 
     @GetMapping("admin/frontend/catalogs")
-    public ResponseEntity<?> getAdminListFrontend() {
-        return ResponseEntity.ok(catalogApplicationService.getAllForAdminFrontend());
+    public ResponseEntity<?> getAdminListFrontend(
+            @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
+            @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
+            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) AdminSortConfig sortBy,
+            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder
+    ) {
+        return ResponseEntity.ok(catalogApplicationService.getAllForAdminFrontend(pageNumber, pageSize, sortBy, sortOrder));
     }
 
 
@@ -35,16 +55,16 @@ public class CatalogController {
     }
 
 
-    @PutMapping("admin/catalogs/{catalogId}")
-    public ResponseEntity<?> update(@PathVariable(name = "catalogId") Long catalogId, @RequestBody UpdateCatalogCommand command) {
-        catalogApplicationService.update(catalogId, command);
+    @PutMapping("admin/catalogs/{id}")
+    public ResponseEntity<?> update(@PathVariable(name = "id") Long id, @RequestBody UpdateCatalogCommand command) {
+        catalogApplicationService.update(id, command);
         return ResponseEntity.ok().build();
     }
 
 
-    @DeleteMapping("admin/catalogs/{catalogId}")
-    public ResponseEntity<?> delete(@PathVariable(name = "catalogId") Long catalogId) {
-        catalogApplicationService.delete(catalogId);
+    @DeleteMapping("admin/catalogs/{id}")
+    public ResponseEntity<?> delete(@PathVariable(name = "id") Long id) {
+        catalogApplicationService.delete(id);
         return ResponseEntity.ok().build();
     }
 }

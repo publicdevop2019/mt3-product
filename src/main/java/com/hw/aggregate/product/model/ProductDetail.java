@@ -205,7 +205,7 @@ public class ProductDetail extends Auditable {
         repo.delete(read);
     }
 
-    public void update(UpdateProductAdminCommand command, ProductApplicationService productApplicationService) {
+    public void update(UpdateProductAdminCommand command, ProductApplicationService productApplicationService, ProductDetailRepo repo) {
         this.imageUrlSmall = command.getImageUrlSmall();
         this.name = command.getName();
         this.description = command.getDescription();
@@ -262,6 +262,7 @@ public class ProductDetail extends Auditable {
                 productApplicationService.increaseActualStorageForMappedProductsAdmin(command1);
             }
         }
+        repo.save(this);
     }
 
     public void updateStatus(ProductStatus status, ProductDetailRepo repo) {

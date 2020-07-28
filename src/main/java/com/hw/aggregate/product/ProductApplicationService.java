@@ -84,7 +84,7 @@ public class ProductApplicationService {
 
     @Transactional(readOnly = true)
     public ProductDetailCustomRepresentation getProductByIdForCustomer(Long productDetailId) {
-        return new ProductDetailCustomRepresentation(ProductDetail.readCustomer(productDetailId, repo), attributeApplicationService.getAllAttributes());
+        return new ProductDetailCustomRepresentation(ProductDetail.readCustomer(productDetailId, repo), attributeApplicationService.getAllAttributes(null, null, null, null));
     }
 
     @Transactional(readOnly = true)
@@ -99,7 +99,7 @@ public class ProductApplicationService {
 
     @Transactional
     public void updateProduct(Long id, UpdateProductAdminCommand command) {
-        ProductDetail.readAdmin(id, repo).update(command, this);
+        ProductDetail.readAdmin(id, repo).update(command, this, repo);
     }
 
     @Transactional

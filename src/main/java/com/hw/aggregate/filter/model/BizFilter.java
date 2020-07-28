@@ -40,8 +40,7 @@ public class BizFilter extends Auditable {
         return repository.save(bizFilter);
     }
 
-    public BizFilter(Long id, CreateBizFilterCommand command) {
-        this.id = id;
+    public void update(UpdateBizFilterCommand command, BizFilterRepository repository) {
         this.linkedCatalog = command.getCatalogs();
         this.filterItems = new ArrayList<>();
         command.getFilters().forEach(e -> {
@@ -51,20 +50,7 @@ public class BizFilter extends Auditable {
             bizFilterItem.setSelectValues(e.getValues());
             this.filterItems.add(bizFilterItem);
         });
-    }
-
-    public static void update(Long id, UpdateBizFilterCommand command, BizFilterRepository repository) {
-        BizFilter read = read(id, repository);
-        read.linkedCatalog = command.getCatalogs();
-        read.filterItems = new ArrayList<>();
-        command.getFilters().forEach(e -> {
-            BizFilterItem bizFilterItem = new BizFilterItem();
-            bizFilterItem.setId(e.getId());
-            bizFilterItem.setName(e.getName());
-            bizFilterItem.setSelectValues(e.getValues());
-            read.filterItems.add(bizFilterItem);
-        });
-        repository.save(read);
+        repository.save(this);
     }
 
     public static BizFilter read(Long id, BizFilterRepository repository) {
@@ -79,5 +65,18 @@ public class BizFilter extends Auditable {
         if (byId.isEmpty())
             throw new BizFilterNotFoundException();
         repository.deleteById(id);
+    }
+
+    private BizFilter(Long id, CreateBizFilterCommand command) {
+        this.id = id;
+        this.linkedCatalog = command.getCatalogs();
+        this.filterItems = new ArrayList<>();
+        command.getFilters().forEach(e -> {
+            BizFilterItem bizFilterItem = new BizFilterItem();
+            bizFilterItem.setId(e.getId());
+            bizFilterItem.setName(e.getName());
+            bizFilterItem.setSelectValues(e.getValues());
+            this.filterItems.add(bizFilterItem);
+        });
     }
 }

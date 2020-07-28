@@ -6,7 +6,6 @@ import com.hw.aggregate.attribute.command.UpdateBizAttributeCommand;
 import com.hw.aggregate.attribute.exception.BizAttributeNotFoundException;
 import com.hw.shared.Auditable;
 import com.hw.shared.LinkedHashSetConverter;
-import com.hw.shared.StringSetConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -48,14 +47,13 @@ public class BizAttribute extends Auditable {
         this.type = command.getType();
     }
 
-    public static void update(Long attributeId, UpdateBizAttributeCommand command, BizAttributeRepository attributeRepository) {
-        BizAttribute read = read(attributeId, attributeRepository);
-        read.setName(command.getName());
-        read.setDescription(command.getDescription());
-        read.setMethod(command.getMethod());
-        read.setSelectValues(command.getSelectValues());
-        read.setType(command.getType());
-        attributeRepository.save(read);
+    public void update(UpdateBizAttributeCommand command, BizAttributeRepository attributeRepository) {
+        this.setName(command.getName());
+        this.setDescription(command.getDescription());
+        this.setMethod(command.getMethod());
+        this.setSelectValues(command.getSelectValues());
+        this.setType(command.getType());
+        attributeRepository.save(this);
     }
 
     public static void delete(Long attributeId, BizAttributeRepository attributeRepository) {
