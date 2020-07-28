@@ -2,7 +2,7 @@ package com.hw.aggregate.filter;
 
 import com.hw.aggregate.filter.command.CreateBizFilterCommand;
 import com.hw.aggregate.filter.command.UpdateBizFilterCommand;
-import com.hw.aggregate.filter.model.AdminSortConfig;
+import com.hw.aggregate.filter.model.AdminQueryConfig;
 import com.hw.aggregate.filter.model.BizFilter;
 import com.hw.aggregate.filter.representation.BizFilterAdminRepresentation;
 import com.hw.aggregate.filter.representation.BizFilterAdminSummaryRepresentation;
@@ -52,8 +52,8 @@ public class BizFilterApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public BizFilterAdminSummaryRepresentation getAll(Integer pageNumber, Integer pageSize, AdminSortConfig sortBy, SortOrder sortOrder) {
-        Page<BizFilter> all = repo.findAll(AdminSortConfig.getPageRequestAdmin(pageNumber, pageSize, sortBy, sortOrder));
+    public BizFilterAdminSummaryRepresentation getAll(Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
+        Page<BizFilter> all = repo.findAll(AdminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder));
         return new BizFilterAdminSummaryRepresentation(all.getContent(), all.getTotalPages(), all.getTotalElements());
     }
 

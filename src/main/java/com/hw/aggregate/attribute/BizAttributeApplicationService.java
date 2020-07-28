@@ -2,7 +2,7 @@ package com.hw.aggregate.attribute;
 
 import com.hw.aggregate.attribute.command.CreateBizAttributeCommand;
 import com.hw.aggregate.attribute.command.UpdateBizAttributeCommand;
-import com.hw.aggregate.attribute.model.AdminSortConfig;
+import com.hw.aggregate.attribute.model.AdminQueryConfig;
 import com.hw.aggregate.attribute.model.BizAttribute;
 import com.hw.aggregate.attribute.representation.BizAttributeCreatedRepresentation;
 import com.hw.aggregate.attribute.representation.BizAttributeSummaryRepresentation;
@@ -39,8 +39,8 @@ public class BizAttributeApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public BizAttributeSummaryRepresentation getAllAttributes(Integer pageNumber, Integer pageSize, AdminSortConfig sortBy, SortOrder sortOrder) {
-        PageRequest pageRequestAdmin = AdminSortConfig.getPageRequestAdmin(pageNumber, pageSize, sortBy, sortOrder);
+    public BizAttributeSummaryRepresentation getAllAttributes(Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
+        PageRequest pageRequestAdmin = AdminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
         Page<BizAttribute> all = repo.findAll(pageRequestAdmin);
         return new BizAttributeSummaryRepresentation(all.getContent());
     }

@@ -1,8 +1,8 @@
 package com.hw.aggregate.product;
 
 import com.hw.aggregate.product.command.*;
-import com.hw.aggregate.product.model.AdminSortConfig;
-import com.hw.aggregate.product.model.CustomerSortConfig;
+import com.hw.aggregate.product.model.AdminQueryConfig;
+import com.hw.aggregate.product.model.CustomerQueryConfig;
 import com.hw.aggregate.product.model.ProductStatus;
 import com.hw.aggregate.product.representation.ProductAdminGetAllPaginatedSummaryRepresentation;
 import com.hw.aggregate.product.representation.ProductCustomerSearchByAttributesSummaryPaginatedRepresentation;
@@ -29,7 +29,7 @@ public class ProductController {
             @RequestParam(name = "attributes") String attributes,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
-            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) CustomerSortConfig sortBy,
+            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) CustomerQueryConfig.SortBy sortBy,
             @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder) {
         return ResponseEntity.ok(productService.searchByAttributesForCustomer(attributes, pageNumber, pageSize, sortBy, sortOrder));
     }
@@ -38,7 +38,7 @@ public class ProductController {
     public ResponseEntity<ProductAdminGetAllPaginatedSummaryRepresentation> getAllProducts(
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
-            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) AdminSortConfig sortBy,
+            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) AdminQueryConfig.SortBy sortBy,
             @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder) {
         ProductAdminGetAllPaginatedSummaryRepresentation allForAdmin = productService.getAllForAdmin(pageNumber, pageSize, sortBy, sortOrder);
         return ResponseEntity.ok(allForAdmin);
@@ -49,7 +49,7 @@ public class ProductController {
             @RequestParam(name = "attributes") String attributes,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
-            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) AdminSortConfig sortBy,
+            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) AdminQueryConfig.SortBy sortBy,
             @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder) {
         return ResponseEntity.ok(productService.searchByAttributesForAdmin(attributes, pageNumber, pageSize, sortBy, sortOrder));
     }
@@ -59,7 +59,7 @@ public class ProductController {
             @RequestParam("key") String key,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
-            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) CustomerSortConfig sortBy,
+            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) CustomerQueryConfig.SortBy sortBy,
             @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder) {
         return ResponseEntity.ok(productService.searchProductByNameForCustomer(key, pageNumber, pageSize, sortBy, sortOrder));
     }

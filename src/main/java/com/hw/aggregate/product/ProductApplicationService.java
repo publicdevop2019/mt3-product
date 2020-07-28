@@ -3,8 +3,8 @@ package com.hw.aggregate.product;
 import com.hw.aggregate.attribute.BizAttributeApplicationService;
 import com.hw.aggregate.catalog.CatalogApplicationService;
 import com.hw.aggregate.product.command.*;
-import com.hw.aggregate.product.model.AdminSortConfig;
-import com.hw.aggregate.product.model.CustomerSortConfig;
+import com.hw.aggregate.product.model.AdminQueryConfig;
+import com.hw.aggregate.product.model.CustomerQueryConfig;
 import com.hw.aggregate.product.model.ProductDetail;
 import com.hw.aggregate.product.model.ProductStatus;
 import com.hw.aggregate.product.representation.*;
@@ -44,29 +44,29 @@ public class ProductApplicationService {
     private EntityManager entityManager;
 
     @Transactional(readOnly = true)
-    public ProductAdminGetAllPaginatedSummaryRepresentation getAllForAdmin(Integer pageNumber, Integer pageSize, AdminSortConfig sortBy, SortOrder sortOrder) {
-        Page<ProductDetail> all = repo.findAll(AdminSortConfig.getPageRequestAdmin(pageNumber, pageSize, sortBy, sortOrder));
+    public ProductAdminGetAllPaginatedSummaryRepresentation getAllForAdmin(Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
+        Page<ProductDetail> all = repo.findAll(AdminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder));
         return new ProductAdminGetAllPaginatedSummaryRepresentation(all.getContent(), all.getTotalPages(), all.getTotalElements());
     }
 
 
     @Transactional(readOnly = true)
-    public ProductCustomerSearchByNameSummaryPaginatedRepresentation searchProductByNameForCustomer(String key, Integer pageNumber, Integer pageSize, CustomerSortConfig sortBy, SortOrder sortOrder) {
-        Page<ProductDetail> pd = repo.searchProductByNameForCustomer(key, Instant.now().toEpochMilli(), CustomerSortConfig.getPageRequestCustomer(pageNumber, pageSize, sortBy, sortOrder));
+    public ProductCustomerSearchByNameSummaryPaginatedRepresentation searchProductByNameForCustomer(String key, Integer pageNumber, Integer pageSize, CustomerQueryConfig.SortBy sortBy, SortOrder sortOrder) {
+        Page<ProductDetail> pd = repo.searchProductByNameForCustomer(key, Instant.now().toEpochMilli(), CustomerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder));
         return new ProductCustomerSearchByNameSummaryPaginatedRepresentation(pd.getContent(), pd.getTotalPages(), pd.getTotalElements());
     }
 
 
     @Transactional(readOnly = true)
-    public ProductCustomerSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForCustomer(String attributes, Integer pageNumber, Integer pageSize, CustomerSortConfig sortBy, SortOrder sortOrder) {
-        PageRequest of = CustomerSortConfig.getPageRequestCustomer(pageNumber, pageSize, sortBy, sortOrder);
+    public ProductCustomerSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForCustomer(String attributes, Integer pageNumber, Integer pageSize, CustomerQueryConfig.SortBy sortBy, SortOrder sortOrder) {
+        PageRequest of = CustomerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
         return new ProductCustomerSearchByAttributesSummaryPaginatedRepresentation(
                 repo.searchByAttributesDynamic(entityManager, attributes, true, of), null, null);
     }
 
     @Transactional(readOnly = true)
-    public ProductAdminSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForAdmin(String tags, Integer pageNumber, Integer pageSize, AdminSortConfig sortBy, SortOrder sortOrder) {
-        PageRequest of = AdminSortConfig.getPageRequestAdmin(pageNumber, pageSize, sortBy, sortOrder);
+    public ProductAdminSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForAdmin(String tags, Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
+        PageRequest of = AdminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
         return new ProductAdminSearchByAttributesSummaryPaginatedRepresentation(repo.searchByAttributesDynamic(entityManager, tags, false, of), null, null);
     }
 
