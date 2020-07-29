@@ -57,7 +57,7 @@ public class BizFilterApplicationService {
     @Transactional(readOnly = true)
     public BizFilterAdminSummaryRepresentation getAll(Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
         Page<BizFilter> all = repo.findAll(adminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder));
-        return new BizFilterAdminSummaryRepresentation(all.getContent(), all.getTotalPages(), all.getTotalElements());
+        return new BizFilterAdminSummaryRepresentation(all.getContent(), all.getTotalElements());
     }
 
     @Transactional(readOnly = true)

@@ -46,11 +46,14 @@ public class ProductApplicationService {
     @Autowired
     private CustomerQueryConfig customerQueryConfig;
 
+    @Autowired
+    private AdminQueryConfig adminQueryConfig;
+
     @Transactional(readOnly = true)
     public ProductAdminGetAllPaginatedSummaryRepresentation getAllForAdmin(Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        PageRequest pageRequest = customerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
+        PageRequest pageRequest = adminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
         Page<ProductDetail> all = repo.findAll(pageRequest);
-        return new ProductAdminGetAllPaginatedSummaryRepresentation(all.getContent(), pageRequest.getPageSize(), all.getTotalElements());
+        return new ProductAdminGetAllPaginatedSummaryRepresentation(all.getContent(), all.getTotalElements());
     }
 
 
@@ -58,7 +61,7 @@ public class ProductApplicationService {
     public ProductCustomerSearchByNameSummaryPaginatedRepresentation searchProductByNameForCustomer(String key, Integer pageNumber, Integer pageSize, CustomerQueryConfig.SortBy sortBy, SortOrder sortOrder) {
         PageRequest pageRequest = customerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
         Page<ProductDetail> pd = repo.searchProductByNameForCustomer(key, Instant.now().toEpochMilli(), pageRequest);
-        return new ProductCustomerSearchByNameSummaryPaginatedRepresentation(pd.getContent(), pageRequest.getPageSize(), pd.getTotalElements());
+        return new ProductCustomerSearchByNameSummaryPaginatedRepresentation(pd.getContent(), pd.getTotalElements());
     }
 
 
@@ -66,14 +69,14 @@ public class ProductApplicationService {
     public ProductCustomerSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForCustomer(String attributes, Integer pageNumber, Integer pageSize, CustomerQueryConfig.SortBy sortBy, SortOrder sortOrder) {
         PageRequest pageRequest = customerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
         return new ProductCustomerSearchByAttributesSummaryPaginatedRepresentation(
-                repo.searchByAttributesDynamic(entityManager, attributes, true, pageRequest), pageRequest.getPageSize(), repo.searchByAttributesDynamicCount(entityManager, attributes, true));
+                repo.searchByAttributesDynamic(entityManager, attributes, true, pageRequest), repo.searchByAttributesDynamicCount(entityManager, attributes, true));
     }
 
     @Transactional(readOnly = true)
     public ProductAdminSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForAdmin(String attributes, Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        PageRequest pageRequest = customerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
+        PageRequest pageRequest = adminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
         return new ProductAdminSearchByAttributesSummaryPaginatedRepresentation(repo.searchByAttributesDynamic(entityManager, attributes, false, pageRequest),
-                pageRequest.getPageSize(), repo.searchByAttributesDynamicCount(entityManager, attributes, false));
+                repo.searchByAttributesDynamicCount(entityManager, attributes, false));
     }
 
     /**

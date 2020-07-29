@@ -11,13 +11,10 @@ import java.util.stream.Collectors;
 @Data
 public class ProductCustomerSummaryPaginatedRepresentation {
     private List<ProductSearchRepresentation> data = new ArrayList<>();
-    private Integer totalPageCount;
     private Long totalProductCount;
 
-    public ProductCustomerSummaryPaginatedRepresentation(List<ProductDetail> productSimpleList, Integer pageSize, Long totalItemCount) {
+    public ProductCustomerSummaryPaginatedRepresentation(List<ProductDetail> productSimpleList, Long totalItemCount) {
         this.data.addAll(productSimpleList.stream().map(ProductSearchRepresentation::new).collect(Collectors.toList()));
-        long l = Math.floorDiv(totalItemCount, pageSize.longValue());
-        this.totalPageCount = (int) l + 1;
         this.totalProductCount = totalItemCount;
     }
 

@@ -10,12 +10,10 @@ import java.util.stream.Collectors;
 @Data
 public class BizFilterAdminSummaryRepresentation {
     private List<BizFilterItemCardRepresentation> data;
-    private Integer totalPageCount;
     private Long totalItemCount;
 
-    public BizFilterAdminSummaryRepresentation(List<BizFilter> all, Integer totalPageCount, Long totalItemCount) {
+    public BizFilterAdminSummaryRepresentation(List<BizFilter> all, Long totalItemCount) {
         this.data = all.stream().map(BizFilterItemCardRepresentation::new).collect(Collectors.toList());
-        this.totalPageCount = totalPageCount;
         this.totalItemCount = totalItemCount;
     }
 

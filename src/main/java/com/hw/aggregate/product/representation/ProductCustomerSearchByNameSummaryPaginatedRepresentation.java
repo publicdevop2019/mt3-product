@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 @Data
 public class ProductCustomerSearchByNameSummaryPaginatedRepresentation extends ProductCustomerSummaryPaginatedRepresentation {
-    public ProductCustomerSearchByNameSummaryPaginatedRepresentation(List<ProductDetail> productSimpleList, Integer totalPageCount, Long totalProductCount) {
-        super(productSimpleList, totalPageCount, totalProductCount);
+    public ProductCustomerSearchByNameSummaryPaginatedRepresentation(List<ProductDetail> productSimpleList, Long totalProductCount) {
+        super(productSimpleList, totalProductCount);
     }
 }

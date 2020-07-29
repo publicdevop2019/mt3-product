@@ -13,6 +13,7 @@ import com.hw.shared.IdGenerator;
 import com.hw.shared.SortOrder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,9 @@ public class CatalogApplicationService {
     @Autowired
     private CustomerQueryConfig customerQueryConfig;
 
+    @Autowired
+    private AdminQueryConfig adminQueryConfig;
+
     @Transactional(readOnly = true)
     public CatalogCustomerSummaryRepresentation getAllForCustomer(Integer pageNumber, Integer pageSize, CustomerQueryConfig.SortBy sortBy, SortOrder sortOrder) {
         PageRequest pageRequestCustomer = customerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
@@ -45,16 +49,16 @@ public class CatalogApplicationService {
 
     @Transactional(readOnly = true)
     public CatalogAdminSummaryRepresentation getAllForAdminBackend(Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        PageRequest pageRequestCustomer = customerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
+        PageRequest pageRequestCustomer = adminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
         Page<Catalog> byType = repo.findByType(CatalogType.BACKEND, pageRequestCustomer);
-        return new CatalogAdminSummaryRepresentation(byType.getContent(), byType.getTotalPages(), byType.getTotalElements());
+        return new CatalogAdminSummaryRepresentation(byType.getContent(), byType.getTotalElements());
     }
 
     @Transactional(readOnly = true)
     public CatalogAdminSummaryRepresentation getAllForAdminFrontend(Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        PageRequest pageRequestCustomer = customerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
+        PageRequest pageRequestCustomer = adminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
         Page<Catalog> byType = repo.findByType(CatalogType.FRONTEND, pageRequestCustomer);
-        return new CatalogAdminSummaryRepresentation(byType.getContent(), byType.getTotalPages(), byType.getTotalElements());
+        return new CatalogAdminSummaryRepresentation(byType.getContent(), byType.getTotalElements());
     }
 
     @Transactional

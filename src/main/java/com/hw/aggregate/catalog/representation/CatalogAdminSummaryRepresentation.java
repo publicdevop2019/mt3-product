@@ -13,12 +13,10 @@ public class CatalogAdminSummaryRepresentation {
 
     private List<CatalogSummaryCardRepresentation> data;
 
-    private Integer totalPageCount;
     private Long totalItemCount;
 
-    public CatalogAdminSummaryRepresentation(List<Catalog> data, Integer totalPageCount, Long totalItemCount) {
+    public CatalogAdminSummaryRepresentation(List<Catalog> data, Long totalItemCount) {
         this.data = data.stream().map(CatalogSummaryCardRepresentation::new).collect(Collectors.toList());
-        this.totalPageCount = totalPageCount;
         this.totalItemCount = totalItemCount;
     }
 
