@@ -1,7 +1,9 @@
 package com.hw.aggregate.filter.model;
 
 import com.hw.shared.QueryConfig;
+import org.springframework.stereotype.Component;
 
+@Component("filterAdmin")
 public class AdminQueryConfig extends QueryConfig {
     public enum SortBy implements MappedField {
         id("id");
@@ -16,8 +18,7 @@ public class AdminQueryConfig extends QueryConfig {
             return this.mappedField;
         }
     }
-
-    static {
+    AdminQueryConfig() {
         DEFAULT_PAGE_SIZE = 40;
         MAX_PAGE_SIZE = 400;
         DEFAULT_SORT_BY = SortBy.id;

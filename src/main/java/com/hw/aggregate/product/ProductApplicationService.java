@@ -43,30 +43,33 @@ public class ProductApplicationService {
     @Autowired
     private EntityManager entityManager;
 
+    @Autowired
+    private CustomerQueryConfig customerQueryConfig;
+
     @Transactional(readOnly = true)
     public ProductAdminGetAllPaginatedSummaryRepresentation getAllForAdmin(Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        Page<ProductDetail> all = repo.findAll(AdminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder));
+        Page<ProductDetail> all = repo.findAll(customerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder));
         return new ProductAdminGetAllPaginatedSummaryRepresentation(all.getContent(), all.getTotalPages(), all.getTotalElements());
     }
 
 
     @Transactional(readOnly = true)
     public ProductCustomerSearchByNameSummaryPaginatedRepresentation searchProductByNameForCustomer(String key, Integer pageNumber, Integer pageSize, CustomerQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        Page<ProductDetail> pd = repo.searchProductByNameForCustomer(key, Instant.now().toEpochMilli(), CustomerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder));
+        Page<ProductDetail> pd = repo.searchProductByNameForCustomer(key, Instant.now().toEpochMilli(), customerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder));
         return new ProductCustomerSearchByNameSummaryPaginatedRepresentation(pd.getContent(), pd.getTotalPages(), pd.getTotalElements());
     }
 
 
     @Transactional(readOnly = true)
     public ProductCustomerSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForCustomer(String attributes, Integer pageNumber, Integer pageSize, CustomerQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        PageRequest of = CustomerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
+        PageRequest of = customerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
         return new ProductCustomerSearchByAttributesSummaryPaginatedRepresentation(
                 repo.searchByAttributesDynamic(entityManager, attributes, true, of), null, null);
     }
 
     @Transactional(readOnly = true)
     public ProductAdminSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForAdmin(String tags, Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        PageRequest of = AdminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
+        PageRequest of = customerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
         return new ProductAdminSearchByAttributesSummaryPaginatedRepresentation(repo.searchByAttributesDynamic(entityManager, tags, false, of), null, null);
     }
 

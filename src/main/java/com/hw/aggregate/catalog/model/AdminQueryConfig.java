@@ -1,11 +1,12 @@
 package com.hw.aggregate.catalog.model;
 
 import com.hw.shared.QueryConfig;
+import org.springframework.stereotype.Component;
 
+@Component("catalogAdmin")
 public class AdminQueryConfig extends QueryConfig {
     public enum SortBy implements MappedField {
         id("id"),
-        type("type"),
         name("name");
         private final String mappedField;
 
@@ -19,7 +20,7 @@ public class AdminQueryConfig extends QueryConfig {
         }
     }
 
-    static {
+    AdminQueryConfig() {
         DEFAULT_PAGE_SIZE = 1000;
         MAX_PAGE_SIZE = 2000;
         DEFAULT_SORT_BY = SortBy.id;

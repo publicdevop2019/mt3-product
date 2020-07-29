@@ -1,12 +1,13 @@
 package com.hw.aggregate.attribute.model;
 
 import com.hw.shared.QueryConfig;
+import org.springframework.stereotype.Component;
 
+@Component("attributeAdmin")
 public class AdminQueryConfig extends QueryConfig {
     public enum SortBy implements MappedField {
         id("id"),
         type("type"),
-        method("method"),
         name("name");
         private final String mappedField;
 
@@ -20,7 +21,7 @@ public class AdminQueryConfig extends QueryConfig {
         }
     }
 
-    static {
+    AdminQueryConfig() {
         DEFAULT_PAGE_SIZE = 40;
         MAX_PAGE_SIZE = 200;
         DEFAULT_SORT_BY = SortBy.id;

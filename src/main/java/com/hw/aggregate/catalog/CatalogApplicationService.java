@@ -32,21 +32,24 @@ public class CatalogApplicationService {
     @Autowired
     private EntityManager entityManager;
 
+    @Autowired
+    private CustomerQueryConfig customerQueryConfig;
+
     @Transactional(readOnly = true)
     public CatalogTreeCustomerRepresentation getAllForCustomer(Integer pageNumber, Integer pageSize, CustomerQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        PageRequest pageRequestCustomer = CustomerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
+        PageRequest pageRequestCustomer = customerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
         return new CatalogTreeCustomerRepresentation(repo.findByType(entityManager, CatalogType.FRONTEND, pageRequestCustomer));
     }
 
     @Transactional(readOnly = true)
     public CatalogTreeAdminRepresentation getAllForAdminBackend(Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        PageRequest pageRequestCustomer = AdminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
+        PageRequest pageRequestCustomer = customerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
         return new CatalogTreeAdminRepresentation(repo.findByType(entityManager, CatalogType.BACKEND, pageRequestCustomer));
     }
 
     @Transactional(readOnly = true)
     public CatalogTreeAdminRepresentation getAllForAdminFrontend(Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        PageRequest pageRequestCustomer = AdminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
+        PageRequest pageRequestCustomer = customerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
         return new CatalogTreeAdminRepresentation(repo.findByType(entityManager, CatalogType.FRONTEND, pageRequestCustomer));
     }
 

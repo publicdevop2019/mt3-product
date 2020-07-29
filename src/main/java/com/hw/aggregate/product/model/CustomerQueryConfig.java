@@ -1,7 +1,9 @@
 package com.hw.aggregate.product.model;
 
 import com.hw.shared.QueryConfig;
+import org.springframework.stereotype.Component;
 
+@Component("productCustomer")
 public class CustomerQueryConfig extends QueryConfig {
 
     public enum SortBy implements MappedField {
@@ -21,7 +23,7 @@ public class CustomerQueryConfig extends QueryConfig {
         }
     }
 
-    static {
+    CustomerQueryConfig() {
         DEFAULT_PAGE_SIZE = 20;
         MAX_PAGE_SIZE = 40;
         DEFAULT_SORT_BY = SortBy.name;

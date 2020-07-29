@@ -1,12 +1,13 @@
 package com.hw.aggregate.product.model;
 
 import com.hw.shared.QueryConfig;
+import org.springframework.stereotype.Component;
 
+@Component("productAdmin")
 public class AdminQueryConfig extends QueryConfig {
     public enum SortBy implements MappedField {
         id("id"),
         name("name"),
-        price("lowestPrice"),
         sales("totalSales"),
         expireDate("endAt");
         private final String mappedField;
@@ -21,7 +22,7 @@ public class AdminQueryConfig extends QueryConfig {
         }
     }
 
-    static {
+    AdminQueryConfig() {
         DEFAULT_PAGE_SIZE = 40;
         MAX_PAGE_SIZE = 400;
         DEFAULT_SORT_BY = SortBy.id;

@@ -4,13 +4,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 public abstract class QueryConfig {
-    public static Integer DEFAULT_PAGE_SIZE;
-    public static Integer MAX_PAGE_SIZE;
-    public static Integer DEFAULT_PAGE_NUM = 0;
-    public static MappedField DEFAULT_SORT_BY;
-    public static Sort.Direction DEFAULT_SORT_ORDER = Sort.Direction.ASC;
+    public  Integer DEFAULT_PAGE_SIZE;
+    public  Integer MAX_PAGE_SIZE;
+    public  Integer DEFAULT_PAGE_NUM = 0;
+    public  MappedField DEFAULT_SORT_BY;
+    public  Sort.Direction DEFAULT_SORT_ORDER = Sort.Direction.ASC;
 
-    public static PageRequest getPageRequest(Integer pageNumber, Integer pageSize, MappedField sortBy, SortOrder sortOrder) {
+    public PageRequest getPageRequest(Integer pageNumber, Integer pageSize, MappedField sortBy, SortOrder sortOrder) {
         Sort sort;
         if (pageNumber == null)
             pageNumber = DEFAULT_PAGE_NUM;

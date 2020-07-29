@@ -20,6 +20,8 @@ public class BizAttributeApplicationService {
     private BizAttributeRepository repo;
     @Autowired
     private IdGenerator idGenerator;
+    @Autowired
+    private AdminQueryConfig adminQueryConfig;
 
     @Transactional
     public BizAttributeCreatedRepresentation create(CreateBizAttributeCommand command) {
@@ -40,7 +42,7 @@ public class BizAttributeApplicationService {
 
     @Transactional(readOnly = true)
     public BizAttributeSummaryRepresentation getAllAttributes(Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        PageRequest pageRequestAdmin = AdminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
+        PageRequest pageRequestAdmin = adminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
         Page<BizAttribute> all = repo.findAll(pageRequestAdmin);
         return new BizAttributeSummaryRepresentation(all.getContent());
     }
