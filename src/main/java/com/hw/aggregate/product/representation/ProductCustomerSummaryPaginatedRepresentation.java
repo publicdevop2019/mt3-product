@@ -14,10 +14,11 @@ public class ProductCustomerSummaryPaginatedRepresentation {
     private Integer totalPageCount;
     private Long totalProductCount;
 
-    public ProductCustomerSummaryPaginatedRepresentation(List<ProductDetail> productSimpleList, Integer totalPageCount, Long totalProductCount) {
+    public ProductCustomerSummaryPaginatedRepresentation(List<ProductDetail> productSimpleList, Integer pageSize, Long totalItemCount) {
         this.data.addAll(productSimpleList.stream().map(ProductSearchRepresentation::new).collect(Collectors.toList()));
-        this.totalPageCount = totalPageCount;
-        this.totalProductCount = totalProductCount;
+        long l = Math.floorDiv(totalItemCount, pageSize.longValue());
+        this.totalPageCount = (int) l + 1;
+        this.totalProductCount = totalItemCount;
     }
 
     @Data

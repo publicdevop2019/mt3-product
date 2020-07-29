@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 @Data
 public class ProductCustomerSearchByAttributesSummaryPaginatedRepresentation extends ProductCustomerSummaryPaginatedRepresentation {
-    public ProductCustomerSearchByAttributesSummaryPaginatedRepresentation(List<ProductDetail> productSimpleList, Integer totalPageCount, Long totalProductCount) {
-        super(productSimpleList, totalPageCount, totalProductCount);
+    public ProductCustomerSearchByAttributesSummaryPaginatedRepresentation(List<ProductDetail> productSimpleList, Integer pageSize, Long totalItemCount) {
+        super(productSimpleList, pageSize, totalItemCount);
     }
 }

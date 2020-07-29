@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 @Data
 public class ProductAdminSearchByAttributesSummaryPaginatedRepresentation extends ProductAdminSummaryPaginatedRepresentation {
-    public ProductAdminSearchByAttributesSummaryPaginatedRepresentation(List<ProductDetail> data, Integer totalPageCount, Long totalProductCount) {
-        super(data, totalPageCount, totalProductCount);
+    public ProductAdminSearchByAttributesSummaryPaginatedRepresentation(List<ProductDetail> data, Integer pageSize, Long totalItemCount) {
+        super(data, pageSize, totalItemCount);
     }
 }

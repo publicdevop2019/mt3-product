@@ -25,7 +25,7 @@ public class ProductController {
     private ProductApplicationService productService;
 
     @GetMapping("public/productDetails")
-    public ResponseEntity<ProductCustomerSearchByAttributesSummaryPaginatedRepresentation> searchProductsByAttributes(
+    public ResponseEntity<ProductCustomerSearchByAttributesSummaryPaginatedRepresentation> searchProductsByAttributesForCustomer(
             @RequestParam(name = "attributes") String attributes,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
@@ -35,7 +35,7 @@ public class ProductController {
     }
 
     @GetMapping("admin/productDetails")
-    public ResponseEntity<ProductAdminGetAllPaginatedSummaryRepresentation> getAllProducts(
+    public ResponseEntity<ProductAdminGetAllPaginatedSummaryRepresentation> getAllProductsForAdmin(
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
             @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) AdminQueryConfig.SortBy sortBy,
@@ -45,7 +45,7 @@ public class ProductController {
     }
 
     @GetMapping("admin/productDetails/search")
-    public ResponseEntity<?> getProducts(
+    public ResponseEntity<?> searchProductsByAttributesForAdmin(
             @RequestParam(name = "attributes") String attributes,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
@@ -55,7 +55,7 @@ public class ProductController {
     }
 
     @GetMapping("public/productDetails/search")
-    public ResponseEntity<?> searchProductByName(
+    public ResponseEntity<?> searchProductByNameForCustomer(
             @RequestParam("key") String key,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
@@ -81,25 +81,25 @@ public class ProductController {
 
 
     @PostMapping("admin/productDetails")
-    public ResponseEntity<?> createProduct(@RequestBody CreateProductAdminCommand productDetail) {
+    public ResponseEntity<?> createProductForAdmin(@RequestBody CreateProductAdminCommand productDetail) {
         return ResponseEntity.ok().header("Location", productService.createProduct(productDetail).getId()).build();
     }
 
 
     @PutMapping("admin/productDetails/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable(name = "id") Long id, @RequestBody UpdateProductAdminCommand newProductDetail) {
+    public ResponseEntity<?> updateProductForAdmin(@PathVariable(name = "id") Long id, @RequestBody UpdateProductAdminCommand newProductDetail) {
         productService.updateProduct(id, newProductDetail);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("admin/productDetails/{id}/status")
-    public ResponseEntity<?> updateProductStatus(@PathVariable(name = "id") Long id, @RequestParam(name = "status") ProductStatus status) {
+    public ResponseEntity<?> updateProductStatusForAdmin(@PathVariable(name = "id") Long id, @RequestParam(name = "status") ProductStatus status) {
         productService.updateProductStatus(id, status);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("admin/productDetails/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<?> deleteProductForAdmin(@PathVariable(name = "id") Long id) {
         productService.delete(id);
         return ResponseEntity.ok().build();
     }

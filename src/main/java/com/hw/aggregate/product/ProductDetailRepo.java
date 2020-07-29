@@ -62,14 +62,15 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
         CriteriaQuery<ProductDetail> query = cb.createQuery(ProductDetail.class);
         Root<ProductDetail> root = query.from(ProductDetail.class);
         query.select(root);
-        Predicate attrClause = getAttrWhereClause(attributes, cb, root);
+        Predicate whereClause;
+        Predicate attrWhereClause = getAttrWhereClause(attributes, cb, root);
         if (customerSearch) {
             Predicate statusClause = getStatusClause(cb, root);
-            Predicate and = cb.and(attrClause, statusClause);
-            query.where(and);
+            whereClause = cb.and(attrWhereClause, statusClause);
         } else {
-            query.where(attrClause);
+            whereClause = attrWhereClause;
         }
+        query.where(whereClause);
         Set<Order> collect = pageRequest.getSort().get().map(e -> {
             if (e.getDirection().isAscending()) {
                 return cb.asc(root.get(e.getProperty()));
@@ -78,10 +79,28 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
             }
         }).collect(Collectors.toSet());
         query.orderBy(collect.toArray(Order[]::new));
+
         TypedQuery<ProductDetail> query1 = entityManager.createQuery(query)
                 .setFirstResult(BigDecimal.valueOf(pageRequest.getOffset()).intValue())
                 .setMaxResults(pageRequest.getPageSize());
         return query1.getResultList();
+    }
+
+    default Long searchByAttributesDynamicCount(EntityManager entityManager, String attributes, boolean customerSearch) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<ProductDetail> from = query.from(ProductDetail.class);
+        query.select(cb.count(from));
+        Predicate whereClause;
+        Predicate attrWhereClause = getAttrWhereClause(attributes, cb, from);
+        if (customerSearch) {
+            Predicate statusClause = getStatusClause(cb, from);
+            whereClause = cb.and(attrWhereClause, statusClause);
+        } else {
+            whereClause = attrWhereClause;
+        }
+        query.where(whereClause);
+        return entityManager.createQuery(query).getSingleResult();
     }
 
     private Predicate getStatusClause(CriteriaBuilder cb, Root<ProductDetail> root) {
