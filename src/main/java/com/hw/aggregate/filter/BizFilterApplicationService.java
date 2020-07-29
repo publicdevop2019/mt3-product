@@ -63,6 +63,8 @@ public class BizFilterApplicationService {
     @Transactional(readOnly = true)
     public BizFilterCustomerRepresentation getByCatalog(String catalog) {
         List<BizFilter> bizFilters = repo.searchByAttributesDynamic(entityManager, catalog);
+        if (bizFilters.size() == 0)
+            return new BizFilterCustomerRepresentation(null);
         return new BizFilterCustomerRepresentation(bizFilters.get(0));
     }
 }
