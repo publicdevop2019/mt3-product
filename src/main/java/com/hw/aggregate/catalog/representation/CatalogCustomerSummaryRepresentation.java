@@ -8,13 +8,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class CatalogTreeCustomerRepresentation {
+public class CatalogCustomerSummaryRepresentation {
 
     private List<CatalogSummaryCardRepresentation> data;
+    private Integer totalPageCount;
+    private Long totalItemCount;
 
 
-    public CatalogTreeCustomerRepresentation(List<Catalog> data) {
+    public CatalogCustomerSummaryRepresentation(List<Catalog> data, Integer totalPageCount, Long totalItemCount) {
         this.data = data.stream().map(CatalogSummaryCardRepresentation::new).collect(Collectors.toList());
+        this.totalPageCount = totalPageCount;
+        this.totalItemCount = totalItemCount;
     }
 
     @Data

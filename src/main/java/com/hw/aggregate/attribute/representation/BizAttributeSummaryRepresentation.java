@@ -12,9 +12,13 @@ import java.util.stream.Collectors;
 @Data
 public class BizAttributeSummaryRepresentation {
     private List<BizAttributeCardRepresentation> data;
+    private Integer totalPageCount;
+    private Long totalItemCount;
 
-    public BizAttributeSummaryRepresentation(List<BizAttribute> content) {
+    public BizAttributeSummaryRepresentation(List<BizAttribute> content, Integer totalPageCount, Long totalItemCount) {
         data = content.stream().map(BizAttributeCardRepresentation::new).collect(Collectors.toList());
+        this.totalPageCount = totalPageCount;
+        this.totalItemCount = totalItemCount;
     }
 
     @Data
