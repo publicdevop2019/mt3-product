@@ -17,7 +17,7 @@ public class BizAttributeController {
     private BizAttributeApplicationService attributeApplicationService;
 
     @GetMapping("admin/attributes")
-    public ResponseEntity<?> getList(
+    public ResponseEntity<?> getAll(
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
             @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
             @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) AdminQueryConfig.SortBy sortBy,
@@ -26,22 +26,27 @@ public class BizAttributeController {
         return ResponseEntity.ok(attributeApplicationService.getAllAttributes(pageNumber, pageSize, sortBy, sortOrder));
     }
 
+    @GetMapping("admin/attributes/{id}")
+    public ResponseEntity<?> getById(@PathVariable(name = "id") Long id) {
+        return ResponseEntity.ok(attributeApplicationService.getById(id));
+    }
+
     @PostMapping("admin/attributes")
     public ResponseEntity<?> create(@RequestBody CreateBizAttributeCommand command) {
         return ResponseEntity.ok().header("Location", attributeApplicationService.create(command).getId().toString()).build();
     }
 
 
-    @PutMapping("admin/attributes/{attributeId}")
-    public ResponseEntity<?> update(@PathVariable(name = "attributeId") Long attributeId, @RequestBody UpdateBizAttributeCommand command) {
-        attributeApplicationService.update(attributeId, command);
+    @PutMapping("admin/attributes/{id}")
+    public ResponseEntity<?> update(@PathVariable(name = "id") Long id, @RequestBody UpdateBizAttributeCommand command) {
+        attributeApplicationService.update(id, command);
         return ResponseEntity.ok().build();
     }
 
 
-    @DeleteMapping("admin/attributes/{attributeId}")
-    public ResponseEntity<?> delete(@PathVariable(name = "attributeId") Long attributeId) {
-        attributeApplicationService.delete(attributeId);
+    @DeleteMapping("admin/attributes/{id}")
+    public ResponseEntity<?> delete(@PathVariable(name = "id") Long id) {
+        attributeApplicationService.delete(id);
         return ResponseEntity.ok().build();
     }
 }

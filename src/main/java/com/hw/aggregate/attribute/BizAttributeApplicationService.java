@@ -4,6 +4,7 @@ import com.hw.aggregate.attribute.command.CreateBizAttributeCommand;
 import com.hw.aggregate.attribute.command.UpdateBizAttributeCommand;
 import com.hw.aggregate.attribute.model.AdminQueryConfig;
 import com.hw.aggregate.attribute.model.BizAttribute;
+import com.hw.aggregate.attribute.representation.BizAttributeAdminRepresentation;
 import com.hw.aggregate.attribute.representation.BizAttributeCreatedRepresentation;
 import com.hw.aggregate.attribute.representation.BizAttributeSummaryRepresentation;
 import com.hw.shared.IdGenerator;
@@ -45,5 +46,10 @@ public class BizAttributeApplicationService {
         PageRequest pageRequestAdmin = adminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
         Page<BizAttribute> all = repo.findAll(pageRequestAdmin);
         return new BizAttributeSummaryRepresentation(all.getContent(), all.getTotalElements());
+    }
+
+    @Transactional(readOnly = true)
+    public BizAttributeAdminRepresentation getById(Long id) {
+        return new BizAttributeAdminRepresentation(BizAttribute.read(id, repo));
     }
 }
