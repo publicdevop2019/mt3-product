@@ -3,22 +3,20 @@ package com.hw.aggregate.product;
 import com.hw.aggregate.attribute.BizAttributeApplicationService;
 import com.hw.aggregate.catalog.CatalogApplicationService;
 import com.hw.aggregate.product.command.*;
-import com.hw.aggregate.product.model.AdminQueryConfig;
-import com.hw.aggregate.product.model.CustomerQueryConfig;
+import com.hw.aggregate.product.model.AdminQueryBuilder;
+import com.hw.aggregate.product.model.CustomerQueryBuilder;
 import com.hw.aggregate.product.model.ProductDetail;
 import com.hw.aggregate.product.model.ProductStatus;
 import com.hw.aggregate.product.representation.*;
 import com.hw.shared.IdGenerator;
-import com.hw.shared.SortOrder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.time.Instant;
+import javax.persistence.criteria.Predicate;
 import java.util.List;
 
 @Slf4j
@@ -44,39 +42,33 @@ public class ProductApplicationService {
     private EntityManager entityManager;
 
     @Autowired
-    private CustomerQueryConfig customerQueryConfig;
+    private CustomerQueryBuilder customerQueryBuilder;
 
     @Autowired
-    private AdminQueryConfig adminQueryConfig;
+    private AdminQueryBuilder adminQueryBuilder;
 
     @Transactional(readOnly = true)
-    public ProductAdminGetAllPaginatedSummaryRepresentation getAllForAdmin(Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        PageRequest pageRequest = adminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
-        Page<ProductDetail> all = repo.findAll(pageRequest);
-        return new ProductAdminGetAllPaginatedSummaryRepresentation(all.getContent(), all.getTotalElements());
-    }
-
-
-    @Transactional(readOnly = true)
-    public ProductCustomerSearchByNameSummaryPaginatedRepresentation searchProductByNameForCustomer(String key, Integer pageNumber, Integer pageSize, CustomerQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        PageRequest pageRequest = customerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
-        Page<ProductDetail> pd = repo.searchProductByNameForCustomer(key, Instant.now().toEpochMilli(), pageRequest);
-        return new ProductCustomerSearchByNameSummaryPaginatedRepresentation(pd.getContent(), pd.getTotalElements());
-    }
-
-
-    @Transactional(readOnly = true)
-    public ProductCustomerSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForCustomer(String attributes, Integer pageNumber, Integer pageSize, CustomerQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        PageRequest pageRequest = customerQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
-        return new ProductCustomerSearchByAttributesSummaryPaginatedRepresentation(
-                repo.searchByAttributesDynamic(entityManager, attributes, true, pageRequest), repo.searchByAttributesDynamicCount(entityManager, attributes, true));
+    public ProductAdminGetAllPaginatedSummaryRepresentation queryForAdmin(String search, String page, String countFlag) {
+        PageRequest pageRequest = adminQueryBuilder.getPageRequest(page);
+        Predicate queryClause = adminQueryBuilder.getQueryClause(search);
+        List<ProductDetail> query = repo.query(entityManager, queryClause, pageRequest);
+        Long aLong = null;
+        if ("0".equals(countFlag)) {
+            aLong = repo.queryCount(entityManager, queryClause, pageRequest);
+        }
+        return new ProductAdminGetAllPaginatedSummaryRepresentation(query, aLong);
     }
 
     @Transactional(readOnly = true)
-    public ProductAdminSearchByAttributesSummaryPaginatedRepresentation searchByAttributesForAdmin(String attributes, Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        PageRequest pageRequest = adminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
-        return new ProductAdminSearchByAttributesSummaryPaginatedRepresentation(repo.searchByAttributesDynamic(entityManager, attributes, false, pageRequest),
-                repo.searchByAttributesDynamicCount(entityManager, attributes, false));
+    public ProductCustomerSearchByAttributesSummaryPaginatedRepresentation queryForCustomer(String search, String page, String countFlag) {
+        PageRequest pageRequest = customerQueryBuilder.getPageRequest(page);
+        Predicate queryClause = customerQueryBuilder.getQueryClause(search);
+        List<ProductDetail> query = repo.query(entityManager, queryClause, pageRequest);
+        Long aLong = null;
+        if ("0".equals(countFlag)) {
+            aLong = repo.queryCount(entityManager, queryClause, pageRequest);
+        }
+        return new ProductCustomerSearchByAttributesSummaryPaginatedRepresentation(query, aLong);
     }
 
     /**

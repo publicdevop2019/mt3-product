@@ -1,12 +1,9 @@
 package com.hw.aggregate.product;
 
 import com.hw.aggregate.product.command.*;
-import com.hw.aggregate.product.model.AdminQueryConfig;
-import com.hw.aggregate.product.model.CustomerQueryConfig;
 import com.hw.aggregate.product.model.ProductStatus;
 import com.hw.aggregate.product.representation.ProductAdminGetAllPaginatedSummaryRepresentation;
 import com.hw.aggregate.product.representation.ProductCustomerSearchByAttributesSummaryPaginatedRepresentation;
-import com.hw.shared.SortOrder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,43 +22,20 @@ public class ProductController {
     private ProductApplicationService productService;
 
     @GetMapping("public/productDetails")
-    public ResponseEntity<ProductCustomerSearchByAttributesSummaryPaginatedRepresentation> searchProductsByAttributesForCustomer(
-            @RequestParam(name = "attributes") String attributes,
-            @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
-            @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
-            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) CustomerQueryConfig.SortBy sortBy,
-            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder) {
-        return ResponseEntity.ok(productService.searchByAttributesForCustomer(attributes, pageNumber, pageSize, sortBy, sortOrder));
+    public ResponseEntity<ProductCustomerSearchByAttributesSummaryPaginatedRepresentation> queryForCustomer(
+            @RequestParam(name = HTTP_PARAM_SEARCH, required = false) String searchParam,
+            @RequestParam(name = HTTP_PARAM_PAGE, required = false) String pageParam,
+            @RequestParam(name = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
+    ) {
+        return ResponseEntity.ok(productService.queryForCustomer(searchParam, pageParam,skipCount));
     }
 
     @GetMapping("admin/productDetails")
-    public ResponseEntity<ProductAdminGetAllPaginatedSummaryRepresentation> getAllProductsForAdmin(
-            @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
-            @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
-            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) AdminQueryConfig.SortBy sortBy,
-            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder) {
-        ProductAdminGetAllPaginatedSummaryRepresentation allForAdmin = productService.getAllForAdmin(pageNumber, pageSize, sortBy, sortOrder);
-        return ResponseEntity.ok(allForAdmin);
-    }
-
-    @GetMapping("admin/productDetails/search")
-    public ResponseEntity<?> searchProductsByAttributesForAdmin(
-            @RequestParam(name = "attributes") String attributes,
-            @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
-            @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
-            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) AdminQueryConfig.SortBy sortBy,
-            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder) {
-        return ResponseEntity.ok(productService.searchByAttributesForAdmin(attributes, pageNumber, pageSize, sortBy, sortOrder));
-    }
-
-    @GetMapping("public/productDetails/search")
-    public ResponseEntity<?> searchProductByNameForCustomer(
-            @RequestParam("key") String key,
-            @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
-            @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
-            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) CustomerQueryConfig.SortBy sortBy,
-            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder) {
-        return ResponseEntity.ok(productService.searchProductByNameForCustomer(key, pageNumber, pageSize, sortBy, sortOrder));
+    public ResponseEntity<ProductAdminGetAllPaginatedSummaryRepresentation> queryForAdmin(
+            @RequestParam(name = HTTP_PARAM_SEARCH, required = false) String searchParam,
+            @RequestParam(name = HTTP_PARAM_PAGE, required = false) String pageParam,
+            @RequestParam(name = HTTP_PARAM_SKIP_COUNT, required = false) String skipFlag) {
+        return ResponseEntity.ok(productService.queryForAdmin(searchParam, pageParam,skipFlag));
     }
 
     @PostMapping("internal/productDetails/validate")

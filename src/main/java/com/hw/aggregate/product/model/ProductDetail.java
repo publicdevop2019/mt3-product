@@ -5,14 +5,8 @@ import com.hw.aggregate.product.ProductDetailRepo;
 import com.hw.aggregate.product.command.*;
 import com.hw.aggregate.product.exception.*;
 import com.hw.shared.Auditable;
-import com.hw.shared.SortOrder;
 import com.hw.shared.StringSetConverter;
-import com.hw.shared.UnSupportedSortConfigException;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -22,46 +16,59 @@ import java.util.stream.Stream;
 
 import static com.hw.config.AppConstant.ADMIN_ADJUST;
 
+
+//@Data
 @Data
 @Entity
 @Table
-@NoArgsConstructor
-@Slf4j
+//@NoArgsConstructor
+//@Slf4j
 public class ProductDetail extends Auditable {
     @Id
     private Long id;
+    public transient static final String ID_LITERAL = "id";
 
     private String imageUrlSmall;
 
     private String name;
+    public transient static final String NAME_LITERAL = "name";
 
     private String description;
 
     private Long endAt;
+    public transient static final String END_AT_LITERAL = "endAt";
 
     private Long startAt;
+    public transient static final String START_AT_LITERAL = "startAt";
 
     @Column(length = 10000)
     @Convert(converter = ProductOptionConverter.class)
     private List<ProductOption> selectedOptions;
+    public transient static final String SELECTED_OPTIONS_LITERAL = "selectedOptions";
 
     @Convert(converter = StringSetConverter.class)
     private Set<String> imageUrlLarge;
+    public transient static final String IMAGE_URL_LARGE_LITERAL = "imageUrlLarge";
 
     @Convert(converter = StringSetConverter.class)
     private Set<String> specification;
+    public transient static final String SPEC_LITERAL = "specification";
 
     @Convert(converter = StringSetConverter.class)
     private Set<String> attrKey;
+    public transient static final String ATTR_KEY_LITERAL = "attrKey";
 
     @Convert(converter = StringSetConverter.class)
     private Set<String> attrProd;
+    public transient static final String ATTR_PROD_LITERAL = "attrProd";
 
     @Convert(converter = StringSetConverter.class)
     private Set<String> attrGen;
+    public transient static final String ATTR_GEN_LITERAL = "attrGen";
 
     @Convert(converter = StringSetConverter.class)
     private Set<String> attrSalesTotal;
+    public transient static final String ATTR_SALES_TOTAL_LITERAL = "attrSalesTotal";
 
     @ElementCollection
     @CollectionTable(name = "product_sku_map", joinColumns = @JoinColumn(name = "product_id"), uniqueConstraints = @UniqueConstraint(columnNames = {"attributesSales", "product_id"}))
@@ -71,12 +78,16 @@ public class ProductDetail extends Auditable {
     private ArrayList<ProductAttrSaleImages> attributeSaleImages;
 
     private Integer storageOrder;
+    public transient static final String STORAGE_ORDER_LITERAL = "storageOrder";
 
     private Integer storageActual;
+    public transient static final String STORAGE_ACTUAL_LITERAL = "storageActual";
 
     private BigDecimal lowestPrice;
+    public transient static final String LOWEST_PRICE_LITERAL = "lowestPrice";
 
     private Integer totalSales;
+    public transient static final String TOTAL_SALES_LITERAL = "totalSales";
 
     public static ProductDetail create(Long id, CreateProductAdminCommand command, ProductDetailRepo repo) {
         ProductDetail productDetail = new ProductDetail(id, command);
@@ -396,7 +407,6 @@ public class ProductDetail extends Auditable {
         objects.add(storageChangeDetail);
         return objects;
     }
-
 
 
     private ProductDetail(Long id, CreateProductAdminCommand command) {
