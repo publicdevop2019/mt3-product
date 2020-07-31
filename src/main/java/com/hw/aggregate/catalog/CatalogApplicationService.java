@@ -6,6 +6,7 @@ import com.hw.aggregate.catalog.model.AdminQueryConfig;
 import com.hw.aggregate.catalog.model.Catalog;
 import com.hw.aggregate.catalog.model.CatalogType;
 import com.hw.aggregate.catalog.model.CustomerQueryConfig;
+import com.hw.aggregate.catalog.representation.CatalogAdminRepresentation;
 import com.hw.aggregate.catalog.representation.CatalogAdminSummaryRepresentation;
 import com.hw.aggregate.catalog.representation.CatalogCreatedRepresentation;
 import com.hw.aggregate.catalog.representation.CatalogCustomerSummaryRepresentation;
@@ -13,7 +14,6 @@ import com.hw.shared.IdGenerator;
 import com.hw.shared.SortOrder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -77,4 +77,8 @@ public class CatalogApplicationService {
         Catalog.delete(id, repo);
     }
 
+    @Transactional(readOnly = true)
+    public CatalogAdminRepresentation read(Long id) {
+        return new CatalogAdminRepresentation(Catalog.read(id, repo));
+    }
 }

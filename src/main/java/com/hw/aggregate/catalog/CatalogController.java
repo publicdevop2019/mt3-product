@@ -61,6 +61,11 @@ public class CatalogController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("admin/catalogs/{id}")
+    public ResponseEntity<?> read(@PathVariable(name = "id") Long id) {
+        return ResponseEntity.ok(catalogApplicationService.read(id));
+    }
+
 
     @DeleteMapping("admin/catalogs/{id}")
     public ResponseEntity<?> delete(@PathVariable(name = "id") Long id) {
