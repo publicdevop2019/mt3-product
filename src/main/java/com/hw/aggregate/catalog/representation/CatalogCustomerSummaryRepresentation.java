@@ -11,13 +11,11 @@ import java.util.stream.Collectors;
 public class CatalogCustomerSummaryRepresentation {
 
     private List<CatalogSummaryCardRepresentation> data;
-    private Integer totalPageCount;
     private Long totalItemCount;
 
 
-    public CatalogCustomerSummaryRepresentation(List<Catalog> data, Integer totalPageCount, Long totalItemCount) {
+    public CatalogCustomerSummaryRepresentation(List<Catalog> data, Long totalItemCount) {
         this.data = data.stream().map(CatalogSummaryCardRepresentation::new).collect(Collectors.toList());
-        this.totalPageCount = totalPageCount;
         this.totalItemCount = totalItemCount;
     }
 

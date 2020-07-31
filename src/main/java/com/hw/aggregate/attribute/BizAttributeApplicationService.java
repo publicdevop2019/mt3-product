@@ -2,18 +2,20 @@ package com.hw.aggregate.attribute;
 
 import com.hw.aggregate.attribute.command.CreateBizAttributeCommand;
 import com.hw.aggregate.attribute.command.UpdateBizAttributeCommand;
-import com.hw.aggregate.attribute.model.AdminQueryConfig;
+import com.hw.aggregate.attribute.model.AdminQueryBuilder;
 import com.hw.aggregate.attribute.model.BizAttribute;
 import com.hw.aggregate.attribute.representation.BizAttributeAdminRepresentation;
 import com.hw.aggregate.attribute.representation.BizAttributeCreatedRepresentation;
 import com.hw.aggregate.attribute.representation.BizAttributeSummaryRepresentation;
 import com.hw.shared.IdGenerator;
-import com.hw.shared.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.Predicate;
+import java.util.List;
 
 @Service
 public class BizAttributeApplicationService {
@@ -22,7 +24,9 @@ public class BizAttributeApplicationService {
     @Autowired
     private IdGenerator idGenerator;
     @Autowired
-    private AdminQueryConfig adminQueryConfig;
+    private AdminQueryBuilder adminQueryBuilder;
+    @Autowired
+    private EntityManager entityManager;
 
     @Transactional
     public BizAttributeCreatedRepresentation create(CreateBizAttributeCommand command) {
@@ -42,10 +46,15 @@ public class BizAttributeApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public BizAttributeSummaryRepresentation getAllAttributes(Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        PageRequest pageRequestAdmin = adminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder);
-        Page<BizAttribute> all = repo.findAll(pageRequestAdmin);
-        return new BizAttributeSummaryRepresentation(all.getContent(), all.getTotalElements());
+    public BizAttributeSummaryRepresentation adminQuery(String query, String page, String countFlag) {
+        PageRequest pageRequest = adminQueryBuilder.getPageRequest(page);
+        Predicate queryClause = adminQueryBuilder.getQueryClause(query);
+        List<BizAttribute> query1 = repo.query(entityManager, queryClause, pageRequest);
+        Long aLong = null;
+        if ("0".equals(countFlag)) {
+            aLong = repo.queryCount(entityManager, queryClause);
+        }
+        return new BizAttributeSummaryRepresentation(query1, aLong);
     }
 
     @Transactional(readOnly = true)

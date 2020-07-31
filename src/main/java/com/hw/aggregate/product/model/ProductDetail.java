@@ -7,6 +7,8 @@ import com.hw.aggregate.product.exception.*;
 import com.hw.shared.Auditable;
 import com.hw.shared.StringSetConverter;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -17,12 +19,11 @@ import java.util.stream.Stream;
 import static com.hw.config.AppConstant.ADMIN_ADJUST;
 
 
-//@Data
 @Data
 @Entity
 @Table
-//@NoArgsConstructor
-//@Slf4j
+@NoArgsConstructor
+@Slf4j
 public class ProductDetail extends Auditable {
     @Id
     private Long id;

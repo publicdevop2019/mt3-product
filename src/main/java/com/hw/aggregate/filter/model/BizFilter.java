@@ -22,8 +22,10 @@ import java.util.Set;
 public class BizFilter extends Auditable {
     @Id
     private Long id;
+    public transient static final String ID_LITERAL = "id";
     @Convert(converter = LinkedHashSetConverter.class)
     private Set<String> linkedCatalog;
+    public transient static final String LINKED_CATALOG_LITERAL = "linkedCatalog";
     @Column(length = 10000)
     private ArrayList<BizFilterItem> filterItems;
 

@@ -23,14 +23,25 @@ import java.util.Set;
 public class BizAttribute extends Auditable {
     @Id
     private Long id;
+    public transient static final String ID_LITERAL = "id";
+
     private String name;
+    public transient static final String NAME_LITERAL = "name";
+
     private String description;
+    public transient static final String DESCRIPTION_LITERAL = "description";
+
     @Convert(converter = AttributeMethod.DBConverter.class)
     private AttributeMethod method;
+    public transient static final String METHOD_LITERAL = "method";
+
     @Convert(converter = LinkedHashSetConverter.class)
     private Set<String> selectValues;
+    public transient static final String SELECTED_VALUES_LITERAL = "selectValues";
+
     @Convert(converter = BizAttributeType.DBConverter.class)
     private BizAttributeType type;
+    public transient static final String TYPE_LITERAL = "type";
 
     public static BizAttribute create(Long id, CreateBizAttributeCommand command, BizAttributeRepository attributeRepository) {
         BizAttribute attribute = new BizAttribute(id, command);

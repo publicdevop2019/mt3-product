@@ -76,7 +76,7 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
         return query1.getResultList();
     }
 
-    default Long queryCount(EntityManager entityManager, Predicate predicate, PageRequest pageRequest) {
+    default Long queryCount(EntityManager entityManager, Predicate predicate) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<ProductDetail> from = query.from(ProductDetail.class);

@@ -54,7 +54,7 @@ public class ProductApplicationService {
         List<ProductDetail> query = repo.query(entityManager, queryClause, pageRequest);
         Long aLong = null;
         if ("0".equals(countFlag)) {
-            aLong = repo.queryCount(entityManager, queryClause, pageRequest);
+            aLong = repo.queryCount(entityManager, queryClause);
         }
         return new ProductAdminGetAllPaginatedSummaryRepresentation(query, aLong);
     }
@@ -66,7 +66,7 @@ public class ProductApplicationService {
         List<ProductDetail> query = repo.query(entityManager, queryClause, pageRequest);
         Long aLong = null;
         if ("0".equals(countFlag)) {
-            aLong = repo.queryCount(entityManager, queryClause, pageRequest);
+            aLong = repo.queryCount(entityManager, queryClause);
         }
         return new ProductCustomerSearchByAttributesSummaryPaginatedRepresentation(query, aLong);
     }
@@ -85,12 +85,12 @@ public class ProductApplicationService {
 
     @Transactional(readOnly = true)
     public ProductDetailCustomRepresentation getProductByIdForCustomer(Long productDetailId) {
-        return new ProductDetailCustomRepresentation(ProductDetail.readCustomer(productDetailId, repo), attributeApplicationService.getAllAttributes(null, null, null, null));
+        return new ProductDetailCustomRepresentation(ProductDetail.readCustomer(productDetailId, repo), attributeApplicationService.adminQuery(null, null, null));
     }
 
     @Transactional(readOnly = true)
-    public ProductDetailAdminRepresentation getProductByIdForAdmin(Long productDetailId) {
-        return new ProductDetailAdminRepresentation(ProductDetail.readAdmin(productDetailId, repo));
+    public ProductDetailAdminRepresentation getProductByIdForAdmin(Long id) {
+        return new ProductDetailAdminRepresentation(ProductDetail.readAdmin(id, repo));
     }
 
     @Transactional

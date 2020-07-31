@@ -24,18 +24,23 @@ public class Catalog extends Auditable {
 
     @Id
     private Long id;
+    public transient static final String ID_LITERAL = "id";
 
     @NotBlank
     @Column(nullable = false)
     private String name;
+    public transient static final String NAME_LITERAL = "name";
 
     private Long parentId;
+    public transient static final String PARENT_ID_LITERAL = "parentId";
 
     @Convert(converter = StringSetConverter.class)
     private Set<String> attributes;
+    public transient static final String ATTR_LITERAL = "attributes";
 
     @Convert(converter = CatalogType.DBConverter.class)
     private CatalogType type;
+    public transient static final String TYPE_LITERAL = "type";
 
     public static Catalog create(Long id, CreateCatalogCommand command, CatalogRepository repo) {
         return repo.save(new Catalog(id, command));

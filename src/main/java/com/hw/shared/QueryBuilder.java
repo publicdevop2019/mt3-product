@@ -17,6 +17,10 @@ public abstract class QueryBuilder {
     public abstract Predicate getQueryClause(String search);
 
     public PageRequest getPageRequest(String page) throws UnsupportedQueryConfigException {
+        if (page == null) {
+            Sort sort = new Sort(DEFAULT_SORT_ORDER, mappedSortBy.get(DEFAULT_SORT_BY));
+            return PageRequest.of(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE, sort);
+        }
         String[] params = page.split(",");
         Integer pageNumber = DEFAULT_PAGE_NUM;
         Integer pageSize = DEFAULT_PAGE_SIZE;

@@ -23,7 +23,6 @@ public class AdminQueryBuilder extends QueryBuilder {
     @Autowired
     private EntityManager entityManager;
 
-
     AdminQueryBuilder() {
         DEFAULT_PAGE_SIZE = 40;
         MAX_PAGE_SIZE = 400;
@@ -41,9 +40,9 @@ public class AdminQueryBuilder extends QueryBuilder {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<ProductDetail> query = cb.createQuery(ProductDetail.class);
         Root<ProductDetail> root = query.from(ProductDetail.class);
-        String[] searchParams = search.split(",");
+        String[] queryParams = search.split(",");
         List<Predicate> results = new ArrayList<>();
-        for (String param : searchParams) {
+        for (String param : queryParams) {
             String[] split = param.split(":");
             if (split.length == 2) {
                 if ("attr".equals(split[0]) && !split[1].isBlank()) {
@@ -65,22 +64,21 @@ public class AdminQueryBuilder extends QueryBuilder {
     }
 
     private Predicate getPriceWhereClause(String s, CriteriaBuilder cb, Root<ProductDetail> root) {
-        String price = mappedSortBy.get("price");
-        String[] split = s.split("\\+");
+        String[] split = s.split("\\$");
         List<Predicate> results = new ArrayList<>();
         for (String str : split) {
             if (str.contains("<=")) {
                 int i = Integer.parseInt(s.replace("<=", ""));
-                results.add(cb.lessThanOrEqualTo(root.get(price), i));
+                results.add(cb.lessThanOrEqualTo(root.get(LOWEST_PRICE_LITERAL), i));
             } else if (str.contains(">=")) {
                 int i = Integer.parseInt(s.replace(">=", ""));
-                results.add(cb.greaterThanOrEqualTo(root.get(price), i));
+                results.add(cb.greaterThanOrEqualTo(root.get(LOWEST_PRICE_LITERAL), i));
             } else if (str.contains("<")) {
                 int i = Integer.parseInt(s.replace("<", ""));
-                results.add(cb.lessThan(root.get(price), i));
+                results.add(cb.lessThan(root.get(LOWEST_PRICE_LITERAL), i));
             } else if (str.contains(">")) {
                 int i = Integer.parseInt(s.replace(">", ""));
-                results.add(cb.greaterThan(root.get(price), i));
+                results.add(cb.greaterThan(root.get(LOWEST_PRICE_LITERAL), i));
             } else {
                 throw new UnsupportedQueryConfigException();
             }

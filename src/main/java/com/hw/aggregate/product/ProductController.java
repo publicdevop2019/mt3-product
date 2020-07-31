@@ -23,19 +23,19 @@ public class ProductController {
 
     @GetMapping("public/productDetails")
     public ResponseEntity<ProductCustomerSearchByAttributesSummaryPaginatedRepresentation> queryForCustomer(
-            @RequestParam(name = HTTP_PARAM_SEARCH, required = false) String searchParam,
+            @RequestParam(name = HTTP_PARAM_SEARCH, required = false) String queryParam,
             @RequestParam(name = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(name = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        return ResponseEntity.ok(productService.queryForCustomer(searchParam, pageParam,skipCount));
+        return ResponseEntity.ok(productService.queryForCustomer(queryParam, pageParam,skipCount));
     }
 
     @GetMapping("admin/productDetails")
     public ResponseEntity<ProductAdminGetAllPaginatedSummaryRepresentation> queryForAdmin(
-            @RequestParam(name = HTTP_PARAM_SEARCH, required = false) String searchParam,
+            @RequestParam(name = HTTP_PARAM_SEARCH, required = false) String queryParam,
             @RequestParam(name = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(name = HTTP_PARAM_SKIP_COUNT, required = false) String skipFlag) {
-        return ResponseEntity.ok(productService.queryForAdmin(searchParam, pageParam,skipFlag));
+        return ResponseEntity.ok(productService.queryForAdmin(queryParam, pageParam,skipFlag));
     }
 
     @PostMapping("internal/productDetails/validate")
@@ -98,7 +98,7 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("internal/productDetails/rollback")
+    @PutMapping("internal/transactions/rollback")
     public ResponseEntity<?> rollbackTx(@RequestParam(name = "txId") String txId) {
         productService.rollbackTx(txId);
         return ResponseEntity.ok().build();

@@ -2,20 +2,21 @@ package com.hw.aggregate.filter;
 
 import com.hw.aggregate.filter.command.CreateBizFilterCommand;
 import com.hw.aggregate.filter.command.UpdateBizFilterCommand;
-import com.hw.aggregate.filter.model.AdminQueryConfig;
+import com.hw.aggregate.filter.model.AdminQueryBuilder;
 import com.hw.aggregate.filter.model.BizFilter;
+import com.hw.aggregate.filter.model.CustomerQueryBuilder;
 import com.hw.aggregate.filter.representation.BizFilterAdminRepresentation;
 import com.hw.aggregate.filter.representation.BizFilterAdminSummaryRepresentation;
 import com.hw.aggregate.filter.representation.BizFilterCreatedRepresentation;
 import com.hw.aggregate.filter.representation.BizFilterCustomerRepresentation;
 import com.hw.shared.IdGenerator;
-import com.hw.shared.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.Predicate;
 import java.util.List;
 
 @Service
@@ -30,7 +31,10 @@ public class BizFilterApplicationService {
     private EntityManager entityManager;
 
     @Autowired
-    private AdminQueryConfig adminQueryConfig;
+    private AdminQueryBuilder adminQueryBuilder;
+
+    @Autowired
+    private CustomerQueryBuilder customerQueryBuilder;
 
     @Transactional
     public BizFilterCreatedRepresentation create(CreateBizFilterCommand command) {
@@ -55,14 +59,22 @@ public class BizFilterApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public BizFilterAdminSummaryRepresentation getAll(Integer pageNumber, Integer pageSize, AdminQueryConfig.SortBy sortBy, SortOrder sortOrder) {
-        Page<BizFilter> all = repo.findAll(adminQueryConfig.getPageRequest(pageNumber, pageSize, sortBy, sortOrder));
-        return new BizFilterAdminSummaryRepresentation(all.getContent(), all.getTotalElements());
+    public BizFilterAdminSummaryRepresentation adminQuery(String query, String page, String countFlag) {
+        PageRequest pageRequest = adminQueryBuilder.getPageRequest(page);
+        Predicate queryClause = adminQueryBuilder.getQueryClause(query);
+        List<BizFilter> query1 = repo.query(entityManager, queryClause, pageRequest);
+        Long aLong = null;
+        if ("0".equals(countFlag)) {
+            aLong = repo.queryCount(entityManager, queryClause);
+        }
+        return new BizFilterAdminSummaryRepresentation(query1, aLong);
     }
 
     @Transactional(readOnly = true)
-    public BizFilterCustomerRepresentation getByCatalog(String catalog) {
-        List<BizFilter> bizFilters = repo.searchByAttributesDynamic(entityManager, catalog);
+    public BizFilterCustomerRepresentation customerQuery(String query, String page, String countFlag) {
+        PageRequest pageRequest = customerQueryBuilder.getPageRequest(page);
+        Predicate queryClause = customerQueryBuilder.getQueryClause(query);
+        List<BizFilter> bizFilters = repo.query(entityManager, queryClause, pageRequest);
         if (bizFilters.size() == 0)
             return new BizFilterCustomerRepresentation(null);
         return new BizFilterCustomerRepresentation(bizFilters.get(0));

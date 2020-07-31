@@ -2,8 +2,6 @@ package com.hw.aggregate.filter;
 
 import com.hw.aggregate.filter.command.CreateBizFilterCommand;
 import com.hw.aggregate.filter.command.UpdateBizFilterCommand;
-import com.hw.aggregate.filter.model.AdminQueryConfig;
-import com.hw.shared.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,18 +16,19 @@ public class BizFilterController {
     private BizFilterApplicationService bizFilterApplicationService;
 
     @GetMapping("admin/filters")
-    public ResponseEntity<?> getList(
-            @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
-            @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
-            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) AdminQueryConfig.SortBy sortBy,
-            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder
+    public ResponseEntity<?> adminQuery(
+            @RequestParam(name = HTTP_PARAM_SEARCH, required = false) String queryParam,
+            @RequestParam(name = HTTP_PARAM_PAGE, required = false) String pageParam,
+            @RequestParam(name = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        return ResponseEntity.ok(bizFilterApplicationService.getAll(pageNumber, pageSize, sortBy, sortOrder));
+        return ResponseEntity.ok(bizFilterApplicationService.adminQuery(queryParam, pageParam, skipCount));
     }
 
-    @GetMapping("public/filters/search")
-    public ResponseEntity<?> searchFilter(@RequestParam("catalogId") String catalog) {
-        return ResponseEntity.ok(bizFilterApplicationService.getByCatalog(catalog));
+    @GetMapping("public/filters")
+    public ResponseEntity<?> customerQuery(@RequestParam(name = HTTP_PARAM_SEARCH, required = false) String queryParam,
+                                           @RequestParam(name = HTTP_PARAM_PAGE, required = false) String pageParam,
+                                           @RequestParam(name = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
+        return ResponseEntity.ok(bizFilterApplicationService.customerQuery(queryParam, pageParam, skipCount));
     }
 
     @GetMapping("admin/filters/{id}")

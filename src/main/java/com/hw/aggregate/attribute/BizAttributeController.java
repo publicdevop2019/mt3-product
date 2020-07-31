@@ -2,8 +2,6 @@ package com.hw.aggregate.attribute;
 
 import com.hw.aggregate.attribute.command.CreateBizAttributeCommand;
 import com.hw.aggregate.attribute.command.UpdateBizAttributeCommand;
-import com.hw.aggregate.attribute.model.AdminQueryConfig;
-import com.hw.shared.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +15,12 @@ public class BizAttributeController {
     private BizAttributeApplicationService attributeApplicationService;
 
     @GetMapping("admin/attributes")
-    public ResponseEntity<?> getAll(
-            @RequestParam(value = HTTP_PARAM_SORT_PAGE_NUM_NAME, required = false) Integer pageNumber,
-            @RequestParam(value = HTTP_PARAM_SORT_PAGE_SIZE_NAME, required = false) Integer pageSize,
-            @RequestParam(value = HTTP_PARAM_SORT_BY_NAME, required = false) AdminQueryConfig.SortBy sortBy,
-            @RequestParam(value = HTTP_PARAM_SORT_ORDER_NAME, required = false) SortOrder sortOrder
+    public ResponseEntity<?> adminQuery(
+            @RequestParam(name = HTTP_PARAM_SEARCH, required = false) String queryParam,
+            @RequestParam(name = HTTP_PARAM_PAGE, required = false) String pageParam,
+            @RequestParam(name = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        return ResponseEntity.ok(attributeApplicationService.getAllAttributes(pageNumber, pageSize, sortBy, sortOrder));
+        return ResponseEntity.ok(attributeApplicationService.adminQuery(queryParam, pageParam, skipCount));
     }
 
     @GetMapping("admin/attributes/{id}")
