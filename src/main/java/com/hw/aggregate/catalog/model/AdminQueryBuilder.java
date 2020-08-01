@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
@@ -17,15 +16,14 @@ import static com.hw.aggregate.catalog.model.Catalog.*;
 
 
 @Component("catalogAdmin")
-public class AdminQueryBuilder extends QueryBuilder {
+public class AdminQueryBuilder extends QueryBuilder<Catalog> {
     @Autowired
     private EntityManager entityManager;
 
     @Override
-    public Predicate getQueryClause(String search) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Catalog> query = cb.createQuery(Catalog.class);
-        Root<Catalog> root = query.from(Catalog.class);
+    public Predicate getQueryClause(CriteriaBuilder cb, Root<Catalog> root, String search) {
+        if (search == null)
+            return null;
         String[] queryParams = search.split(",");
         List<Predicate> results = new ArrayList<>();
         for (String param : queryParams) {

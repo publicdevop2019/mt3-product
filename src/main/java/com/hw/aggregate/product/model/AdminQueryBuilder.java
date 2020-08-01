@@ -2,12 +2,9 @@ package com.hw.aggregate.product.model;
 
 import com.hw.shared.QueryBuilder;
 import com.hw.shared.UnsupportedQueryConfigException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.*;
@@ -17,11 +14,8 @@ import static com.hw.aggregate.product.model.ProductDetail.*;
 
 
 @Component("productAdmin")
-public class AdminQueryBuilder extends QueryBuilder {
+public class AdminQueryBuilder extends QueryBuilder<ProductDetail> {
     private String[] attrs = {ATTR_KEY_LITERAL, ATTR_PROD_LITERAL, ATTR_GEN_LITERAL, ATTR_SALES_TOTAL_LITERAL};
-
-    @Autowired
-    private EntityManager entityManager;
 
     AdminQueryBuilder() {
         DEFAULT_PAGE_SIZE = 40;
@@ -36,10 +30,9 @@ public class AdminQueryBuilder extends QueryBuilder {
     }
 
     @Override
-    public Predicate getQueryClause(String search) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<ProductDetail> query = cb.createQuery(ProductDetail.class);
-        Root<ProductDetail> root = query.from(ProductDetail.class);
+    public Predicate getQueryClause(CriteriaBuilder cb, Root<ProductDetail> root, String search) {
+        if (search == null)
+            return null;
         String[] queryParams = search.split(",");
         List<Predicate> results = new ArrayList<>();
         for (String param : queryParams) {
@@ -54,9 +47,21 @@ public class AdminQueryBuilder extends QueryBuilder {
                 if ("price".equals(split[0]) && !split[1].isBlank()) {
                     results.add(getPriceWhereClause(split[1], cb, root));
                 }
+                if ("id".equals(split[0]) && !split[1].isBlank()) {
+                    results.add(getIdWhereClause(split[1], cb, root));
+                }
             }
         }
         return cb.and(results.toArray(new Predicate[0]));
+    }
+
+    private Predicate getIdWhereClause(String s, CriteriaBuilder cb, Root<ProductDetail> root) {
+        String[] split = s.split("\\.");
+        List<Predicate> results = new ArrayList<>();
+        for (String str : split) {
+            results.add(cb.equal(root.get(ID_LITERAL), Long.parseLong(str)));
+        }
+        return cb.or(results.toArray(new Predicate[0]));
     }
 
     private Predicate getNameWhereClause(String name, CriteriaBuilder cb, Root<ProductDetail> root) {
@@ -99,7 +104,7 @@ public class AdminQueryBuilder extends QueryBuilder {
         if (input.split("-").length != 2)
             throw new UnsupportedQueryConfigException();
         String name = input.split("-")[0];
-        String[] values = input.split("-")[1].split("\\+");
+        String[] values = input.split("-")[1].split("\\.");
         if (values.length == 1)
             throw new UnsupportedQueryConfigException();
         Set<String> collect = Arrays.stream(values).map(el -> name + ":" + el).collect(Collectors.toSet());
@@ -112,8 +117,9 @@ public class AdminQueryBuilder extends QueryBuilder {
     private Predicate getAndExpression(String input, CriteriaBuilder cb, Root<ProductDetail> root) {
         if (input.split("-").length != 2)
             throw new UnsupportedQueryConfigException();
+        String replace = input.replace("-", ":");
         Predicate[] predicates = Arrays.stream(attrs)
-                .map(ee -> cb.like(root.get(ee).as(String.class), "%" + input + "%"))
+                .map(ee -> cb.like(root.get(ee).as(String.class), "%" + replace + "%"))
                 .collect(Collectors.toSet()).toArray(Predicate[]::new);
         return cb.or(predicates);
     }

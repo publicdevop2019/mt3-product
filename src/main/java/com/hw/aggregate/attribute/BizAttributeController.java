@@ -16,9 +16,9 @@ public class BizAttributeController {
 
     @GetMapping("admin/attributes")
     public ResponseEntity<?> adminQuery(
-            @RequestParam(name = HTTP_PARAM_SEARCH, required = false) String queryParam,
-            @RequestParam(name = HTTP_PARAM_PAGE, required = false) String pageParam,
-            @RequestParam(name = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
+            @RequestParam(value = HTTP_PARAM_SEARCH, required = false) String queryParam,
+            @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+            @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
         return ResponseEntity.ok(attributeApplicationService.adminQuery(queryParam, pageParam, skipCount));
     }

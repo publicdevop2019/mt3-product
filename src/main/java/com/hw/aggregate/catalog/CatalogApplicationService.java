@@ -17,7 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 @Slf4j
@@ -41,24 +44,34 @@ public class CatalogApplicationService {
 
     @Transactional(readOnly = true)
     public CatalogCustomerSummaryRepresentation customerQuery(String query, String page, String countFlag) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Catalog> query0 = cb.createQuery(Catalog.class);
+        Root<Catalog> root = query0.from(Catalog.class);
+
         PageRequest pageRequest = customerQueryBuilder.getPageRequest(page);
-        Predicate queryClause = customerQueryBuilder.getQueryClause(query);
-        List<Catalog> query1 = repo.query(entityManager, queryClause, pageRequest);
+        Predicate queryClause = customerQueryBuilder.getQueryClause(cb, root, query);
+
+        List<Catalog> query1 = repo.query(entityManager, cb, query0, root, queryClause, pageRequest);
         Long aLong = null;
-        if ("0".equals(countFlag)) {
-            aLong = repo.queryCount(entityManager, queryClause);
+        if (!"0".equals(countFlag)) {
+            aLong = repo.queryCount(entityManager, cb, queryClause);
         }
         return new CatalogCustomerSummaryRepresentation(query1, aLong);
     }
 
     @Transactional(readOnly = true)
     public CatalogAdminSummaryRepresentation adminQuery(String query, String page, String countFlag) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Catalog> query0 = cb.createQuery(Catalog.class);
+        Root<Catalog> root = query0.from(Catalog.class);
+
         PageRequest pageRequest = adminQueryBuilder.getPageRequest(page);
-        Predicate queryClause = adminQueryBuilder.getQueryClause(query);
-        List<Catalog> query1 = repo.query(entityManager, queryClause, pageRequest);
+        Predicate queryClause = adminQueryBuilder.getQueryClause(cb, root, query);
+
+        List<Catalog> query1 = repo.query(entityManager, cb, query0, root, queryClause, pageRequest);
         Long aLong = null;
-        if ("0".equals(countFlag)) {
-            aLong = repo.queryCount(entityManager, queryClause);
+        if (!"0".equals(countFlag)) {
+            aLong = repo.queryCount(entityManager, cb, queryClause);
         }
         return new CatalogAdminSummaryRepresentation(query1, aLong);
     }

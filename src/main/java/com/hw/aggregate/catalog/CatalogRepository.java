@@ -15,12 +15,10 @@ import java.util.stream.Collectors;
 
 @Repository
 public interface CatalogRepository extends JpaRepository<Catalog, Long> {
-    default List<Catalog> query(EntityManager entityManager, Predicate predicate, PageRequest pageRequest) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Catalog> query = cb.createQuery(Catalog.class);
-        Root<Catalog> root = query.from(Catalog.class);
+    default List<Catalog> query(EntityManager entityManager, CriteriaBuilder cb, CriteriaQuery<Catalog> query, Root<Catalog> root, Predicate predicate, PageRequest pageRequest) {
         query.select(root);
-        query.where(predicate);
+        if (predicate != null)
+            query.where(predicate);
         Set<Order> collect = pageRequest.getSort().get().map(e -> {
             if (e.getDirection().isAscending()) {
                 return cb.asc(root.get(e.getProperty()));
@@ -35,12 +33,12 @@ public interface CatalogRepository extends JpaRepository<Catalog, Long> {
         return query1.getResultList();
     }
 
-    default Long queryCount(EntityManager entityManager, Predicate predicate) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    default Long queryCount(EntityManager entityManager, CriteriaBuilder cb, Predicate predicate) {
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<Catalog> from = query.from(Catalog.class);
         query.select(cb.count(from));
-        query.where(predicate);
+        if (predicate != null)
+            query.where(predicate);
         return entityManager.createQuery(query).getSingleResult();
     }
 }

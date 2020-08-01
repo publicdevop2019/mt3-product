@@ -16,7 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 @Service
@@ -60,21 +63,27 @@ public class BizFilterApplicationService {
 
     @Transactional(readOnly = true)
     public BizFilterAdminSummaryRepresentation adminQuery(String query, String page, String countFlag) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<BizFilter> query0 = cb.createQuery(BizFilter.class);
+        Root<BizFilter> root = query0.from(BizFilter.class);
         PageRequest pageRequest = adminQueryBuilder.getPageRequest(page);
-        Predicate queryClause = adminQueryBuilder.getQueryClause(query);
-        List<BizFilter> query1 = repo.query(entityManager, queryClause, pageRequest);
+        Predicate queryClause = adminQueryBuilder.getQueryClause(cb, root, query);
+        List<BizFilter> query1 = repo.query(entityManager, cb, query0, root, queryClause, pageRequest);
         Long aLong = null;
-        if ("0".equals(countFlag)) {
-            aLong = repo.queryCount(entityManager, queryClause);
+        if (!"0".equals(countFlag)) {
+            aLong = repo.queryCount(entityManager, cb, queryClause);
         }
         return new BizFilterAdminSummaryRepresentation(query1, aLong);
     }
 
     @Transactional(readOnly = true)
     public BizFilterCustomerRepresentation customerQuery(String query, String page, String countFlag) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<BizFilter> query0 = cb.createQuery(BizFilter.class);
+        Root<BizFilter> root = query0.from(BizFilter.class);
         PageRequest pageRequest = customerQueryBuilder.getPageRequest(page);
-        Predicate queryClause = customerQueryBuilder.getQueryClause(query);
-        List<BizFilter> bizFilters = repo.query(entityManager, queryClause, pageRequest);
+        Predicate queryClause = customerQueryBuilder.getQueryClause(cb, root, query);
+        List<BizFilter> bizFilters = repo.query(entityManager, cb, query0, root, queryClause, pageRequest);
         if (bizFilters.size() == 0)
             return new BizFilterCustomerRepresentation(null);
         return new BizFilterCustomerRepresentation(bizFilters.get(0));

@@ -1,13 +1,11 @@
 package com.hw.aggregate.filter.model;
 
 import com.hw.shared.QueryBuilder;
-import com.hw.shared.UnsupportedQueryConfigException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
@@ -18,10 +16,7 @@ import static com.hw.aggregate.filter.model.BizFilter.ID_LITERAL;
 import static com.hw.aggregate.filter.model.BizFilter.LINKED_CATALOG_LITERAL;
 
 @Component("filterAdmin")
-public class AdminQueryBuilder extends QueryBuilder {
-
-    @Autowired
-    private EntityManager entityManager;
+public class AdminQueryBuilder extends QueryBuilder<BizFilter> {
 
     AdminQueryBuilder() {
         DEFAULT_PAGE_SIZE = 40;
@@ -32,10 +27,9 @@ public class AdminQueryBuilder extends QueryBuilder {
     }
 
     @Override
-    public Predicate getQueryClause(String search) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<BizFilter> query = cb.createQuery(BizFilter.class);
-        Root<BizFilter> root = query.from(BizFilter.class);
+    public Predicate getQueryClause(CriteriaBuilder cb, Root<BizFilter> root, String search) {
+        if (search == null)
+            return null;
         String[] queryParams = search.split(",");
         List<Predicate> results = new ArrayList<>();
         for (String param : queryParams) {

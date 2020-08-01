@@ -4,18 +4,14 @@ import com.hw.shared.QueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.time.Instant;
 import java.util.HashMap;
 
 @Component("productCustomer")
-public class CustomerQueryBuilder extends QueryBuilder {
-    @Autowired
-    private EntityManager entityManager;
+public class CustomerQueryBuilder extends QueryBuilder<ProductDetail> {
     @Autowired
     private AdminQueryBuilder config;
 
@@ -30,11 +26,10 @@ public class CustomerQueryBuilder extends QueryBuilder {
     }
 
     @Override
-    public Predicate getQueryClause(String search) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<ProductDetail> query = cb.createQuery(ProductDetail.class);
-        Root<ProductDetail> root = query.from(ProductDetail.class);
-        Predicate queryClause = config.getQueryClause(search);
+    public Predicate getQueryClause(CriteriaBuilder cb, Root<ProductDetail> root, String search) {
+        if (search == null)
+            return null;
+        Predicate queryClause = config.getQueryClause(cb, root, search);
         Predicate statusClause = getStatusClause(cb, root);
         return cb.and(queryClause, statusClause);
     }

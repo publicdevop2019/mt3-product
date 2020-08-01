@@ -54,13 +54,10 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
     @Query("UPDATE #{#entityName} as p SET p.totalSales = p.totalSales - ?2 WHERE p.id = ?1 AND p.totalSales - ?2 >= 0")
     Integer decreaseTotalSales(Long id, Integer amount);
 
-    default List<ProductDetail> query(EntityManager entityManager, Predicate predicate, PageRequest pageRequest) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<ProductDetail> query = cb.createQuery(ProductDetail.class);
-        Root<ProductDetail> root = query.from(ProductDetail.class);
+    default List<ProductDetail> query(EntityManager entityManager, CriteriaBuilder cb, CriteriaQuery<ProductDetail> query, Root<ProductDetail> root, Predicate predicate, PageRequest pageRequest) {
         query.select(root);
-        query.where(predicate);
-
+        if (predicate != null)
+            query.where(predicate);
         Set<Order> collect = pageRequest.getSort().get().map(e -> {
             if (e.getDirection().isAscending()) {
                 return cb.asc(root.get(e.getProperty()));
@@ -76,12 +73,12 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
         return query1.getResultList();
     }
 
-    default Long queryCount(EntityManager entityManager, Predicate predicate) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    default Long queryCount(EntityManager entityManager, CriteriaBuilder cb, Predicate predicate) {
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<ProductDetail> from = query.from(ProductDetail.class);
         query.select(cb.count(from));
-        query.where(predicate);
+        if (predicate != null)
+            query.where(predicate);
         return entityManager.createQuery(query).getSingleResult();
     }
 

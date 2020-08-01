@@ -15,12 +15,10 @@ import java.util.stream.Collectors;
 
 @Repository
 public interface BizAttributeRepository extends JpaRepository<BizAttribute, Long> {
-    default List<BizAttribute> query(EntityManager entityManager, Predicate predicate, PageRequest pageRequest) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<BizAttribute> query = cb.createQuery(BizAttribute.class);
-        Root<BizAttribute> root = query.from(BizAttribute.class);
+    default List<BizAttribute> query(EntityManager entityManager, CriteriaBuilder cb, CriteriaQuery<BizAttribute> query, Root<BizAttribute> root, Predicate predicate, PageRequest pageRequest) {
         query.select(root);
-        query.where(predicate);
+        if (predicate != null)
+            query.where(predicate);
         Set<Order> collect = pageRequest.getSort().get().map(e -> {
             if (e.getDirection().isAscending()) {
                 return cb.asc(root.get(e.getProperty()));
@@ -35,12 +33,12 @@ public interface BizAttributeRepository extends JpaRepository<BizAttribute, Long
         return query1.getResultList();
     }
 
-    default Long queryCount(EntityManager entityManager, Predicate predicate) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    default Long queryCount(EntityManager entityManager, CriteriaBuilder cb, Predicate predicate) {
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<BizAttribute> from = query.from(BizAttribute.class);
         query.select(cb.count(from));
-        query.where(predicate);
+        if (predicate != null)
+            query.where(predicate);
         return entityManager.createQuery(query).getSingleResult();
     }
 }

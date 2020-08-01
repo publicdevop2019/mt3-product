@@ -3,10 +3,12 @@ package com.hw.shared;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.Map;
 
-public abstract class QueryBuilder {
+public abstract class QueryBuilder<T> {
     public Integer DEFAULT_PAGE_SIZE;
     public Integer MAX_PAGE_SIZE;
     public Integer DEFAULT_PAGE_NUM = 0;
@@ -14,7 +16,7 @@ public abstract class QueryBuilder {
     public Map<String, String> mappedSortBy;
     public Sort.Direction DEFAULT_SORT_ORDER = Sort.Direction.ASC;
 
-    public abstract Predicate getQueryClause(String search);
+    public abstract Predicate getQueryClause(CriteriaBuilder cb, Root<T> root, String search);
 
     public PageRequest getPageRequest(String page) throws UnsupportedQueryConfigException {
         if (page == null) {

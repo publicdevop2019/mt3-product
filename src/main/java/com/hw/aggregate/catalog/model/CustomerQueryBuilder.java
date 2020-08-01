@@ -4,19 +4,21 @@ import com.hw.shared.QueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.HashMap;
 
 import static com.hw.aggregate.catalog.model.Catalog.ID_LITERAL;
 
 @Component("catalogCustomer")
-public class CustomerQueryBuilder extends QueryBuilder {
+public class CustomerQueryBuilder extends QueryBuilder<Catalog> {
     @Autowired
     private AdminQueryBuilder adminQueryBuilder;
 
     @Override
-    public Predicate getQueryClause(String search) {
-        return adminQueryBuilder.getQueryClause("type:" + CatalogType.FRONTEND.name());
+    public Predicate getQueryClause(CriteriaBuilder cb, Root<Catalog> root, String search) {
+        return adminQueryBuilder.getQueryClause(cb, root, "type:" + CatalogType.FRONTEND.name());
     }
 
     CustomerQueryBuilder() {

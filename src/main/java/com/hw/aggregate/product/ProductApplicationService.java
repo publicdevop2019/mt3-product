@@ -16,7 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 @Slf4j
@@ -49,24 +52,30 @@ public class ProductApplicationService {
 
     @Transactional(readOnly = true)
     public ProductAdminGetAllPaginatedSummaryRepresentation queryForAdmin(String search, String page, String countFlag) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ProductDetail> query0 = cb.createQuery(ProductDetail.class);
+        Root<ProductDetail> root = query0.from(ProductDetail.class);
         PageRequest pageRequest = adminQueryBuilder.getPageRequest(page);
-        Predicate queryClause = adminQueryBuilder.getQueryClause(search);
-        List<ProductDetail> query = repo.query(entityManager, queryClause, pageRequest);
+        Predicate queryClause = adminQueryBuilder.getQueryClause(cb, root, search);
+        List<ProductDetail> query = repo.query(entityManager, cb, query0, root, queryClause, pageRequest);
         Long aLong = null;
-        if ("0".equals(countFlag)) {
-            aLong = repo.queryCount(entityManager, queryClause);
+        if (!"0".equals(countFlag)) {
+            aLong = repo.queryCount(entityManager, cb, queryClause);
         }
         return new ProductAdminGetAllPaginatedSummaryRepresentation(query, aLong);
     }
 
     @Transactional(readOnly = true)
     public ProductCustomerSearchByAttributesSummaryPaginatedRepresentation queryForCustomer(String search, String page, String countFlag) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ProductDetail> query0 = cb.createQuery(ProductDetail.class);
+        Root<ProductDetail> root = query0.from(ProductDetail.class);
         PageRequest pageRequest = customerQueryBuilder.getPageRequest(page);
-        Predicate queryClause = customerQueryBuilder.getQueryClause(search);
-        List<ProductDetail> query = repo.query(entityManager, queryClause, pageRequest);
+        Predicate queryClause = customerQueryBuilder.getQueryClause(cb, root, search);
+        List<ProductDetail> query = repo.query(entityManager, cb, query0, root, queryClause, pageRequest);
         Long aLong = null;
-        if ("0".equals(countFlag)) {
-            aLong = repo.queryCount(entityManager, queryClause);
+        if (!"0".equals(countFlag)) {
+            aLong = repo.queryCount(entityManager, cb, queryClause);
         }
         return new ProductCustomerSearchByAttributesSummaryPaginatedRepresentation(query, aLong);
     }
