@@ -18,8 +18,8 @@ import static com.hw.aggregate.filter.model.BizFilter.LINKED_CATALOG_LITERAL;
 public class CustomerQueryBuilder extends QueryBuilder<BizFilter> {
 
     CustomerQueryBuilder() {
-        DEFAULT_PAGE_SIZE = 40;
-        MAX_PAGE_SIZE = 400;
+        DEFAULT_PAGE_SIZE = 1;
+        MAX_PAGE_SIZE = 5;
         DEFAULT_SORT_BY = "id";
         mappedSortBy = new HashMap<>();
         mappedSortBy.put("id", ID_LITERAL);
@@ -28,17 +28,16 @@ public class CustomerQueryBuilder extends QueryBuilder<BizFilter> {
     @Override
     public Predicate getQueryClause(CriteriaBuilder cb, Root<BizFilter> root, String search) {
         if (search == null)
-            return null;
+            throw new UnsupportedQueryConfigException();
         String[] queryParams = search.split(",");
         List<Predicate> results = new ArrayList<>();
         for (String param : queryParams) {
             String[] split = param.split(":");
-            if (split.length == 2) {
-                if ("catalog".equals(split[0]) && !split[1].isBlank()) {
-                    results.add(cb.like(root.get(LINKED_CATALOG_LITERAL).as(String.class), "%" + split[1] + "%"));
-                }
+            if (split.length == 2 && "catalog".equals(split[0]) && !split[1].isBlank()) {
+                results.add(cb.like(root.get(LINKED_CATALOG_LITERAL).as(String.class), "%" + split[1] + "%"));
+            } else {
+                throw new UnsupportedQueryConfigException();
             }
-            throw new UnsupportedQueryConfigException();
         }
         return cb.and(results.toArray(new Predicate[0]));
     }
