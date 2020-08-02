@@ -67,12 +67,6 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("admin/productDetails/{id}/status")
-    public ResponseEntity<?> updateProductStatusForAdmin(@PathVariable(name = "id") Long id, @RequestParam(value = "status") ProductStatus status) {
-        productService.updateProductStatus(id, status);
-        return ResponseEntity.ok().build();
-    }
-
     @PatchMapping(path = "admin/productDetails/{id}", consumes = "application/json-patch+json")
     public ResponseEntity<?> patchProduct(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch) {
         return ResponseEntity.ok(productService.patchProduct(id, patch));

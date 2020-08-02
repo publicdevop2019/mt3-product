@@ -283,61 +283,6 @@ public class ProductDetail extends Auditable {
         repo.save(this);
     }
 
-    public void updateStatus(ProductStatus status, ProductDetailRepo repo) {
-        Long current = new Date().getTime();
-        if (ProductStatus.AVAILABLE.equals(status)) {
-            //make product available
-            if (this.startAt != null && this.endAt != null) {
-                if (this.startAt.compareTo(current) <= 0 && this.endAt.compareTo(current) > 0) {
-                    //do nothing, product is already available
-                } else {
-                    if (this.startAt.compareTo(current) > 0) {
-                        this.startAt = new Date().getTime();
-                    } else {
-                        //this.endAt.compareTo(current) <= 0
-                        //set endAt to null, user need to manual update endAt
-                        this.endAt = null;
-                    }
-                }
-            } else if (this.startAt != null && this.endAt == null) {
-                if (this.startAt.compareTo(current) >= 0) {
-                    this.startAt = current;
-                } else {
-                    //do nothing
-                }
-            } else if (this.startAt == null && this.endAt == null) {
-                this.startAt = current;
-            } else if (this.startAt == null && this.endAt != null) {
-                this.startAt = current;
-                if (this.endAt.compareTo(current) > 0) {
-                    //do nothing
-                } else {
-                    this.endAt = null;
-                }
-            }
-        } else {
-            //make product unavailable
-            if (this.startAt != null && this.endAt != null) {
-                if (this.startAt.compareTo(current) <= 0 && this.endAt.compareTo(current) > 0) {
-                    this.endAt = current;
-                } else {
-                    if (this.startAt.compareTo(current) > 0) {
-                        this.startAt = null;
-                    } else {
-                        //do nothing
-                    }
-                }
-            } else if (this.startAt != null && this.endAt == null) {
-                this.startAt = null;
-            } else if (this.startAt == null && this.endAt == null) {
-                //do nothing
-            } else if (this.startAt == null && this.endAt != null) {
-                //do nothing
-            }
-        }
-        repo.save(this);
-    }
-
     private void adjustSku(List<UpdateProductAdminCommand.UpdateProductAdminSkuCommand> commands, ProductApplicationService productApplicationService) {
         commands.forEach(command -> {
             if (command.getStorageActual() != null && command.getStorageOrder() != null) {

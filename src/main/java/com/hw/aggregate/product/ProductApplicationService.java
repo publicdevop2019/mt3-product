@@ -156,12 +156,6 @@ public class ProductApplicationService {
     }
 
     @Transactional
-    public void updateProductStatus(Long id, ProductStatus status) {
-        ProductDetail read = ProductDetail.readAdmin(id, repo);
-        read.updateStatus(status, repo);
-    }
-
-    @Transactional
     public ProductDetailAdminRepresentation patchProduct(Long id, JsonPatch patch) {
         ProductDetail original = ProductDetail.readAdmin(id, repo);
         return new ProductDetailAdminRepresentation(ProductDetailPatchMiddleLayer.doPatch(patch, original, om, repo));
