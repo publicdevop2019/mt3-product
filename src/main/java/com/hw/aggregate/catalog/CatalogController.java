@@ -17,7 +17,7 @@ public class CatalogController {
 
     @GetMapping("public/catalogs")
     public ResponseEntity<?> customerQuery(
-            @RequestParam(value = HTTP_PARAM_SEARCH, required = false) String queryParam,
+            @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
@@ -26,7 +26,7 @@ public class CatalogController {
 
     @GetMapping("admin/catalogs")
     public ResponseEntity<?> adminQuery(
-            @RequestParam(value = HTTP_PARAM_SEARCH, required = false) String queryParam,
+            @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {

@@ -15,10 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.List;
 
 @Slf4j
@@ -44,10 +41,16 @@ public class ProductApplicationService {
     private EntityManager entityManager;
 
     @Autowired
-    private CustomerQueryBuilder customerQueryBuilder;
+    private CustomerSelectQueryBuilder customerQueryBuilder;
 
     @Autowired
-    private AdminQueryBuilder adminQueryBuilder;
+    private AdminSelectQueryBuilder adminQueryBuilder;
+
+    @Autowired
+    private AdminUpdateQueryBuilder adminUpdateQueryBuilder;
+
+    @Autowired
+    private AdminDeleteQueryBuilder adminDeleteQueryBuilder;
 
     @Autowired
     private ObjectMapper om;
@@ -161,6 +164,29 @@ public class ProductApplicationService {
         return new ProductDetailAdminRepresentation(ProductDetailPatchMiddleLayer.doPatch(patch, original, om, repo));
     }
 
+    @Transactional
+    public Integer batchUpdateProducts(String search, List<JsonPatchOperationLike> patch) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaUpdate<ProductDetail> criteriaUpdate = cb.createCriteriaUpdate(ProductDetail.class);
+        Root<ProductDetail> root = criteriaUpdate.from(ProductDetail.class);
+        Predicate whereClause = adminUpdateQueryBuilder.getWhereClause(cb, root, search);
+        return repo.update(entityManager, criteriaUpdate, whereClause, patch, adminUpdateQueryBuilder);
+    }
 
+    @Transactional
+    public Integer delete(String search) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        //remove sku constrain first
+        CriteriaDelete<ProductSku> criteriaDeleteSku = cb.createCriteriaDelete(ProductSku.class);
+        Root<ProductSku> rootSku = criteriaDeleteSku.from(ProductSku.class);
+        Predicate skuWhereClause = adminDeleteQueryBuilder.getSkuWhereClause(cb, rootSku, search);
+        Integer deleteSku = repo.delete(entityManager, criteriaDeleteSku, skuWhereClause, adminDeleteQueryBuilder);
+
+        CriteriaDelete<ProductDetail> criteriaDelete = cb.createCriteriaDelete(ProductDetail.class);
+        Root<ProductDetail> root = criteriaDelete.from(ProductDetail.class);
+        Predicate whereClause = adminDeleteQueryBuilder.getWhereClause(cb, root, search);
+        Integer delete = repo.delete(entityManager, criteriaDelete, whereClause, adminDeleteQueryBuilder);
+        return delete;
+    }
 }
 

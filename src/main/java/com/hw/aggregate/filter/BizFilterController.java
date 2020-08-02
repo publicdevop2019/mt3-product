@@ -17,7 +17,7 @@ public class BizFilterController {
 
     @GetMapping("admin/filters")
     public ResponseEntity<?> adminQuery(
-            @RequestParam(value = HTTP_PARAM_SEARCH, required = false) String queryParam,
+            @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
@@ -25,7 +25,7 @@ public class BizFilterController {
     }
 
     @GetMapping("public/filters")
-    public ResponseEntity<?> customerQuery(@RequestParam(value = HTTP_PARAM_SEARCH, required = false) String queryParam,
+    public ResponseEntity<?> customerQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
                                            @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
                                            @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
         return ResponseEntity.ok(bizFilterApplicationService.customerQuery(queryParam, pageParam, skipCount));

@@ -29,7 +29,10 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
             ProductNotAvailableException.class,
             SkuAlreadyExistException.class,
             SkuNotExistException.class,
-            DataPatchException.class
+            ProductDetailPatchException.class,
+            QueryNotFoundException.class,
+            UpdateFieldNotFoundException.class,
+            UpdateFiledValueException.class
     })
     protected ResponseEntity<?> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);

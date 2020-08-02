@@ -1,6 +1,6 @@
 package com.hw.aggregate.catalog.model;
 
-import com.hw.shared.QueryBuilder;
+import com.hw.shared.SelectQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +16,7 @@ import static com.hw.aggregate.catalog.model.Catalog.*;
 
 
 @Component("catalogAdmin")
-public class AdminQueryBuilder extends QueryBuilder<Catalog> {
+public class AdminQueryBuilder extends SelectQueryBuilder<Catalog> {
     @Autowired
     private EntityManager entityManager;
 

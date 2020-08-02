@@ -1,6 +1,6 @@
 package com.hw.aggregate.filter.model;
 
-import com.hw.shared.QueryBuilder;
+import com.hw.shared.SelectQueryBuilder;
 import com.hw.shared.UnsupportedQueryConfigException;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +15,7 @@ import static com.hw.aggregate.filter.model.BizFilter.ID_LITERAL;
 import static com.hw.aggregate.filter.model.BizFilter.LINKED_CATALOG_LITERAL;
 
 @Component("filterCustomer")
-public class CustomerQueryBuilder extends QueryBuilder<BizFilter> {
+public class CustomerQueryBuilder extends SelectQueryBuilder<BizFilter> {
 
     CustomerQueryBuilder() {
         DEFAULT_PAGE_SIZE = 1;

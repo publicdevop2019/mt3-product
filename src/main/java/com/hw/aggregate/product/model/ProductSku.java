@@ -5,9 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Embeddable;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Set;
@@ -16,6 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Entity
 public class ProductSku {
 
     @Convert(converter = StringSetConverter.class)
@@ -24,6 +23,9 @@ public class ProductSku {
     @NotNull
     @Column(updatable = false)
     private Integer storageOrder;
+
+    @Id
+    private Long productId;
 
     @NotNull
     @Column(updatable = false)

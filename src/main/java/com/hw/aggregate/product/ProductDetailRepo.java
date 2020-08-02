@@ -1,5 +1,8 @@
 package com.hw.aggregate.product;
 
+import com.hw.aggregate.product.model.AdminDeleteQueryBuilder;
+import com.hw.aggregate.product.model.AdminUpdateQueryBuilder;
+import com.hw.aggregate.product.model.JsonPatchOperationLike;
 import com.hw.aggregate.product.model.ProductDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -73,6 +76,13 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
         return query1.getResultList();
     }
 
+    default Integer update(EntityManager entityManager, CriteriaUpdate<ProductDetail> criteriaUpdate, Predicate predicate, List<JsonPatchOperationLike> operationLikes, AdminUpdateQueryBuilder adminUpdateQueryBuilder) {
+        if (predicate != null)
+            criteriaUpdate.where(predicate);
+        adminUpdateQueryBuilder.setUpdateValue(criteriaUpdate, operationLikes);
+        return entityManager.createQuery(criteriaUpdate).executeUpdate();
+    }
+
     default Long queryCount(EntityManager entityManager, CriteriaBuilder cb, Predicate predicate) {
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<ProductDetail> from = query.from(ProductDetail.class);
@@ -82,4 +92,9 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
         return entityManager.createQuery(query).getSingleResult();
     }
 
+    default Integer delete(EntityManager entityManager, CriteriaDelete<?> criteriaDelete, Predicate predicate, AdminDeleteQueryBuilder adminDeleteQueryBuilder) {
+        if (predicate != null)
+            criteriaDelete.where(predicate);
+        return entityManager.createQuery(criteriaDelete).executeUpdate();
+    }
 }

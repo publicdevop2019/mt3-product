@@ -1,6 +1,6 @@
 package com.hw.aggregate.product.model;
 
-import com.hw.shared.QueryBuilder;
+import com.hw.shared.SelectQueryBuilder;
 import com.hw.shared.UnsupportedQueryConfigException;
 import org.springframework.stereotype.Component;
 
@@ -14,10 +14,10 @@ import static com.hw.aggregate.product.model.ProductDetail.*;
 
 
 @Component("productAdmin")
-public class AdminQueryBuilder extends QueryBuilder<ProductDetail> {
+public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
     private String[] attrs = {ATTR_KEY_LITERAL, ATTR_PROD_LITERAL, ATTR_GEN_LITERAL, ATTR_SALES_TOTAL_LITERAL};
 
-    AdminQueryBuilder() {
+    AdminSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 40;
         MAX_PAGE_SIZE = 400;
         DEFAULT_SORT_BY = "id";

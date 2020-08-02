@@ -1,6 +1,7 @@
 package com.hw.aggregate.product.model;
 
-import com.hw.shared.QueryBuilder;
+import com.hw.aggregate.product.exception.QueryNotFoundException;
+import com.hw.shared.SelectQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,11 +12,11 @@ import java.time.Instant;
 import java.util.HashMap;
 
 @Component("productCustomer")
-public class CustomerQueryBuilder extends QueryBuilder<ProductDetail> {
+public class CustomerSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
     @Autowired
-    private AdminQueryBuilder config;
+    private AdminSelectQueryBuilder config;
 
-    CustomerQueryBuilder() {
+    CustomerSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 20;
         MAX_PAGE_SIZE = 40;
         DEFAULT_SORT_BY = "name";
@@ -28,7 +29,7 @@ public class CustomerQueryBuilder extends QueryBuilder<ProductDetail> {
     @Override
     public Predicate getQueryClause(CriteriaBuilder cb, Root<ProductDetail> root, String search) {
         if (search == null)
-            return null;
+            throw new QueryNotFoundException();
         Predicate queryClause = config.getQueryClause(cb, root, search);
         Predicate statusClause = getStatusClause(cb, root);
         return cb.and(queryClause, statusClause);

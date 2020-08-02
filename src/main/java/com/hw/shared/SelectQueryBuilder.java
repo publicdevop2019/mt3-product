@@ -8,7 +8,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.Map;
 
-public abstract class QueryBuilder<T> {
+public abstract class SelectQueryBuilder<T> {
     public Integer DEFAULT_PAGE_SIZE;
     public Integer MAX_PAGE_SIZE;
     public Integer DEFAULT_PAGE_NUM = 0;

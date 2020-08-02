@@ -75,7 +75,7 @@ public class ProductDetail extends Auditable {
     public transient static final String ATTR_SALES_TOTAL_LITERAL = "attrSalesTotal";
 
     @ElementCollection
-    @CollectionTable(name = "product_sku_map", joinColumns = @JoinColumn(name = "product_id"), uniqueConstraints = @UniqueConstraint(columnNames = {"attributesSales", "product_id"}))
+    @CollectionTable(name = "product_sku_map", joinColumns = @JoinColumn(name = "product_id"), uniqueConstraints = @UniqueConstraint(columnNames = {"attributes_sales", "product_id"}))
     private List<ProductSku> productSkuList;
 
     @Column(length = 10000)
