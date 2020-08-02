@@ -1,12 +1,11 @@
 package com.hw.aggregate.product;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.attribute.BizAttributeApplicationService;
 import com.hw.aggregate.catalog.CatalogApplicationService;
 import com.hw.aggregate.product.command.*;
-import com.hw.aggregate.product.model.AdminQueryBuilder;
-import com.hw.aggregate.product.model.CustomerQueryBuilder;
-import com.hw.aggregate.product.model.ProductDetail;
-import com.hw.aggregate.product.model.ProductStatus;
+import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.*;
 import com.hw.shared.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +48,9 @@ public class ProductApplicationService {
 
     @Autowired
     private AdminQueryBuilder adminQueryBuilder;
+
+    @Autowired
+    private ObjectMapper om;
 
     @Transactional(readOnly = true)
     public ProductAdminGetAllPaginatedSummaryRepresentation queryForAdmin(String search, String page, String countFlag) {
@@ -158,5 +160,13 @@ public class ProductApplicationService {
         ProductDetail read = ProductDetail.readAdmin(id, repo);
         read.updateStatus(status, repo);
     }
+
+    @Transactional
+    public ProductDetailAdminRepresentation patchProduct(Long id, JsonPatch patch) {
+        ProductDetail original = ProductDetail.readAdmin(id, repo);
+        return new ProductDetailAdminRepresentation(ProductDetailPatchMiddleLayer.doPatch(patch, original, om, repo));
+    }
+
+
 }
 

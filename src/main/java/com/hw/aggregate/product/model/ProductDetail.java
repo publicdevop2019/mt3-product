@@ -24,6 +24,9 @@ import static com.hw.config.AppConstant.ADMIN_ADJUST;
 @Table
 @NoArgsConstructor
 @Slf4j
+//@TODO lowestPrice can only present if sku is empty
+//@TODO if sku is empty then storageOrder, storageActual, lowestPrice, totalSales must present
+//@TODO if storageOrder, storageActual, lowestPrice, totalSales are empty then sku must present
 public class ProductDetail extends Auditable {
     @Id
     private Long id;
@@ -78,15 +81,18 @@ public class ProductDetail extends Auditable {
     @Column(length = 10000)
     private ArrayList<ProductAttrSaleImages> attributeSaleImages;
 
+    @Column(updatable = false)
     private Integer storageOrder;
     public transient static final String STORAGE_ORDER_LITERAL = "storageOrder";
 
+    @Column(updatable = false)
     private Integer storageActual;
     public transient static final String STORAGE_ACTUAL_LITERAL = "storageActual";
 
     private BigDecimal lowestPrice;
     public transient static final String LOWEST_PRICE_LITERAL = "lowestPrice";
 
+    @Column(updatable = false)
     private Integer totalSales;
     public transient static final String TOTAL_SALES_LITERAL = "totalSales";
 

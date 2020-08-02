@@ -14,6 +14,13 @@
         <version>0.0.0a</version>
         <relativePath>./shared/parent-pom.xml</relativePath>
     </parent>
+    <dependencies>
+        <dependency>
+            <groupId>com.github.java-json-tools</groupId>
+            <artifactId>json-patch</artifactId>
+            <version>1.12</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <finalName>Product</finalName>
