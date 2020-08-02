@@ -74,8 +74,7 @@ public class ProductDetail extends Auditable {
     private Set<String> attrSalesTotal;
     public transient static final String ATTR_SALES_TOTAL_LITERAL = "attrSalesTotal";
 
-    @ElementCollection
-    @CollectionTable(name = "product_sku_map", joinColumns = @JoinColumn(name = "product_id"), uniqueConstraints = @UniqueConstraint(columnNames = {"attributes_sales", "product_id"}))
+    @OneToMany(targetEntity = ProductSku.class, mappedBy = "productId", cascade = {CascadeType.ALL})
     private List<ProductSku> productSkuList;
 
     @Column(length = 10000)
