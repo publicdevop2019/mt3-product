@@ -47,9 +47,9 @@ public class AdminUpdateQueryBuilder {
 
     public void setUpdateValue(CriteriaUpdate<ProductDetail> criteriaUpdate, List<JsonPatchOperationLike> operationLikes) {
         List<JsonPatchOperationLike> collect = operationLikes.stream().
-                filter(e -> (e.getOpt().equalsIgnoreCase("remove")
-                        || e.getOpt().equalsIgnoreCase("add")
-                        || e.getOpt().equalsIgnoreCase("replace"))
+                filter(e -> (e.getOp().equalsIgnoreCase("remove")
+                        || e.getOp().equalsIgnoreCase("add")
+                        || e.getOp().equalsIgnoreCase("replace"))
                         && (e.getPath().contains("startAt") || e.getPath().contains("endAt"))
                 ).collect(Collectors.toList());
         if (collect.isEmpty())

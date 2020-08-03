@@ -45,7 +45,8 @@ public class ProductSku {
     public transient static final String SALES_LITERAL = "sales";
 
     @Data
-    public class PK implements Serializable {
+    public static class PK implements Serializable {
+        public PK(){}
         @Column//do not delete
         @Convert(converter = StringSetConverter.class)
         private Set<String> attributesSales;

@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class JsonPatchOperationLike {
-    private String opt;
+    private String op;
     private String path;
     private Object value;
 }
