@@ -46,6 +46,7 @@ public class ProductSku {
 
     @Data
     public static class PK implements Serializable {
+        private static final long serialVersionUID = 1L;
         public PK(){}
         @Column//do not delete
         @Convert(converter = StringSetConverter.class)

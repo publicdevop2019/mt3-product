@@ -383,6 +383,7 @@ public class ProductDetail extends Auditable {
             this.productSkuList = command.getSkus().stream().map(e -> {
                 ProductSku productSku = new ProductSku();
                 productSku.setPrice(e.getPrice());
+                productSku.setProductId(this.id);
                 productSku.setAttributesSales(e.getAttributesSales());
                 productSku.setStorageOrder(e.getStorageOrder());
                 productSku.setStorageActual(e.getStorageActual());
