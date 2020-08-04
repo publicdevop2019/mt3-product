@@ -1,9 +1,12 @@
 package com.hw.aggregate.product.model;
 
 import com.hw.aggregate.product.exception.QueryNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
@@ -13,8 +16,32 @@ import static com.hw.aggregate.product.model.ProductDetail.ID_LITERAL;
 import static com.hw.aggregate.product.model.ProductSku.PRODUCT_ID_LITERAL;
 
 @Component
-public class AdminDeleteQueryBuilder {
-    public Predicate getWhereClause(CriteriaBuilder cb, Root<ProductDetail> root, String search) {
+public class AdminDeleteQuery {
+    @Autowired
+    private EntityManager entityManager;
+    @Autowired
+    private CriteriaBuilder cb;
+
+    public Integer delete(String search) {
+        //remove sku constrain first
+        CriteriaDelete<ProductSku> criteriaDeleteSku = cb.createCriteriaDelete(ProductSku.class);
+        Root<ProductSku> rootSku = criteriaDeleteSku.from(ProductSku.class);
+        Predicate predicate = getSkuWhereClause(cb, rootSku, search);
+
+        if (predicate != null)
+            criteriaDeleteSku.where(predicate);
+        entityManager.createQuery(criteriaDeleteSku).executeUpdate();
+
+        CriteriaDelete<ProductDetail> criteriaDelete = cb.createCriteriaDelete(ProductDetail.class);
+        Root<ProductDetail> root = criteriaDelete.from(ProductDetail.class);
+        Predicate whereClause = getWhereClause(cb, root, search);
+        if (predicate != null)
+            criteriaDelete.where(whereClause);
+        return entityManager.createQuery(criteriaDelete).executeUpdate();
+
+    }
+
+    private Predicate getWhereClause(CriteriaBuilder cb, Root<ProductDetail> root, String search) {
         if (search == null)
             throw new QueryNotFoundException();
         String[] queryParams = search.split(",");
@@ -30,7 +57,7 @@ public class AdminDeleteQueryBuilder {
         return cb.and(results.toArray(new Predicate[0]));
     }
 
-    public Predicate getSkuWhereClause(CriteriaBuilder cb, Root<ProductSku> root, String search) {
+    private Predicate getSkuWhereClause(CriteriaBuilder cb, Root<ProductSku> root, String search) {
         if (search == null)
             throw new QueryNotFoundException();
         String[] queryParams = search.split(",");

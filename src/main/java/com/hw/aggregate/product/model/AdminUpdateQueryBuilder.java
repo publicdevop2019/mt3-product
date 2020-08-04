@@ -4,8 +4,10 @@ package com.hw.aggregate.product.model;
 import com.hw.aggregate.product.exception.QueryNotFoundException;
 import com.hw.aggregate.product.exception.UpdateFieldNotFoundException;
 import com.hw.aggregate.product.exception.UpdateFiledValueException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Predicate;
@@ -18,9 +20,24 @@ import java.util.stream.Collectors;
 import static com.hw.aggregate.product.model.ProductDetail.*;
 
 @Component
-public class AdminUpdateQueryBuilder {
+public class AdminUpdateQueryBuilder implements QueryBuilder {
+    @Autowired
+    private EntityManager entityManager;
+    @Autowired
+    private CriteriaBuilder cb;
 
-    public Predicate getWhereClause(CriteriaBuilder cb, Root<ProductDetail> root, String search) {
+    public Integer update(String search, List<JsonPatchOperationLike> likes) {
+        CriteriaUpdate<ProductDetail> criteriaUpdate = cb.createCriteriaUpdate(ProductDetail.class);
+        Root<ProductDetail> root = criteriaUpdate.from(ProductDetail.class);
+        Predicate whereClause = getWhereClause(cb, root, search);
+
+        if (whereClause != null)
+            criteriaUpdate.where(whereClause);
+        setUpdateValue(criteriaUpdate, likes);
+        return entityManager.createQuery(criteriaUpdate).executeUpdate();
+    }
+
+    private Predicate getWhereClause(CriteriaBuilder cb, Root<ProductDetail> root, String search) {
         if (search == null)
             throw new QueryNotFoundException();
         String[] queryParams = search.split(",");
@@ -45,7 +62,7 @@ public class AdminUpdateQueryBuilder {
         return cb.or(results.toArray(new Predicate[0]));
     }
 
-    public void setUpdateValue(CriteriaUpdate<ProductDetail> criteriaUpdate, List<JsonPatchOperationLike> operationLikes) {
+    private void setUpdateValue(CriteriaUpdate<ProductDetail> criteriaUpdate, List<JsonPatchOperationLike> operationLikes) {
         List<JsonPatchOperationLike> collect = operationLikes.stream().
                 filter(e -> (e.getOp().equalsIgnoreCase("remove")
                         || e.getOp().equalsIgnoreCase("add")

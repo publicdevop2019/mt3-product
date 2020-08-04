@@ -3,11 +3,10 @@ package com.hw.aggregate.product;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.product.command.*;
 import com.hw.aggregate.product.model.JsonPatchOperationLike;
-import com.hw.aggregate.product.representation.ProductAdminGetAllPaginatedSummaryRepresentation;
-import com.hw.aggregate.product.representation.ProductCustomerSearchByAttributesSummaryPaginatedRepresentation;
+import com.hw.aggregate.product.representation.ProductAdminSumPagedRep;
+import com.hw.aggregate.product.representation.ProductCustomerSumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +23,7 @@ public class ProductController {
     private ProductApplicationService productService;
 
     @GetMapping("public/productDetails")
-    public ResponseEntity<ProductCustomerSearchByAttributesSummaryPaginatedRepresentation> queryForCustomer(
+    public ResponseEntity<ProductCustomerSumPagedRep> queryForCustomer(
             @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
@@ -33,7 +32,7 @@ public class ProductController {
     }
 
     @GetMapping("admin/productDetails")
-    public ResponseEntity<ProductAdminGetAllPaginatedSummaryRepresentation> queryForAdmin(
+    public ResponseEntity<ProductAdminSumPagedRep> queryForAdmin(
             @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipFlag) {
@@ -75,7 +74,7 @@ public class ProductController {
 
     @PatchMapping("admin/productDetails")
     public ResponseEntity<?> batchUpdateProducts(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam, @RequestBody List<JsonPatchOperationLike> patch) {
-        productService.batchUpdateProducts(queryParam,patch);
+        productService.batchUpdateProducts(queryParam, patch);
         return ResponseEntity.ok().build();
     }
 

@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class ProductDetailAdminRepresentation {
+public class ProductDetailAdminRep {
     private Long id;
 
     private String name;
@@ -47,7 +47,7 @@ public class ProductDetailAdminRepresentation {
 
     private Integer sales;
 
-    public ProductDetailAdminRepresentation(ProductDetail productDetail) {
+    public ProductDetailAdminRep(ProductDetail productDetail) {
         this.id = productDetail.getId();
         this.name = productDetail.getName();
         this.imageUrlSmall = productDetail.getImageUrlSmall();

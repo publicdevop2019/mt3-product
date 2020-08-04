@@ -3,9 +3,9 @@ package com.hw.shared;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.List;
 import java.util.Map;
 
 public abstract class SelectQueryBuilder<T> {
@@ -16,9 +16,13 @@ public abstract class SelectQueryBuilder<T> {
     public Map<String, String> mappedSortBy;
     public Sort.Direction DEFAULT_SORT_ORDER = Sort.Direction.ASC;
 
-    public abstract Predicate getQueryClause(CriteriaBuilder cb, Root<T> root, String search);
+    public abstract Predicate getQueryClause(Root<T> root, String search);
 
-    public PageRequest getPageRequest(String page) throws UnsupportedQueryConfigException {
+    public abstract List<T> select(String search, String page);
+
+    public abstract Long selectCount(String search);
+
+    protected PageRequest getPageRequest(String page) throws UnsupportedQueryConfigException {
         if (page == null) {
             Sort sort = new Sort(DEFAULT_SORT_ORDER, mappedSortBy.get(DEFAULT_SORT_BY));
             return PageRequest.of(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE, sort);

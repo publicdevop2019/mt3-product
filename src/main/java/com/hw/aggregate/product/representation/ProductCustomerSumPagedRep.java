@@ -9,17 +9,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-public class ProductCustomerSummaryPaginatedRepresentation {
+public class ProductCustomerSumPagedRep implements SumPagedRep<ProductCustomerSumPagedRep.ProductSearchRepresentation> {
     private List<ProductSearchRepresentation> data = new ArrayList<>();
-    private Long totalProductCount;
+    private Long totalItemCount;
 
-    public ProductCustomerSummaryPaginatedRepresentation(List<ProductDetail> productSimpleList, Long totalItemCount) {
+    public ProductCustomerSumPagedRep(List<ProductDetail> productSimpleList, Long totalItemCount) {
         this.data.addAll(productSimpleList.stream().map(ProductSearchRepresentation::new).collect(Collectors.toList()));
-        this.totalProductCount = totalItemCount;
+        this.totalItemCount = totalItemCount;
     }
 
     @Data
-    private static class ProductSearchRepresentation {
+    protected static class ProductSearchRepresentation {
         private Long id;
         private String name;
         private String imageUrlSmall;

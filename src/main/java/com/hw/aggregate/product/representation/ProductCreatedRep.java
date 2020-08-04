@@ -4,10 +4,10 @@ import com.hw.aggregate.product.model.ProductDetail;
 import lombok.Data;
 
 @Data
-public class ProductCreatedRepresentation {
+public class ProductCreatedRep {
     private String id;
 
-    public ProductCreatedRepresentation(ProductDetail productDetail) {
+    public ProductCreatedRep(ProductDetail productDetail) {
         id = productDetail.getId().toString();
     }
 }

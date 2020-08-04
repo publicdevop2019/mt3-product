@@ -1,6 +1,6 @@
 package com.hw.aggregate.product;
 
-import com.hw.aggregate.product.model.AdminDeleteQueryBuilder;
+import com.hw.aggregate.product.model.AdminDeleteQuery;
 import com.hw.aggregate.product.model.AdminUpdateQueryBuilder;
 import com.hw.aggregate.product.model.JsonPatchOperationLike;
 import com.hw.aggregate.product.model.ProductDetail;
@@ -57,44 +57,45 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
     @Query("UPDATE #{#entityName} as p SET p.totalSales = p.totalSales - ?2 WHERE p.id = ?1 AND p.totalSales - ?2 >= 0")
     Integer decreaseTotalSales(Long id, Integer amount);
 
-    default List<ProductDetail> query(EntityManager entityManager, CriteriaBuilder cb, CriteriaQuery<ProductDetail> query, Root<ProductDetail> root, Predicate predicate, PageRequest pageRequest) {
-        query.select(root);
-        if (predicate != null)
-            query.where(predicate);
-        Set<Order> collect = pageRequest.getSort().get().map(e -> {
-            if (e.getDirection().isAscending()) {
-                return cb.asc(root.get(e.getProperty()));
-            } else {
-                return cb.desc(root.get(e.getProperty()));
-            }
-        }).collect(Collectors.toSet());
-        query.orderBy(collect.toArray(Order[]::new));
+//    default List<ProductDetail> select(EntityManager entityManager, CriteriaBuilder cb, CriteriaQuery<ProductDetail> query, Root<ProductDetail> root, Predicate predicate, PageRequest pageRequest) {
+//        query.select(root);
+//        if (predicate != null)
+//            query.where(predicate);
+//        Set<Order> collect = pageRequest.getSort().get().map(e -> {
+//            if (e.getDirection().isAscending()) {
+//                return cb.asc(root.get(e.getProperty()));
+//            } else {
+//                return cb.desc(root.get(e.getProperty()));
+//            }
+//        }).collect(Collectors.toSet());
+//        query.orderBy(collect.toArray(Order[]::new));
+//
+//        TypedQuery<ProductDetail> query1 = entityManager.createQuery(query)
+//                .setFirstResult(BigDecimal.valueOf(pageRequest.getOffset()).intValue())
+//                .setMaxResults(pageRequest.getPageSize());
+//        return query1.getResultList();
+//    }
+//
+//    default Long selectCount(EntityManager entityManager, CriteriaBuilder cb, Predicate predicate) {
+//        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+//        Root<ProductDetail> from = query.from(ProductDetail.class);
+//        query.select(cb.count(from));
+//        if (predicate != null)
+//            query.where(predicate);
+//        return entityManager.createQuery(query).getSingleResult();
+//    }
 
-        TypedQuery<ProductDetail> query1 = entityManager.createQuery(query)
-                .setFirstResult(BigDecimal.valueOf(pageRequest.getOffset()).intValue())
-                .setMaxResults(pageRequest.getPageSize());
-        return query1.getResultList();
-    }
+//    default Integer update(EntityManager entityManager, CriteriaUpdate<ProductDetail> criteriaUpdate, Predicate predicate, List<JsonPatchOperationLike> operationLikes, AdminUpdateQueryBuilder adminUpdateQueryBuilder) {
+//        if (predicate != null)
+//            criteriaUpdate.where(predicate);
+//        adminUpdateQueryBuilder.setUpdateValue(criteriaUpdate, operationLikes);
+//        return entityManager.createQuery(criteriaUpdate).executeUpdate();
+//    }
 
-    default Integer update(EntityManager entityManager, CriteriaUpdate<ProductDetail> criteriaUpdate, Predicate predicate, List<JsonPatchOperationLike> operationLikes, AdminUpdateQueryBuilder adminUpdateQueryBuilder) {
-        if (predicate != null)
-            criteriaUpdate.where(predicate);
-        adminUpdateQueryBuilder.setUpdateValue(criteriaUpdate, operationLikes);
-        return entityManager.createQuery(criteriaUpdate).executeUpdate();
-    }
 
-    default Long queryCount(EntityManager entityManager, CriteriaBuilder cb, Predicate predicate) {
-        CriteriaQuery<Long> query = cb.createQuery(Long.class);
-        Root<ProductDetail> from = query.from(ProductDetail.class);
-        query.select(cb.count(from));
-        if (predicate != null)
-            query.where(predicate);
-        return entityManager.createQuery(query).getSingleResult();
-    }
-
-    default Integer delete(EntityManager entityManager, CriteriaDelete<?> criteriaDelete, Predicate predicate, AdminDeleteQueryBuilder adminDeleteQueryBuilder) {
-        if (predicate != null)
-            criteriaDelete.where(predicate);
-        return entityManager.createQuery(criteriaDelete).executeUpdate();
-    }
+//    default Integer delete(EntityManager entityManager, CriteriaDelete<?> criteriaDelete, Predicate predicate, AdminDeleteQuery adminDeleteQueryBuilder) {
+//        if (predicate != null)
+//            criteriaDelete.where(predicate);
+//        return entityManager.createQuery(criteriaDelete).executeUpdate();
+//    }
 }

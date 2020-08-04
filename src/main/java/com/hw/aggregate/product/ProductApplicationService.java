@@ -8,14 +8,18 @@ import com.hw.aggregate.product.command.*;
 import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.*;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.SelectQueryBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 @Slf4j
@@ -50,39 +54,29 @@ public class ProductApplicationService {
     private AdminUpdateQueryBuilder adminUpdateQueryBuilder;
 
     @Autowired
-    private AdminDeleteQueryBuilder adminDeleteQueryBuilder;
+    private AdminDeleteQuery adminDeleteQueryBuilder;
 
     @Autowired
     private ObjectMapper om;
 
-    @Transactional(readOnly = true)
-    public ProductAdminGetAllPaginatedSummaryRepresentation queryForAdmin(String search, String page, String countFlag) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<ProductDetail> query0 = cb.createQuery(ProductDetail.class);
-        Root<ProductDetail> root = query0.from(ProductDetail.class);
-        PageRequest pageRequest = adminQueryBuilder.getPageRequest(page);
-        Predicate queryClause = adminQueryBuilder.getQueryClause(cb, root, search);
-        List<ProductDetail> query = repo.query(entityManager, cb, query0, root, queryClause, pageRequest);
-        Long aLong = null;
-        if (!"0".equals(countFlag)) {
-            aLong = repo.queryCount(entityManager, cb, queryClause);
-        }
-        return new ProductAdminGetAllPaginatedSummaryRepresentation(query, aLong);
+    @Autowired
+    private CriteriaBuilder cb;
+
+    @Bean
+    private CriteriaBuilder getCriteriaBuilder() {
+        return entityManager.getCriteriaBuilder();
     }
 
     @Transactional(readOnly = true)
-    public ProductCustomerSearchByAttributesSummaryPaginatedRepresentation queryForCustomer(String search, String page, String countFlag) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<ProductDetail> query0 = cb.createQuery(ProductDetail.class);
-        Root<ProductDetail> root = query0.from(ProductDetail.class);
-        PageRequest pageRequest = customerQueryBuilder.getPageRequest(page);
-        Predicate queryClause = customerQueryBuilder.getQueryClause(cb, root, search);
-        List<ProductDetail> query = repo.query(entityManager, cb, query0, root, queryClause, pageRequest);
-        Long aLong = null;
-        if (!"0".equals(countFlag)) {
-            aLong = repo.queryCount(entityManager, cb, queryClause);
-        }
-        return new ProductCustomerSearchByAttributesSummaryPaginatedRepresentation(query, aLong);
+    public ProductAdminSumPagedRep queryForAdmin(String search, String page, String countFlag) {
+        ProductSumPagedRep query = select(adminQueryBuilder, search, page, countFlag);
+        return new ProductAdminSumPagedRep(query.getData(), query.getTotalItemCount());
+    }
+
+    @Transactional(readOnly = true)
+    public ProductCustomerSumPagedRep queryForCustomer(String search, String page, String countFlag) {
+        ProductSumPagedRep query = select(customerQueryBuilder, search, page, countFlag);
+        return new ProductCustomerSumPagedRep(query.getData(), query.getTotalItemCount());
     }
 
     /**
@@ -92,24 +86,24 @@ public class ProductApplicationService {
      * @return
      */
     @Transactional(readOnly = true)
-    public ProductValidationResultRepresentation validateProduct(List<ProductValidationCommand> commands) {
-        return new ProductValidationResultRepresentation(ProductDetail.validate(commands, repo));
+    public ProductValidationResultRep validateProduct(List<ProductValidationCommand> commands) {
+        return new ProductValidationResultRep(ProductDetail.validate(commands, repo));
     }
 
 
     @Transactional(readOnly = true)
-    public ProductDetailCustomRepresentation getProductByIdForCustomer(Long productDetailId) {
-        return new ProductDetailCustomRepresentation(ProductDetail.readCustomer(productDetailId, repo), attributeApplicationService.adminQuery(null, null, null));
+    public ProductDetailCustomRep getProductByIdForCustomer(Long productDetailId) {
+        return new ProductDetailCustomRep(ProductDetail.readCustomer(productDetailId, repo), attributeApplicationService.adminQuery(null, null, null));
     }
 
     @Transactional(readOnly = true)
-    public ProductDetailAdminRepresentation getProductByIdForAdmin(Long id) {
-        return new ProductDetailAdminRepresentation(ProductDetail.readAdmin(id, repo));
+    public ProductDetailAdminRep getProductByIdForAdmin(Long id) {
+        return new ProductDetailAdminRep(ProductDetail.readAdmin(id, repo));
     }
 
     @Transactional
-    public ProductCreatedRepresentation createProduct(CreateProductAdminCommand command) {
-        return new ProductCreatedRepresentation(ProductDetail.create(idGenerator.getId(), command, repo));
+    public ProductCreatedRep createProduct(CreateProductAdminCommand command) {
+        return new ProductCreatedRep(ProductDetail.create(idGenerator.getId(), command, repo));
     }
 
     @Transactional
@@ -159,34 +153,29 @@ public class ProductApplicationService {
     }
 
     @Transactional
-    public ProductDetailAdminRepresentation patchProduct(Long id, JsonPatch patch) {
+    public ProductDetailAdminRep patchProduct(Long id, JsonPatch patch) {
         ProductDetail original = ProductDetail.readAdmin(id, repo);
-        return new ProductDetailAdminRepresentation(ProductDetailPatchMiddleLayer.doPatch(patch, original, om, repo));
+        return new ProductDetailAdminRep(ProductDetailPatchMiddleLayer.doPatch(patch, original, om, repo));
     }
 
     @Transactional
     public Integer batchUpdateProducts(String search, List<JsonPatchOperationLike> patch) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaUpdate<ProductDetail> criteriaUpdate = cb.createCriteriaUpdate(ProductDetail.class);
-        Root<ProductDetail> root = criteriaUpdate.from(ProductDetail.class);
-        Predicate whereClause = adminUpdateQueryBuilder.getWhereClause(cb, root, search);
-        return repo.update(entityManager, criteriaUpdate, whereClause, patch, adminUpdateQueryBuilder);
+        return adminUpdateQueryBuilder.update(search, patch);
     }
 
     @Transactional
     public Integer delete(String search) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        //remove sku constrain first
-        CriteriaDelete<ProductSku> criteriaDeleteSku = cb.createCriteriaDelete(ProductSku.class);
-        Root<ProductSku> rootSku = criteriaDeleteSku.from(ProductSku.class);
-        Predicate skuWhereClause = adminDeleteQueryBuilder.getSkuWhereClause(cb, rootSku, search);
-        Integer deleteSku = repo.delete(entityManager, criteriaDeleteSku, skuWhereClause, adminDeleteQueryBuilder);
-
-        CriteriaDelete<ProductDetail> criteriaDelete = cb.createCriteriaDelete(ProductDetail.class);
-        Root<ProductDetail> root = criteriaDelete.from(ProductDetail.class);
-        Predicate whereClause = adminDeleteQueryBuilder.getWhereClause(cb, root, search);
-        Integer delete = repo.delete(entityManager, criteriaDelete, whereClause, adminDeleteQueryBuilder);
-        return delete;
+        return adminDeleteQueryBuilder.delete(search);
     }
+
+    private ProductSumPagedRep select(SelectQueryBuilder<ProductDetail> queryBuilder, String search, String page, String countFlag) {
+        List<ProductDetail> query = queryBuilder.select(search, page);
+        Long aLong = null;
+        if (!"0".equals(countFlag)) {
+            aLong = queryBuilder.selectCount(search);
+        }
+        return new ProductSumPagedRep(query, aLong);
+    }
+
 }
 

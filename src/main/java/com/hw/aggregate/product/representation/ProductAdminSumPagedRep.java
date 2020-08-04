@@ -11,17 +11,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class ProductAdminSummaryPaginatedRepresentation {
+public class ProductAdminSumPagedRep implements SumPagedRep<ProductAdminSumPagedRep.ProductAdminCardRepresentation> {
     private List<ProductAdminCardRepresentation> data = new ArrayList<>();
     private Long totalItemCount;
 
-    public ProductAdminSummaryPaginatedRepresentation(List<ProductDetail> data, Long totalItemCount) {
+    public ProductAdminSumPagedRep(List<ProductDetail> data, Long totalItemCount) {
         this.data.addAll(data.stream().map(ProductAdminCardRepresentation::new).collect(Collectors.toList()));
         this.totalItemCount = totalItemCount;
     }
 
     @Data
-    private static class ProductAdminCardRepresentation {
+    protected static class ProductAdminCardRepresentation {
         private Long id;
         private String name;
         private Integer totalSales;
