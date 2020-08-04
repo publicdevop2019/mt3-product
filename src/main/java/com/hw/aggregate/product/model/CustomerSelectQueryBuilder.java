@@ -26,10 +26,10 @@ public class CustomerSelectQueryBuilder extends AdminSelectQueryBuilder {
     }
 
     @Override
-    protected Predicate getQueryClause(Root<ProductDetail> root, String search) {
+    protected Predicate getWhereClause(Root<ProductDetail> root, String search) {
         if (search == null)
             throw new QueryNotFoundException();
-        Predicate queryClause = getQueryClause(root, search);
+        Predicate queryClause = getWhereClause(root, search);
         Predicate statusClause = getStatusClause(cb, root);
         return cb.and(queryClause, statusClause);
     }

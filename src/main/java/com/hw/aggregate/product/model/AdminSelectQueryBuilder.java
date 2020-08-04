@@ -3,13 +3,12 @@ package com.hw.aggregate.product.model;
 import com.hw.shared.SelectQueryBuilder;
 import com.hw.shared.UnsupportedQueryConfigException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
-import java.math.BigDecimal;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,11 +18,11 @@ import static com.hw.aggregate.product.model.ProductDetail.*;
 @Component("productAdmin")
 public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
     @Autowired
-    private EntityManager entityManager;
+    private EntityManager em;
     @Autowired
     private CriteriaBuilder cb;
 
-    private String[] attrs = {ATTR_KEY_LITERAL, ATTR_PROD_LITERAL, ATTR_GEN_LITERAL, ATTR_SALES_TOTAL_LITERAL};
+    private final String[] attrs = {ATTR_KEY_LITERAL, ATTR_PROD_LITERAL, ATTR_GEN_LITERAL, ATTR_SALES_TOTAL_LITERAL};
 
     AdminSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 40;
@@ -37,41 +36,8 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
         mappedSortBy.put("expireDate", END_AT_LITERAL);
     }
 
-    public List<ProductDetail> select(String search, String page) {
-        CriteriaQuery<ProductDetail> query = cb.createQuery(ProductDetail.class);
-        Root<ProductDetail> root = query.from(ProductDetail.class);
-        PageRequest pageRequest = getPageRequest(page);
-        Predicate queryClause = getQueryClause(root, search);
-        query.select(root);
-        if (queryClause != null)
-            query.where(queryClause);
-        Set<Order> collect = pageRequest.getSort().get().map(e -> {
-            if (e.getDirection().isAscending()) {
-                return cb.asc(root.get(e.getProperty()));
-            } else {
-                return cb.desc(root.get(e.getProperty()));
-            }
-        }).collect(Collectors.toSet());
-        query.orderBy(collect.toArray(Order[]::new));
-
-        TypedQuery<ProductDetail> query1 = entityManager.createQuery(query)
-                .setFirstResult(BigDecimal.valueOf(pageRequest.getOffset()).intValue())
-                .setMaxResults(pageRequest.getPageSize());
-        return query1.getResultList();
-    }
-
-    public Long selectCount(String search) {
-        CriteriaQuery<Long> query = cb.createQuery(Long.class);
-        Root<ProductDetail> root = query.from(ProductDetail.class);
-        Predicate queryClause = getQueryClause(root, search);
-        query.select(cb.count(root));
-        if (queryClause != null)
-            query.where(queryClause);
-        return entityManager.createQuery(query).getSingleResult();
-    }
-
     @Override
-    protected Predicate getQueryClause(Root<ProductDetail> root, String search) {
+    protected Predicate getWhereClause(Root<ProductDetail> root, String search) {
         if (search == null)
             return null;
         String[] queryParams = search.split(",");

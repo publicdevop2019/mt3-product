@@ -74,7 +74,7 @@ public class ProductController {
 
     @PatchMapping("admin/productDetails")
     public ResponseEntity<?> batchUpdateProducts(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam, @RequestBody List<JsonPatchOperationLike> patch) {
-        productService.batchUpdate(queryParam, patch);
+        productService.update(queryParam, patch);
         return ResponseEntity.ok().build();
     }
 

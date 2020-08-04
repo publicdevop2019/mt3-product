@@ -4,6 +4,7 @@ package com.hw.aggregate.product.model;
 import com.hw.aggregate.product.exception.QueryNotFoundException;
 import com.hw.aggregate.product.exception.UpdateFieldNotFoundException;
 import com.hw.aggregate.product.exception.UpdateFiledValueException;
+import com.hw.shared.UpdateQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,24 +21,13 @@ import java.util.stream.Collectors;
 import static com.hw.aggregate.product.model.ProductDetail.*;
 
 @Component
-public class AdminUpdateQueryBuilder{
+public class AdminUpdateQueryBuilder extends UpdateQueryBuilder<ProductDetail> {
     @Autowired
     private EntityManager entityManager;
     @Autowired
     private CriteriaBuilder cb;
 
-    public Integer update(String search, List<JsonPatchOperationLike> likes) {
-        CriteriaUpdate<ProductDetail> criteriaUpdate = cb.createCriteriaUpdate(ProductDetail.class);
-        Root<ProductDetail> root = criteriaUpdate.from(ProductDetail.class);
-        Predicate whereClause = getWhereClause(cb, root, search);
-
-        if (whereClause != null)
-            criteriaUpdate.where(whereClause);
-        setUpdateValue(criteriaUpdate, likes);
-        return entityManager.createQuery(criteriaUpdate).executeUpdate();
-    }
-
-    private Predicate getWhereClause(CriteriaBuilder cb, Root<ProductDetail> root, String search) {
+    protected Predicate getWhereClause(CriteriaBuilder cb, Root<ProductDetail> root, String search) {
         if (search == null)
             throw new QueryNotFoundException();
         String[] queryParams = search.split(",");
@@ -53,16 +43,7 @@ public class AdminUpdateQueryBuilder{
         return cb.and(results.toArray(new Predicate[0]));
     }
 
-    private Predicate getIdWhereClause(String s, CriteriaBuilder cb, Root<ProductDetail> root) {
-        String[] split = s.split("\\.");
-        List<Predicate> results = new ArrayList<>();
-        for (String str : split) {
-            results.add(cb.equal(root.get(ID_LITERAL), Long.parseLong(str)));
-        }
-        return cb.or(results.toArray(new Predicate[0]));
-    }
-
-    private void setUpdateValue(CriteriaUpdate<ProductDetail> criteriaUpdate, List<JsonPatchOperationLike> operationLikes) {
+    protected void setUpdateValue(CriteriaUpdate<ProductDetail> criteriaUpdate, List<JsonPatchOperationLike> operationLikes) {
         List<JsonPatchOperationLike> collect = operationLikes.stream().
                 filter(e -> (e.getOp().equalsIgnoreCase("remove")
                         || e.getOp().equalsIgnoreCase("add")
@@ -87,6 +68,15 @@ public class AdminUpdateQueryBuilder{
                 }
             }
         });
+    }
+
+    private Predicate getIdWhereClause(String s, CriteriaBuilder cb, Root<ProductDetail> root) {
+        String[] split = s.split("\\.");
+        List<Predicate> results = new ArrayList<>();
+        for (String str : split) {
+            results.add(cb.equal(root.get(ID_LITERAL), Long.parseLong(str)));
+        }
+        return cb.or(results.toArray(new Predicate[0]));
     }
 
     private Long parseLong(Object input) {

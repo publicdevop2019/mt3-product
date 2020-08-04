@@ -126,8 +126,8 @@ public class ProductApplicationService {
     }
 
     @Transactional
-    public ProductAdminSumPagedRep batchUpdate(String search, List<JsonPatchOperationLike> patch) {
-        return new ProductAdminSumPagedRep(adminUpdateQueryBuilder.update(search, patch).longValue());
+    public ProductAdminSumPagedRep update(String search, List<JsonPatchOperationLike> patch) {
+        return new ProductAdminSumPagedRep(adminUpdateQueryBuilder.update(search, patch, ProductDetail.class).longValue());
     }
 
     @Transactional
@@ -136,10 +136,10 @@ public class ProductApplicationService {
     }
 
     private ProductSumPagedRep select(SelectQueryBuilder<ProductDetail> queryBuilder, String search, String page, String countFlag) {
-        List<ProductDetail> query = queryBuilder.select(search, page);
+        List<ProductDetail> query = queryBuilder.select(search, page, ProductDetail.class);
         Long aLong = null;
         if (!"0".equals(countFlag)) {
-            aLong = queryBuilder.selectCount(search);
+            aLong = queryBuilder.selectCount(search, ProductDetail.class);
         }
         return new ProductSumPagedRep(query, aLong);
     }

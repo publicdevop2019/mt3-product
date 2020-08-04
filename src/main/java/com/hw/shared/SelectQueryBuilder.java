@@ -3,10 +3,14 @@ package com.hw.shared;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class SelectQueryBuilder<T> {
     protected Integer DEFAULT_PAGE_SIZE;
@@ -15,14 +19,45 @@ public abstract class SelectQueryBuilder<T> {
     protected String DEFAULT_SORT_BY;
     protected Map<String, String> mappedSortBy;
     protected Sort.Direction DEFAULT_SORT_ORDER = Sort.Direction.ASC;
+    protected CriteriaBuilder cb;
+    protected EntityManager em;
 
-    public abstract List<T> select(String search, String page);
+    protected abstract Predicate getWhereClause(Root<T> root, String search);
 
-    public abstract Long selectCount(String search);
+    public List<T> select(String search, String page, Class<T> clazz) {
+        CriteriaQuery<T> query = cb.createQuery(clazz);
+        Root<T> root = query.from(clazz);
+        PageRequest pageRequest = getPageRequest(page);
+        Predicate queryClause = getWhereClause(root, search);
+        query.select(root);
+        if (queryClause != null)
+            query.where(queryClause);
+        Set<Order> collect = pageRequest.getSort().get().map(e -> {
+            if (e.getDirection().isAscending()) {
+                return cb.asc(root.get(e.getProperty()));
+            } else {
+                return cb.desc(root.get(e.getProperty()));
+            }
+        }).collect(Collectors.toSet());
+        query.orderBy(collect.toArray(Order[]::new));
 
-    protected abstract Predicate getQueryClause(Root<T> root, String search);
+        TypedQuery<T> query1 = em.createQuery(query)
+                .setFirstResult(BigDecimal.valueOf(pageRequest.getOffset()).intValue())
+                .setMaxResults(pageRequest.getPageSize());
+        return query1.getResultList();
+    }
 
-    protected PageRequest getPageRequest(String page) throws UnsupportedQueryConfigException {
+    public Long selectCount(String search, Class<T> clazz) {
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<T> root = query.from(clazz);
+        Predicate queryClause = getWhereClause(root, search);
+        query.select(cb.count(root));
+        if (queryClause != null)
+            query.where(queryClause);
+        return em.createQuery(query).getSingleResult();
+    }
+
+    private PageRequest getPageRequest(String page) throws UnsupportedQueryConfigException {
         if (page == null) {
             Sort sort = new Sort(DEFAULT_SORT_ORDER, mappedSortBy.get(DEFAULT_SORT_BY));
             return PageRequest.of(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE, sort);
