@@ -25,17 +25,16 @@ public class CustomerSelectQueryBuilder extends AdminSelectQueryBuilder {
         mappedSortBy.put("sales", "totalSales");
     }
 
-    @Override
-    protected Predicate getWhereClause(Root<ProductDetail> root, String search) {
+    public Predicate getWhereClause(Root<ProductDetail> root, String search) {
         if (search == null)
             throw new QueryNotFoundException();
         Predicate queryClause = getWhereClause(root, search);
-        Predicate statusClause = getStatusClause(cb, root);
+        Predicate statusClause = getStatusClause(root);
         return cb.and(queryClause, statusClause);
     }
 
 
-    private Predicate getStatusClause(CriteriaBuilder cb, Root<ProductDetail> root) {
+    private Predicate getStatusClause(Root<ProductDetail> root) {
         Predicate startAtLessThanOrEqualToCurrentEpochMilli = cb.lessThanOrEqualTo(root.get("startAt").as(Long.class), Instant.now().toEpochMilli());
         Predicate startAtNotNull = cb.isNotNull(root.get("startAt").as(Long.class));
         Predicate and = cb.and(startAtNotNull, startAtLessThanOrEqualToCurrentEpochMilli);

@@ -7,8 +7,9 @@ import com.hw.aggregate.catalog.CatalogApplicationService;
 import com.hw.aggregate.product.command.*;
 import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.*;
+import com.hw.shared.DefaultApplicationService;
+import com.hw.shared.DefaultSumPagedRep;
 import com.hw.shared.IdGenerator;
-import com.hw.shared.SelectQueryBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +22,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class ProductApplicationService {
+public class ProductApplicationService extends DefaultApplicationService {
 
     @Autowired
     private ProductDetailRepo repo;
@@ -51,13 +52,13 @@ public class ProductApplicationService {
     private AdminUpdateQueryBuilder adminUpdateQueryBuilder;
 
     @Autowired
-    private AdminDeleteQueryBuilder adminDeleteQueryBuilder;
+    private AdminProductDetailDeleteQueryBuilder adminDeleteQueryBuilder;
+
+    @Autowired
+    private AdminSkuDeleteQueryBuilder adminSkuDeleteQueryBuilder;
 
     @Autowired
     private ObjectMapper om;
-
-    @Autowired
-    private CriteriaBuilder cb;
 
     @Bean
     private CriteriaBuilder getCriteriaBuilder() {
@@ -66,14 +67,14 @@ public class ProductApplicationService {
 
     @Transactional(readOnly = true)
     public ProductAdminSumPagedRep queryForAdmin(String search, String page, String countFlag) {
-        ProductSumPagedRep query = select(adminQueryBuilder, search, page, countFlag);
-        return new ProductAdminSumPagedRep(query.getData(), query.getTotalItemCount());
+        DefaultSumPagedRep<ProductDetail> select = select(adminQueryBuilder, search, page, countFlag, ProductDetail.class);
+        return new ProductAdminSumPagedRep(select);
     }
 
     @Transactional(readOnly = true)
     public ProductCustomerSumPagedRep queryForCustomer(String search, String page, String countFlag) {
-        ProductSumPagedRep query = select(customerQueryBuilder, search, page, countFlag);
-        return new ProductCustomerSumPagedRep(query.getData(), query.getTotalItemCount());
+        DefaultSumPagedRep<ProductDetail> select = select(customerQueryBuilder, search, page, countFlag, ProductDetail.class);
+        return new ProductCustomerSumPagedRep(select);
     }
 
     /**
@@ -132,17 +133,19 @@ public class ProductApplicationService {
 
     @Transactional
     public Integer delete(String search) {
-        return adminDeleteQueryBuilder.delete(search);
+        //delete sku first
+        adminSkuDeleteQueryBuilder.delete(search, ProductSku.class);
+        return adminDeleteQueryBuilder.delete(search, ProductDetail.class);
     }
 
-    private ProductSumPagedRep select(SelectQueryBuilder<ProductDetail> queryBuilder, String search, String page, String countFlag) {
-        List<ProductDetail> query = queryBuilder.select(search, page, ProductDetail.class);
-        Long aLong = null;
-        if (!"0".equals(countFlag)) {
-            aLong = queryBuilder.selectCount(search, ProductDetail.class);
-        }
-        return new ProductSumPagedRep(query, aLong);
-    }
+//    private ProductSumPagedRep select(SelectQueryBuilder<ProductDetail> queryBuilder, String search, String page, String countFlag) {
+//        List<ProductDetail> query = queryBuilder.select(search, page, ProductDetail.class);
+//        Long aLong = null;
+//        if (!"0".equals(countFlag)) {
+//            aLong = queryBuilder.selectCount(search, ProductDetail.class);
+//        }
+//        return new ProductSumPagedRep(query, aLong);
+//    }
 
     @Transactional
     public void decreaseActualStorageForMappedProducts(DecreaseActualStorageCommand command) {

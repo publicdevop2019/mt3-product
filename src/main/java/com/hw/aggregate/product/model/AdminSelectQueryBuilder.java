@@ -36,8 +36,7 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
         mappedSortBy.put("expireDate", END_AT_LITERAL);
     }
 
-    @Override
-    protected Predicate getWhereClause(Root<ProductDetail> root, String search) {
+    public Predicate getWhereClause(Root<ProductDetail> root, String search) {
         if (search == null)
             return null;
         String[] queryParams = search.split(",");

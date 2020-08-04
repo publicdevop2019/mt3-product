@@ -4,7 +4,6 @@ import com.hw.shared.SelectQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.HashMap;
@@ -16,9 +15,8 @@ public class CustomerQueryBuilder extends SelectQueryBuilder<Catalog> {
     @Autowired
     private AdminQueryBuilder adminQueryBuilder;
 
-    @Override
-    public Predicate getQueryClause(CriteriaBuilder cb, Root<Catalog> root, String search) {
-        return adminQueryBuilder.getQueryClause(cb, root, "type:" + CatalogType.FRONTEND.name());
+    public Predicate getWhereClause(Root<Catalog> root, String search) {
+        return adminQueryBuilder.getWhereClause(root, "type:" + CatalogType.FRONTEND.name());
     }
 
     CustomerQueryBuilder() {

@@ -1,8 +1,10 @@
 package com.hw.aggregate.filter.model;
 
 import com.hw.shared.SelectQueryBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -14,9 +16,13 @@ import static com.hw.aggregate.filter.model.BizFilter.ID_LITERAL;
 import static com.hw.aggregate.filter.model.BizFilter.LINKED_CATALOG_LITERAL;
 
 @Component("filterAdmin")
-public class AdminQueryBuilder extends SelectQueryBuilder<BizFilter> {
+public class AdminSelectQueryBuilder extends SelectQueryBuilder<BizFilter> {
+    @Autowired
+    private EntityManager em;
+    @Autowired
+    private CriteriaBuilder cb;
 
-    AdminQueryBuilder() {
+    AdminSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 40;
         MAX_PAGE_SIZE = 400;
         DEFAULT_SORT_BY = "id";
@@ -24,8 +30,7 @@ public class AdminQueryBuilder extends SelectQueryBuilder<BizFilter> {
         mappedSortBy.put("id", ID_LITERAL);
     }
 
-    @Override
-    public Predicate getQueryClause(CriteriaBuilder cb, Root<BizFilter> root, String search) {
+    public Predicate getWhereClause(Root<BizFilter> root, String search) {
         if (search == null)
             return null;
         String[] queryParams = search.split(",");

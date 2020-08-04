@@ -7,21 +7,17 @@ import com.hw.aggregate.attribute.model.BizAttribute;
 import com.hw.aggregate.attribute.representation.BizAttributeAdminRepresentation;
 import com.hw.aggregate.attribute.representation.BizAttributeCreatedRepresentation;
 import com.hw.aggregate.attribute.representation.BizAttributeSummaryRepresentation;
+import com.hw.shared.DefaultApplicationService;
+import com.hw.shared.DefaultSumPagedRep;
 import com.hw.shared.IdGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import java.util.List;
 
 @Service
-public class BizAttributeApplicationService {
+public class BizAttributeApplicationService extends DefaultApplicationService {
     @Autowired
     private BizAttributeRepository repo;
     @Autowired
@@ -49,19 +45,9 @@ public class BizAttributeApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public BizAttributeSummaryRepresentation adminQuery(String query, String page, String countFlag) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<BizAttribute> query0 = cb.createQuery(BizAttribute.class);
-        Root<BizAttribute> root = query0.from(BizAttribute.class);
-
-        PageRequest pageRequest = adminQueryBuilder.getPageRequest(page);
-        Predicate queryClause = adminQueryBuilder.getQueryClause(cb, root, query);
-        List<BizAttribute> query1 = repo.query(entityManager, cb, query0, root, queryClause, pageRequest);
-        Long aLong = null;
-        if (!"0".equals(countFlag)) {
-            aLong = repo.queryCount(entityManager, cb, queryClause);
-        }
-        return new BizAttributeSummaryRepresentation(query1, aLong);
+    public BizAttributeSummaryRepresentation adminQuery(String search, String page, String countFlag) {
+        DefaultSumPagedRep<BizAttribute> select = select(adminQueryBuilder, search, page, countFlag, BizAttribute.class);
+        return new BizAttributeSummaryRepresentation(select);
     }
 
     @Transactional(readOnly = true)

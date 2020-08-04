@@ -2,8 +2,10 @@ package com.hw.aggregate.filter.model;
 
 import com.hw.shared.SelectQueryBuilder;
 import com.hw.shared.UnsupportedQueryConfigException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -16,6 +18,10 @@ import static com.hw.aggregate.filter.model.BizFilter.LINKED_CATALOG_LITERAL;
 
 @Component("filterCustomer")
 public class CustomerQueryBuilder extends SelectQueryBuilder<BizFilter> {
+    @Autowired
+    private EntityManager em;
+    @Autowired
+    private CriteriaBuilder cb;
 
     CustomerQueryBuilder() {
         DEFAULT_PAGE_SIZE = 1;
@@ -25,8 +31,7 @@ public class CustomerQueryBuilder extends SelectQueryBuilder<BizFilter> {
         mappedSortBy.put("id", ID_LITERAL);
     }
 
-    @Override
-    public Predicate getQueryClause(CriteriaBuilder cb, Root<BizFilter> root, String search) {
+    public Predicate getWhereClause(Root<BizFilter> root, String search) {
         if (search == null)
             throw new UnsupportedQueryConfigException();
         String[] queryParams = search.split(",");

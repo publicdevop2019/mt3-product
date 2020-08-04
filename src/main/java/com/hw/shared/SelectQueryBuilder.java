@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class SelectQueryBuilder<T> {
+public abstract class SelectQueryBuilder<T> implements WhereClause<T> {
     protected Integer DEFAULT_PAGE_SIZE;
     protected Integer MAX_PAGE_SIZE;
     protected Integer DEFAULT_PAGE_NUM = 0;
@@ -21,8 +21,6 @@ public abstract class SelectQueryBuilder<T> {
     protected Sort.Direction DEFAULT_SORT_ORDER = Sort.Direction.ASC;
     protected CriteriaBuilder cb;
     protected EntityManager em;
-
-    protected abstract Predicate getWhereClause(Root<T> root, String search);
 
     public List<T> select(String search, String page, Class<T> clazz) {
         CriteriaQuery<T> query = cb.createQuery(clazz);

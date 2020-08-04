@@ -2,13 +2,15 @@ package com.hw.aggregate.filter;
 
 import com.hw.aggregate.filter.command.CreateBizFilterCommand;
 import com.hw.aggregate.filter.command.UpdateBizFilterCommand;
-import com.hw.aggregate.filter.model.AdminQueryBuilder;
+import com.hw.aggregate.filter.model.AdminSelectQueryBuilder;
 import com.hw.aggregate.filter.model.BizFilter;
 import com.hw.aggregate.filter.model.CustomerQueryBuilder;
 import com.hw.aggregate.filter.representation.BizFilterAdminRepresentation;
 import com.hw.aggregate.filter.representation.BizFilterAdminSummaryRepresentation;
 import com.hw.aggregate.filter.representation.BizFilterCreatedRepresentation;
 import com.hw.aggregate.filter.representation.BizFilterCustomerRepresentation;
+import com.hw.shared.DefaultApplicationService;
+import com.hw.shared.DefaultSumPagedRep;
 import com.hw.shared.IdGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +25,7 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 
 @Service
-public class BizFilterApplicationService {
+public class BizFilterApplicationService extends DefaultApplicationService {
     @Autowired
     private BizFilterRepository repo;
 
@@ -34,7 +36,7 @@ public class BizFilterApplicationService {
     private EntityManager entityManager;
 
     @Autowired
-    private AdminQueryBuilder adminQueryBuilder;
+    private AdminSelectQueryBuilder adminQueryBuilder;
 
     @Autowired
     private CustomerQueryBuilder customerQueryBuilder;
@@ -62,30 +64,14 @@ public class BizFilterApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public BizFilterAdminSummaryRepresentation adminQuery(String query, String page, String countFlag) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<BizFilter> query0 = cb.createQuery(BizFilter.class);
-        Root<BizFilter> root = query0.from(BizFilter.class);
-        PageRequest pageRequest = adminQueryBuilder.getPageRequest(page);
-        Predicate queryClause = adminQueryBuilder.getQueryClause(cb, root, query);
-        List<BizFilter> query1 = repo.query(entityManager, cb, query0, root, queryClause, pageRequest);
-        Long aLong = null;
-        if (!"0".equals(countFlag)) {
-            aLong = repo.queryCount(entityManager, cb, queryClause);
-        }
-        return new BizFilterAdminSummaryRepresentation(query1, aLong);
+    public BizFilterAdminSummaryRepresentation adminQuery(String search, String page, String countFlag) {
+        DefaultSumPagedRep<BizFilter> select1 = select(adminQueryBuilder, search, page, countFlag, BizFilter.class);
+        return new BizFilterAdminSummaryRepresentation(select1);
     }
 
     @Transactional(readOnly = true)
-    public BizFilterCustomerRepresentation customerQuery(String query, String page, String countFlag) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<BizFilter> query0 = cb.createQuery(BizFilter.class);
-        Root<BizFilter> root = query0.from(BizFilter.class);
-        PageRequest pageRequest = customerQueryBuilder.getPageRequest(page);
-        Predicate queryClause = customerQueryBuilder.getQueryClause(cb, root, query);
-        List<BizFilter> bizFilters = repo.query(entityManager, cb, query0, root, queryClause, pageRequest);
-        if (bizFilters.size() == 0)
-            return new BizFilterCustomerRepresentation(null);
-        return new BizFilterCustomerRepresentation(bizFilters.get(0));
+    public BizFilterCustomerRepresentation customerQuery(String search, String page, String countFlag) {
+        DefaultSumPagedRep<BizFilter> select1 = select(customerQueryBuilder, search, page, countFlag, BizFilter.class);
+        return new BizFilterCustomerRepresentation(select1);
     }
 }

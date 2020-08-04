@@ -9,23 +9,19 @@ import com.hw.aggregate.catalog.representation.CatalogAdminRepresentation;
 import com.hw.aggregate.catalog.representation.CatalogAdminSummaryRepresentation;
 import com.hw.aggregate.catalog.representation.CatalogCreatedRepresentation;
 import com.hw.aggregate.catalog.representation.CatalogCustomerSummaryRepresentation;
+import com.hw.shared.DefaultApplicationService;
+import com.hw.shared.DefaultSumPagedRep;
 import com.hw.shared.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import java.util.List;
 
 @Slf4j
 @Service
-public class CatalogApplicationService {
+public class CatalogApplicationService extends DefaultApplicationService {
 
     @Autowired
     private CatalogRepository repo;
@@ -43,37 +39,15 @@ public class CatalogApplicationService {
     private AdminQueryBuilder adminQueryBuilder;
 
     @Transactional(readOnly = true)
-    public CatalogCustomerSummaryRepresentation customerQuery(String query, String page, String countFlag) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Catalog> query0 = cb.createQuery(Catalog.class);
-        Root<Catalog> root = query0.from(Catalog.class);
-
-        PageRequest pageRequest = customerQueryBuilder.getPageRequest(page);
-        Predicate queryClause = customerQueryBuilder.getQueryClause(cb, root, query);
-
-        List<Catalog> query1 = repo.query(entityManager, cb, query0, root, queryClause, pageRequest);
-        Long aLong = null;
-        if (!"0".equals(countFlag)) {
-            aLong = repo.queryCount(entityManager, cb, queryClause);
-        }
-        return new CatalogCustomerSummaryRepresentation(query1, aLong);
+    public CatalogCustomerSummaryRepresentation customerQuery(String search, String page, String countFlag) {
+        DefaultSumPagedRep<Catalog> select = select(customerQueryBuilder, search, page, countFlag, Catalog.class);
+        return new CatalogCustomerSummaryRepresentation(select);
     }
 
     @Transactional(readOnly = true)
-    public CatalogAdminSummaryRepresentation adminQuery(String query, String page, String countFlag) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Catalog> query0 = cb.createQuery(Catalog.class);
-        Root<Catalog> root = query0.from(Catalog.class);
-
-        PageRequest pageRequest = adminQueryBuilder.getPageRequest(page);
-        Predicate queryClause = adminQueryBuilder.getQueryClause(cb, root, query);
-
-        List<Catalog> query1 = repo.query(entityManager, cb, query0, root, queryClause, pageRequest);
-        Long aLong = null;
-        if (!"0".equals(countFlag)) {
-            aLong = repo.queryCount(entityManager, cb, queryClause);
-        }
-        return new CatalogAdminSummaryRepresentation(query1, aLong);
+    public CatalogAdminSummaryRepresentation adminQuery(String search, String page, String countFlag) {
+        DefaultSumPagedRep<Catalog> select = select(adminQueryBuilder, search, page, countFlag, Catalog.class);
+        return new CatalogAdminSummaryRepresentation(select);
     }
 
     @Transactional

@@ -23,11 +23,11 @@ import static com.hw.aggregate.product.model.ProductDetail.*;
 @Component
 public class AdminUpdateQueryBuilder extends UpdateQueryBuilder<ProductDetail> {
     @Autowired
-    private EntityManager entityManager;
+    private EntityManager em;
     @Autowired
     private CriteriaBuilder cb;
 
-    protected Predicate getWhereClause(CriteriaBuilder cb, Root<ProductDetail> root, String search) {
+    public Predicate getWhereClause(Root<ProductDetail> root, String search) {
         if (search == null)
             throw new QueryNotFoundException();
         String[] queryParams = search.split(",");

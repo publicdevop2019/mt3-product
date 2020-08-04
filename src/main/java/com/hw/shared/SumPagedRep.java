@@ -1,4 +1,4 @@
-package com.hw.aggregate.product.representation;
+package com.hw.shared;
 
 import java.util.List;
 
