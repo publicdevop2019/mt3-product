@@ -11,9 +11,9 @@ import java.util.List;
 
 public abstract class UpdateQueryBuilder<T> implements WhereClause<T> {
     protected EntityManager em;
-    protected CriteriaBuilder cb;
 
     public Integer update(String search, List<JsonPatchOperationLike> likes, Class<T> clazz) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaUpdate<T> criteriaUpdate = cb.createCriteriaUpdate(clazz);
         Root<T> root = criteriaUpdate.from(clazz);
         Predicate whereClause = getWhereClause(root, search);

@@ -19,10 +19,10 @@ public abstract class SelectQueryBuilder<T> implements WhereClause<T> {
     protected String DEFAULT_SORT_BY;
     protected Map<String, String> mappedSortBy;
     protected Sort.Direction DEFAULT_SORT_ORDER = Sort.Direction.ASC;
-    protected CriteriaBuilder cb;
     protected EntityManager em;
 
     public List<T> select(String search, String page, Class<T> clazz) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<T> query = cb.createQuery(clazz);
         Root<T> root = query.from(clazz);
         PageRequest pageRequest = getPageRequest(page);
@@ -46,6 +46,7 @@ public abstract class SelectQueryBuilder<T> implements WhereClause<T> {
     }
 
     public Long selectCount(String search, Class<T> clazz) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<T> root = query.from(clazz);
         Predicate queryClause = getWhereClause(root, search);

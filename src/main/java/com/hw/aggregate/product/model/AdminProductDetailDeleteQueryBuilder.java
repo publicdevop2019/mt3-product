@@ -18,10 +18,9 @@ import static com.hw.aggregate.product.model.ProductDetail.ID_LITERAL;
 public class AdminProductDetailDeleteQueryBuilder extends DeleteQueryBuilder<ProductDetail> {
     @Autowired
     private EntityManager em;
-    @Autowired
-    private CriteriaBuilder cb;
 
     public Predicate getWhereClause(Root<ProductDetail> root, String search) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
         if (search == null)
             throw new QueryNotFoundException();
         String[] queryParams = search.split(",");

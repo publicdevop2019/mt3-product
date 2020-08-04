@@ -12,12 +12,10 @@ import com.hw.shared.DefaultSumPagedRep;
 import com.hw.shared.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.List;
 
 @Slf4j
@@ -59,11 +57,6 @@ public class ProductApplicationService extends DefaultApplicationService {
 
     @Autowired
     private ObjectMapper om;
-
-    @Bean
-    private CriteriaBuilder getCriteriaBuilder() {
-        return entityManager.getCriteriaBuilder();
-    }
 
     @Transactional(readOnly = true)
     public ProductAdminSumPagedRep queryForAdmin(String search, String page, String countFlag) {

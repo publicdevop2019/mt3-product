@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class AdminQueryBuilder extends SelectQueryBuilder<Catalog> {
     private EntityManager entityManager;
 
     public Predicate getWhereClause(Root<Catalog> root, String search) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
         if (search == null)
             return null;
         String[] queryParams = search.split(",");

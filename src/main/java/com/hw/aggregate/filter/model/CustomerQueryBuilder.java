@@ -20,8 +20,6 @@ import static com.hw.aggregate.filter.model.BizFilter.LINKED_CATALOG_LITERAL;
 public class CustomerQueryBuilder extends SelectQueryBuilder<BizFilter> {
     @Autowired
     private EntityManager em;
-    @Autowired
-    private CriteriaBuilder cb;
 
     CustomerQueryBuilder() {
         DEFAULT_PAGE_SIZE = 1;
@@ -32,6 +30,7 @@ public class CustomerQueryBuilder extends SelectQueryBuilder<BizFilter> {
     }
 
     public Predicate getWhereClause(Root<BizFilter> root, String search) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
         if (search == null)
             throw new UnsupportedQueryConfigException();
         String[] queryParams = search.split(",");

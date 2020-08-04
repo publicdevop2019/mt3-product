@@ -18,9 +18,7 @@ import static com.hw.aggregate.product.model.ProductDetail.*;
 @Component("productAdmin")
 public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
     @Autowired
-    private EntityManager em;
-    @Autowired
-    private CriteriaBuilder cb;
+    protected EntityManager em;
 
     private final String[] attrs = {ATTR_KEY_LITERAL, ATTR_PROD_LITERAL, ATTR_GEN_LITERAL, ATTR_SALES_TOTAL_LITERAL};
 
@@ -37,6 +35,7 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
     }
 
     public Predicate getWhereClause(Root<ProductDetail> root, String search) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
         if (search == null)
             return null;
         String[] queryParams = search.split(",");
