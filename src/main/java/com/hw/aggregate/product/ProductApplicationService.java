@@ -17,9 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.List;
 
 @Slf4j
@@ -54,7 +51,7 @@ public class ProductApplicationService {
     private AdminUpdateQueryBuilder adminUpdateQueryBuilder;
 
     @Autowired
-    private AdminDeleteQuery adminDeleteQueryBuilder;
+    private AdminDeleteQueryBuilder adminDeleteQueryBuilder;
 
     @Autowired
     private ObjectMapper om;
@@ -107,13 +104,44 @@ public class ProductApplicationService {
     }
 
     @Transactional
-    public void updateProduct(Long id, UpdateProductAdminCommand command) {
+    public void update(Long id, UpdateProductAdminCommand command) {
         ProductDetail.readAdmin(id, repo).update(command, this, repo);
     }
 
     @Transactional
     public void delete(Long id) {
         ProductDetail.delete(id, repo);
+    }
+
+    @Transactional
+    public void rollbackTx(String txId) {
+        log.info("start of rollback transaction {}", txId);
+        productServiceLambda.rollbackTx.accept(txId);
+    }
+
+    @Transactional
+    public ProductDetailAdminRep patch(Long id, JsonPatch patch) {
+        ProductDetail original = ProductDetail.readAdmin(id, repo);
+        return new ProductDetailAdminRep(ProductDetailPatchMiddleLayer.doPatch(patch, original, om, repo));
+    }
+
+    @Transactional
+    public ProductAdminSumPagedRep batchUpdate(String search, List<JsonPatchOperationLike> patch) {
+        return new ProductAdminSumPagedRep(adminUpdateQueryBuilder.update(search, patch).longValue());
+    }
+
+    @Transactional
+    public Integer delete(String search) {
+        return adminDeleteQueryBuilder.delete(search);
+    }
+
+    private ProductSumPagedRep select(SelectQueryBuilder<ProductDetail> queryBuilder, String search, String page, String countFlag) {
+        List<ProductDetail> query = queryBuilder.select(search, page);
+        Long aLong = null;
+        if (!"0".equals(countFlag)) {
+            aLong = queryBuilder.selectCount(search);
+        }
+        return new ProductSumPagedRep(query, aLong);
     }
 
     @Transactional
@@ -137,44 +165,8 @@ public class ProductApplicationService {
     }
 
     @Transactional
-    public void increaseActualStorageForMappedProducts(IncreaseActualStorageCommand command) {
-        productServiceLambda.increaseActualStorageForMappedProducts.accept(command);
-    }
-
-    @Transactional
     public void increaseActualStorageForMappedProductsAdmin(IncreaseActualStorageCommand command) {
         productServiceLambda.adminIncreaseActualStorageForMappedProducts.accept(command);
-    }
-
-    @Transactional
-    public void rollbackTx(String txId) {
-        log.info("start of rollback transaction {}", txId);
-        productServiceLambda.rollbackTx.accept(txId);
-    }
-
-    @Transactional
-    public ProductDetailAdminRep patchProduct(Long id, JsonPatch patch) {
-        ProductDetail original = ProductDetail.readAdmin(id, repo);
-        return new ProductDetailAdminRep(ProductDetailPatchMiddleLayer.doPatch(patch, original, om, repo));
-    }
-
-    @Transactional
-    public Integer batchUpdateProducts(String search, List<JsonPatchOperationLike> patch) {
-        return adminUpdateQueryBuilder.update(search, patch);
-    }
-
-    @Transactional
-    public Integer delete(String search) {
-        return adminDeleteQueryBuilder.delete(search);
-    }
-
-    private ProductSumPagedRep select(SelectQueryBuilder<ProductDetail> queryBuilder, String search, String page, String countFlag) {
-        List<ProductDetail> query = queryBuilder.select(search, page);
-        Long aLong = null;
-        if (!"0".equals(countFlag)) {
-            aLong = queryBuilder.selectCount(search);
-        }
-        return new ProductSumPagedRep(query, aLong);
     }
 
 }

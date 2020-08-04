@@ -63,18 +63,18 @@ public class ProductController {
 
     @PutMapping("admin/productDetails/{id}")
     public ResponseEntity<?> updateProductForAdmin(@PathVariable(name = "id") Long id, @RequestBody UpdateProductAdminCommand newProductDetail) {
-        productService.updateProduct(id, newProductDetail);
+        productService.update(id, newProductDetail);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping(path = "admin/productDetails/{id}", consumes = "application/json-patch+json")
     public ResponseEntity<?> patchProduct(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch) {
-        return ResponseEntity.ok(productService.patchProduct(id, patch));
+        return ResponseEntity.ok(productService.patch(id, patch));
     }
 
     @PatchMapping("admin/productDetails")
     public ResponseEntity<?> batchUpdateProducts(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam, @RequestBody List<JsonPatchOperationLike> patch) {
-        productService.batchUpdateProducts(queryParam, patch);
+        productService.batchUpdate(queryParam, patch);
         return ResponseEntity.ok().build();
     }
 

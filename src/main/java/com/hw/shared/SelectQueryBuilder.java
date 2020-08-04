@@ -9,18 +9,18 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class SelectQueryBuilder<T> {
-    public Integer DEFAULT_PAGE_SIZE;
-    public Integer MAX_PAGE_SIZE;
-    public Integer DEFAULT_PAGE_NUM = 0;
-    public String DEFAULT_SORT_BY;
-    public Map<String, String> mappedSortBy;
-    public Sort.Direction DEFAULT_SORT_ORDER = Sort.Direction.ASC;
-
-    public abstract Predicate getQueryClause(Root<T> root, String search);
+    protected Integer DEFAULT_PAGE_SIZE;
+    protected Integer MAX_PAGE_SIZE;
+    protected Integer DEFAULT_PAGE_NUM = 0;
+    protected String DEFAULT_SORT_BY;
+    protected Map<String, String> mappedSortBy;
+    protected Sort.Direction DEFAULT_SORT_ORDER = Sort.Direction.ASC;
 
     public abstract List<T> select(String search, String page);
 
     public abstract Long selectCount(String search);
+
+    protected abstract Predicate getQueryClause(Root<T> root, String search);
 
     protected PageRequest getPageRequest(String page) throws UnsupportedQueryConfigException {
         if (page == null) {

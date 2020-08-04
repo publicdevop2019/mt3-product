@@ -16,7 +16,7 @@ import static com.hw.aggregate.product.model.ProductDetail.ID_LITERAL;
 import static com.hw.aggregate.product.model.ProductSku.PRODUCT_ID_LITERAL;
 
 @Component
-public class AdminDeleteQuery {
+public class AdminDeleteQueryBuilder {
     @Autowired
     private EntityManager entityManager;
     @Autowired

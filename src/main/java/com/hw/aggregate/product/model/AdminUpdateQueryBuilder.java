@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import static com.hw.aggregate.product.model.ProductDetail.*;
 
 @Component
-public class AdminUpdateQueryBuilder implements QueryBuilder {
+public class AdminUpdateQueryBuilder{
     @Autowired
     private EntityManager entityManager;
     @Autowired

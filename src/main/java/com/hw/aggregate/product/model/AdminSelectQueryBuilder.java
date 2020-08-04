@@ -71,7 +71,7 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
     }
 
     @Override
-    public Predicate getQueryClause(Root<ProductDetail> root, String search) {
+    protected Predicate getQueryClause(Root<ProductDetail> root, String search) {
         if (search == null)
             return null;
         String[] queryParams = search.split(",");

@@ -1,7 +1,6 @@
 package com.hw.aggregate.product.model;
 
 import com.hw.aggregate.product.exception.QueryNotFoundException;
-import com.hw.shared.SelectQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,9 +11,9 @@ import java.time.Instant;
 import java.util.HashMap;
 
 @Component("productCustomer")
-public class CustomerSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
+public class CustomerSelectQueryBuilder extends AdminSelectQueryBuilder {
     @Autowired
-    private AdminSelectQueryBuilder config;
+    private CriteriaBuilder cb;
 
     CustomerSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 20;
@@ -27,13 +26,14 @@ public class CustomerSelectQueryBuilder extends SelectQueryBuilder<ProductDetail
     }
 
     @Override
-    public Predicate getQueryClause(CriteriaBuilder cb, Root<ProductDetail> root, String search) {
+    protected Predicate getQueryClause(Root<ProductDetail> root, String search) {
         if (search == null)
             throw new QueryNotFoundException();
-        Predicate queryClause = config.getQueryClause(cb, root, search);
+        Predicate queryClause = getQueryClause(root, search);
         Predicate statusClause = getStatusClause(cb, root);
         return cb.and(queryClause, statusClause);
     }
+
 
     private Predicate getStatusClause(CriteriaBuilder cb, Root<ProductDetail> root) {
         Predicate startAtLessThanOrEqualToCurrentEpochMilli = cb.lessThanOrEqualTo(root.get("startAt").as(Long.class), Instant.now().toEpochMilli());

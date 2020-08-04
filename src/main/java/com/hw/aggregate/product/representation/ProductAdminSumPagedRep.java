@@ -20,6 +20,10 @@ public class ProductAdminSumPagedRep implements SumPagedRep<ProductAdminSumPaged
         this.totalItemCount = totalItemCount;
     }
 
+    public ProductAdminSumPagedRep(Long totalItemCount) {
+        this.totalItemCount = totalItemCount;
+    }
+
     @Data
     protected static class ProductAdminCardRepresentation {
         private Long id;
