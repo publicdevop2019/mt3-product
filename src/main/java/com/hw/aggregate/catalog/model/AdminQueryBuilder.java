@@ -18,7 +18,9 @@ import static com.hw.aggregate.catalog.model.Catalog.*;
 @Component("catalogAdmin")
 public class AdminQueryBuilder extends SelectQueryBuilder<Catalog> {
     @Autowired
-    private EntityManager entityManager;
+    private void setEntityManager(EntityManager entityManager) {
+        em = entityManager;
+    }
 
     public Predicate getWhereClause(Root<Catalog> root, String search) {
         CriteriaBuilder cb = em.getCriteriaBuilder();

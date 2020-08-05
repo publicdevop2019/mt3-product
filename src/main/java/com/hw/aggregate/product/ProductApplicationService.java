@@ -84,7 +84,7 @@ public class ProductApplicationService extends DefaultApplicationService {
 
     @Transactional(readOnly = true)
     public ProductDetailCustomRep getProductByIdForCustomer(Long productDetailId) {
-        return new ProductDetailCustomRep(ProductDetail.readCustomer(productDetailId, repo), attributeApplicationService.adminQuery(null, null, null));
+        return new ProductDetailCustomRep(ProductDetail.readCustomer(productDetailId, repo), attributeApplicationService.adminQuery(null, null, "0"));
     }
 
     @Transactional(readOnly = true)

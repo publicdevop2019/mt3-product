@@ -17,7 +17,9 @@ import static com.hw.aggregate.product.model.ProductSku.PRODUCT_ID_LITERAL;
 @Component
 public class AdminSkuDeleteQueryBuilder extends DeleteQueryBuilder<ProductSku> {
     @Autowired
-    private EntityManager em;
+    private void setEntityManager(EntityManager entityManager) {
+        em = entityManager;
+    }
 
     public Predicate getWhereClause(Root<ProductSku> root, String search) {
         CriteriaBuilder cb = em.getCriteriaBuilder();

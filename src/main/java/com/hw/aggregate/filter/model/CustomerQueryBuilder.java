@@ -19,7 +19,9 @@ import static com.hw.aggregate.filter.model.BizFilter.LINKED_CATALOG_LITERAL;
 @Component("filterCustomer")
 public class CustomerQueryBuilder extends SelectQueryBuilder<BizFilter> {
     @Autowired
-    private EntityManager em;
+    private void setEntityManager(EntityManager entityManager) {
+        em = entityManager;
+    }
 
     CustomerQueryBuilder() {
         DEFAULT_PAGE_SIZE = 1;

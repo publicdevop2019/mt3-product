@@ -18,8 +18,9 @@ import static com.hw.aggregate.product.model.ProductDetail.*;
 @Component("productAdmin")
 public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
     @Autowired
-    protected EntityManager em;
-
+    private void setEntityManager(EntityManager entityManager) {
+        em = entityManager;
+    }
     private final String[] attrs = {ATTR_KEY_LITERAL, ATTR_PROD_LITERAL, ATTR_GEN_LITERAL, ATTR_SALES_TOTAL_LITERAL};
 
     AdminSelectQueryBuilder() {

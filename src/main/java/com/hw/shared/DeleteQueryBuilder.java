@@ -7,7 +7,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 public abstract class DeleteQueryBuilder<T> implements WhereClause<T> {
-    private EntityManager em;
+    protected EntityManager em;
 
     public Integer delete(String search, Class<T> clazz) {
         CriteriaBuilder cb = em.getCriteriaBuilder();

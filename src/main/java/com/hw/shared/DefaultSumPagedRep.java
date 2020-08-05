@@ -10,6 +10,7 @@ public class DefaultSumPagedRep<T> implements SumPagedRep<T> {
     private Long totalItemCount;
 
     public DefaultSumPagedRep(List<T> data, Long aLong) {
-
+        this.data=data;
+        this.totalItemCount=aLong;
     }
 }

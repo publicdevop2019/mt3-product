@@ -5,6 +5,7 @@ import com.hw.shared.SelectQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -16,6 +17,11 @@ public class CustomerSelectQueryBuilder extends SelectQueryBuilder<ProductDetail
 
     @Autowired
     private AdminSelectQueryBuilder adminSelectQueryBuilder;
+
+    @Autowired
+    private void setEntityManager(EntityManager entityManager) {
+        em = entityManager;
+    }
 
     CustomerSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 20;

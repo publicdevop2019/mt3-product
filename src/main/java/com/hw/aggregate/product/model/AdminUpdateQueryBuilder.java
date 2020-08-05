@@ -23,7 +23,9 @@ import static com.hw.aggregate.product.model.ProductDetail.*;
 @Component
 public class AdminUpdateQueryBuilder extends UpdateQueryBuilder<ProductDetail> {
     @Autowired
-    private EntityManager em;
+    private void setEntityManager(EntityManager entityManager) {
+        em = entityManager;
+    }
 
     public Predicate getWhereClause(Root<ProductDetail> root, String search) {
         CriteriaBuilder cb = em.getCriteriaBuilder();

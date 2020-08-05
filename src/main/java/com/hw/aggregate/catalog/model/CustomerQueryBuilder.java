@@ -4,6 +4,7 @@ import com.hw.shared.SelectQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.HashMap;
@@ -14,7 +15,10 @@ import static com.hw.aggregate.catalog.model.Catalog.ID_LITERAL;
 public class CustomerQueryBuilder extends SelectQueryBuilder<Catalog> {
     @Autowired
     private AdminQueryBuilder adminQueryBuilder;
-
+    @Autowired
+    private void setEntityManager(EntityManager entityManager) {
+        em = entityManager;
+    }
     public Predicate getWhereClause(Root<Catalog> root, String search) {
         return adminQueryBuilder.getWhereClause(root, "type:" + CatalogType.FRONTEND.name());
     }
