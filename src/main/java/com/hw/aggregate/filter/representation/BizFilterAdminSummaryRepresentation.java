@@ -1,7 +1,6 @@
 package com.hw.aggregate.filter.representation;
 
 import com.hw.aggregate.filter.model.BizFilter;
-import com.hw.shared.DefaultSumPagedRep;
 import com.hw.shared.SumPagedRep;
 import lombok.Data;
 
@@ -10,14 +9,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class BizFilterAdminSummaryRepresentation implements SumPagedRep<BizFilterAdminSummaryRepresentation.BizFilterItemCardRepresentation> {
-    private List<BizFilterItemCardRepresentation> data;
-    private Long totalItemCount;
+public class BizFilterAdminSummaryRepresentation extends SumPagedRep<BizFilterAdminSummaryRepresentation.BizFilterItemCardRepresentation> {
 
-    public BizFilterAdminSummaryRepresentation(DefaultSumPagedRep<BizFilter> select1) {
+    public BizFilterAdminSummaryRepresentation(SumPagedRep<BizFilter> select1) {
         this.data = select1.getData().stream().map(BizFilterItemCardRepresentation::new).collect(Collectors.toList());
         this.totalItemCount = select1.getTotalItemCount();
-
     }
 
     @Data

@@ -1,27 +1,22 @@
 package com.hw.aggregate.product.representation;
 
 import com.hw.aggregate.product.model.ProductDetail;
-import com.hw.shared.DefaultSumPagedRep;
 import com.hw.shared.SumPagedRep;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-public class ProductCustomerSumPagedRep{
-    private List<ProductSearchRepresentation> data = new ArrayList<>();
-    private Long totalItemCount;
+public class ProductCustomerSumPagedRep extends SumPagedRep<ProductCustomerSumPagedRep.ProductSearchRepresentation> {
 
-    public ProductCustomerSumPagedRep(DefaultSumPagedRep<ProductDetail> select) {
+    public ProductCustomerSumPagedRep(SumPagedRep<ProductDetail> select) {
         this.data.addAll(select.getData().stream().map(ProductSearchRepresentation::new).collect(Collectors.toList()));
         this.totalItemCount = select.getTotalItemCount();
     }
 
     @Data
-    private static class ProductSearchRepresentation {
+    protected static class ProductSearchRepresentation {
         private Long id;
         private String name;
         private String imageUrlSmall;

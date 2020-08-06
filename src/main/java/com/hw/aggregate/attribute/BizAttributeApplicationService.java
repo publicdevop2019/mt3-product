@@ -8,7 +8,7 @@ import com.hw.aggregate.attribute.representation.BizAttributeAdminRepresentation
 import com.hw.aggregate.attribute.representation.BizAttributeCreatedRepresentation;
 import com.hw.aggregate.attribute.representation.BizAttributeSummaryRepresentation;
 import com.hw.shared.DefaultApplicationService;
-import com.hw.shared.DefaultSumPagedRep;
+import com.hw.shared.SumPagedRep;
 import com.hw.shared.IdGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,7 +46,7 @@ public class BizAttributeApplicationService extends DefaultApplicationService {
 
     @Transactional(readOnly = true)
     public BizAttributeSummaryRepresentation adminQuery(String search, String page, String countFlag) {
-        DefaultSumPagedRep<BizAttribute> select = select(adminQueryBuilder, search, page, countFlag, BizAttribute.class);
+        SumPagedRep<BizAttribute> select = select(adminQueryBuilder, search, page, countFlag, BizAttribute.class);
         return new BizAttributeSummaryRepresentation(select);
     }
 

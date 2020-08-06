@@ -31,7 +31,7 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
             SkuNotExistException.class,
             ProductDetailPatchException.class,
             QueryNotFoundException.class,
-            UpdateFieldNotFoundException.class,
+            UnsupportedPatchOperationException.class,
             UpdateFiledValueException.class
     })
     protected ResponseEntity<?> handle400Exception(RuntimeException ex, WebRequest request) {

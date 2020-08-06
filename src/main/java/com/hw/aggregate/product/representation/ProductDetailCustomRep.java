@@ -1,5 +1,6 @@
 package com.hw.aggregate.product.representation;
 
+import com.hw.aggregate.attribute.BizAttributeApplicationService;
 import com.hw.aggregate.attribute.representation.BizAttributeSummaryRepresentation;
 import com.hw.aggregate.product.exception.AttributeNameNotFoundException;
 import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
@@ -29,7 +30,7 @@ public class ProductDetailCustomRep {
     private Map<String, String> attrIdMap;
     private Integer storage;
 
-    public ProductDetailCustomRep(ProductDetail productDetail, BizAttributeSummaryRepresentation attributeSummaryRepresentation) {
+    public ProductDetailCustomRep(ProductDetail productDetail, BizAttributeApplicationService bizAttributeApplicationService) {
         this.id = productDetail.getId();
         this.name = productDetail.getName();
         this.imageUrlSmall = productDetail.getImageUrlSmall();
@@ -42,7 +43,13 @@ public class ProductDetailCustomRep {
             this.skus = getCustomerSku(productDetail);
             this.attrIdMap = new HashMap<>();
             this.skus.stream().map(ProductSkuCustomerRepresentation::getAttributeSales).flatMap(Collection::stream).collect(Collectors.toList())
-                    .stream().map(e -> e.split(":")[0]).forEach(el -> attrIdMap.put(el, findName(el, attributeSummaryRepresentation)));
+                    .stream().map(e -> e.split(":")[0]).forEach(el -> attrIdMap.put(el, null));
+            String search = "id:" + String.join(".", this.attrIdMap.keySet());
+            String page = "size:" + this.attrIdMap.keySet().size();
+            BizAttributeSummaryRepresentation bizAttributeSummaryRepresentation = bizAttributeApplicationService.adminQuery(search, page, "0");
+            this.attrIdMap.keySet().forEach(e -> {
+                attrIdMap.put(e, findName(e, bizAttributeSummaryRepresentation));
+            });
         } else {
             this.lowestPrice = productDetail.getLowestPrice();
             this.totalSales = productDetail.getTotalSales();
@@ -51,27 +58,6 @@ public class ProductDetailCustomRep {
         if (productDetail.getAttributeSaleImages() != null)
             this.attributeSaleImages = productDetail.getAttributeSaleImages().stream().map(ProductAttrSaleImagesCustomerRepresentation::new).collect(Collectors.toList());
         this.selectedOptions = productDetail.getSelectedOptions();
-    }
-
-    private String findName(String id, BizAttributeSummaryRepresentation attributeSummaryRepresentation) {
-        Optional<BizAttributeSummaryRepresentation.BizAttributeCardRepresentation> first = attributeSummaryRepresentation.getData().stream().filter(e -> e.getId().toString().equals(id)).findFirst();
-        if (first.isEmpty())
-            throw new AttributeNameNotFoundException();
-        return first.get().getName();
-    }
-
-    private List<ProductSkuCustomerRepresentation> getCustomerSku(ProductDetail productDetail) {
-        List<ProductSku> productSkuList = productDetail.getProductSkuList();
-        return productSkuList.stream().map(ProductSkuCustomerRepresentation::new).collect(Collectors.toList());
-    }
-
-    private Integer calcTotalSales(ProductDetail productDetail) {
-        return productDetail.getProductSkuList().stream().map(ProductSku::getSales).reduce(0, Integer::sum);
-    }
-
-    private BigDecimal findLowestPrice(ProductDetail productDetail) {
-        ProductSku productSku = productDetail.getProductSkuList().stream().min(Comparator.comparing(ProductSku::getPrice)).orElseThrow(NoLowestPriceFoundException::new);
-        return productSku.getPrice();
     }
 
     @Data
@@ -97,5 +83,26 @@ public class ProductDetailCustomRep {
             this.attributeSales = productAttrSaleImages.getAttributeSales();
             this.imageUrls = productAttrSaleImages.getImageUrls();
         }
+    }
+
+    private String findName(String id, BizAttributeSummaryRepresentation attributeSummaryRepresentation) {
+        Optional<BizAttributeSummaryRepresentation.BizAttributeCardRepresentation> first = attributeSummaryRepresentation.getData().stream().filter(e -> e.getId().toString().equals(id)).findFirst();
+        if (first.isEmpty())
+            throw new AttributeNameNotFoundException();
+        return first.get().getName();
+    }
+
+    private List<ProductSkuCustomerRepresentation> getCustomerSku(ProductDetail productDetail) {
+        List<ProductSku> productSkuList = productDetail.getProductSkuList();
+        return productSkuList.stream().map(ProductSkuCustomerRepresentation::new).collect(Collectors.toList());
+    }
+
+    private Integer calcTotalSales(ProductDetail productDetail) {
+        return productDetail.getProductSkuList().stream().map(ProductSku::getSales).reduce(0, Integer::sum);
+    }
+
+    private BigDecimal findLowestPrice(ProductDetail productDetail) {
+        ProductSku productSku = productDetail.getProductSkuList().stream().min(Comparator.comparing(ProductSku::getPrice)).orElseThrow(NoLowestPriceFoundException::new);
+        return productSku.getPrice();
     }
 }

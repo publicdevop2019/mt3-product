@@ -8,14 +8,13 @@ import com.hw.aggregate.product.command.*;
 import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.*;
 import com.hw.shared.DefaultApplicationService;
-import com.hw.shared.DefaultSumPagedRep;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 
 @Slf4j
@@ -38,9 +37,6 @@ public class ProductApplicationService extends DefaultApplicationService {
     private IdGenerator idGenerator;
 
     @Autowired
-    private EntityManager entityManager;
-
-    @Autowired
     private CustomerSelectQueryBuilder customerQueryBuilder;
 
     @Autowired
@@ -60,14 +56,24 @@ public class ProductApplicationService extends DefaultApplicationService {
 
     @Transactional(readOnly = true)
     public ProductAdminSumPagedRep queryForAdmin(String search, String page, String countFlag) {
-        DefaultSumPagedRep<ProductDetail> select = select(adminQueryBuilder, search, page, countFlag, ProductDetail.class);
+        SumPagedRep<ProductDetail> select = select(adminQueryBuilder, search, page, countFlag, ProductDetail.class);
         return new ProductAdminSumPagedRep(select);
     }
 
     @Transactional(readOnly = true)
     public ProductCustomerSumPagedRep queryForCustomer(String search, String page, String countFlag) {
-        DefaultSumPagedRep<ProductDetail> select = select(customerQueryBuilder, search, page, countFlag, ProductDetail.class);
+        SumPagedRep<ProductDetail> select = select(customerQueryBuilder, search, page, countFlag, ProductDetail.class);
         return new ProductCustomerSumPagedRep(select);
+    }
+
+    @Transactional(readOnly = true)
+    public ProductDetailCustomRep getProductByIdForCustomer(Long productDetailId) {
+        return new ProductDetailCustomRep(ProductDetail.readCustomer(productDetailId, repo), attributeApplicationService);
+    }
+
+    @Transactional(readOnly = true)
+    public ProductDetailAdminRep getProductByIdForAdmin(Long id) {
+        return new ProductDetailAdminRep(ProductDetail.readAdmin(id, repo));
     }
 
     /**
@@ -79,17 +85,6 @@ public class ProductApplicationService extends DefaultApplicationService {
     @Transactional(readOnly = true)
     public ProductValidationResultRep validateProduct(List<ProductValidationCommand> commands) {
         return new ProductValidationResultRep(ProductDetail.validate(commands, repo));
-    }
-
-
-    @Transactional(readOnly = true)
-    public ProductDetailCustomRep getProductByIdForCustomer(Long productDetailId) {
-        return new ProductDetailCustomRep(ProductDetail.readCustomer(productDetailId, repo), attributeApplicationService.adminQuery(null, null, "0"));
-    }
-
-    @Transactional(readOnly = true)
-    public ProductDetailAdminRep getProductByIdForAdmin(Long id) {
-        return new ProductDetailAdminRep(ProductDetail.readAdmin(id, repo));
     }
 
     @Transactional
@@ -120,8 +115,8 @@ public class ProductApplicationService extends DefaultApplicationService {
     }
 
     @Transactional
-    public ProductAdminSumPagedRep update(String search, List<JsonPatchOperationLike> patch) {
-        return new ProductAdminSumPagedRep(adminUpdateQueryBuilder.update(search, patch, ProductDetail.class).longValue());
+    public ProductAdminSumPagedRep update(List<PatchCommand> patch) {
+        return new ProductAdminSumPagedRep(adminUpdateQueryBuilder.update(patch, ProductDetail.class).longValue());
     }
 
     @Transactional
@@ -130,15 +125,6 @@ public class ProductApplicationService extends DefaultApplicationService {
         adminSkuDeleteQueryBuilder.delete(search, ProductSku.class);
         return adminDeleteQueryBuilder.delete(search, ProductDetail.class);
     }
-
-//    private ProductSumPagedRep select(SelectQueryBuilder<ProductDetail> queryBuilder, String search, String page, String countFlag) {
-//        List<ProductDetail> query = queryBuilder.select(search, page, ProductDetail.class);
-//        Long aLong = null;
-//        if (!"0".equals(countFlag)) {
-//            aLong = queryBuilder.selectCount(search, ProductDetail.class);
-//        }
-//        return new ProductSumPagedRep(query, aLong);
-//    }
 
     @Transactional
     public void decreaseActualStorageForMappedProducts(DecreaseActualStorageCommand command) {

@@ -1,10 +1,20 @@
 package com.hw.shared;
 
+import lombok.Data;
+
+import java.util.ArrayList;
 import java.util.List;
 
-public interface SumPagedRep<T> {
+@Data
+public class SumPagedRep<T> {
+    protected List<T> data=new ArrayList<>();
+    protected Long totalItemCount;
 
-    Long getTotalItemCount();
+    public SumPagedRep(List<T> data, Long aLong) {
+        this.data=data;
+        this.totalItemCount=aLong;
+    }
 
-    List<T> getData();
+    public SumPagedRep() {
+    }
 }

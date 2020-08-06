@@ -2,32 +2,27 @@ package com.hw.aggregate.product.representation;
 
 import com.hw.aggregate.product.model.ProductDetail;
 import com.hw.aggregate.product.model.ProductSku;
-import com.hw.shared.DefaultSumPagedRep;
 import com.hw.shared.SumPagedRep;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class ProductAdminSumPagedRep{
-    private List<ProductAdminCardRepresentation> data = new ArrayList<>();
-    private Long totalItemCount;
-
+public class ProductAdminSumPagedRep extends SumPagedRep<ProductAdminSumPagedRep.ProductAdminCardRepresentation> {
     public ProductAdminSumPagedRep(Long totalItemCount) {
         this.totalItemCount = totalItemCount;
     }
 
-    public ProductAdminSumPagedRep(DefaultSumPagedRep<ProductDetail> select) {
+    public ProductAdminSumPagedRep(SumPagedRep<ProductDetail> select) {
         this.data.addAll(select.getData().stream().map(ProductAdminCardRepresentation::new).collect(Collectors.toList()));
         this.totalItemCount = select.getTotalItemCount();
     }
 
     @Data
-    private static class ProductAdminCardRepresentation {
+    protected static class ProductAdminCardRepresentation {
         private Long id;
         private String name;
         private Integer totalSales;

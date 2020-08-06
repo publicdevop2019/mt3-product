@@ -10,19 +10,13 @@ import com.hw.aggregate.filter.representation.BizFilterAdminSummaryRepresentatio
 import com.hw.aggregate.filter.representation.BizFilterCreatedRepresentation;
 import com.hw.aggregate.filter.representation.BizFilterCustomerRepresentation;
 import com.hw.shared.DefaultApplicationService;
-import com.hw.shared.DefaultSumPagedRep;
+import com.hw.shared.SumPagedRep;
 import com.hw.shared.IdGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import java.util.List;
 
 @Service
 public class BizFilterApplicationService extends DefaultApplicationService {
@@ -65,13 +59,13 @@ public class BizFilterApplicationService extends DefaultApplicationService {
 
     @Transactional(readOnly = true)
     public BizFilterAdminSummaryRepresentation adminQuery(String search, String page, String countFlag) {
-        DefaultSumPagedRep<BizFilter> select1 = select(adminQueryBuilder, search, page, countFlag, BizFilter.class);
+        SumPagedRep<BizFilter> select1 = select(adminQueryBuilder, search, page, countFlag, BizFilter.class);
         return new BizFilterAdminSummaryRepresentation(select1);
     }
 
     @Transactional(readOnly = true)
     public BizFilterCustomerRepresentation customerQuery(String search, String page, String countFlag) {
-        DefaultSumPagedRep<BizFilter> select1 = select(customerQueryBuilder, search, page, countFlag, BizFilter.class);
+        SumPagedRep<BizFilter> select1 = select(customerQueryBuilder, search, page, countFlag, BizFilter.class);
         return new BizFilterCustomerRepresentation(select1);
     }
 }

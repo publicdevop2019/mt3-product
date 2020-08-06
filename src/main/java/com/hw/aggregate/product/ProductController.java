@@ -2,7 +2,7 @@ package com.hw.aggregate.product;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.product.command.*;
-import com.hw.aggregate.product.model.JsonPatchOperationLike;
+import com.hw.aggregate.product.model.PatchCommand;
 import com.hw.aggregate.product.representation.ProductAdminSumPagedRep;
 import com.hw.aggregate.product.representation.ProductCustomerSumPagedRep;
 import lombok.extern.slf4j.Slf4j;
@@ -73,8 +73,8 @@ public class ProductController {
     }
 
     @PatchMapping("admin/productDetails")
-    public ResponseEntity<?> batchUpdateProducts(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam, @RequestBody List<JsonPatchOperationLike> patch) {
-        productService.update(queryParam, patch);
+    public ResponseEntity<?> batchUpdateProducts(@RequestBody List<PatchCommand> patch) {
+        productService.update(patch);
         return ResponseEntity.ok().build();
     }
 

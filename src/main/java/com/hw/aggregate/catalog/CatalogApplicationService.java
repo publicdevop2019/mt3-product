@@ -10,7 +10,7 @@ import com.hw.aggregate.catalog.representation.CatalogAdminSummaryRepresentation
 import com.hw.aggregate.catalog.representation.CatalogCreatedRepresentation;
 import com.hw.aggregate.catalog.representation.CatalogCustomerSummaryRepresentation;
 import com.hw.shared.DefaultApplicationService;
-import com.hw.shared.DefaultSumPagedRep;
+import com.hw.shared.SumPagedRep;
 import com.hw.shared.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,13 +40,13 @@ public class CatalogApplicationService extends DefaultApplicationService {
 
     @Transactional(readOnly = true)
     public CatalogCustomerSummaryRepresentation customerQuery(String search, String page, String countFlag) {
-        DefaultSumPagedRep<Catalog> select = select(customerQueryBuilder, search, page, countFlag, Catalog.class);
+        SumPagedRep<Catalog> select = select(customerQueryBuilder, search, page, countFlag, Catalog.class);
         return new CatalogCustomerSummaryRepresentation(select);
     }
 
     @Transactional(readOnly = true)
     public CatalogAdminSummaryRepresentation adminQuery(String search, String page, String countFlag) {
-        DefaultSumPagedRep<Catalog> select = select(adminQueryBuilder, search, page, countFlag, Catalog.class);
+        SumPagedRep<Catalog> select = select(adminQueryBuilder, search, page, countFlag, Catalog.class);
         return new CatalogAdminSummaryRepresentation(select);
     }
 

@@ -2,7 +2,7 @@ package com.hw.aggregate.catalog.representation;
 
 import com.hw.aggregate.catalog.model.Catalog;
 import com.hw.aggregate.catalog.model.CatalogType;
-import com.hw.shared.DefaultSumPagedRep;
+import com.hw.shared.SumPagedRep;
 import lombok.Data;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public class CatalogAdminSummaryRepresentation {
     private Long totalItemCount;
 
 
-    public CatalogAdminSummaryRepresentation(DefaultSumPagedRep<Catalog> select) {
+    public CatalogAdminSummaryRepresentation(SumPagedRep<Catalog> select) {
         this.data = select.getData().stream().map(CatalogSummaryCardRepresentation::new).collect(Collectors.toList());
         this.totalItemCount = select.getTotalItemCount();
     }

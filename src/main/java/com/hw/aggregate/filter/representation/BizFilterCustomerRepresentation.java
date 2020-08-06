@@ -1,7 +1,7 @@
 package com.hw.aggregate.filter.representation;
 
 import com.hw.aggregate.filter.model.BizFilter;
-import com.hw.shared.DefaultSumPagedRep;
+import com.hw.shared.SumPagedRep;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class BizFilterCustomerRepresentation {
     private List<BizFilterItemCustomerRepresentation> data = new ArrayList<>();
 
-    public BizFilterCustomerRepresentation(DefaultSumPagedRep<BizFilter> select1) {
+    public BizFilterCustomerRepresentation(SumPagedRep<BizFilter> select1) {
         List<BizFilter> data = select1.getData();
         if (data.size() != 0)
             this.data = select1.getData().get(0).getFilterItems().stream().map(BizFilterItemCustomerRepresentation::new).collect(Collectors.toList());

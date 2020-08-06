@@ -3,7 +3,7 @@ package com.hw.aggregate.attribute.representation;
 import com.hw.aggregate.attribute.model.AttributeMethod;
 import com.hw.aggregate.attribute.model.BizAttribute;
 import com.hw.aggregate.attribute.model.BizAttributeType;
-import com.hw.shared.DefaultSumPagedRep;
+import com.hw.shared.SumPagedRep;
 import lombok.Data;
 
 import java.util.List;
@@ -15,7 +15,7 @@ public class BizAttributeSummaryRepresentation {
     private List<BizAttributeCardRepresentation> data;
     private Long totalItemCount;
 
-    public BizAttributeSummaryRepresentation(DefaultSumPagedRep<BizAttribute> select) {
+    public BizAttributeSummaryRepresentation(SumPagedRep<BizAttribute> select) {
 
         this.data = select.getData().stream().map(BizAttributeCardRepresentation::new).collect(Collectors.toList());
         this.totalItemCount = select.getTotalItemCount();
