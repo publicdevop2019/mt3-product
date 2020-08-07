@@ -1,7 +1,9 @@
 package com.hw.shared;
 
+import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.product.model.PatchCommand;
 
+import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaUpdate;
@@ -9,8 +11,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.hw.aggregate.product.model.ProductDetail.ID_LITERAL;
 
 public abstract class UpdateQueryBuilder<T> {
     protected EntityManager em;
@@ -48,14 +48,10 @@ public abstract class UpdateQueryBuilder<T> {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             CriteriaUpdate<T> criteriaUpdate = cb.createCriteriaUpdate(clazz);
             Root<T> root = criteriaUpdate.from(clazz);
-            List<Predicate> results = new ArrayList<>();
-            for (String str : jsonPatchCommandListHashMap.get(e)) {
-                results.add(cb.equal(root.get(ID_LITERAL), Long.parseLong(str)));
-            }
-            Predicate or = cb.or(results.toArray(new Predicate[0]));
+            Predicate or = getWhereClause(root, jsonPatchCommandListHashMap.get(e),e);
             if (or != null)
                 criteriaUpdate.where(or);
-            setUpdateValue(root,criteriaUpdate, e);
+            setUpdateValue(root, criteriaUpdate, e);
             return criteriaUpdate;
         }).collect(Collectors.toList());
         // how to validate number of rows updated ?
@@ -76,5 +72,7 @@ public abstract class UpdateQueryBuilder<T> {
     }
 
     protected abstract void setUpdateValue(Root<T> root, CriteriaUpdate<T> criteriaUpdate, PatchCommand operationLike);
+
+    protected abstract Predicate getWhereClause(Root<T> root, List<String> ids, @Nullable PatchCommand command);
 
 }

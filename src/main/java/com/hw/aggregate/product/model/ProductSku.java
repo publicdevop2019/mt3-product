@@ -20,34 +20,37 @@ import java.util.Set;
 public class ProductSku {
     @Id
     private Set<String> attributesSales;
-    public transient static final String ATTR_SALES_LITERAL = "attributesSales";
+    public transient static final String SKU_ATTR_SALES_LITERAL = "attributesSales";
 
     @NotNull
     @Column(updatable = false)
     private Integer storageOrder;
-    public transient static final String STORAGE_ORDER_LITERAL = "storageOrder";
+    public transient static final String SKU_STORAGE_ORDER_LITERAL = "storageOrder";
 
     @Id
     private Long productId;
-    public transient static final String PRODUCT_ID_LITERAL = "productId";
+    public transient static final String SKU_PRODUCT_ID_LITERAL = "productId";
 
     @NotNull
     @Column(updatable = false)
     private Integer storageActual;
-    public transient static final String STORAGE_ACTUAL_LITERAL = "storageActual";
+    public transient static final String SKU_STORAGE_ACTUAL_LITERAL = "storageActual";
 
     @NotNull
     private BigDecimal price;
-    public transient static final String PRICE_LITERAL = "price";
+    public transient static final String SKU_PRICE_LITERAL = "price";
 
     @Column(updatable = false)
     private Integer sales;
-    public transient static final String SALES_LITERAL = "sales";
+    public transient static final String SKU_SALES_LITERAL = "sales";
 
     @Data
     public static class PK implements Serializable {
         private static final long serialVersionUID = 1L;
-        public PK(){}
+
+        public PK() {
+        }
+
         @Column//do not delete
         @Convert(converter = StringSetConverter.class)
         private Set<String> attributesSales;

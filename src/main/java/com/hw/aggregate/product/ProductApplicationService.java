@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -83,7 +84,7 @@ public class ProductApplicationService {
 
     @Transactional
     public Integer deleteForAdminById(Long id) {
-        productSkuManager.deleteById(RestfulEntityManager.RoleEnum.ADMIN,id.toString(),ProductSku.class);
+        productSkuManager.deleteById(RestfulEntityManager.RoleEnum.ADMIN, id.toString(), ProductSku.class);
         return productDetailManager.deleteById(RestfulEntityManager.RoleEnum.ADMIN, id.toString(), ProductDetail.class);
     }
 
@@ -94,15 +95,18 @@ public class ProductApplicationService {
     }
 
     @Transactional
-    public ProductAdminSumPagedRep patchForAdmin(List<PatchCommand> patch) {
-        Integer update = productDetailManager.update(RestfulEntityManager.RoleEnum.ADMIN, patch, ProductDetail.class);
+    public ProductAdminSumPagedRep patchForAdmin(List<PatchCommand> commands) {
+        List<PatchCommand> hasNestedEntity = commands.stream().filter(e -> e.getPath().contains("/skus")).collect(Collectors.toList());
+        List<PatchCommand> noNestedEntity = commands.stream().filter(e -> !e.getPath().contains("/skus")).collect(Collectors.toList());
+        Integer update1 = productSkuManager.update(RestfulEntityManager.RoleEnum.ADMIN, hasNestedEntity, ProductSku.class);
+        Integer update = productDetailManager.update(RestfulEntityManager.RoleEnum.ADMIN, noNestedEntity, ProductDetail.class);
         return new ProductAdminSumPagedRep(update.longValue());
     }
 
     @Transactional
     public Integer deleteForAdminByQuery(String query) {
         //delete sku first
-        productSkuManager.deleteByQuery(RestfulEntityManager.RoleEnum.ADMIN,query,ProductSku.class);
+        productSkuManager.deleteByQuery(RestfulEntityManager.RoleEnum.ADMIN, query, ProductSku.class);
         return productDetailManager.deleteByQuery(RestfulEntityManager.RoleEnum.ADMIN, query, ProductDetail.class);
     }
 

@@ -14,7 +14,7 @@ public class ProductDetailManager extends RestfulEntityManager<ProductDetail> {
     private AdminSelectQueryBuilder adminQueryBuilder;
 
     @Autowired
-    private AdminUpdateQueryBuilder adminUpdateQueryBuilder;
+    private AdminProductDetailUpdateQueryBuilder adminUpdateQueryBuilder;
 
     @Autowired
     private AdminProductDetailDeleteQueryBuilder adminDeleteQueryBuilder;

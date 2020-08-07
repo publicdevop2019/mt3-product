@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.hw.aggregate.product.model.ProductDetail.*;
+import static com.hw.aggregate.product.representation.ProductDetailAdminRep.*;
 
 
 @Component("productAdmin")
@@ -21,18 +22,19 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
     private void setEntityManager(EntityManager entityManager) {
         em = entityManager;
     }
+
     private final String[] attrs = {ATTR_KEY_LITERAL, ATTR_PROD_LITERAL, ATTR_GEN_LITERAL, ATTR_SALES_TOTAL_LITERAL};
 
     AdminSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 40;
         MAX_PAGE_SIZE = 400;
-        DEFAULT_SORT_BY = "id";
+        DEFAULT_SORT_BY = ADMIN_REP_ID_LITERAL;
         mappedSortBy = new HashMap<>();
-        mappedSortBy.put("id", ID_LITERAL);
-        mappedSortBy.put("name", NAME_LITERAL);
-        mappedSortBy.put("sales", TOTAL_SALES_LITERAL);
-        mappedSortBy.put("price", LOWEST_PRICE_LITERAL);
-        mappedSortBy.put("expireDate", END_AT_LITERAL);
+        mappedSortBy.put(ADMIN_REP_ID_LITERAL, ID_LITERAL);
+        mappedSortBy.put(ADMIN_REP_NAME_LITERAL, NAME_LITERAL);
+        mappedSortBy.put(ADMIN_REP_SALES_LITERAL, TOTAL_SALES_LITERAL);
+        mappedSortBy.put(ADMIN_REP_PRICE_LITERAL, LOWEST_PRICE_LITERAL);
+        mappedSortBy.put(ADMIN_REP_END_AT_LITERAL, END_AT_LITERAL);
     }
 
     public Predicate getWhereClause(Root<ProductDetail> root, String search) {
@@ -56,7 +58,7 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
                 if ("id".equals(split[0]) && !split[1].isBlank()) {
                     results.add(getIdWhereClause(split[1], cb, root));
                 }
-            }else{
+            } else {
                 throw new UnsupportedQueryException();
             }
         }

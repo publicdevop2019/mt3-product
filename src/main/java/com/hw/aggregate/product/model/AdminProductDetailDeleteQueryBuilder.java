@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.hw.aggregate.product.model.ProductDetail.ID_LITERAL;
+import static com.hw.aggregate.product.representation.ProductDetailAdminRep.ADMIN_REP_ID_LITERAL;
 
 @Component
 public class AdminProductDetailDeleteQueryBuilder extends DeleteQueryBuilder<ProductDetail> {
@@ -30,7 +31,7 @@ public class AdminProductDetailDeleteQueryBuilder extends DeleteQueryBuilder<Pro
         for (String param : queryParams) {
             String[] split = param.split(":");
             if (split.length == 2) {
-                if ("id".equals(split[0]) && !split[1].isBlank()) {
+                if (ADMIN_REP_ID_LITERAL.equals(split[0]) && !split[1].isBlank()) {
                     results.add(getIdWhereClause(split[1], cb, root));
                 }
             }

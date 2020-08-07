@@ -12,10 +12,11 @@ import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hw.aggregate.product.model.ProductSku.PRODUCT_ID_LITERAL;
+import static com.hw.aggregate.product.model.ProductSku.SKU_PRODUCT_ID_LITERAL;
+import static com.hw.aggregate.product.representation.ProductDetailAdminRep.ADMIN_REP_ID_LITERAL;
 
 @Component
-public class AdminSkuDeleteQueryBuilder extends DeleteQueryBuilder<ProductSku> {
+public class AdminProductSkuDeleteQueryBuilder extends DeleteQueryBuilder<ProductSku> {
     @Autowired
     private void setEntityManager(EntityManager entityManager) {
         em = entityManager;
@@ -30,19 +31,19 @@ public class AdminSkuDeleteQueryBuilder extends DeleteQueryBuilder<ProductSku> {
         for (String param : queryParams) {
             String[] split = param.split(":");
             if (split.length == 2) {
-                if ("id".equals(split[0]) && !split[1].isBlank()) {
-                    results.add(getSkuWhereClause(split[1], cb, root));
+                if (ADMIN_REP_ID_LITERAL.equals(split[0]) && !split[1].isBlank()) {
+                    results.add(getIdWhereClause(split[1], cb, root));
                 }
             }
         }
         return cb.and(results.toArray(new Predicate[0]));
     }
 
-    private Predicate getSkuWhereClause(String s, CriteriaBuilder cb, Root<ProductSku> root) {
+    private Predicate getIdWhereClause(String s, CriteriaBuilder cb, Root<ProductSku> root) {
         String[] split = s.split("\\.");
         List<Predicate> results = new ArrayList<>();
         for (String str : split) {
-            results.add(cb.equal(root.get(PRODUCT_ID_LITERAL), Long.parseLong(str)));
+            results.add(cb.equal(root.get(SKU_PRODUCT_ID_LITERAL), Long.parseLong(str)));
         }
         return cb.or(results.toArray(new Predicate[0]));
     }

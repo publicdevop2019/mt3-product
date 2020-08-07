@@ -9,11 +9,15 @@ import javax.annotation.PostConstruct;
 public class ProductSkuManager extends RestfulEntityManager<ProductSku> {
 
     @Autowired
-    private AdminSkuDeleteQueryBuilder adminDeleteQueryBuilder;
+    private AdminProductSkuDeleteQueryBuilder adminDeleteQueryBuilder;
+
+    @Autowired
+    private AdminProductSkuUpdateQueryBuilder adminProductSkuUpdateQueryBuilder;
 
     @PostConstruct
     @Override
     void configQueryBuilder() {
         this.deleteQueryBuilder.put(RoleEnum.ADMIN, adminDeleteQueryBuilder);
+        this.updateQueryBuilder.put(RoleEnum.ADMIN, adminProductSkuUpdateQueryBuilder);
     }
 }

@@ -12,14 +12,18 @@ import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.hw.aggregate.product.model.ProductDetail.*;
+import static com.hw.aggregate.product.representation.ProductDetailAdminRep.*;
+import static com.hw.shared.AppConstant.*;
 
 @Component
-public class AdminUpdateQueryBuilder extends UpdateQueryBuilder<ProductDetail> {
+public class AdminProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<ProductDetail> {
     @Autowired
     private void setEntityManager(EntityManager entityManager) {
         em = entityManager;
@@ -31,10 +35,10 @@ public class AdminUpdateQueryBuilder extends UpdateQueryBuilder<ProductDetail> {
     //    ]
     protected void setUpdateValue(Root<ProductDetail> root, CriteriaUpdate<ProductDetail> criteriaUpdate, PatchCommand e) {
         ArrayList<Boolean> booleans = new ArrayList<>();
-        booleans.add(setUpdateValueFor("/startAt", START_AT_LITERAL, criteriaUpdate, e));
-        booleans.add(setUpdateValueFor("/endAt", END_AT_LITERAL, criteriaUpdate, e));
-        booleans.add(setUpdateStorageValueFor("/storageOrder", STORAGE_ORDER_LITERAL, root, criteriaUpdate, e));
-        booleans.add(setUpdateStorageValueFor("/storageActual", STORAGE_ACTUAL_LITERAL, root, criteriaUpdate, e));
+        booleans.add(setUpdateValueFor("/" + ADMIN_REP_START_AT_LITERAL, START_AT_LITERAL, criteriaUpdate, e));
+        booleans.add(setUpdateValueFor("/" + ADMIN_REP_END_AT_LITERAL, END_AT_LITERAL, criteriaUpdate, e));
+        booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_STORAGE_ORDER_LITERAL, STORAGE_ORDER_LITERAL, root, criteriaUpdate, e));
+        booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_STORAGE_ACTUAL_LITERAL, STORAGE_ACTUAL_LITERAL, root, criteriaUpdate, e));
         Boolean hasFieldChange = booleans.stream().reduce(false, (a, b) -> a || b);
         if (!hasFieldChange) {
             throw new NoUpdatableFieldException();
@@ -44,10 +48,10 @@ public class AdminUpdateQueryBuilder extends UpdateQueryBuilder<ProductDetail> {
     private Boolean setUpdateStorageValueFor(String fieldPath, String filedLiteral, Root<ProductDetail> root, CriteriaUpdate<ProductDetail> criteriaUpdate, PatchCommand e) {
         if (e.getPath().equalsIgnoreCase(fieldPath)) {
             CriteriaBuilder cb = em.getCriteriaBuilder();
-            if (e.getOp().equalsIgnoreCase("add")) {
+            if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_ADD)) {
                 criteriaUpdate.set(root.<Integer>get(filedLiteral), cb.sum(root.get(filedLiteral), parseInteger(e.getValue())));
                 return true;
-            } else if (e.getOp().equalsIgnoreCase("sub")) {
+            } else if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUB)) {
                 criteriaUpdate.set(root.<Integer>get(filedLiteral), cb.diff(root.get(filedLiteral), parseInteger(e.getValue())));
                 return true;
             } else {
@@ -61,10 +65,10 @@ public class AdminUpdateQueryBuilder extends UpdateQueryBuilder<ProductDetail> {
 
     private boolean setUpdateValueFor(String fieldPath, String fieldLiteral, CriteriaUpdate<ProductDetail> criteriaUpdate, PatchCommand e) {
         if (e.getPath().equalsIgnoreCase(fieldPath)) {
-            if (e.getOp().equalsIgnoreCase("remove")) {
+            if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_REMOVE)) {
                 criteriaUpdate.set(fieldLiteral, null);
                 return true;
-            } else if (e.getOp().equalsIgnoreCase("add") || e.getOp().equalsIgnoreCase("replace")) {
+            } else if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_ADD) || e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_REPLACE)) {
                 if (e.getValue() != null) {
                     criteriaUpdate.set(fieldLiteral, parseLong(e.getValue()));
                 } else {
@@ -95,6 +99,18 @@ public class AdminUpdateQueryBuilder extends UpdateQueryBuilder<ProductDetail> {
 
     private Integer parseInteger(@Nullable Object input) {
         return parseLong(input).intValue();
+    }
+
+
+    @Override
+    public Predicate getWhereClause(Root<ProductDetail> root, List<String> search, PatchCommand command) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        List<Predicate> results = new ArrayList<>();
+        for (String str : search) {
+            results.add(cb.equal(root.get(ID_LITERAL), Long.parseLong(str)));
+        }
+        return cb.or(results.toArray(new Predicate[0]));
+
     }
 
 }

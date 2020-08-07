@@ -14,8 +14,10 @@ import java.util.stream.Collectors;
 @Data
 public class ProductDetailAdminRep {
     private Long id;
+    public transient static final String ADMIN_REP_ID_LITERAL = "id";
 
     private String name;
+    public transient static final String ADMIN_REP_NAME_LITERAL = "name";
 
     private String imageUrlSmall;
 
@@ -24,7 +26,9 @@ public class ProductDetailAdminRep {
     private String description;
 
     private Long startAt;
+    public transient static final String ADMIN_REP_START_AT_LITERAL = "startAt";
     private Long endAt;
+    public transient static final String ADMIN_REP_END_AT_LITERAL = "endAt";
 
     private Set<String> specification;
 
@@ -37,15 +41,21 @@ public class ProductDetailAdminRep {
     private Set<String> attributesGen;
 
     private List<ProductSkuAdminRepresentation> skus;
+    public transient static final String ADMIN_REP_SKU_LITERAL = "skus";
 
     private List<ProductAttrSaleImagesAdminRepresentation> attributeSaleImages;
+
     private Integer storageOrder;
+    public transient static final String ADMIN_REP_STORAGE_ORDER_LITERAL = "storageOrder";
 
     private Integer storageActual;
+    public transient static final String ADMIN_REP_STORAGE_ACTUAL_LITERAL = "storageActual";
 
     private BigDecimal price;
+    public transient static final String ADMIN_REP_PRICE_LITERAL = "price";
 
     private Integer sales;
+    public transient static final String ADMIN_REP_SALES_LITERAL = "sales";
 
     public ProductDetailAdminRep(ProductDetail productDetail) {
         this.id = productDetail.getId();
@@ -76,8 +86,11 @@ public class ProductDetailAdminRep {
     @Data
     public static class ProductSkuAdminRepresentation {
         private Set<String> attributesSales;
+        public transient static final String ADMIN_REP_ATTR_SALES_LITERAL = "attributesSales";
         private Integer storageOrder;
+        public transient static final String ADMIN_REP_SKU_STORAGE_ORDER_LITERAL = "storageOrder";
         private Integer storageActual;
+        public transient static final String ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL = "storageActual";
         private BigDecimal price;
         private Integer sales;
 
