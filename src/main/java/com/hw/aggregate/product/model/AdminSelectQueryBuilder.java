@@ -1,7 +1,7 @@
 package com.hw.aggregate.product.model;
 
 import com.hw.shared.SelectQueryBuilder;
-import com.hw.shared.UnsupportedQueryConfigException;
+import com.hw.shared.UnsupportedQueryException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -56,6 +56,8 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
                 if ("id".equals(split[0]) && !split[1].isBlank()) {
                     results.add(getIdWhereClause(split[1], cb, root));
                 }
+            }else{
+                throw new UnsupportedQueryException();
             }
         }
         return cb.and(results.toArray(new Predicate[0]));
@@ -91,7 +93,7 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
                 int i = Integer.parseInt(s.replace(">", ""));
                 results.add(cb.greaterThan(root.get(LOWEST_PRICE_LITERAL), i));
             } else {
-                throw new UnsupportedQueryConfigException();
+                throw new UnsupportedQueryException();
             }
         }
         return cb.and(results.toArray(new Predicate[0]));
@@ -108,11 +110,11 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
 
     private Predicate getOrExpression(String input, CriteriaBuilder cb, Root<ProductDetail> root) {
         if (input.split("-").length != 2)
-            throw new UnsupportedQueryConfigException();
+            throw new UnsupportedQueryException();
         String name = input.split("-")[0];
         String[] values = input.split("-")[1].split("\\.");
         if (values.length == 1)
-            throw new UnsupportedQueryConfigException();
+            throw new UnsupportedQueryException();
         Set<String> collect = Arrays.stream(values).map(el -> name + ":" + el).collect(Collectors.toSet());
         Predicate[] predicates = Arrays.stream(attrs)
                 .map(ee -> collect.stream().map(e -> cb.like(root.get(ee).as(String.class), "%" + e + "%")).collect(Collectors.toSet()))
@@ -122,7 +124,7 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
 
     private Predicate getAndExpression(String input, CriteriaBuilder cb, Root<ProductDetail> root) {
         if (input.split("-").length != 2)
-            throw new UnsupportedQueryConfigException();
+            throw new UnsupportedQueryException();
         String replace = input.replace("-", ":");
         Predicate[] predicates = Arrays.stream(attrs)
                 .map(ee -> cb.like(root.get(ee).as(String.class), "%" + replace + "%"))

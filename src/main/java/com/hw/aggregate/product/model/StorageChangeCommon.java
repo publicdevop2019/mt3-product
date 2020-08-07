@@ -7,4 +7,5 @@ import java.util.List;
 public class StorageChangeCommon {
     private String txId;
     private List<StorageChangeDetail> changeList;
+
 }

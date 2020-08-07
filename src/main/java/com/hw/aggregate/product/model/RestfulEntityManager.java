@@ -35,7 +35,7 @@ public abstract class RestfulEntityManager<T> {
             throw new QueryBuilderNotFoundException();
         List<T> select = selectQueryBuilder.select(query, page, clazz);
         Long aLong = null;
-        if (skipCount(config)) {
+        if (!skipCount(config)) {
             aLong = selectQueryBuilder.selectCount(query, clazz);
         }
         return new SumPagedRep<>(select, aLong);
@@ -73,7 +73,7 @@ public abstract class RestfulEntityManager<T> {
     }
 
     private String convertIdToQuery(String id) {
-        return "id=" + id;
+        return "id:" + id;
     }
 
 }

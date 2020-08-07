@@ -8,12 +8,15 @@ import com.hw.shared.UpdateQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Root;
 import java.math.BigInteger;
+import java.util.ArrayList;
 
-import static com.hw.aggregate.product.model.ProductDetail.END_AT_LITERAL;
-import static com.hw.aggregate.product.model.ProductDetail.START_AT_LITERAL;
+import static com.hw.aggregate.product.model.ProductDetail.*;
 
 @Component
 public class AdminUpdateQueryBuilder extends UpdateQueryBuilder<ProductDetail> {
@@ -22,46 +25,64 @@ public class AdminUpdateQueryBuilder extends UpdateQueryBuilder<ProductDetail> {
         em = entityManager;
     }
 
-    protected void setUpdateValue(CriteriaUpdate<ProductDetail> criteriaUpdate, PatchCommand e) {
-        if (e.getOp().equalsIgnoreCase("remove")) {
-            int count = 0;
-            if (e.getPath().contains("endAt")) {
-                criteriaUpdate.set(END_AT_LITERAL, null);
-                count++;
-            }
-            if (e.getPath().contains("startAt")) {
-                criteriaUpdate.set(START_AT_LITERAL, null);
-                count++;
-            }
-            if (count == 0)
-                throw new NoUpdatableFieldException();
-        } else if (e.getOp().equalsIgnoreCase("add") || e.getOp().equalsIgnoreCase("replace")) {
-            int count = 0;
-            if (e.getPath().contains("endAt")) {
-                if (e.getValue() != null) {
-                    criteriaUpdate.set(END_AT_LITERAL, parseLong(e.getValue()));
-                } else {
-                    criteriaUpdate.set(END_AT_LITERAL, null);
-                }
-                count++;
-            }
-            if (e.getPath().contains("startAt")) {
-                if (e.getValue() != null) {
-                    criteriaUpdate.set(START_AT_LITERAL, parseLong(e.getValue()));
-                } else {
-                    criteriaUpdate.set(START_AT_LITERAL, null);
-                }
-                count++;
-            }
-            if (count == 0)
-                throw new NoUpdatableFieldException();
-        } else {
-            throw new UnsupportedPatchOperationException();
+    //    [
+    //    {"op":"add","path":"/storageOrder","value":"1"},
+    //    {"op":"sub","path":"/storageActual","value":"2"}
+    //    ]
+    protected void setUpdateValue(Root<ProductDetail> root, CriteriaUpdate<ProductDetail> criteriaUpdate, PatchCommand e) {
+        ArrayList<Boolean> booleans = new ArrayList<>();
+        booleans.add(setUpdateValueFor("/startAt", START_AT_LITERAL, criteriaUpdate, e));
+        booleans.add(setUpdateValueFor("/endAt", END_AT_LITERAL, criteriaUpdate, e));
+        booleans.add(setUpdateStorageValueFor("/storageOrder", STORAGE_ORDER_LITERAL, root, criteriaUpdate, e));
+        booleans.add(setUpdateStorageValueFor("/storageActual", STORAGE_ACTUAL_LITERAL, root, criteriaUpdate, e));
+        Boolean hasFieldChange = booleans.stream().reduce(false, (a, b) -> a || b);
+        if (!hasFieldChange) {
+            throw new NoUpdatableFieldException();
         }
     }
 
-    private Long parseLong(Object input) {
+    private Boolean setUpdateStorageValueFor(String fieldPath, String filedLiteral, Root<ProductDetail> root, CriteriaUpdate<ProductDetail> criteriaUpdate, PatchCommand e) {
+        if (e.getPath().equalsIgnoreCase(fieldPath)) {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            if (e.getOp().equalsIgnoreCase("add")) {
+                criteriaUpdate.set(root.<Integer>get(filedLiteral), cb.sum(root.get(filedLiteral), parseInteger(e.getValue())));
+                return true;
+            } else if (e.getOp().equalsIgnoreCase("sub")) {
+                criteriaUpdate.set(root.<Integer>get(filedLiteral), cb.diff(root.get(filedLiteral), parseInteger(e.getValue())));
+                return true;
+            } else {
+                throw new UnsupportedPatchOperationException();
+            }
+        } else {
+            return false;
+        }
+    }
+
+
+    private boolean setUpdateValueFor(String fieldPath, String fieldLiteral, CriteriaUpdate<ProductDetail> criteriaUpdate, PatchCommand e) {
+        if (e.getPath().equalsIgnoreCase(fieldPath)) {
+            if (e.getOp().equalsIgnoreCase("remove")) {
+                criteriaUpdate.set(fieldLiteral, null);
+                return true;
+            } else if (e.getOp().equalsIgnoreCase("add") || e.getOp().equalsIgnoreCase("replace")) {
+                if (e.getValue() != null) {
+                    criteriaUpdate.set(fieldLiteral, parseLong(e.getValue()));
+                } else {
+                    criteriaUpdate.set(fieldLiteral, null);
+                }
+                return true;
+            } else {
+                throw new UnsupportedPatchOperationException();
+            }
+        } else {
+            return false;
+        }
+    }
+
+    private Long parseLong(@Nullable Object input) {
         try {
+            if (input == null)
+                throw new UpdateFiledValueException();
             if (input.getClass().equals(Integer.class))
                 return ((Integer) input).longValue();
             if (input.getClass().equals(BigInteger.class))
@@ -70,6 +91,10 @@ public class AdminUpdateQueryBuilder extends UpdateQueryBuilder<ProductDetail> {
         } catch (NumberFormatException ex) {
             throw new UpdateFiledValueException();
         }
+    }
+
+    private Integer parseInteger(@Nullable Object input) {
+        return parseLong(input).intValue();
     }
 
 }

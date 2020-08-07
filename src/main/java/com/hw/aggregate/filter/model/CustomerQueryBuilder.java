@@ -1,7 +1,7 @@
 package com.hw.aggregate.filter.model;
 
 import com.hw.shared.SelectQueryBuilder;
-import com.hw.shared.UnsupportedQueryConfigException;
+import com.hw.shared.UnsupportedQueryException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +34,7 @@ public class CustomerQueryBuilder extends SelectQueryBuilder<BizFilter> {
     public Predicate getWhereClause(Root<BizFilter> root, String search) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         if (search == null)
-            throw new UnsupportedQueryConfigException();
+            throw new UnsupportedQueryException();
         String[] queryParams = search.split(",");
         List<Predicate> results = new ArrayList<>();
         for (String param : queryParams) {
@@ -42,7 +42,7 @@ public class CustomerQueryBuilder extends SelectQueryBuilder<BizFilter> {
             if (split.length == 2 && "catalog".equals(split[0]) && !split[1].isBlank()) {
                 results.add(cb.like(root.get(LINKED_CATALOG_LITERAL).as(String.class), "%" + split[1] + "%"));
             } else {
-                throw new UnsupportedQueryConfigException();
+                throw new UnsupportedQueryException();
             }
         }
         return cb.and(results.toArray(new Predicate[0]));

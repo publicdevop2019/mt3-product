@@ -7,10 +7,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.hw.aggregate.product.model.ProductDetail.ID_LITERAL;
@@ -30,7 +27,10 @@ public abstract class UpdateQueryBuilder<T> {
      * ]
      */
     public Integer update(List<PatchCommand> commands, Class<T> clazz) {
-        HashMap<PatchCommand, List<String>> jsonPatchCommandListHashMap = new HashMap<>();
+        // sort key so deadlock will not happen
+        Collections.sort(commands);
+
+        Map<PatchCommand, List<String>> jsonPatchCommandListHashMap = new LinkedHashMap<>();
 
         commands.forEach(e -> {
             String s = parseId(e.getPath());
@@ -55,9 +55,10 @@ public abstract class UpdateQueryBuilder<T> {
             Predicate or = cb.or(results.toArray(new Predicate[0]));
             if (or != null)
                 criteriaUpdate.where(or);
-            setUpdateValue(criteriaUpdate, e);
+            setUpdateValue(root,criteriaUpdate, e);
             return criteriaUpdate;
         }).collect(Collectors.toList());
+        // how to validate number of rows updated ?
         return criteriaUpdates.stream().map(e -> em.createQuery(e).executeUpdate()).reduce(0, Integer::sum);
     }
 
@@ -74,6 +75,6 @@ public abstract class UpdateQueryBuilder<T> {
         return split[1];
     }
 
-    protected abstract void setUpdateValue(CriteriaUpdate<T> criteriaUpdate, PatchCommand operationLike);
+    protected abstract void setUpdateValue(Root<T> root, CriteriaUpdate<T> criteriaUpdate, PatchCommand operationLike);
 
 }

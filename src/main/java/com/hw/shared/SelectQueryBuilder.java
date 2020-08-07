@@ -56,7 +56,7 @@ public abstract class SelectQueryBuilder<T> implements WhereClause<T> {
         return em.createQuery(query).getSingleResult();
     }
 
-    private PageRequest getPageRequest(String page) throws UnsupportedQueryConfigException {
+    private PageRequest getPageRequest(String page){
         if (page == null) {
             Sort sort = new Sort(DEFAULT_SORT_ORDER, mappedSortBy.get(DEFAULT_SORT_BY));
             return PageRequest.of(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE, sort);
@@ -77,7 +77,7 @@ public abstract class SelectQueryBuilder<T> implements WhereClause<T> {
             if (values[0].equals("by") && values[1] != null) {
                 sortBy = mappedSortBy.get(values[1]);
                 if (sortBy == null)
-                    throw new UnsupportedQueryConfigException();
+                    throw new UnsupportedQueryException();
             }
             if (values[0].equals("order") && values[1] != null) {
                 sortOrder = Sort.Direction.fromString(values[1]);
