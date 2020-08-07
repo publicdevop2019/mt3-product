@@ -23,70 +23,65 @@ public class ProductController {
     private ProductApplicationService productService;
 
     @GetMapping("public/productDetails")
-    public ResponseEntity<ProductCustomerSumPagedRep> queryForCustomer(
+    public ResponseEntity<ProductCustomerSumPagedRep> readForCustomerByQuery(
             @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        return ResponseEntity.ok(productService.queryForCustomer(queryParam, pageParam, skipCount));
+        return ResponseEntity.ok(productService.readForCustomerByQuery(queryParam, pageParam, skipCount));
     }
 
     @GetMapping("admin/productDetails")
-    public ResponseEntity<ProductAdminSumPagedRep> queryForAdmin(
+    public ResponseEntity<ProductAdminSumPagedRep> readForAdminByQuery(
             @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipFlag) {
-        return ResponseEntity.ok(productService.queryForAdmin(queryParam, pageParam, skipFlag));
-    }
-
-    @PostMapping("internal/productDetails/validate")
-    public ResponseEntity<?> validateProduct(@RequestBody List<ProductValidationCommand> products) {
-        return ResponseEntity.ok(productService.validateProduct(products).getResult());
+        return ResponseEntity.ok(productService.readForAdminByQuery(queryParam, pageParam, skipFlag));
     }
 
     @GetMapping("public/productDetails/{id}")
-    public ResponseEntity<?> getProductByIdForCustomer(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(productService.getProductByIdForCustomer(id));
+    public ResponseEntity<?> readForCustomerById(@PathVariable(name = "id") Long id) {
+        return ResponseEntity.ok(productService.readForCustomerById(id));
     }
 
     @GetMapping("admin/productDetails/{id}")
-    public ResponseEntity<?> getProductByIdForAdmin(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(productService.getProductByIdForAdmin(id));
+    public ResponseEntity<?> readForAdminById(@PathVariable(name = "id") Long id) {
+        return ResponseEntity.ok(productService.readForAdminById(id));
     }
 
 
     @PostMapping("admin/productDetails")
-    public ResponseEntity<?> createProductForAdmin(@RequestBody CreateProductAdminCommand productDetail) {
-        return ResponseEntity.ok().header("Location", productService.createProduct(productDetail).getId()).build();
+    public ResponseEntity<?> createForAdmin(@RequestBody CreateProductAdminCommand productDetail) {
+        return ResponseEntity.ok().header("Location", productService.createForAdmin(productDetail).getId()).build();
     }
 
 
     @PutMapping("admin/productDetails/{id}")
-    public ResponseEntity<?> updateProductForAdmin(@PathVariable(name = "id") Long id, @RequestBody UpdateProductAdminCommand newProductDetail) {
-        productService.update(id, newProductDetail);
+    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody UpdateProductAdminCommand newProductDetail) {
+        productService.replaceForAdminById(id, newProductDetail);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping(path = "admin/productDetails/{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<?> patchProduct(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch) {
-        return ResponseEntity.ok(productService.patch(id, patch));
+    public ResponseEntity<?> patchForAdminById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch) {
+        return ResponseEntity.ok(productService.patchForAdminById(id, patch));
     }
 
     @PatchMapping("admin/productDetails")
-    public ResponseEntity<?> batchUpdateProducts(@RequestBody List<PatchCommand> patch) {
-        productService.update(patch);
+    public ResponseEntity<?> patchForAdmin(@RequestBody List<PatchCommand> patch) {
+        productService.patchForAdmin(patch);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("admin/productDetails/{id}")
-    public ResponseEntity<?> deleteProductForAdmin(@PathVariable(name = "id") Long id) {
-        productService.delete(id);
+    public ResponseEntity<?> deleteForAdminById(@PathVariable(name = "id") Long id) {
+        productService.deleteForAdminById(id);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("admin/productDetails")
-    public ResponseEntity<?> deleteProductForAdmin(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam) {
-        productService.delete(queryParam);
+    public ResponseEntity<?> deleteForAdminByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam) {
+        productService.deleteForAdminByQuery(queryParam);
         return ResponseEntity.ok().build();
     }
 
@@ -110,9 +105,16 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("internal/productDetails/validate")
+    public ResponseEntity<?> validate(@RequestBody List<ProductValidationCommand> products) {
+        return ResponseEntity.ok(productService.validate(products).getResult());
+    }
+
     @PutMapping("internal/transactions/rollback")
     public ResponseEntity<?> rollbackTx(@RequestParam(value = "txId") String txId) {
         productService.rollbackTx(txId);
         return ResponseEntity.ok().build();
     }
+
+
 }

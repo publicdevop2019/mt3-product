@@ -24,9 +24,6 @@ import static com.hw.config.AppConstant.ADMIN_ADJUST;
 @Table
 @NoArgsConstructor
 @Slf4j
-//@TODO lowestPrice can only present if sku is empty
-//@TODO if sku is empty then storageOrder, storageActual, lowestPrice, totalSales must present
-//@TODO if storageOrder, storageActual, lowestPrice, totalSales are empty then sku must present
 public class ProductDetail extends Auditable {
     @Id
     private Long id;
@@ -222,7 +219,7 @@ public class ProductDetail extends Auditable {
         repo.delete(read);
     }
 
-    public void update(UpdateProductAdminCommand command, ProductApplicationService productApplicationService, ProductDetailRepo repo) {
+    public void replace(UpdateProductAdminCommand command, ProductApplicationService productApplicationService, ProductDetailRepo repo) {
         this.imageUrlSmall = command.getImageUrlSmall();
         this.name = command.getName();
         this.description = command.getDescription();

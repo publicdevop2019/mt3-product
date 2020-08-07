@@ -78,11 +78,11 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
         String[] split = s.split("\\$");
         List<Predicate> results = new ArrayList<>();
         for (String str : split) {
-            if (str.contains("<=")) {
-                int i = Integer.parseInt(s.replace("<=", ""));
+            if (str.contains("<:")) {
+                int i = Integer.parseInt(s.replace("<:", ""));
                 results.add(cb.lessThanOrEqualTo(root.get(LOWEST_PRICE_LITERAL), i));
-            } else if (str.contains(">=")) {
-                int i = Integer.parseInt(s.replace(">=", ""));
+            } else if (str.contains(">:")) {
+                int i = Integer.parseInt(s.replace(">:", ""));
                 results.add(cb.greaterThanOrEqualTo(root.get(LOWEST_PRICE_LITERAL), i));
             } else if (str.contains("<")) {
                 int i = Integer.parseInt(s.replace("<", ""));
