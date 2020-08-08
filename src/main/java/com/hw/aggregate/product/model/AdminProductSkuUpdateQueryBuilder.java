@@ -10,14 +10,13 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.hw.aggregate.product.model.ProductDetail.STORAGE_ACTUAL_LITERAL;
+import static com.hw.aggregate.product.model.ProductDetail.STORAGE_ORDER_LITERAL;
 import static com.hw.aggregate.product.model.ProductSku.*;
 import static com.hw.aggregate.product.representation.ProductDetailAdminRep.ADMIN_REP_SKU_LITERAL;
 import static com.hw.aggregate.product.representation.ProductDetailAdminRep.ProductSkuAdminRepresentation.*;
@@ -52,7 +51,14 @@ public class AdminProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<Produc
             Predicate parentIdClause = cb.equal(root.get(SKU_PRODUCT_ID_LITERAL), Long.parseLong(str));
             Predicate saleAttrClause = cb.equal(root.get(SKU_ATTR_SALES_LITERAL).as(String.class), parseAttrSales(command));
             Predicate combined = cb.and(parentIdClause, saleAttrClause);
-            results.add(combined);
+            if (storagePatchOpSub(command)) {
+                //make sure if storage change, value is not negative
+                Predicate negativeClause = getStorageMustNotNegativeClause(cb, root, command);
+                Predicate and = cb.and(combined, negativeClause);
+                results.add(and);
+            } else {
+                results.add(combined);
+            }
         }
         return cb.or(results.toArray(new Predicate[0]));
     }
@@ -105,4 +111,19 @@ public class AdminProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<Produc
         return parseLong(input).intValue();
     }
 
+    private Predicate getStorageMustNotNegativeClause(CriteriaBuilder cb, Root<ProductSku> root, PatchCommand command) {
+        String filedLiteral;
+        if (command.getPath().equalsIgnoreCase(ADMIN_REP_SKU_STORAGE_ORDER_LITERAL)) {
+            filedLiteral = STORAGE_ORDER_LITERAL;
+        } else {
+            filedLiteral = STORAGE_ACTUAL_LITERAL;
+        }
+        Expression<Integer> diff = cb.diff(root.get(filedLiteral), parseInteger(command.getValue()));
+        return cb.greaterThanOrEqualTo(diff, 0);
+    }
+
+    private boolean storagePatchOpSub(PatchCommand command) {
+        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUB) && (command.getPath().contains(ADMIN_REP_SKU_STORAGE_ORDER_LITERAL) ||
+                command.getPath().contains(ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL));
+    }
 }

@@ -10,10 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,10 +104,33 @@ public class AdminProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<Pro
         CriteriaBuilder cb = em.getCriteriaBuilder();
         List<Predicate> results = new ArrayList<>();
         for (String str : search) {
-            results.add(cb.equal(root.get(ID_LITERAL), Long.parseLong(str)));
+            //make sure if storage change, value is not negative
+            Predicate equal = cb.equal(root.get(ID_LITERAL), Long.parseLong(str));
+            if (storagePatchOpSub(command)) {
+                Predicate negativeClause = getStorageMustNotNegativeClause(cb, root, command);
+                Predicate and = cb.and(equal, negativeClause);
+                results.add(and);
+            } else {
+                results.add(equal);
+            }
         }
         return cb.or(results.toArray(new Predicate[0]));
+    }
 
+    private Predicate getStorageMustNotNegativeClause(CriteriaBuilder cb, Root<ProductDetail> root, PatchCommand command) {
+        String filedLiteral;
+        if (command.getPath().equalsIgnoreCase(ADMIN_REP_STORAGE_ORDER_LITERAL)) {
+            filedLiteral = STORAGE_ORDER_LITERAL;
+        } else {
+            filedLiteral = STORAGE_ACTUAL_LITERAL;
+        }
+        Expression<Integer> diff = cb.diff(root.get(filedLiteral), parseInteger(command.getValue()));
+        return cb.greaterThanOrEqualTo(diff, 0);
+    }
+
+    private boolean storagePatchOpSub(PatchCommand command) {
+        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUB) && (command.getPath().contains(ADMIN_REP_STORAGE_ORDER_LITERAL) ||
+                command.getPath().contains(ADMIN_REP_STORAGE_ACTUAL_LITERAL));
     }
 
 }

@@ -86,7 +86,7 @@ public class ProductController {
     }
 
 
-    @PatchMapping("shared/productDetails")
+    @PutMapping("shared/productDetails/storageOrder/decrease")
     public ResponseEntity<?> decreaseOrderStorage(@RequestBody DecreaseOrderStorageCommand command) {
         productService.decreaseOrderStorageForMappedProducts(command);
         return ResponseEntity.ok().build();
