@@ -91,27 +91,6 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
-
-    @PutMapping("shared/productDetails/storageOrder/decrease")
-    public ResponseEntity<?> decreaseOrderStorage(@RequestBody DecreaseOrderStorageCommand command) {
-        productService.decreaseOrderStorageForMappedProducts(command);
-        return ResponseEntity.ok().build();
-    }
-
-
-    @PutMapping("internal/productDetails/storageActual/decrease")
-    public ResponseEntity<?> decreaseActualStorage(@RequestBody DecreaseActualStorageCommand command) {
-        productService.decreaseActualStorageForMappedProducts(command);
-        return ResponseEntity.ok().build();
-    }
-
-
-    @PutMapping("shared/productDetails/storageOrder/increase")
-    public ResponseEntity<?> increaseOrderStorage(@RequestBody IncreaseOrderStorageCommand command) {
-        productService.increaseOrderStorageForMappedProducts(command);
-        return ResponseEntity.ok().build();
-    }
-
     @PostMapping("internal/productDetails/validate")
     public ResponseEntity<?> validate(@RequestBody List<ProductValidationCommand> products) {
         return ResponseEntity.ok(productService.validate(products).getResult());
