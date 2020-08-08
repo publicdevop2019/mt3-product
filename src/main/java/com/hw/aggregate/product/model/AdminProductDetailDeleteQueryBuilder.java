@@ -22,6 +22,7 @@ public class AdminProductDetailDeleteQueryBuilder extends DeleteQueryBuilder<Pro
         em = entityManager;
     }
 
+    @Override
     public Predicate getWhereClause(Root<ProductDetail> root, String search) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         if (search == null)

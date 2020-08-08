@@ -93,6 +93,7 @@ public class ProductDetailAdminRep {
         public transient static final String ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL = "storageActual";
         private BigDecimal price;
         private Integer sales;
+        public transient static final String ADMIN_REP_SKU_SALES_LITERAL = "sales";
 
         public ProductSkuAdminRepresentation(ProductSku sku) {
             this.attributesSales = sku.getAttributesSales();

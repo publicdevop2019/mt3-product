@@ -8,23 +8,26 @@ import javax.annotation.PostConstruct;
 @Component
 public class ProductDetailManager extends RestfulEntityManager<ProductDetail> {
     @Autowired
-    private CustomerSelectQueryBuilder customerQueryBuilder;
+    private PublicSelectQueryBuilder publicSelectQueryBuilder;
 
     @Autowired
-    private AdminSelectQueryBuilder adminQueryBuilder;
+    private AdminSelectQueryBuilder adminSelectQueryBuilder;
 
     @Autowired
     private AdminProductDetailUpdateQueryBuilder adminUpdateQueryBuilder;
 
     @Autowired
     private AdminProductDetailDeleteQueryBuilder adminDeleteQueryBuilder;
+    @Autowired
+    private AppProductDetailUpdateQueryBuilder appProductDetailUpdateQueryBuilder;
 
     @Override
     @PostConstruct
     void configQueryBuilder() {
-        this.selectQueryBuilder.put(RoleEnum.CUSTOMER, customerQueryBuilder);
-        this.selectQueryBuilder.put(RoleEnum.ADMIN, adminQueryBuilder);
+        this.selectQueryBuilder.put(RoleEnum.PUBLIC, publicSelectQueryBuilder);
+        this.selectQueryBuilder.put(RoleEnum.ADMIN, adminSelectQueryBuilder);
         this.updateQueryBuilder.put(RoleEnum.ADMIN, adminUpdateQueryBuilder);
+        this.updateQueryBuilder.put(RoleEnum.APP, appProductDetailUpdateQueryBuilder);
         this.deleteQueryBuilder.put(RoleEnum.ADMIN, adminDeleteQueryBuilder);
     }
 }

@@ -17,10 +17,11 @@ import java.util.List;
 
 import static com.hw.aggregate.product.model.ProductDetail.*;
 import static com.hw.aggregate.product.representation.ProductDetailAdminRep.*;
-import static com.hw.shared.AppConstant.*;
+import static com.hw.shared.AppConstant.PATCH_OP_TYPE_ADD;
+import static com.hw.shared.AppConstant.PATCH_OP_TYPE_SUB;
 
 @Component
-public class AdminProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<ProductDetail> {
+public class AppProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<ProductDetail> {
     @Autowired
     private void setEntityManager(EntityManager entityManager) {
         em = entityManager;
@@ -33,9 +34,8 @@ public class AdminProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<Pro
     @Override
     protected void setUpdateValue(Root<ProductDetail> root, CriteriaUpdate<ProductDetail> criteriaUpdate, PatchCommand e) {
         ArrayList<Boolean> booleans = new ArrayList<>();
-        booleans.add(setUpdateValueFor("/" + ADMIN_REP_START_AT_LITERAL, START_AT_LITERAL, criteriaUpdate, e));
-        booleans.add(setUpdateValueFor("/" + ADMIN_REP_END_AT_LITERAL, END_AT_LITERAL, criteriaUpdate, e));
         booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_STORAGE_ORDER_LITERAL, STORAGE_ORDER_LITERAL, root, criteriaUpdate, e));
+        booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_SALES_LITERAL, TOTAL_SALES_LITERAL, root, criteriaUpdate, e));
         booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_STORAGE_ACTUAL_LITERAL, STORAGE_ACTUAL_LITERAL, root, criteriaUpdate, e));
         Boolean hasFieldChange = booleans.stream().reduce(false, (a, b) -> a || b);
         if (!hasFieldChange) {
@@ -60,26 +60,6 @@ public class AdminProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<Pro
         }
     }
 
-
-    private boolean setUpdateValueFor(String fieldPath, String fieldLiteral, CriteriaUpdate<ProductDetail> criteriaUpdate, PatchCommand e) {
-        if (e.getPath().equalsIgnoreCase(fieldPath)) {
-            if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_REMOVE)) {
-                criteriaUpdate.set(fieldLiteral, null);
-                return true;
-            } else if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_ADD) || e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_REPLACE)) {
-                if (e.getValue() != null) {
-                    criteriaUpdate.set(fieldLiteral, parseLong(e.getValue()));
-                } else {
-                    criteriaUpdate.set(fieldLiteral, null);
-                }
-                return true;
-            } else {
-                throw new UnsupportedPatchOperationException();
-            }
-        } else {
-            return false;
-        }
-    }
 
     private Long parseLong(@Nullable Object input) {
         try {
@@ -122,8 +102,10 @@ public class AdminProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<Pro
         String filedLiteral;
         if (command.getPath().equalsIgnoreCase(ADMIN_REP_STORAGE_ORDER_LITERAL)) {
             filedLiteral = STORAGE_ORDER_LITERAL;
-        } else {
+        } else if (command.getPath().equalsIgnoreCase(ADMIN_REP_STORAGE_ACTUAL_LITERAL)) {
             filedLiteral = STORAGE_ACTUAL_LITERAL;
+        } else {
+            filedLiteral = TOTAL_SALES_LITERAL;
         }
         Expression<Integer> diff = cb.diff(root.get(filedLiteral), parseInteger(command.getValue()));
         return cb.greaterThanOrEqualTo(diff, 0);
@@ -131,7 +113,7 @@ public class AdminProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<Pro
 
     private boolean storagePatchOpSub(PatchCommand command) {
         return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUB) && (command.getPath().contains(ADMIN_REP_STORAGE_ORDER_LITERAL) ||
-                command.getPath().contains(ADMIN_REP_STORAGE_ACTUAL_LITERAL));
+                command.getPath().contains(ADMIN_REP_STORAGE_ACTUAL_LITERAL) || command.getPath().contains(ADMIN_REP_SALES_LITERAL));
     }
 
 }

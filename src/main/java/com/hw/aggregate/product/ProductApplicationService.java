@@ -52,14 +52,14 @@ public class ProductApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public ProductCustomerSumPagedRep readForCustomerByQuery(String query, String page, String countFlag) {
-        SumPagedRep<ProductDetail> pagedRep = productDetailManager.readByQuery(RestfulEntityManager.RoleEnum.CUSTOMER, query, page, countFlag, ProductDetail.class);
-        return new ProductCustomerSumPagedRep(pagedRep);
+    public ProductPublicSumPagedRep readForPublicByQuery(String query, String page, String countFlag) {
+        SumPagedRep<ProductDetail> pagedRep = productDetailManager.readByQuery(RestfulEntityManager.RoleEnum.PUBLIC, query, page, countFlag, ProductDetail.class);
+        return new ProductPublicSumPagedRep(pagedRep);
     }
 
     @Transactional(readOnly = true)
-    public ProductDetailCustomRep readForCustomerById(Long id) {
-        SumPagedRep<ProductDetail> productDetailSumPagedRep = productDetailManager.readById(RestfulEntityManager.RoleEnum.CUSTOMER, id.toString(), ProductDetail.class);
+    public ProductDetailCustomRep readForPublicById(Long id) {
+        SumPagedRep<ProductDetail> productDetailSumPagedRep = productDetailManager.readById(RestfulEntityManager.RoleEnum.PUBLIC, id.toString(), ProductDetail.class);
         if (productDetailSumPagedRep.getData().size() == 0)
             throw new ProductNotFoundException();
         return new ProductDetailCustomRep(productDetailSumPagedRep.getData().get(0), attributeApplicationService);
@@ -160,5 +160,13 @@ public class ProductApplicationService {
         return productDetailSumPagedRep.getData().get(0);
     }
 
+    @Transactional
+    public ProductAppSumPagedRep patchForApp(List<PatchCommand> commands) {
+        List<PatchCommand> hasNestedEntity = commands.stream().filter(e -> e.getPath().contains("/skus")).collect(Collectors.toList());
+        List<PatchCommand> noNestedEntity = commands.stream().filter(e -> !e.getPath().contains("/skus")).collect(Collectors.toList());
+        Integer update1 = productSkuManager.update(RestfulEntityManager.RoleEnum.APP, hasNestedEntity, ProductSku.class);
+        Integer update = productDetailManager.update(RestfulEntityManager.RoleEnum.APP, noNestedEntity, ProductDetail.class);
+        return new ProductAppSumPagedRep(update.longValue());
+    }
 }
 

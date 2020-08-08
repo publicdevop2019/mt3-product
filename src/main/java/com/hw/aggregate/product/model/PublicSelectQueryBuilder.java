@@ -13,7 +13,7 @@ import java.time.Instant;
 import java.util.HashMap;
 
 @Component("productCustomer")
-public class CustomerSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
+public class PublicSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
 
     @Autowired
     private AdminSelectQueryBuilder adminSelectQueryBuilder;
@@ -23,7 +23,7 @@ public class CustomerSelectQueryBuilder extends SelectQueryBuilder<ProductDetail
         em = entityManager;
     }
 
-    CustomerSelectQueryBuilder() {
+    PublicSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 20;
         MAX_PAGE_SIZE = 40;
         DEFAULT_SORT_BY = "name";

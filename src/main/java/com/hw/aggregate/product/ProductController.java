@@ -4,7 +4,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.product.command.*;
 import com.hw.aggregate.product.model.PatchCommand;
 import com.hw.aggregate.product.representation.ProductAdminSumPagedRep;
-import com.hw.aggregate.product.representation.ProductCustomerSumPagedRep;
+import com.hw.aggregate.product.representation.ProductPublicSumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,12 +23,12 @@ public class ProductController {
     private ProductApplicationService productService;
 
     @GetMapping("public/productDetails")
-    public ResponseEntity<ProductCustomerSumPagedRep> readForCustomerByQuery(
+    public ResponseEntity<ProductPublicSumPagedRep> readForPublicByQuery(
             @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        return ResponseEntity.ok(productService.readForCustomerByQuery(queryParam, pageParam, skipCount));
+        return ResponseEntity.ok(productService.readForPublicByQuery(queryParam, pageParam, skipCount));
     }
 
     @GetMapping("admin/productDetails")
@@ -40,8 +40,8 @@ public class ProductController {
     }
 
     @GetMapping("public/productDetails/{id}")
-    public ResponseEntity<?> readForCustomerById(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(productService.readForCustomerById(id));
+    public ResponseEntity<?> readForPublicById(@PathVariable(name = "id") Long id) {
+        return ResponseEntity.ok(productService.readForPublicById(id));
     }
 
     @GetMapping("admin/productDetails/{id}")
@@ -70,6 +70,12 @@ public class ProductController {
     @PatchMapping("admin/productDetails")
     public ResponseEntity<?> patchForAdmin(@RequestBody List<PatchCommand> patch) {
         productService.patchForAdmin(patch);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("app/productDetails")
+    public ResponseEntity<?> patchForApp(@RequestBody List<PatchCommand> patch) {
+        productService.patchForApp(patch);
         return ResponseEntity.ok().build();
     }
 

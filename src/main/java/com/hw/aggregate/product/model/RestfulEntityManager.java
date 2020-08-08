@@ -16,6 +16,8 @@ public abstract class RestfulEntityManager<T> {
         ROOT,
         ADMIN,
         CUSTOMER,
+        APP,
+        PUBLIC
     }
 
     protected Map<RoleEnum, SelectQueryBuilder<T>> selectQueryBuilder = new HashMap<>();

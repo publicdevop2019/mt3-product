@@ -13,11 +13,14 @@ public class ProductSkuManager extends RestfulEntityManager<ProductSku> {
 
     @Autowired
     private AdminProductSkuUpdateQueryBuilder adminProductSkuUpdateQueryBuilder;
+    @Autowired
+    private AppProductSkuUpdateQueryBuilder appProductSkuUpdateQueryBuilder;
 
     @PostConstruct
     @Override
     void configQueryBuilder() {
         this.deleteQueryBuilder.put(RoleEnum.ADMIN, adminDeleteQueryBuilder);
         this.updateQueryBuilder.put(RoleEnum.ADMIN, adminProductSkuUpdateQueryBuilder);
+        this.updateQueryBuilder.put(RoleEnum.APP, appProductSkuUpdateQueryBuilder);
     }
 }

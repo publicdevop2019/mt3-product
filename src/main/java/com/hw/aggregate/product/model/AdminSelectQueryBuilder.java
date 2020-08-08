@@ -37,6 +37,7 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
         mappedSortBy.put(ADMIN_REP_END_AT_LITERAL, END_AT_LITERAL);
     }
 
+    @Override
     public Predicate getWhereClause(Root<ProductDetail> root, String search) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         if (search == null)

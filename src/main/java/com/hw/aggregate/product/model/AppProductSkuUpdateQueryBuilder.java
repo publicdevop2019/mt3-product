@@ -15,15 +15,13 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hw.aggregate.product.model.ProductDetail.STORAGE_ACTUAL_LITERAL;
-import static com.hw.aggregate.product.model.ProductDetail.STORAGE_ORDER_LITERAL;
 import static com.hw.aggregate.product.model.ProductSku.*;
-import static com.hw.aggregate.product.representation.ProductDetailAdminRep.ADMIN_REP_SKU_LITERAL;
+import static com.hw.aggregate.product.representation.ProductDetailAdminRep.*;
 import static com.hw.aggregate.product.representation.ProductDetailAdminRep.ProductSkuAdminRepresentation.*;
 import static com.hw.shared.AppConstant.*;
 
 @Component
-public class AdminProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<ProductSku> {
+public class AppProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<ProductSku> {
     @Autowired
     private void setEntityManager(EntityManager entityManager) {
         em = entityManager;
@@ -37,6 +35,7 @@ public class AdminProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<Produc
         ArrayList<Boolean> booleans = new ArrayList<>();
         booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_SKU_STORAGE_ORDER_LITERAL, SKU_STORAGE_ORDER_LITERAL, root, criteriaUpdate, e));
         booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL, SKU_STORAGE_ACTUAL_LITERAL, root, criteriaUpdate, e));
+        booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_SKU_SALES_LITERAL, SKU_SALES_LITERAL, root, criteriaUpdate, e));
         Boolean hasFieldChange = booleans.stream().reduce(false, (a, b) -> a || b);
         if (!hasFieldChange) {
             throw new NoUpdatableFieldException();
@@ -116,15 +115,18 @@ public class AdminProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<Produc
         String filedLiteral;
         if (command.getPath().equalsIgnoreCase(ADMIN_REP_SKU_STORAGE_ORDER_LITERAL)) {
             filedLiteral = SKU_STORAGE_ORDER_LITERAL;
-        } else {
+        } else if (command.getPath().equalsIgnoreCase(ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL)) {
             filedLiteral = SKU_STORAGE_ACTUAL_LITERAL;
+        } else {
+            filedLiteral = SKU_SALES_LITERAL;
         }
         Expression<Integer> diff = cb.diff(root.get(filedLiteral), parseInteger(command.getValue()));
         return cb.greaterThanOrEqualTo(diff, 0);
     }
 
+
     private boolean storagePatchOpSub(PatchCommand command) {
-        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUB) && (command.getPath().contains(ADMIN_REP_SKU_STORAGE_ORDER_LITERAL) ||
-                command.getPath().contains(ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL));
+        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUB) && (command.getPath().contains(ADMIN_REP_STORAGE_ORDER_LITERAL) ||
+                command.getPath().contains(ADMIN_REP_STORAGE_ACTUAL_LITERAL) || command.getPath().contains(ADMIN_REP_SALES_LITERAL));
     }
 }
