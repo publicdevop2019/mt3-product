@@ -107,7 +107,7 @@ public class ProductDetailAdminRep {
     @Data
     public static class ProductAttrSaleImagesAdminRepresentation {
         private String attributeSales;
-        private List<String> imageUrls;
+        private Set<String> imageUrls;
 
         public ProductAttrSaleImagesAdminRepresentation(ProductAttrSaleImages productAttrSaleImages) {
             this.attributeSales = productAttrSaleImages.getAttributeSales();

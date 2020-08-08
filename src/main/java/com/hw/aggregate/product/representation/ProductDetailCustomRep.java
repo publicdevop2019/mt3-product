@@ -77,7 +77,7 @@ public class ProductDetailCustomRep {
     @Data
     public static class ProductAttrSaleImagesCustomerRepresentation {
         private String attributeSales;
-        private List<String> imageUrls;
+        private Set<String> imageUrls;
 
         public ProductAttrSaleImagesCustomerRepresentation(ProductAttrSaleImages productAttrSaleImages) {
             this.attributeSales = productAttrSaleImages.getAttributeSales();

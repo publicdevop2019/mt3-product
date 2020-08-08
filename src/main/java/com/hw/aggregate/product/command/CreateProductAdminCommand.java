@@ -49,6 +49,6 @@ public class CreateProductAdminCommand {
     public static class CreateProductAttrImageAdminCommand {
         private String attributeSales;
         @JsonDeserialize(as= LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
-        private List<String> imageUrls;
+        private Set<String> imageUrls;
     }
 }
