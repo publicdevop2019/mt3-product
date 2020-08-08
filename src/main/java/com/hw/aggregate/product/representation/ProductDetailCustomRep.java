@@ -5,7 +5,7 @@ import com.hw.aggregate.attribute.representation.BizAttributeSummaryRepresentati
 import com.hw.aggregate.product.exception.AttributeNameNotFoundException;
 import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
 import com.hw.aggregate.product.model.ProductAttrSaleImages;
-import com.hw.aggregate.product.model.ProductDetail;
+import com.hw.aggregate.product.model.Product;
 import com.hw.aggregate.product.model.ProductOption;
 import com.hw.aggregate.product.model.ProductSku;
 import lombok.Data;
@@ -30,7 +30,7 @@ public class ProductDetailCustomRep {
     private Map<String, String> attrIdMap;
     private Integer storage;
 
-    public ProductDetailCustomRep(ProductDetail productDetail, BizAttributeApplicationService bizAttributeApplicationService) {
+    public ProductDetailCustomRep(Product productDetail, BizAttributeApplicationService bizAttributeApplicationService) {
         this.id = productDetail.getId();
         this.name = productDetail.getName();
         this.imageUrlSmall = productDetail.getImageUrlSmall();
@@ -92,16 +92,16 @@ public class ProductDetailCustomRep {
         return first.get().getName();
     }
 
-    private List<ProductSkuCustomerRepresentation> getCustomerSku(ProductDetail productDetail) {
+    private List<ProductSkuCustomerRepresentation> getCustomerSku(Product productDetail) {
         List<ProductSku> productSkuList = productDetail.getProductSkuList();
         return productSkuList.stream().map(ProductSkuCustomerRepresentation::new).collect(Collectors.toList());
     }
 
-    private Integer calcTotalSales(ProductDetail productDetail) {
+    private Integer calcTotalSales(Product productDetail) {
         return productDetail.getProductSkuList().stream().map(ProductSku::getSales).reduce(0, Integer::sum);
     }
 
-    private BigDecimal findLowestPrice(ProductDetail productDetail) {
+    private BigDecimal findLowestPrice(Product productDetail) {
         ProductSku productSku = productDetail.getProductSkuList().stream().min(Comparator.comparing(ProductSku::getPrice)).orElseThrow(NoLowestPriceFoundException::new);
         return productSku.getPrice();
     }

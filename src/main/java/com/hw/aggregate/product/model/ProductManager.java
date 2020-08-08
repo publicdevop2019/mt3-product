@@ -1,29 +1,30 @@
 package com.hw.aggregate.product.model;
 
+import com.hw.shared.RestfulEntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 
 @Component
-public class ProductDetailManager extends RestfulEntityManager<ProductDetail> {
+public class ProductManager extends RestfulEntityManager<Product> {
     @Autowired
-    private PublicSelectQueryBuilder publicSelectQueryBuilder;
+    private PublicProductSelectQueryBuilder publicSelectQueryBuilder;
 
     @Autowired
-    private AdminSelectQueryBuilder adminSelectQueryBuilder;
+    private AdminProductSelectQueryBuilder adminSelectQueryBuilder;
 
     @Autowired
-    private AdminProductDetailUpdateQueryBuilder adminUpdateQueryBuilder;
+    private AdminProductUpdateQueryBuilder adminUpdateQueryBuilder;
 
     @Autowired
-    private AdminProductDetailDeleteQueryBuilder adminDeleteQueryBuilder;
+    private AdminProductDeleteQueryBuilder adminDeleteQueryBuilder;
     @Autowired
-    private AppProductDetailUpdateQueryBuilder appProductDetailUpdateQueryBuilder;
+    private AppProductUpdateQueryBuilder appProductDetailUpdateQueryBuilder;
 
     @Override
     @PostConstruct
-    void configQueryBuilder() {
+    protected void configQueryBuilder() {
         this.selectQueryBuilder.put(RoleEnum.PUBLIC, publicSelectQueryBuilder);
         this.selectQueryBuilder.put(RoleEnum.ADMIN, adminSelectQueryBuilder);
         this.updateQueryBuilder.put(RoleEnum.ADMIN, adminUpdateQueryBuilder);

@@ -4,6 +4,7 @@ package com.hw.aggregate.product.model;
 import com.hw.aggregate.product.exception.NoUpdatableFieldException;
 import com.hw.aggregate.product.exception.UnsupportedPatchOperationException;
 import com.hw.aggregate.product.exception.UpdateFiledValueException;
+import com.hw.shared.PatchCommand;
 import com.hw.shared.UpdateQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

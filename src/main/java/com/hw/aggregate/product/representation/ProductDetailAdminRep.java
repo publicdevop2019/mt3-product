@@ -1,7 +1,7 @@
 package com.hw.aggregate.product.representation;
 
 import com.hw.aggregate.product.model.ProductAttrSaleImages;
-import com.hw.aggregate.product.model.ProductDetail;
+import com.hw.aggregate.product.model.Product;
 import com.hw.aggregate.product.model.ProductOption;
 import com.hw.aggregate.product.model.ProductSku;
 import lombok.Data;
@@ -57,7 +57,7 @@ public class ProductDetailAdminRep {
     private Integer sales;
     public transient static final String ADMIN_REP_SALES_LITERAL = "sales";
 
-    public ProductDetailAdminRep(ProductDetail productDetail) {
+    public ProductDetailAdminRep(Product productDetail) {
         this.id = productDetail.getId();
         this.name = productDetail.getName();
         this.imageUrlSmall = productDetail.getImageUrlSmall();

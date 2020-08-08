@@ -7,6 +7,7 @@ import com.hw.aggregate.product.command.ProductValidationCommand;
 import com.hw.aggregate.product.command.UpdateProductAdminCommand;
 import com.hw.aggregate.product.exception.*;
 import com.hw.shared.Auditable;
+import com.hw.shared.PatchCommand;
 import com.hw.shared.StringSetConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,11 +26,11 @@ import static com.hw.shared.AppConstant.*;
 
 @Data
 @Entity
-@Table
+@Table(name = "biz_product")
 @NoArgsConstructor
 @Slf4j
 @EntityListeners(MyListener.class)
-public class ProductDetail extends Auditable {
+public class Product extends Auditable {
     @Id
     private Long id;
     public transient static final String ID_LITERAL = "id";
@@ -97,12 +98,12 @@ public class ProductDetail extends Auditable {
     private Integer totalSales;
     public transient static final String TOTAL_SALES_LITERAL = "totalSales";
 
-    public static ProductDetail create(Long id, CreateProductAdminCommand command, ProductDetailRepo repo) {
-        ProductDetail productDetail = new ProductDetail(id, command);
+    public static Product create(Long id, CreateProductAdminCommand command, ProductDetailRepo repo) {
+        Product productDetail = new Product(id, command);
         return repo.save(productDetail);
     }
 
-    public static boolean isAvailable(ProductDetail productDetail) {
+    public static boolean isAvailable(Product productDetail) {
         Long current = new Date().getTime();
         if (productDetail.getStartAt() == null)
             return false;
@@ -121,9 +122,9 @@ public class ProductDetail extends Auditable {
 
     public static boolean validate(List<ProductValidationCommand> commands, ProductDetailRepo repo) {
         return commands.stream().anyMatch(command -> {
-            Optional<ProductDetail> byId = repo.findById(Long.parseLong(command.getProductId()));
+            Optional<Product> byId = repo.findById(Long.parseLong(command.getProductId()));
             //validate product match
-            if (byId.isEmpty() || !ProductDetail.isAvailable(byId.get()))
+            if (byId.isEmpty() || !Product.isAvailable(byId.get()))
                 return true;
             BigDecimal price;
             if (byId.get().getProductSkuList() != null && byId.get().getProductSkuList().size() != 0) {
@@ -274,7 +275,7 @@ public class ProductDetail extends Auditable {
         repo.save(this);
     }
 
-    private String toNoSkuQueryPath(UpdateProductAdminCommand command, ProductDetail productDetail) {
+    private String toNoSkuQueryPath(UpdateProductAdminCommand command, Product productDetail) {
         if (command.getDecreaseOrderStorage() != null || command.getIncreaseOrderStorage() != null) {
             return "/" + productDetail.getId() + "/" + ADMIN_REP_STORAGE_ORDER_LITERAL;
         }
@@ -353,7 +354,7 @@ public class ProductDetail extends Auditable {
         productApplicationService.patchForAdmin(patchCommands, changeId);
     }
 
-    private String toSkuQueryPath(UpdateProductAdminCommand.UpdateProductAdminSkuCommand command, ProductDetail productDetail) {
+    private String toSkuQueryPath(UpdateProductAdminCommand.UpdateProductAdminSkuCommand command, Product productDetail) {
         Set<String> attributesSales1 = command.getAttributesSales();
         String join = String.join(",", attributesSales1);
         String replace = join.replace(":", "-").replace("/", "~/");
@@ -369,7 +370,7 @@ public class ProductDetail extends Auditable {
     }
 
 
-    private ProductDetail(Long id, CreateProductAdminCommand command) {
+    private Product(Long id, CreateProductAdminCommand command) {
         this.id = id;
         this.imageUrlSmall = command.getImageUrlSmall();
         this.name = command.getName();
@@ -418,11 +419,11 @@ public class ProductDetail extends Auditable {
     }
 
 
-    private Integer calcTotalSales(ProductDetail productDetail) {
+    private Integer calcTotalSales(Product productDetail) {
         return productDetail.getProductSkuList().stream().map(ProductSku::getSales).reduce(0, Integer::sum);
     }
 
-    private BigDecimal findLowestPrice(ProductDetail productDetail) {
+    private BigDecimal findLowestPrice(Product productDetail) {
         ProductSku productSku = productDetail.getProductSkuList().stream().min(Comparator.comparing(ProductSku::getPrice)).orElseThrow(NoLowestPriceFoundException::new);
         return productSku.getPrice();
     }

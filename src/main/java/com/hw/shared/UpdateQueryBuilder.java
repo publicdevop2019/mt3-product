@@ -1,8 +1,5 @@
 package com.hw.shared;
 
-import com.github.fge.jsonpatch.JsonPatch;
-import com.hw.aggregate.product.model.PatchCommand;
-
 import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;

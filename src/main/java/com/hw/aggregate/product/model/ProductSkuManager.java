@@ -1,5 +1,6 @@
 package com.hw.aggregate.product.model;
 
+import com.hw.shared.RestfulEntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +19,7 @@ public class ProductSkuManager extends RestfulEntityManager<ProductSku> {
 
     @PostConstruct
     @Override
-    void configQueryBuilder() {
+    protected void configQueryBuilder() {
         this.deleteQueryBuilder.put(RoleEnum.ADMIN, adminDeleteQueryBuilder);
         this.updateQueryBuilder.put(RoleEnum.ADMIN, adminProductSkuUpdateQueryBuilder);
         this.updateQueryBuilder.put(RoleEnum.APP, appProductSkuUpdateQueryBuilder);

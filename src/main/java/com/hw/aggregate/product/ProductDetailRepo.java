@@ -1,13 +1,13 @@
 package com.hw.aggregate.product;
 
-import com.hw.aggregate.product.model.ProductDetail;
+import com.hw.aggregate.product.model.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ProductDetailRepo extends JpaRepository<ProductDetail, Long> {
+public interface ProductDetailRepo extends JpaRepository<Product, Long> {
 
     @Modifying
     @Query("UPDATE #{#entityName} as p SET p.storageOrder = p.storageOrder - ?2 WHERE p.id = ?1 AND p.storageOrder - ?2 >= 0")

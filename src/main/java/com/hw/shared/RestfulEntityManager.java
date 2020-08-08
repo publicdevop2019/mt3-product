@@ -1,10 +1,6 @@
-package com.hw.aggregate.product.model;
+package com.hw.shared;
 
 import com.hw.aggregate.product.exception.QueryBuilderNotFoundException;
-import com.hw.shared.DeleteQueryBuilder;
-import com.hw.shared.SelectQueryBuilder;
-import com.hw.shared.SumPagedRep;
-import com.hw.shared.UpdateQueryBuilder;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -24,7 +20,7 @@ public abstract class RestfulEntityManager<T> {
     protected Map<RoleEnum, UpdateQueryBuilder<T>> updateQueryBuilder = new HashMap<>();
     protected Map<RoleEnum, DeleteQueryBuilder<T>> deleteQueryBuilder = new HashMap<>();
 
-    abstract void configQueryBuilder();
+    protected abstract void configQueryBuilder();
 
     //    abstract <S> T create(S command);
 
@@ -54,8 +50,9 @@ public abstract class RestfulEntityManager<T> {
             throw new QueryBuilderNotFoundException();
         return deleteQueryBuilder.delete(query, clazz);
     }
+
     public Integer deleteById(RoleEnum roleEnum, String id, Class<T> clazz) {
-        return deleteByQuery(roleEnum,convertIdToQuery(id),clazz);
+        return deleteByQuery(roleEnum, convertIdToQuery(id), clazz);
     }
 
     public Integer update(RoleEnum roleEnum, List<PatchCommand> commands, Class<T> clazz) {

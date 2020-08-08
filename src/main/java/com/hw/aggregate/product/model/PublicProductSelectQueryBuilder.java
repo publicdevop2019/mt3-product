@@ -13,17 +13,17 @@ import java.time.Instant;
 import java.util.HashMap;
 
 @Component("productCustomer")
-public class PublicSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
+public class PublicProductSelectQueryBuilder extends SelectQueryBuilder<Product> {
 
     @Autowired
-    private AdminSelectQueryBuilder adminSelectQueryBuilder;
+    private AdminProductSelectQueryBuilder adminSelectQueryBuilder;
 
     @Autowired
     private void setEntityManager(EntityManager entityManager) {
         em = entityManager;
     }
 
-    PublicSelectQueryBuilder() {
+    PublicProductSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 20;
         MAX_PAGE_SIZE = 40;
         DEFAULT_SORT_BY = "name";
@@ -33,7 +33,7 @@ public class PublicSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> 
         mappedSortBy.put("sales", "totalSales");
     }
 
-    public Predicate getWhereClause(Root<ProductDetail> root, String search) {
+    public Predicate getWhereClause(Root<Product> root, String search) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         if (search == null)
             throw new QueryNotFoundException();
@@ -43,7 +43,7 @@ public class PublicSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> 
     }
 
 
-    private Predicate getStatusClause(Root<ProductDetail> root) {
+    private Predicate getStatusClause(Root<Product> root) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         Predicate startAtLessThanOrEqualToCurrentEpochMilli = cb.lessThanOrEqualTo(root.get("startAt").as(Long.class), Instant.now().toEpochMilli());
         Predicate startAtNotNull = cb.isNotNull(root.get("startAt").as(Long.class));

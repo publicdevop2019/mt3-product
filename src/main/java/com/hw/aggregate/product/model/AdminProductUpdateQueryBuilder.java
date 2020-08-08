@@ -4,6 +4,7 @@ package com.hw.aggregate.product.model;
 import com.hw.aggregate.product.exception.NoUpdatableFieldException;
 import com.hw.aggregate.product.exception.UnsupportedPatchOperationException;
 import com.hw.aggregate.product.exception.UpdateFiledValueException;
+import com.hw.shared.PatchCommand;
 import com.hw.shared.UpdateQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,12 +16,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hw.aggregate.product.model.ProductDetail.*;
+import static com.hw.aggregate.product.model.Product.*;
 import static com.hw.aggregate.product.representation.ProductDetailAdminRep.*;
 import static com.hw.shared.AppConstant.*;
 
 @Component
-public class AdminProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<ProductDetail> {
+public class AdminProductUpdateQueryBuilder extends UpdateQueryBuilder<Product> {
     @Autowired
     private void setEntityManager(EntityManager entityManager) {
         em = entityManager;
@@ -31,7 +32,7 @@ public class AdminProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<Pro
     //    {"op":"sub","path":"/storageActual","value":"2"}
     //    ]
     @Override
-    protected void setUpdateValue(Root<ProductDetail> root, CriteriaUpdate<ProductDetail> criteriaUpdate, PatchCommand e) {
+    protected void setUpdateValue(Root<Product> root, CriteriaUpdate<Product> criteriaUpdate, PatchCommand e) {
         ArrayList<Boolean> booleans = new ArrayList<>();
         booleans.add(setUpdateValueFor("/" + ADMIN_REP_START_AT_LITERAL, START_AT_LITERAL, criteriaUpdate, e));
         booleans.add(setUpdateValueFor("/" + ADMIN_REP_END_AT_LITERAL, END_AT_LITERAL, criteriaUpdate, e));
@@ -43,7 +44,7 @@ public class AdminProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<Pro
         }
     }
 
-    private Boolean setUpdateStorageValueFor(String fieldPath, String filedLiteral, Root<ProductDetail> root, CriteriaUpdate<ProductDetail> criteriaUpdate, PatchCommand e) {
+    private Boolean setUpdateStorageValueFor(String fieldPath, String filedLiteral, Root<Product> root, CriteriaUpdate<Product> criteriaUpdate, PatchCommand e) {
         if (e.getPath().equalsIgnoreCase(fieldPath)) {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUM)) {
@@ -61,7 +62,7 @@ public class AdminProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<Pro
     }
 
 
-    private boolean setUpdateValueFor(String fieldPath, String fieldLiteral, CriteriaUpdate<ProductDetail> criteriaUpdate, PatchCommand e) {
+    private boolean setUpdateValueFor(String fieldPath, String fieldLiteral, CriteriaUpdate<Product> criteriaUpdate, PatchCommand e) {
         if (e.getPath().equalsIgnoreCase(fieldPath)) {
             if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_REMOVE)) {
                 criteriaUpdate.set(fieldLiteral, null);
@@ -101,7 +102,7 @@ public class AdminProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<Pro
 
 
     @Override
-    public Predicate getWhereClause(Root<ProductDetail> root, List<String> search, PatchCommand command) {
+    public Predicate getWhereClause(Root<Product> root, List<String> search, PatchCommand command) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         List<Predicate> results = new ArrayList<>();
         for (String str : search) {
@@ -118,7 +119,7 @@ public class AdminProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<Pro
         return cb.or(results.toArray(new Predicate[0]));
     }
 
-    private Predicate getStorageMustNotNegativeClause(CriteriaBuilder cb, Root<ProductDetail> root, PatchCommand command) {
+    private Predicate getStorageMustNotNegativeClause(CriteriaBuilder cb, Root<Product> root, PatchCommand command) {
         String filedLiteral;
         if (command.getPath().equalsIgnoreCase(ADMIN_REP_STORAGE_ORDER_LITERAL)) {
             filedLiteral = STORAGE_ORDER_LITERAL;

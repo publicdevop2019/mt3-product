@@ -14,26 +14,26 @@ import org.springframework.beans.BeanUtils;
  * @description this class defines what filed can be patched
  */
 @Data
-public class ProductDetailPatchMiddleLayer {
-    public ProductDetailPatchMiddleLayer() {
+public class ProductPatchMiddleLayer {
+    public ProductPatchMiddleLayer() {
     }
 
     private Long startAt;
 
     private Long endAt;
 
-    public ProductDetailPatchMiddleLayer(ProductDetail productDetail) {
+    public ProductPatchMiddleLayer(Product productDetail) {
         this.startAt = productDetail.getStartAt();
         this.endAt = productDetail.getEndAt();
     }
 
-    public static ProductDetail doPatch(JsonPatch patch, ProductDetail original, ObjectMapper om, ProductDetailRepo repo) {
-        ProductDetailPatchMiddleLayer command = new ProductDetailPatchMiddleLayer(original);
-        ProductDetailPatchMiddleLayer patchMiddleLayer;
+    public static Product doPatch(JsonPatch patch, Product original, ObjectMapper om, ProductDetailRepo repo) {
+        ProductPatchMiddleLayer command = new ProductPatchMiddleLayer(original);
+        ProductPatchMiddleLayer patchMiddleLayer;
         try {
             JsonNode jsonNode = om.convertValue(command, JsonNode.class);
             JsonNode patchedNode = patch.apply(jsonNode);
-            patchMiddleLayer = om.treeToValue(patchedNode, ProductDetailPatchMiddleLayer.class);
+            patchMiddleLayer = om.treeToValue(patchedNode, ProductPatchMiddleLayer.class);
         } catch (JsonPatchException | JsonProcessingException e) {
             e.printStackTrace();
             throw new ProductDetailPatchException();

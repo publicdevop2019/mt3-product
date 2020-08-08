@@ -1,6 +1,6 @@
 package com.hw.aggregate.product.representation;
 
-import com.hw.aggregate.product.model.ProductDetail;
+import com.hw.aggregate.product.model.Product;
 import com.hw.aggregate.product.model.ProductSku;
 import com.hw.shared.SumPagedRep;
 import lombok.Data;
@@ -16,7 +16,7 @@ public class ProductAdminSumPagedRep extends SumPagedRep<ProductAdminSumPagedRep
         this.totalItemCount = totalItemCount;
     }
 
-    public ProductAdminSumPagedRep(SumPagedRep<ProductDetail> select) {
+    public ProductAdminSumPagedRep(SumPagedRep<Product> select) {
         this.data.addAll(select.getData().stream().map(ProductAdminCardRepresentation::new).collect(Collectors.toList()));
         this.totalItemCount = select.getTotalItemCount();
     }
@@ -31,7 +31,7 @@ public class ProductAdminSumPagedRep extends SumPagedRep<ProductAdminSumPagedRep
         private Long startAt;
         private Long endAt;
 
-        public ProductAdminCardRepresentation(ProductDetail productDetail) {
+        public ProductAdminCardRepresentation(Product productDetail) {
             this.id = productDetail.getId();
             this.name = productDetail.getName();
             this.totalSales = productDetail.getTotalSales();

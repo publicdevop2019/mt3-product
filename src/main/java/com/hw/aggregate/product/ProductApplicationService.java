@@ -15,6 +15,8 @@ import com.hw.aggregate.product.exception.RollbackNotSupportedException;
 import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.*;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.PatchCommand;
+import com.hw.shared.RestfulEntityManager;
 import com.hw.shared.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +53,7 @@ public class ProductApplicationService {
     private IdGenerator idGenerator;
 
     @Autowired
-    private ProductDetailManager productDetailManager;
+    private ProductManager productDetailManager;
     @Autowired
     private ProductSkuManager productSkuManager;
 
@@ -60,19 +62,19 @@ public class ProductApplicationService {
 
     @Transactional(readOnly = true)
     public ProductAdminSumPagedRep readForAdminByQuery(String query, String page, String countFlag) {
-        SumPagedRep<ProductDetail> pagedRep = productDetailManager.readByQuery(RestfulEntityManager.RoleEnum.ADMIN, query, page, countFlag, ProductDetail.class);
+        SumPagedRep<Product> pagedRep = productDetailManager.readByQuery(RestfulEntityManager.RoleEnum.ADMIN, query, page, countFlag, Product.class);
         return new ProductAdminSumPagedRep(pagedRep);
     }
 
     @Transactional(readOnly = true)
     public ProductPublicSumPagedRep readForPublicByQuery(String query, String page, String countFlag) {
-        SumPagedRep<ProductDetail> pagedRep = productDetailManager.readByQuery(RestfulEntityManager.RoleEnum.PUBLIC, query, page, countFlag, ProductDetail.class);
+        SumPagedRep<Product> pagedRep = productDetailManager.readByQuery(RestfulEntityManager.RoleEnum.PUBLIC, query, page, countFlag, Product.class);
         return new ProductPublicSumPagedRep(pagedRep);
     }
 
     @Transactional(readOnly = true)
     public ProductDetailCustomRep readForPublicById(Long id) {
-        SumPagedRep<ProductDetail> productDetailSumPagedRep = productDetailManager.readById(RestfulEntityManager.RoleEnum.PUBLIC, id.toString(), ProductDetail.class);
+        SumPagedRep<Product> productDetailSumPagedRep = productDetailManager.readById(RestfulEntityManager.RoleEnum.PUBLIC, id.toString(), Product.class);
         if (productDetailSumPagedRep.getData().size() == 0)
             throw new ProductNotFoundException();
         return new ProductDetailCustomRep(productDetailSumPagedRep.getData().get(0), attributeApplicationService);
@@ -80,31 +82,31 @@ public class ProductApplicationService {
 
     @Transactional(readOnly = true)
     public ProductDetailAdminRep readForAdminById(Long id) {
-        ProductDetail productDetail = getForAdminProductDetail(id);
+        Product productDetail = getForAdminProductDetail(id);
         return new ProductDetailAdminRep(productDetail);
     }
 
     @Transactional
     public ProductCreatedRep createForAdmin(CreateProductAdminCommand command) {
-        return new ProductCreatedRep(ProductDetail.create(idGenerator.getId(), command, repo));
+        return new ProductCreatedRep(Product.create(idGenerator.getId(), command, repo));
     }
 
     @Transactional
     public void replaceForAdminById(Long id, UpdateProductAdminCommand command) {
-        ProductDetail productDetail = getForAdminProductDetail(id);
+        Product productDetail = getForAdminProductDetail(id);
         productDetail.replace(command, this, repo);
     }
 
     @Transactional
     public Integer deleteForAdminById(Long id) {
         productSkuManager.deleteById(RestfulEntityManager.RoleEnum.ADMIN, id.toString(), ProductSku.class);
-        return productDetailManager.deleteById(RestfulEntityManager.RoleEnum.ADMIN, id.toString(), ProductDetail.class);
+        return productDetailManager.deleteById(RestfulEntityManager.RoleEnum.ADMIN, id.toString(), Product.class);
     }
 
     @Transactional
     public ProductDetailAdminRep patchForAdminById(Long id, JsonPatch patch) {
-        ProductDetail productDetail = getForAdminProductDetail(id);
-        return new ProductDetailAdminRep(ProductDetailPatchMiddleLayer.doPatch(patch, productDetail, om, repo));
+        Product productDetail = getForAdminProductDetail(id);
+        return new ProductDetailAdminRep(ProductPatchMiddleLayer.doPatch(patch, productDetail, om, repo));
     }
 
     @Transactional
@@ -117,7 +119,7 @@ public class ProductApplicationService {
         List<PatchCommand> hasNestedEntity = deepCopy.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         List<PatchCommand> noNestedEntity = deepCopy.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         Integer update1 = productSkuManager.update(RestfulEntityManager.RoleEnum.ADMIN, hasNestedEntity, ProductSku.class);
-        Integer update = productDetailManager.update(RestfulEntityManager.RoleEnum.ADMIN, noNestedEntity, ProductDetail.class);
+        Integer update = productDetailManager.update(RestfulEntityManager.RoleEnum.ADMIN, noNestedEntity, Product.class);
         return new ProductAdminSumPagedRep(update.longValue());
     }
 
@@ -130,7 +132,7 @@ public class ProductApplicationService {
         List<PatchCommand> deepCopy = getDeepCopy(commands);
         List<PatchCommand> hasNestedEntity = deepCopy.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         List<PatchCommand> noNestedEntity = deepCopy.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
-        Integer update = productDetailManager.update(RestfulEntityManager.RoleEnum.APP, noNestedEntity, ProductDetail.class);
+        Integer update = productDetailManager.update(RestfulEntityManager.RoleEnum.APP, noNestedEntity, Product.class);
         Integer update1 = productSkuManager.update(RestfulEntityManager.RoleEnum.APP, hasNestedEntity, ProductSku.class);
         return new ProductAppSumPagedRep(update.longValue());
     }
@@ -140,7 +142,7 @@ public class ProductApplicationService {
     public Integer deleteForAdminByQuery(String query) {
         //delete sku first
         productSkuManager.deleteByQuery(RestfulEntityManager.RoleEnum.ADMIN, query, ProductSku.class);
-        return productDetailManager.deleteByQuery(RestfulEntityManager.RoleEnum.ADMIN, query, ProductDetail.class);
+        return productDetailManager.deleteByQuery(RestfulEntityManager.RoleEnum.ADMIN, query, Product.class);
     }
 
     /**
@@ -151,7 +153,7 @@ public class ProductApplicationService {
      */
     @Transactional(readOnly = true)
     public ProductValidationResultRep validate(List<ProductValidationCommand> commands) {
-        return new ProductValidationResultRep(ProductDetail.validate(commands, repo));
+        return new ProductValidationResultRep(Product.validate(commands, repo));
     }
 
     @Transactional
@@ -195,8 +197,8 @@ public class ProductApplicationService {
     }
 
 
-    private ProductDetail getForAdminProductDetail(Long id) {
-        SumPagedRep<ProductDetail> productDetailSumPagedRep = productDetailManager.readById(RestfulEntityManager.RoleEnum.ADMIN, id.toString(), ProductDetail.class);
+    private Product getForAdminProductDetail(Long id) {
+        SumPagedRep<Product> productDetailSumPagedRep = productDetailManager.readById(RestfulEntityManager.RoleEnum.ADMIN, id.toString(), Product.class);
         if (productDetailSumPagedRep.getData().size() == 0)
             throw new ProductNotFoundException();
         return productDetailSumPagedRep.getData().get(0);

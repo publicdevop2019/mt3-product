@@ -12,12 +12,12 @@ import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.hw.aggregate.product.model.ProductDetail.*;
+import static com.hw.aggregate.product.model.Product.*;
 import static com.hw.aggregate.product.representation.ProductDetailAdminRep.*;
 
 
 @Component("productAdmin")
-public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
+public class AdminProductSelectQueryBuilder extends SelectQueryBuilder<Product> {
     @Autowired
     private void setEntityManager(EntityManager entityManager) {
         em = entityManager;
@@ -25,7 +25,7 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
 
     private final String[] attrs = {ATTR_KEY_LITERAL, ATTR_PROD_LITERAL, ATTR_GEN_LITERAL, ATTR_SALES_TOTAL_LITERAL};
 
-    AdminSelectQueryBuilder() {
+    AdminProductSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 40;
         MAX_PAGE_SIZE = 400;
         DEFAULT_SORT_BY = ADMIN_REP_ID_LITERAL;
@@ -38,7 +38,7 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
     }
 
     @Override
-    public Predicate getWhereClause(Root<ProductDetail> root, String search) {
+    public Predicate getWhereClause(Root<Product> root, String search) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         if (search == null)
             return null;
@@ -66,7 +66,7 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
         return cb.and(results.toArray(new Predicate[0]));
     }
 
-    private Predicate getIdWhereClause(String s, CriteriaBuilder cb, Root<ProductDetail> root) {
+    private Predicate getIdWhereClause(String s, CriteriaBuilder cb, Root<Product> root) {
         String[] split = s.split("\\.");
         List<Predicate> results = new ArrayList<>();
         for (String str : split) {
@@ -75,11 +75,11 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
         return cb.or(results.toArray(new Predicate[0]));
     }
 
-    private Predicate getNameWhereClause(String name, CriteriaBuilder cb, Root<ProductDetail> root) {
+    private Predicate getNameWhereClause(String name, CriteriaBuilder cb, Root<Product> root) {
         return cb.like(root.get(NAME_LITERAL), "%" + name + "%");
     }
 
-    private Predicate getPriceWhereClause(String s, CriteriaBuilder cb, Root<ProductDetail> root) {
+    private Predicate getPriceWhereClause(String s, CriteriaBuilder cb, Root<Product> root) {
         String[] split = s.split("\\$");
         List<Predicate> results = new ArrayList<>();
         for (String str : split) {
@@ -102,7 +102,7 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
         return cb.and(results.toArray(new Predicate[0]));
     }
 
-    private Predicate getAttrWhereClause(String attributes, CriteriaBuilder cb, Root<ProductDetail> root) {
+    private Predicate getAttrWhereClause(String attributes, CriteriaBuilder cb, Root<Product> root) {
         //sort before search
         Set<String> strings = new TreeSet<>(Arrays.asList(attributes.split("\\$")));
         List<Predicate> list1 = strings.stream().filter(e -> !e.contains("+")).map(e -> getAndExpression(e, cb, root)).collect(Collectors.toList());
@@ -111,7 +111,7 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
         return cb.and(list1.toArray(new Predicate[0]));
     }
 
-    private Predicate getOrExpression(String input, CriteriaBuilder cb, Root<ProductDetail> root) {
+    private Predicate getOrExpression(String input, CriteriaBuilder cb, Root<Product> root) {
         if (input.split("-").length != 2)
             throw new UnsupportedQueryException();
         String name = input.split("-")[0];
@@ -125,7 +125,7 @@ public class AdminSelectQueryBuilder extends SelectQueryBuilder<ProductDetail> {
         return cb.or(predicates);
     }
 
-    private Predicate getAndExpression(String input, CriteriaBuilder cb, Root<ProductDetail> root) {
+    private Predicate getAndExpression(String input, CriteriaBuilder cb, Root<Product> root) {
         if (input.split("-").length != 2)
             throw new UnsupportedQueryException();
         String replace = input.replace("-", ":");

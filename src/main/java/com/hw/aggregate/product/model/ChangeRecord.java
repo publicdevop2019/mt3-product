@@ -1,6 +1,7 @@
 package com.hw.aggregate.product.model;
 
 import com.hw.shared.Auditable;
+import com.hw.shared.PatchCommand;
 import lombok.Data;
 
 import javax.persistence.Column;

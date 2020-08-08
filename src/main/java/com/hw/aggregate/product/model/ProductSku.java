@@ -15,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Data
 @Entity
-@Table
+@Table(name = "biz_product_sku")
 @IdClass(ProductSku.PK.class)
 public class ProductSku {
     @Id

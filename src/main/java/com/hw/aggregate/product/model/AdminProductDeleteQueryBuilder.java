@@ -12,18 +12,18 @@ import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hw.aggregate.product.model.ProductDetail.ID_LITERAL;
+import static com.hw.aggregate.product.model.Product.ID_LITERAL;
 import static com.hw.aggregate.product.representation.ProductDetailAdminRep.ADMIN_REP_ID_LITERAL;
 
 @Component
-public class AdminProductDetailDeleteQueryBuilder extends DeleteQueryBuilder<ProductDetail> {
+public class AdminProductDeleteQueryBuilder extends DeleteQueryBuilder<Product> {
     @Autowired
     private void setEntityManager(EntityManager entityManager) {
         em = entityManager;
     }
 
     @Override
-    public Predicate getWhereClause(Root<ProductDetail> root, String search) {
+    public Predicate getWhereClause(Root<Product> root, String search) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         if (search == null)
             throw new QueryNotFoundException();
@@ -41,7 +41,7 @@ public class AdminProductDetailDeleteQueryBuilder extends DeleteQueryBuilder<Pro
     }
 
 
-    private Predicate getIdWhereClause(String s, CriteriaBuilder cb, Root<ProductDetail> root) {
+    private Predicate getIdWhereClause(String s, CriteriaBuilder cb, Root<Product> root) {
         String[] split = s.split("\\.");
         List<Predicate> results = new ArrayList<>();
         for (String str : split) {

@@ -4,7 +4,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.product.command.CreateProductAdminCommand;
 import com.hw.aggregate.product.command.ProductValidationCommand;
 import com.hw.aggregate.product.command.UpdateProductAdminCommand;
-import com.hw.aggregate.product.model.PatchCommand;
+import com.hw.shared.PatchCommand;
 import com.hw.aggregate.product.representation.ProductAdminSumPagedRep;
 import com.hw.aggregate.product.representation.ProductPublicSumPagedRep;
 import lombok.extern.slf4j.Slf4j;
