@@ -79,10 +79,10 @@ public class AppProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<ProductS
     private Boolean setUpdateStorageValueFor(String fieldPath, String filedLiteral, Root<ProductSku> root, CriteriaUpdate<ProductSku> criteriaUpdate, PatchCommand e) {
         if (e.getPath().contains(fieldPath)) {
             CriteriaBuilder cb = em.getCriteriaBuilder();
-            if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_ADD)) {
+            if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUM)) {
                 criteriaUpdate.set(root.<Integer>get(filedLiteral), cb.sum(root.get(filedLiteral), parseInteger(e.getValue())));
                 return true;
-            } else if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUB)) {
+            } else if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF)) {
                 criteriaUpdate.set(root.<Integer>get(filedLiteral), cb.diff(root.get(filedLiteral), parseInteger(e.getValue())));
                 return true;
             } else {
@@ -126,7 +126,7 @@ public class AppProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<ProductS
 
 
     private boolean storagePatchOpSub(PatchCommand command) {
-        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUB) && (command.getPath().contains(ADMIN_REP_STORAGE_ORDER_LITERAL) ||
+        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF) && (command.getPath().contains(ADMIN_REP_STORAGE_ORDER_LITERAL) ||
                 command.getPath().contains(ADMIN_REP_STORAGE_ACTUAL_LITERAL) || command.getPath().contains(ADMIN_REP_SALES_LITERAL));
     }
 }

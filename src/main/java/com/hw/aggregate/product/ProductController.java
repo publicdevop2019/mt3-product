@@ -1,7 +1,9 @@
 package com.hw.aggregate.product;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.hw.aggregate.product.command.*;
+import com.hw.aggregate.product.command.CreateProductAdminCommand;
+import com.hw.aggregate.product.command.ProductValidationCommand;
+import com.hw.aggregate.product.command.UpdateProductAdminCommand;
 import com.hw.aggregate.product.model.PatchCommand;
 import com.hw.aggregate.product.representation.ProductAdminSumPagedRep;
 import com.hw.aggregate.product.representation.ProductPublicSumPagedRep;
@@ -68,14 +70,14 @@ public class ProductController {
     }
 
     @PatchMapping("admin/productDetails")
-    public ResponseEntity<?> patchForAdmin(@RequestBody List<PatchCommand> patch) {
-        productService.patchForAdmin(patch);
+    public ResponseEntity<?> patchForAdmin(@RequestBody List<PatchCommand> patch, @RequestHeader("changeId") String changeId) {
+        productService.patchForAdmin(patch, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("app/productDetails")
-    public ResponseEntity<?> patchForApp(@RequestBody List<PatchCommand> patch) {
-        productService.patchForApp(patch);
+    public ResponseEntity<?> patchForApp(@RequestBody List<PatchCommand> patch, @RequestHeader("changeId") String changeId) {
+        productService.patchForApp(patch, changeId);
         return ResponseEntity.ok().build();
     }
 
@@ -96,9 +98,9 @@ public class ProductController {
         return ResponseEntity.ok(productService.validate(products).getResult());
     }
 
-    @PutMapping("internal/transactions/rollback")
-    public ResponseEntity<?> rollbackTx(@RequestParam(value = "txId") String txId) {
-        productService.rollbackTx(txId);
+    @DeleteMapping("app/change/{id}")
+    public ResponseEntity<?> rollbackChange(@PathVariable(name = "id") String id) {
+        productService.rollbackChangeForApp(id);
         return ResponseEntity.ok().build();
     }
 

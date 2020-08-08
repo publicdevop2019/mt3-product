@@ -15,8 +15,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hw.aggregate.product.model.ProductDetail.STORAGE_ACTUAL_LITERAL;
-import static com.hw.aggregate.product.model.ProductDetail.STORAGE_ORDER_LITERAL;
 import static com.hw.aggregate.product.model.ProductSku.*;
 import static com.hw.aggregate.product.representation.ProductDetailAdminRep.ADMIN_REP_SKU_LITERAL;
 import static com.hw.aggregate.product.representation.ProductDetailAdminRep.ProductSkuAdminRepresentation.*;
@@ -80,10 +78,10 @@ public class AdminProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<Produc
     private Boolean setUpdateStorageValueFor(String fieldPath, String filedLiteral, Root<ProductSku> root, CriteriaUpdate<ProductSku> criteriaUpdate, PatchCommand e) {
         if (e.getPath().contains(fieldPath)) {
             CriteriaBuilder cb = em.getCriteriaBuilder();
-            if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_ADD)) {
+            if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUM)) {
                 criteriaUpdate.set(root.<Integer>get(filedLiteral), cb.sum(root.get(filedLiteral), parseInteger(e.getValue())));
                 return true;
-            } else if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUB)) {
+            } else if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF)) {
                 criteriaUpdate.set(root.<Integer>get(filedLiteral), cb.diff(root.get(filedLiteral), parseInteger(e.getValue())));
                 return true;
             } else {
@@ -124,7 +122,7 @@ public class AdminProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<Produc
     }
 
     private boolean storagePatchOpSub(PatchCommand command) {
-        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUB) && (command.getPath().contains(ADMIN_REP_SKU_STORAGE_ORDER_LITERAL) ||
+        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF) && (command.getPath().contains(ADMIN_REP_SKU_STORAGE_ORDER_LITERAL) ||
                 command.getPath().contains(ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL));
     }
 }

@@ -24,6 +24,7 @@ import static com.hw.config.AppConstant.ADMIN_ADJUST;
 @Table
 @NoArgsConstructor
 @Slf4j
+@EntityListeners(MyListener.class)
 public class ProductDetail extends Auditable {
     @Id
     private Long id;
@@ -251,30 +252,30 @@ public class ProductDetail extends Auditable {
         } else {
             this.productSkuList = null;
             this.lowestPrice = command.getPrice();
-            if (command.getDecreaseOrderStorage() != null) {
-                DecreaseOrderStorageCommand command1 = new DecreaseOrderStorageCommand();
-                command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
-                command1.setChangeList(getStorageChangeDetail(command.getDecreaseOrderStorage()));
-                productApplicationService.decreaseOrderStorageForMappedProducts(command1);
-            }
-            if (command.getDecreaseActualStorage() != null) {
-                DecreaseActualStorageCommand command1 = new DecreaseActualStorageCommand();
-                command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
-                command1.setChangeList(getStorageChangeDetail(command.getDecreaseActualStorage()));
-                productApplicationService.decreaseActualStorageForMappedProductsAdmin(command1);
-            }
-            if (command.getIncreaseOrderStorage() != null) {
-                IncreaseOrderStorageCommand command1 = new IncreaseOrderStorageCommand();
-                command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
-                command1.setChangeList(getStorageChangeDetail(command.getIncreaseOrderStorage()));
-                productApplicationService.increaseOrderStorageForMappedProducts(command1);
-            }
-            if (command.getIncreaseActualStorage() != null) {
-                IncreaseActualStorageCommand command1 = new IncreaseActualStorageCommand();
-                command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
-                command1.setChangeList(getStorageChangeDetail(command.getIncreaseActualStorage()));
-                productApplicationService.increaseActualStorageForMappedProductsAdmin(command1);
-            }
+//            if (command.getDecreaseOrderStorage() != null) {
+//                DecreaseOrderStorageCommand command1 = new DecreaseOrderStorageCommand();
+//                command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
+//                command1.setChangeList(getStorageChangeDetail(command.getDecreaseOrderStorage()));
+//                productApplicationService.decreaseOrderStorageForMappedProducts(command1);
+//            }
+//            if (command.getDecreaseActualStorage() != null) {
+//                DecreaseActualStorageCommand command1 = new DecreaseActualStorageCommand();
+//                command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
+//                command1.setChangeList(getStorageChangeDetail(command.getDecreaseActualStorage()));
+//                productApplicationService.decreaseActualStorageForMappedProductsAdmin(command1);
+//            }
+//            if (command.getIncreaseOrderStorage() != null) {
+//                IncreaseOrderStorageCommand command1 = new IncreaseOrderStorageCommand();
+//                command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
+//                command1.setChangeList(getStorageChangeDetail(command.getIncreaseOrderStorage()));
+//                productApplicationService.increaseOrderStorageForMappedProducts(command1);
+//            }
+//            if (command.getIncreaseActualStorage() != null) {
+//                IncreaseActualStorageCommand command1 = new IncreaseActualStorageCommand();
+//                command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
+//                command1.setChangeList(getStorageChangeDetail(command.getIncreaseActualStorage()));
+//                productApplicationService.increaseActualStorageForMappedProductsAdmin(command1);
+//            }
         }
         repo.save(this);
     }
@@ -301,7 +302,7 @@ public class ProductDetail extends Auditable {
                 //update price
                 ProductSku productSku = first.get();
                 productSku.setPrice(command.getPrice());
-                updateStorage(productApplicationService, command);
+//                updateStorage(productApplicationService, command);
 
             }
         });
@@ -310,51 +311,51 @@ public class ProductDetail extends Auditable {
         this.productSkuList.removeAll(collect);
     }
 
-    private void updateStorage(ProductApplicationService productApplicationService, UpdateProductAdminCommand.UpdateProductAdminSkuCommand command) {
-        if (command.getDecreaseOrderStorage() != null) {
-            DecreaseOrderStorageCommand command1 = new DecreaseOrderStorageCommand();
-            command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
-            command1.setChangeList(getStorageChangeDetail(command, command.getDecreaseOrderStorage()));
-            productApplicationService.decreaseOrderStorageForMappedProducts(command1);
-        }
-        if (command.getDecreaseActualStorage() != null) {
-            DecreaseActualStorageCommand command1 = new DecreaseActualStorageCommand();
-            command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
-            command1.setChangeList(getStorageChangeDetail(command, command.getDecreaseActualStorage()));
-            productApplicationService.decreaseActualStorageForMappedProductsAdmin(command1);
-        }
-        if (command.getIncreaseOrderStorage() != null) {
-            IncreaseOrderStorageCommand command1 = new IncreaseOrderStorageCommand();
-            command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
-            command1.setChangeList(getStorageChangeDetail(command, command.getIncreaseOrderStorage()));
-            productApplicationService.increaseOrderStorageForMappedProducts(command1);
-        }
-        if (command.getIncreaseActualStorage() != null) {
-            IncreaseActualStorageCommand command1 = new IncreaseActualStorageCommand();
-            command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
-            command1.setChangeList(getStorageChangeDetail(command, command.getIncreaseActualStorage()));
-            productApplicationService.increaseActualStorageForMappedProductsAdmin(command1);
-        }
-    }
+//    private void updateStorage(ProductApplicationService productApplicationService, UpdateProductAdminCommand.UpdateProductAdminSkuCommand command) {
+//        if (command.getDecreaseOrderStorage() != null) {
+//            DecreaseOrderStorageCommand command1 = new DecreaseOrderStorageCommand();
+//            command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
+//            command1.setChangeList(getStorageChangeDetail(command, command.getDecreaseOrderStorage()));
+//            productApplicationService.decreaseOrderStorageForMappedProducts(command1);
+//        }
+//        if (command.getDecreaseActualStorage() != null) {
+//            DecreaseActualStorageCommand command1 = new DecreaseActualStorageCommand();
+//            command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
+//            command1.setChangeList(getStorageChangeDetail(command, command.getDecreaseActualStorage()));
+//            productApplicationService.decreaseActualStorageForMappedProductsAdmin(command1);
+//        }
+//        if (command.getIncreaseOrderStorage() != null) {
+//            IncreaseOrderStorageCommand command1 = new IncreaseOrderStorageCommand();
+//            command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
+//            command1.setChangeList(getStorageChangeDetail(command, command.getIncreaseOrderStorage()));
+//            productApplicationService.increaseOrderStorageForMappedProducts(command1);
+//        }
+//        if (command.getIncreaseActualStorage() != null) {
+//            IncreaseActualStorageCommand command1 = new IncreaseActualStorageCommand();
+//            command1.setTxId(UUID.randomUUID().toString() + ADMIN_ADJUST);
+//            command1.setChangeList(getStorageChangeDetail(command, command.getIncreaseActualStorage()));
+//            productApplicationService.increaseActualStorageForMappedProductsAdmin(command1);
+//        }
+//    }
 
-    private List<StorageChangeDetail> getStorageChangeDetail(UpdateProductAdminCommand.UpdateProductAdminSkuCommand command, Integer increaseOrderStorage) {
-        ArrayList<StorageChangeDetail> objects = new ArrayList<>(1);
-        StorageChangeDetail storageChangeDetail = new StorageChangeDetail();
-        storageChangeDetail.setAmount(increaseOrderStorage);
-        storageChangeDetail.setProductId(this.id);
-        storageChangeDetail.setAttributeSales(command.getAttributesSales());
-        objects.add(storageChangeDetail);
-        return objects;
-    }
-
-    private List<StorageChangeDetail> getStorageChangeDetail(Integer increaseOrderStorage) {
-        ArrayList<StorageChangeDetail> objects = new ArrayList<>(1);
-        StorageChangeDetail storageChangeDetail = new StorageChangeDetail();
-        storageChangeDetail.setAmount(increaseOrderStorage);
-        storageChangeDetail.setProductId(this.id);
-        objects.add(storageChangeDetail);
-        return objects;
-    }
+//    private List<StorageChangeDetail> getStorageChangeDetail(UpdateProductAdminCommand.UpdateProductAdminSkuCommand command, Integer increaseOrderStorage) {
+//        ArrayList<StorageChangeDetail> objects = new ArrayList<>(1);
+//        StorageChangeDetail storageChangeDetail = new StorageChangeDetail();
+//        storageChangeDetail.setAmount(increaseOrderStorage);
+//        storageChangeDetail.setProductId(this.id);
+//        storageChangeDetail.setAttributeSales(command.getAttributesSales());
+//        objects.add(storageChangeDetail);
+//        return objects;
+//    }
+//
+//    private List<StorageChangeDetail> getStorageChangeDetail(Integer increaseOrderStorage) {
+//        ArrayList<StorageChangeDetail> objects = new ArrayList<>(1);
+//        StorageChangeDetail storageChangeDetail = new StorageChangeDetail();
+//        storageChangeDetail.setAmount(increaseOrderStorage);
+//        storageChangeDetail.setProductId(this.id);
+//        objects.add(storageChangeDetail);
+//        return objects;
+//    }
 
 
     private ProductDetail(Long id, CreateProductAdminCommand command) {

@@ -46,10 +46,10 @@ public class AdminProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<Pro
     private Boolean setUpdateStorageValueFor(String fieldPath, String filedLiteral, Root<ProductDetail> root, CriteriaUpdate<ProductDetail> criteriaUpdate, PatchCommand e) {
         if (e.getPath().equalsIgnoreCase(fieldPath)) {
             CriteriaBuilder cb = em.getCriteriaBuilder();
-            if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_ADD)) {
+            if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUM)) {
                 criteriaUpdate.set(root.<Integer>get(filedLiteral), cb.sum(root.get(filedLiteral), parseInteger(e.getValue())));
                 return true;
-            } else if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUB)) {
+            } else if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF)) {
                 criteriaUpdate.set(root.<Integer>get(filedLiteral), cb.diff(root.get(filedLiteral), parseInteger(e.getValue())));
                 return true;
             } else {
@@ -66,7 +66,7 @@ public class AdminProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<Pro
             if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_REMOVE)) {
                 criteriaUpdate.set(fieldLiteral, null);
                 return true;
-            } else if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_ADD) || e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_REPLACE)) {
+            } else if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUM) || e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_REPLACE)) {
                 if (e.getValue() != null) {
                     criteriaUpdate.set(fieldLiteral, parseLong(e.getValue()));
                 } else {
@@ -130,7 +130,7 @@ public class AdminProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<Pro
     }
 
     private boolean storagePatchOpSub(PatchCommand command) {
-        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUB) && (command.getPath().contains(ADMIN_REP_STORAGE_ORDER_LITERAL) ||
+        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF) && (command.getPath().contains(ADMIN_REP_STORAGE_ORDER_LITERAL) ||
                 command.getPath().contains(ADMIN_REP_STORAGE_ACTUAL_LITERAL));
     }
 

@@ -17,8 +17,8 @@ import java.util.List;
 
 import static com.hw.aggregate.product.model.ProductDetail.*;
 import static com.hw.aggregate.product.representation.ProductDetailAdminRep.*;
-import static com.hw.shared.AppConstant.PATCH_OP_TYPE_ADD;
-import static com.hw.shared.AppConstant.PATCH_OP_TYPE_SUB;
+import static com.hw.shared.AppConstant.PATCH_OP_TYPE_SUM;
+import static com.hw.shared.AppConstant.PATCH_OP_TYPE_DIFF;
 
 @Component
 public class AppProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<ProductDetail> {
@@ -35,8 +35,8 @@ public class AppProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<Produ
     protected void setUpdateValue(Root<ProductDetail> root, CriteriaUpdate<ProductDetail> criteriaUpdate, PatchCommand e) {
         ArrayList<Boolean> booleans = new ArrayList<>();
         booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_STORAGE_ORDER_LITERAL, STORAGE_ORDER_LITERAL, root, criteriaUpdate, e));
-        booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_SALES_LITERAL, TOTAL_SALES_LITERAL, root, criteriaUpdate, e));
         booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_STORAGE_ACTUAL_LITERAL, STORAGE_ACTUAL_LITERAL, root, criteriaUpdate, e));
+        booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_SALES_LITERAL, TOTAL_SALES_LITERAL, root, criteriaUpdate, e));
         Boolean hasFieldChange = booleans.stream().reduce(false, (a, b) -> a || b);
         if (!hasFieldChange) {
             throw new NoUpdatableFieldException();
@@ -46,10 +46,10 @@ public class AppProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<Produ
     private Boolean setUpdateStorageValueFor(String fieldPath, String filedLiteral, Root<ProductDetail> root, CriteriaUpdate<ProductDetail> criteriaUpdate, PatchCommand e) {
         if (e.getPath().equalsIgnoreCase(fieldPath)) {
             CriteriaBuilder cb = em.getCriteriaBuilder();
-            if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_ADD)) {
+            if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUM)) {
                 criteriaUpdate.set(root.<Integer>get(filedLiteral), cb.sum(root.get(filedLiteral), parseInteger(e.getValue())));
                 return true;
-            } else if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUB)) {
+            } else if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF)) {
                 criteriaUpdate.set(root.<Integer>get(filedLiteral), cb.diff(root.get(filedLiteral), parseInteger(e.getValue())));
                 return true;
             } else {
@@ -112,7 +112,7 @@ public class AppProductDetailUpdateQueryBuilder extends UpdateQueryBuilder<Produ
     }
 
     private boolean storagePatchOpSub(PatchCommand command) {
-        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUB) && (command.getPath().contains(ADMIN_REP_STORAGE_ORDER_LITERAL) ||
+        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF) && (command.getPath().contains(ADMIN_REP_STORAGE_ORDER_LITERAL) ||
                 command.getPath().contains(ADMIN_REP_STORAGE_ACTUAL_LITERAL) || command.getPath().contains(ADMIN_REP_SALES_LITERAL));
     }
 

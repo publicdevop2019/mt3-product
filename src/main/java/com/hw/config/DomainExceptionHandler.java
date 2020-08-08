@@ -32,7 +32,9 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
             ProductDetailPatchException.class,
             QueryNotFoundException.class,
             UnsupportedPatchOperationException.class,
-            UpdateFiledValueException.class
+            UpdateFiledValueException.class,
+            HangingTransactionException.class,
+            RollbackNotSupportedException.class
     })
     protected ResponseEntity<?> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);
@@ -43,12 +45,12 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {
             ActualStorageIncreaseException.class,
-            HangingTransactionException.class,
             NoLowestPriceFoundException.class,
             OrderStorageIncreaseException.class,
             AttributeNameNotFoundException.class,
             TotalSalesDecreaseException.class,
-            TotalSalesIncreaseException.class
+            TotalSalesIncreaseException.class,
+            DeepCopyException.class
     })
     protected ResponseEntity<Object> handle500Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);
