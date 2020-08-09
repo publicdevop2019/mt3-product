@@ -21,10 +21,12 @@ public class ProductPatchMiddleLayer {
     private Long startAt;
 
     private Long endAt;
+    private String name;
 
     public ProductPatchMiddleLayer(Product productDetail) {
         this.startAt = productDetail.getStartAt();
         this.endAt = productDetail.getEndAt();
+        this.name = productDetail.getName();
     }
 
     public static Product doPatch(JsonPatch patch, Product original, ObjectMapper om, ProductDetailRepo repo) {

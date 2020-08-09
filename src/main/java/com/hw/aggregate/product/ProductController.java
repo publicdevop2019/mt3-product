@@ -4,6 +4,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.product.command.CreateProductAdminCommand;
 import com.hw.aggregate.product.command.ProductValidationCommand;
 import com.hw.aggregate.product.command.UpdateProductAdminCommand;
+import com.hw.aggregate.product.representation.ProductAppSumPagedRep;
 import com.hw.shared.PatchCommand;
 import com.hw.aggregate.product.representation.ProductAdminSumPagedRep;
 import com.hw.aggregate.product.representation.ProductPublicSumPagedRep;
@@ -31,6 +32,15 @@ public class ProductController {
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
         return ResponseEntity.ok(productService.readForPublicByQuery(queryParam, pageParam, skipCount));
+    }
+
+    @GetMapping("app/productDetails")
+    public ResponseEntity<ProductAppSumPagedRep> readForAppByQuery(
+            @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+            @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+            @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
+    ) {
+        return ResponseEntity.ok(productService.readForAppByQuery(queryParam, pageParam, skipCount));
     }
 
     @GetMapping("admin/productDetails")
@@ -91,11 +101,6 @@ public class ProductController {
     public ResponseEntity<?> deleteForAdminByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam) {
         productService.deleteForAdminByQuery(queryParam);
         return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("internal/productDetails/validate")
-    public ResponseEntity<?> validate(@RequestBody List<ProductValidationCommand> products) {
-        return ResponseEntity.ok(productService.validate(products).getResult());
     }
 
     @DeleteMapping("app/change/{id}")

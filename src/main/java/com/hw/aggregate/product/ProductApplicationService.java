@@ -6,7 +6,6 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.attribute.BizAttributeApplicationService;
 import com.hw.aggregate.catalog.CatalogApplicationService;
 import com.hw.aggregate.product.command.CreateProductAdminCommand;
-import com.hw.aggregate.product.command.ProductValidationCommand;
 import com.hw.aggregate.product.command.UpdateProductAdminCommand;
 import com.hw.aggregate.product.exception.DeepCopyException;
 import com.hw.aggregate.product.exception.HangingTransactionException;
@@ -70,6 +69,12 @@ public class ProductApplicationService {
     public ProductPublicSumPagedRep readForPublicByQuery(String query, String page, String countFlag) {
         SumPagedRep<Product> pagedRep = productDetailManager.readByQuery(RestfulEntityManager.RoleEnum.PUBLIC, query, page, countFlag, Product.class);
         return new ProductPublicSumPagedRep(pagedRep);
+    }
+
+    @Transactional(readOnly = true)
+    public ProductAppSumPagedRep readForAppByQuery(String query, String page, String countFlag) {
+        SumPagedRep<Product> pagedRep = productDetailManager.readByQuery(RestfulEntityManager.RoleEnum.APP, query, page, countFlag, Product.class);
+        return new ProductAppSumPagedRep(pagedRep);
     }
 
     @Transactional(readOnly = true)
@@ -145,17 +150,6 @@ public class ProductApplicationService {
         return productDetailManager.deleteByQuery(RestfulEntityManager.RoleEnum.ADMIN, query, Product.class);
     }
 
-    /**
-     * product option can be optional or mandatory,review compare logic
-     *
-     * @param commands
-     * @return
-     */
-    @Transactional(readOnly = true)
-    public ProductValidationResultRep validate(List<ProductValidationCommand> commands) {
-        return new ProductValidationResultRep(Product.validate(commands, repo));
-    }
-
     @Transactional
     public void rollbackChangeForApp(String id) {
         log.info("start of rollback change {}", id);
@@ -211,5 +205,6 @@ public class ProductApplicationService {
         changeRecord.setId(idGenerator.getId());
         changeHistoryRepository.save(changeRecord);
     }
+
 }
 
