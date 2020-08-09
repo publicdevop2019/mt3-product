@@ -46,7 +46,7 @@ public class Product extends Auditable {
     public transient static final String START_AT_LITERAL = "startAt";
 
     @Column(length = 10000)
-    @Convert(converter = ProductOptionConverter.class)
+    @Convert(converter = ProductOption.ProductOptionConverter.class)
     private List<ProductOption> selectedOptions;
     public transient static final String SELECTED_OPTIONS_LITERAL = "selectedOptions";
 

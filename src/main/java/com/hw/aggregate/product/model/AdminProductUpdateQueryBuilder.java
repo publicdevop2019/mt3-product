@@ -67,7 +67,7 @@ public class AdminProductUpdateQueryBuilder extends UpdateQueryBuilder<Product> 
             if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_REMOVE)) {
                 criteriaUpdate.set(fieldLiteral, null);
                 return true;
-            } else if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUM) || e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_REPLACE)) {
+            } else if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_ADD) || e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_REPLACE)) {
                 if (e.getValue() != null) {
                     criteriaUpdate.set(fieldLiteral, parseLong(e.getValue()));
                 } else {

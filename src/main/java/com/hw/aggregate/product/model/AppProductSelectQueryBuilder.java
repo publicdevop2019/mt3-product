@@ -12,7 +12,7 @@ import javax.persistence.criteria.Root;
 import java.time.Instant;
 import java.util.HashMap;
 
-@Component("productCustomer")
+@Component("productApp")
 public class AppProductSelectQueryBuilder extends SelectQueryBuilder<Product> {
 
     @Autowired
