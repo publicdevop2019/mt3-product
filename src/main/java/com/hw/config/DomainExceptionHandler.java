@@ -23,11 +23,8 @@ import static com.hw.shared.AppConstant.HTTP_HEADER_ERROR_ID;
 public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {
-            ActualStorageDecreaseException.class,
             CatalogNotFoundException.class,
-            OrderStorageDecreaseException.class,
             ProductNotFoundException.class,
-            ProductNotAvailableException.class,
             SkuAlreadyExistException.class,
             SkuNotExistException.class,
             ProductDetailPatchException.class,
@@ -45,12 +42,8 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(value = {
-            ActualStorageIncreaseException.class,
             NoLowestPriceFoundException.class,
-            OrderStorageIncreaseException.class,
             AttributeNameNotFoundException.class,
-            TotalSalesDecreaseException.class,
-            TotalSalesIncreaseException.class,
             DeepCopyException.class
     })
     protected ResponseEntity<Object> handle500Exception(RuntimeException ex, WebRequest request) {

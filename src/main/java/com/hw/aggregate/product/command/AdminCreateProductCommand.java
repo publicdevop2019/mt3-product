@@ -10,14 +10,14 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-public class UpdateProductAdminCommand {
+public class AdminCreateProductCommand {
     private String name;
     private String imageUrlSmall;
     @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
     private Set<String> imageUrlLarge;
     private String description;
-    private Long endAt;
     private Long startAt;
+    private Long endAt;
     private List<ProductOption> selectedOptions;
     @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
     private Set<String> specification;
@@ -27,32 +27,28 @@ public class UpdateProductAdminCommand {
     private Set<String> attributesProd;
     @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
     private Set<String> attributesGen;
-    private List<UpdateProductAdminSkuCommand> skus;
-    private List<UpdateProductAttrImageAdminCommand> attributeSaleImages;
-    private Integer decreaseActualStorage;
-    private Integer decreaseOrderStorage;
-    private Integer increaseActualStorage;
-    private Integer increaseOrderStorage;
+    private List<CreateProductSkuAdminCommand> skus;
+    private List<CreateProductAttrImageAdminCommand> attributeSaleImages;
+
+    private Integer storageOrder;
+    private Integer storageActual;
     private BigDecimal price;
+    private Integer sales;
 
     @Data
-    public static class UpdateProductAdminSkuCommand {
-        private Integer decreaseActualStorage;
-        private Integer decreaseOrderStorage;
-        private Integer increaseActualStorage;
-        private Integer increaseOrderStorage;
-        @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
+    public static class CreateProductSkuAdminCommand {
+        @JsonDeserialize(as= LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
         private Set<String> attributesSales;
-        private BigDecimal price;
-        private Integer storageOrder;//for new sku
+        private Integer storageOrder;
         private Integer storageActual;
+        private BigDecimal price;
         private Integer sales;
     }
 
     @Data
-    public static class UpdateProductAttrImageAdminCommand {
+    public static class CreateProductAttrImageAdminCommand {
         private String attributeSales;
-        @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
+        @JsonDeserialize(as= LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
         private Set<String> imageUrls;
     }
 }

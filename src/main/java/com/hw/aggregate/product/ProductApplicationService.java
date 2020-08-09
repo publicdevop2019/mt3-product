@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.attribute.BizAttributeApplicationService;
 import com.hw.aggregate.catalog.CatalogApplicationService;
-import com.hw.aggregate.product.command.CreateProductAdminCommand;
-import com.hw.aggregate.product.command.UpdateProductAdminCommand;
+import com.hw.aggregate.product.command.AdminCreateProductCommand;
+import com.hw.aggregate.product.command.AdminUpdateProductCommand;
 import com.hw.shared.DeepCopyException;
 import com.hw.aggregate.product.exception.HangingTransactionException;
 import com.hw.aggregate.product.exception.ProductNotFoundException;
@@ -92,12 +92,12 @@ public class ProductApplicationService {
     }
 
     @Transactional
-    public AdminProductCreatedRep createForAdmin(CreateProductAdminCommand command) {
+    public AdminProductCreatedRep createForAdmin(AdminCreateProductCommand command) {
         return new AdminProductCreatedRep(Product.create(idGenerator.getId(), command, repo));
     }
 
     @Transactional
-    public void replaceForAdminById(Long id, UpdateProductAdminCommand command) {
+    public void replaceForAdminById(Long id, AdminUpdateProductCommand command) {
         Product productDetail = getForAdminProductDetail(id);
         productDetail.replace(command, this, repo);
     }

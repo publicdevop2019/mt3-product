@@ -1,8 +1,8 @@
 package com.hw.aggregate.product;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.hw.aggregate.product.command.CreateProductAdminCommand;
-import com.hw.aggregate.product.command.UpdateProductAdminCommand;
+import com.hw.aggregate.product.command.AdminCreateProductCommand;
+import com.hw.aggregate.product.command.AdminUpdateProductCommand;
 import com.hw.aggregate.product.representation.AdminProductSumPagedRep;
 import com.hw.aggregate.product.representation.AppProductSumPagedRep;
 import com.hw.aggregate.product.representation.PublicProductSumPagedRep;
@@ -53,13 +53,13 @@ public class ProductController {
 
 
     @PostMapping("admin")
-    public ResponseEntity<?> createForAdmin(@RequestBody CreateProductAdminCommand productDetail) {
+    public ResponseEntity<?> createForAdmin(@RequestBody AdminCreateProductCommand productDetail) {
         return ResponseEntity.ok().header("Location", productService.createForAdmin(productDetail).getId()).build();
     }
 
 
     @PutMapping("admin/{id}")
-    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody UpdateProductAdminCommand newProductDetail) {
+    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody AdminUpdateProductCommand newProductDetail) {
         productService.replaceForAdminById(id, newProductDetail);
         return ResponseEntity.ok().build();
     }

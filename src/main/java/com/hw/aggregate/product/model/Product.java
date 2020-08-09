@@ -2,8 +2,8 @@ package com.hw.aggregate.product.model;
 
 import com.hw.aggregate.product.ProductApplicationService;
 import com.hw.aggregate.product.ProductRepo;
-import com.hw.aggregate.product.command.CreateProductAdminCommand;
-import com.hw.aggregate.product.command.UpdateProductAdminCommand;
+import com.hw.aggregate.product.command.AdminCreateProductCommand;
+import com.hw.aggregate.product.command.AdminUpdateProductCommand;
 import com.hw.aggregate.product.exception.*;
 import com.hw.shared.Auditable;
 import com.hw.shared.PatchCommand;
@@ -95,12 +95,12 @@ public class Product extends Auditable {
     private Integer totalSales;
     public transient static final String TOTAL_SALES_LITERAL = "totalSales";
 
-    public static Product create(Long id, CreateProductAdminCommand command, ProductRepo repo) {
+    public static Product create(Long id, AdminCreateProductCommand command, ProductRepo repo) {
         Product productDetail = new Product(id, command);
         return repo.save(productDetail);
     }
 
-    public void replace(UpdateProductAdminCommand command, ProductApplicationService productApplicationService, ProductRepo repo) {
+    public void replace(AdminUpdateProductCommand command, ProductApplicationService productApplicationService, ProductRepo repo) {
         this.imageUrlSmall = command.getImageUrlSmall();
         this.name = command.getName();
         this.description = command.getDescription();
@@ -119,7 +119,7 @@ public class Product extends Auditable {
                 e.setAttributesSales(new TreeSet<>(e.getAttributesSales()));
             });
             adjustSku(command.getSkus(), productApplicationService);
-            this.attrSalesTotal = command.getSkus().stream().map(UpdateProductAdminCommand.UpdateProductAdminSkuCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
+            this.attrSalesTotal = command.getSkus().stream().map(AdminUpdateProductCommand.UpdateProductAdminSkuCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
             this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e ->
                     {
                         ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
@@ -171,7 +171,7 @@ public class Product extends Auditable {
         repo.save(this);
     }
 
-    private String toNoSkuQueryPath(UpdateProductAdminCommand command, Product productDetail) {
+    private String toNoSkuQueryPath(AdminUpdateProductCommand command, Product productDetail) {
         if (command.getDecreaseOrderStorage() != null || command.getIncreaseOrderStorage() != null) {
             return "/" + productDetail.getId() + "/" + ADMIN_REP_STORAGE_ORDER_LITERAL;
         }
@@ -181,7 +181,7 @@ public class Product extends Auditable {
         return null;
     }
 
-    private void adjustSku(List<UpdateProductAdminCommand.UpdateProductAdminSkuCommand> commands, ProductApplicationService productApplicationService) {
+    private void adjustSku(List<AdminUpdateProductCommand.UpdateProductAdminSkuCommand> commands, ProductApplicationService productApplicationService) {
         commands.forEach(command -> {
             if (command.getStorageActual() != null && command.getStorageOrder() != null) {
                 // new sku
@@ -212,7 +212,7 @@ public class Product extends Auditable {
         this.productSkuList.removeAll(collect);
     }
 
-    private void updateStorage(ProductApplicationService productApplicationService, UpdateProductAdminCommand.UpdateProductAdminSkuCommand command) {
+    private void updateStorage(ProductApplicationService productApplicationService, AdminUpdateProductCommand.UpdateProductAdminSkuCommand command) {
         ArrayList<PatchCommand> patchCommands = new ArrayList<>();
         if (command.getDecreaseOrderStorage() != null) {
             PatchCommand patchCommand = new PatchCommand();
@@ -250,7 +250,7 @@ public class Product extends Auditable {
         productApplicationService.patchForAdmin(patchCommands, changeId);
     }
 
-    private String toSkuQueryPath(UpdateProductAdminCommand.UpdateProductAdminSkuCommand command, Product productDetail) {
+    private String toSkuQueryPath(AdminUpdateProductCommand.UpdateProductAdminSkuCommand command, Product productDetail) {
         Set<String> attributesSales1 = command.getAttributesSales();
         String join = String.join(",", attributesSales1);
         String replace = join.replace(":", "-").replace("/", "~/");
@@ -266,7 +266,7 @@ public class Product extends Auditable {
     }
 
 
-    private Product(Long id, CreateProductAdminCommand command) {
+    private Product(Long id, AdminCreateProductCommand command) {
         this.id = id;
         this.imageUrlSmall = command.getImageUrlSmall();
         this.name = command.getName();
@@ -285,7 +285,7 @@ public class Product extends Auditable {
                     e.setSales(0);
                 e.setAttributesSales(e.getAttributesSales());
             });
-            this.attrSalesTotal = command.getSkus().stream().map(CreateProductAdminCommand.CreateProductSkuAdminCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
+            this.attrSalesTotal = command.getSkus().stream().map(AdminCreateProductCommand.CreateProductSkuAdminCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
             this.productSkuList = command.getSkus().stream().map(e -> {
                 ProductSku productSku = new ProductSku();
                 productSku.setPrice(e.getPrice());

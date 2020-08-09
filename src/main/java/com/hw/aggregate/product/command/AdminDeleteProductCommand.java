@@ -1,4 +1,4 @@
 package com.hw.aggregate.product.command;
 
-public interface PatchProductsCommand {
+public interface AdminDeleteProductCommand {
 }
