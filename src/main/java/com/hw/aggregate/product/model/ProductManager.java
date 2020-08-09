@@ -9,26 +9,29 @@ import javax.annotation.PostConstruct;
 @Component
 public class ProductManager extends RestfulEntityManager<Product> {
     @Autowired
-    private PublicProductSelectQueryBuilder publicSelectQueryBuilder;
+    private PublicProductSelectQueryBuilder publicProductSelectQueryBuilder;
 
     @Autowired
-    private AdminProductSelectQueryBuilder adminSelectQueryBuilder;
+    private AdminProductSelectQueryBuilder adminProductSelectQueryBuilder;
 
     @Autowired
-    private AdminProductUpdateQueryBuilder adminUpdateQueryBuilder;
+    private AdminProductUpdateQueryBuilder adminProductUpdateQueryBuilder;
 
     @Autowired
-    private AdminProductDeleteQueryBuilder adminDeleteQueryBuilder;
+    private AdminProductDeleteQueryBuilder adminProductDeleteQueryBuilder;
     @Autowired
     private AppProductUpdateQueryBuilder appProductDetailUpdateQueryBuilder;
+    @Autowired
+    private AppProductSelectQueryBuilder appProductSelectQueryBuilder;
 
     @Override
     @PostConstruct
     protected void configQueryBuilder() {
-        this.selectQueryBuilder.put(RoleEnum.PUBLIC, publicSelectQueryBuilder);
-        this.selectQueryBuilder.put(RoleEnum.ADMIN, adminSelectQueryBuilder);
-        this.updateQueryBuilder.put(RoleEnum.ADMIN, adminUpdateQueryBuilder);
+        this.selectQueryBuilder.put(RoleEnum.PUBLIC, publicProductSelectQueryBuilder);
+        this.selectQueryBuilder.put(RoleEnum.ADMIN, adminProductSelectQueryBuilder);
+        this.updateQueryBuilder.put(RoleEnum.ADMIN, adminProductUpdateQueryBuilder);
+        this.deleteQueryBuilder.put(RoleEnum.ADMIN, adminProductDeleteQueryBuilder);
+        this.selectQueryBuilder.put(RoleEnum.APP, appProductSelectQueryBuilder);
         this.updateQueryBuilder.put(RoleEnum.APP, appProductDetailUpdateQueryBuilder);
-        this.deleteQueryBuilder.put(RoleEnum.ADMIN, adminDeleteQueryBuilder);
     }
 }
