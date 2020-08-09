@@ -2,6 +2,7 @@ package com.hw.config;
 
 import com.hw.aggregate.catalog.exception.CatalogNotFoundException;
 import com.hw.aggregate.product.exception.*;
+import com.hw.shared.DeepCopyException;
 import com.hw.shared.ErrorMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;

@@ -1,4 +1,4 @@
-package com.hw.aggregate.product.exception;
+package com.hw.shared;
 
 public class DeepCopyException extends RuntimeException {
 }

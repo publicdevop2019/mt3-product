@@ -114,9 +114,9 @@ public class AppProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<ProductS
 
     private Predicate getStorageMustNotNegativeClause(CriteriaBuilder cb, Root<ProductSku> root, PatchCommand command) {
         String filedLiteral;
-        if (command.getPath().equalsIgnoreCase(ADMIN_REP_SKU_STORAGE_ORDER_LITERAL)) {
+        if (command.getPath().contains(ADMIN_REP_SKU_STORAGE_ORDER_LITERAL)) {
             filedLiteral = SKU_STORAGE_ORDER_LITERAL;
-        } else if (command.getPath().equalsIgnoreCase(ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL)) {
+        } else if (command.getPath().contains(ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL)) {
             filedLiteral = SKU_STORAGE_ACTUAL_LITERAL;
         } else {
             filedLiteral = SKU_SALES_LITERAL;

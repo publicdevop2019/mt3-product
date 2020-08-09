@@ -7,7 +7,7 @@ import com.hw.aggregate.attribute.BizAttributeApplicationService;
 import com.hw.aggregate.catalog.CatalogApplicationService;
 import com.hw.aggregate.product.command.CreateProductAdminCommand;
 import com.hw.aggregate.product.command.UpdateProductAdminCommand;
-import com.hw.aggregate.product.exception.DeepCopyException;
+import com.hw.shared.DeepCopyException;
 import com.hw.aggregate.product.exception.HangingTransactionException;
 import com.hw.aggregate.product.exception.ProductNotFoundException;
 import com.hw.aggregate.product.exception.RollbackNotSupportedException;

@@ -1,6 +1,5 @@
 package com.hw.shared;
 
-import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaUpdate;
@@ -9,27 +8,50 @@ import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.hw.shared.AppConstant.PATCH_OP_TYPE_DIFF;
+import static com.hw.shared.AppConstant.PATCH_OP_TYPE_SUM;
+
 public abstract class UpdateQueryBuilder<T> {
     protected EntityManager em;
 
     /**
      * sample :[
-     * {op:'replace',path:'/0001/name',value:'foo'},
-     * {op:'replace',path:'/0002/name',value:'foo'}
-     * {op:'replace',path:'/0003/name',value:'foo'}
-     * {op:'replace',path:'/0004/name',value:'foo'}
-     * {op:'replace',path:'/0003/title',value:'bar'}
-     * {op:'replace',path:'/0002/title',value:'xyz'}
-     * {op:'replace',path:'/0002/address',value:'zoo'}
+     * {op:'add',path:'/0001/name',value:'foo'},
+     * {op:'add',path:'/0002/name',value:'foo'}
+     * {op:'add',path:'/0003/name',value:'foo'}
+     * {op:'add',path:'/0004/name',value:'foo'}
+     * ]
+     * sample2 :[
+     * {op:'sum',path:'/0001/storageOrder',value:'1'},
+     * {op:'sum',path:'/0001/storageOrder',value:'1'},
+     * {op:'sum',path:'/0002/storageOrder',value:'1'}
+     * ]
+     * sample3 :[
+     * {op:'diff',path:'/0001/storageOrder',value:'1'},
+     * {op:'diff',path:'/0001/storageOrder',value:'1'},
+     * {op:'diff',path:'/0002/storageOrder',value:'1'}
      * ]
      */
     public Integer update(List<PatchCommand> commands, Class<T> clazz) {
-        // sort key so deadlock will not happen
-        Collections.sort(commands);
+        Map<PatchCommand, Integer> jsonPatchCommandCount = new HashMap<>();
+        commands.forEach(e -> {
+            if (jsonPatchCommandCount.containsKey(e)) {
+                jsonPatchCommandCount.put(e, jsonPatchCommandCount.get(e) + 1);
+            } else {
+                jsonPatchCommandCount.put(e, 1);
+            }
+        });
+        jsonPatchCommandCount.keySet().forEach(e -> {
+            if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUM) || e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF)) {
+                e.setValue(Integer.parseInt((String) e.getValue()) * jsonPatchCommandCount.get(e));
+            }
+        });
+        Set<PatchCommand> patchCommands = jsonPatchCommandCount.keySet();
 
         Map<PatchCommand, List<String>> jsonPatchCommandListHashMap = new LinkedHashMap<>();
 
-        commands.forEach(e -> {
+        // sort key so deadlock will not happen
+        patchCommands.stream().sorted(PatchCommand::compareTo).forEach(e -> {
             String s = parseId(e.getPath());
             e.setPath(removeId(e.getPath()));
             if (jsonPatchCommandListHashMap.containsKey(e)) {
@@ -45,7 +67,7 @@ public abstract class UpdateQueryBuilder<T> {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             CriteriaUpdate<T> criteriaUpdate = cb.createCriteriaUpdate(clazz);
             Root<T> root = criteriaUpdate.from(clazz);
-            Predicate or = getWhereClause(root, jsonPatchCommandListHashMap.get(e),e);
+            Predicate or = getWhereClause(root, jsonPatchCommandListHashMap.get(e), e);
             if (or != null)
                 criteriaUpdate.where(or);
             setUpdateValue(root, criteriaUpdate, e);
@@ -53,6 +75,10 @@ public abstract class UpdateQueryBuilder<T> {
         }).collect(Collectors.toList());
         // how to validate number of rows updated ?
         return criteriaUpdates.stream().map(e -> em.createQuery(e).executeUpdate()).reduce(0, Integer::sum);
+    }
+
+    private boolean hasMoreThanOne(PatchCommand e) {
+        return false;
     }
 
     private String removeId(String path) {
@@ -70,6 +96,6 @@ public abstract class UpdateQueryBuilder<T> {
 
     protected abstract void setUpdateValue(Root<T> root, CriteriaUpdate<T> criteriaUpdate, PatchCommand operationLike);
 
-    protected abstract Predicate getWhereClause(Root<T> root, List<String> ids, @Nullable PatchCommand command);
+    protected abstract Predicate getWhereClause(Root<T> root, List<String> ids, PatchCommand command);
 
 }

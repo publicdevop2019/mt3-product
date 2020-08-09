@@ -3,10 +3,10 @@ package com.hw.aggregate.product;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.product.command.CreateProductAdminCommand;
 import com.hw.aggregate.product.command.UpdateProductAdminCommand;
-import com.hw.aggregate.product.representation.AppProductSumPagedRep;
-import com.hw.shared.PatchCommand;
 import com.hw.aggregate.product.representation.AdminProductSumPagedRep;
+import com.hw.aggregate.product.representation.AppProductSumPagedRep;
 import com.hw.aggregate.product.representation.PublicProductSumPagedRep;
+import com.hw.shared.PatchCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import static com.hw.shared.AppConstant.*;
 
 @Slf4j
 @RestController
-@RequestMapping(produces = "application/json",path = "products")
+@RequestMapping(produces = "application/json", path = "products")
 public class ProductController {
 
     @Autowired
@@ -70,7 +70,7 @@ public class ProductController {
     }
 
     @PatchMapping("admin")
-    public ResponseEntity<?> patchForAdmin(@RequestBody List<PatchCommand> patch, @RequestHeader("changeId") String changeId) {
+    public ResponseEntity<?> patchForAdmin(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         productService.patchForAdmin(patch, changeId);
         return ResponseEntity.ok().build();
     }
@@ -88,7 +88,7 @@ public class ProductController {
     }
 
     @PatchMapping("app")
-    public ResponseEntity<?> patchForApp(@RequestBody List<PatchCommand> patch, @RequestHeader("changeId") String changeId) {
+    public ResponseEntity<?> patchForApp(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         productService.patchForApp(patch, changeId);
         return ResponseEntity.ok().build();
     }
