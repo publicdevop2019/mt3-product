@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.hw.aggregate.product.model.Product.*;
-import static com.hw.aggregate.product.representation.ProductDetailAdminRep.*;
+import static com.hw.aggregate.product.representation.AdminProductDetailRep.*;
 
 
 @Component("productAdmin")

@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
-public class ProductDetailCustomRep {
+public class PublicProductDetailRep {
     private Long id;
     private String name;
     private String imageUrlSmall;
@@ -30,7 +30,7 @@ public class ProductDetailCustomRep {
     private Map<String, String> attrIdMap;
     private Integer storage;
 
-    public ProductDetailCustomRep(Product productDetail, BizAttributeApplicationService bizAttributeApplicationService) {
+    public PublicProductDetailRep(Product productDetail, BizAttributeApplicationService bizAttributeApplicationService) {
         this.id = productDetail.getId();
         this.name = productDetail.getName();
         this.imageUrlSmall = productDetail.getImageUrlSmall();

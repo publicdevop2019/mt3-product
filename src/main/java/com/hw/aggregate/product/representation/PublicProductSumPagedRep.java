@@ -8,9 +8,9 @@ import java.math.BigDecimal;
 import java.util.stream.Collectors;
 
 @Data
-public class ProductPublicSumPagedRep extends SumPagedRep<ProductPublicSumPagedRep.ProductSearchRepresentation> {
+public class PublicProductSumPagedRep extends SumPagedRep<PublicProductSumPagedRep.ProductSearchRepresentation> {
 
-    public ProductPublicSumPagedRep(SumPagedRep<Product> select) {
+    public PublicProductSumPagedRep(SumPagedRep<Product> select) {
         this.data.addAll(select.getData().stream().map(ProductSearchRepresentation::new).collect(Collectors.toList()));
         this.totalItemCount = select.getTotalItemCount();
     }

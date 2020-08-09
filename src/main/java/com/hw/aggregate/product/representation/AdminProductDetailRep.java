@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class ProductDetailAdminRep {
+public class AdminProductDetailRep {
     private Long id;
     public transient static final String ADMIN_REP_ID_LITERAL = "id";
 
@@ -57,7 +57,7 @@ public class ProductDetailAdminRep {
     private Integer sales;
     public transient static final String ADMIN_REP_SALES_LITERAL = "sales";
 
-    public ProductDetailAdminRep(Product productDetail) {
+    public AdminProductDetailRep(Product productDetail) {
         this.id = productDetail.getId();
         this.name = productDetail.getName();
         this.imageUrlSmall = productDetail.getImageUrlSmall();

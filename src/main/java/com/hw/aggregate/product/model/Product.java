@@ -1,9 +1,8 @@
 package com.hw.aggregate.product.model;
 
 import com.hw.aggregate.product.ProductApplicationService;
-import com.hw.aggregate.product.ProductDetailRepo;
+import com.hw.aggregate.product.ProductRepo;
 import com.hw.aggregate.product.command.CreateProductAdminCommand;
-import com.hw.aggregate.product.command.ProductValidationCommand;
 import com.hw.aggregate.product.command.UpdateProductAdminCommand;
 import com.hw.aggregate.product.exception.*;
 import com.hw.shared.Auditable;
@@ -17,10 +16,9 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static com.hw.aggregate.product.representation.ProductDetailAdminRep.*;
-import static com.hw.aggregate.product.representation.ProductDetailAdminRep.ProductSkuAdminRepresentation.*;
+import static com.hw.aggregate.product.representation.AdminProductDetailRep.*;
+import static com.hw.aggregate.product.representation.AdminProductDetailRep.ProductSkuAdminRepresentation.*;
 import static com.hw.shared.AppConstant.*;
 
 
@@ -97,12 +95,12 @@ public class Product extends Auditable {
     private Integer totalSales;
     public transient static final String TOTAL_SALES_LITERAL = "totalSales";
 
-    public static Product create(Long id, CreateProductAdminCommand command, ProductDetailRepo repo) {
+    public static Product create(Long id, CreateProductAdminCommand command, ProductRepo repo) {
         Product productDetail = new Product(id, command);
         return repo.save(productDetail);
     }
 
-    public void replace(UpdateProductAdminCommand command, ProductApplicationService productApplicationService, ProductDetailRepo repo) {
+    public void replace(UpdateProductAdminCommand command, ProductApplicationService productApplicationService, ProductRepo repo) {
         this.imageUrlSmall = command.getImageUrlSmall();
         this.name = command.getName();
         this.description = command.getDescription();

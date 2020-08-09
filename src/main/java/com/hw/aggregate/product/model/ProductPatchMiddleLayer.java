@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
-import com.hw.aggregate.product.ProductDetailRepo;
+import com.hw.aggregate.product.ProductRepo;
 import com.hw.aggregate.product.exception.ProductDetailPatchException;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -29,7 +29,7 @@ public class ProductPatchMiddleLayer {
         this.name = productDetail.getName();
     }
 
-    public static Product doPatch(JsonPatch patch, Product original, ObjectMapper om, ProductDetailRepo repo) {
+    public static Product doPatch(JsonPatch patch, Product original, ObjectMapper om, ProductRepo repo) {
         ProductPatchMiddleLayer command = new ProductPatchMiddleLayer(original);
         ProductPatchMiddleLayer patchMiddleLayer;
         try {

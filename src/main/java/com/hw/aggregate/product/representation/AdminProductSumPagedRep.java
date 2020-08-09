@@ -11,12 +11,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class ProductAppSumPagedRep extends SumPagedRep<ProductAppSumPagedRep.ProductAdminCardRepresentation> {
-    public ProductAppSumPagedRep(Long totalItemCount) {
+public class AdminProductSumPagedRep extends SumPagedRep<AdminProductSumPagedRep.ProductAdminCardRepresentation> {
+    public AdminProductSumPagedRep(Long totalItemCount) {
         this.totalItemCount = totalItemCount;
     }
 
-    public ProductAppSumPagedRep(SumPagedRep<Product> select) {
+    public AdminProductSumPagedRep(SumPagedRep<Product> select) {
         this.data.addAll(select.getData().stream().map(ProductAdminCardRepresentation::new).collect(Collectors.toList()));
         this.totalItemCount = select.getTotalItemCount();
     }

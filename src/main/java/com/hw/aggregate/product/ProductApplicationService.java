@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.hw.aggregate.product.representation.ProductDetailAdminRep.ADMIN_REP_SKU_LITERAL;
+import static com.hw.aggregate.product.representation.AdminProductDetailRep.ADMIN_REP_SKU_LITERAL;
 import static com.hw.config.AppConstant.REVOKE;
 import static com.hw.shared.AppConstant.PATCH_OP_TYPE_DIFF;
 import static com.hw.shared.AppConstant.PATCH_OP_TYPE_SUM;
@@ -38,7 +38,7 @@ import static com.hw.shared.AppConstant.PATCH_OP_TYPE_SUM;
 public class ProductApplicationService {
 
     @Autowired
-    private ProductDetailRepo repo;
+    private ProductRepo repo;
     @Autowired
     private ChangeRecordRepository changeHistoryRepository;
 
@@ -60,40 +60,40 @@ public class ProductApplicationService {
     private ObjectMapper om;
 
     @Transactional(readOnly = true)
-    public ProductAdminSumPagedRep readForAdminByQuery(String query, String page, String countFlag) {
+    public AdminProductSumPagedRep readForAdminByQuery(String query, String page, String countFlag) {
         SumPagedRep<Product> pagedRep = productDetailManager.readByQuery(RestfulEntityManager.RoleEnum.ADMIN, query, page, countFlag, Product.class);
-        return new ProductAdminSumPagedRep(pagedRep);
+        return new AdminProductSumPagedRep(pagedRep);
     }
 
     @Transactional(readOnly = true)
-    public ProductPublicSumPagedRep readForPublicByQuery(String query, String page, String countFlag) {
+    public PublicProductSumPagedRep readForPublicByQuery(String query, String page, String countFlag) {
         SumPagedRep<Product> pagedRep = productDetailManager.readByQuery(RestfulEntityManager.RoleEnum.PUBLIC, query, page, countFlag, Product.class);
-        return new ProductPublicSumPagedRep(pagedRep);
+        return new PublicProductSumPagedRep(pagedRep);
     }
 
     @Transactional(readOnly = true)
-    public ProductAppSumPagedRep readForAppByQuery(String query, String page, String countFlag) {
+    public AppProductSumPagedRep readForAppByQuery(String query, String page, String countFlag) {
         SumPagedRep<Product> pagedRep = productDetailManager.readByQuery(RestfulEntityManager.RoleEnum.APP, query, page, countFlag, Product.class);
-        return new ProductAppSumPagedRep(pagedRep);
+        return new AppProductSumPagedRep(pagedRep);
     }
 
     @Transactional(readOnly = true)
-    public ProductDetailCustomRep readForPublicById(Long id) {
+    public PublicProductDetailRep readForPublicById(Long id) {
         SumPagedRep<Product> productDetailSumPagedRep = productDetailManager.readById(RestfulEntityManager.RoleEnum.PUBLIC, id.toString(), Product.class);
         if (productDetailSumPagedRep.getData().size() == 0)
             throw new ProductNotFoundException();
-        return new ProductDetailCustomRep(productDetailSumPagedRep.getData().get(0), attributeApplicationService);
+        return new PublicProductDetailRep(productDetailSumPagedRep.getData().get(0), attributeApplicationService);
     }
 
     @Transactional(readOnly = true)
-    public ProductDetailAdminRep readForAdminById(Long id) {
+    public AdminProductDetailRep readForAdminById(Long id) {
         Product productDetail = getForAdminProductDetail(id);
-        return new ProductDetailAdminRep(productDetail);
+        return new AdminProductDetailRep(productDetail);
     }
 
     @Transactional
-    public ProductCreatedRep createForAdmin(CreateProductAdminCommand command) {
-        return new ProductCreatedRep(Product.create(idGenerator.getId(), command, repo));
+    public AdminProductCreatedRep createForAdmin(CreateProductAdminCommand command) {
+        return new AdminProductCreatedRep(Product.create(idGenerator.getId(), command, repo));
     }
 
     @Transactional
@@ -109,13 +109,13 @@ public class ProductApplicationService {
     }
 
     @Transactional
-    public ProductDetailAdminRep patchForAdminById(Long id, JsonPatch patch) {
+    public AdminProductDetailRep patchForAdminById(Long id, JsonPatch patch) {
         Product productDetail = getForAdminProductDetail(id);
-        return new ProductDetailAdminRep(ProductPatchMiddleLayer.doPatch(patch, productDetail, om, repo));
+        return new AdminProductDetailRep(ProductPatchMiddleLayer.doPatch(patch, productDetail, om, repo));
     }
 
     @Transactional
-    public ProductAdminSumPagedRep patchForAdmin(List<PatchCommand> commands, String changeId) {
+    public AdminProductSumPagedRep patchForAdmin(List<PatchCommand> commands, String changeId) {
         if (changeHistoryRepository.findByChangeId(changeId + REVOKE).isPresent()) {
             throw new HangingTransactionException();
         }
@@ -125,11 +125,11 @@ public class ProductApplicationService {
         List<PatchCommand> noNestedEntity = deepCopy.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         Integer update1 = productSkuManager.update(RestfulEntityManager.RoleEnum.ADMIN, hasNestedEntity, ProductSku.class);
         Integer update = productDetailManager.update(RestfulEntityManager.RoleEnum.ADMIN, noNestedEntity, Product.class);
-        return new ProductAdminSumPagedRep(update.longValue());
+        return new AdminProductSumPagedRep(update.longValue());
     }
 
     @Transactional
-    public ProductAppSumPagedRep patchForApp(List<PatchCommand> commands, String changeId) {
+    public AppProductSumPagedRep patchForApp(List<PatchCommand> commands, String changeId) {
         if (changeHistoryRepository.findByChangeId(changeId + REVOKE).isPresent()) {
             throw new HangingTransactionException();
         }
@@ -139,7 +139,7 @@ public class ProductApplicationService {
         List<PatchCommand> noNestedEntity = deepCopy.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         Integer update = productDetailManager.update(RestfulEntityManager.RoleEnum.APP, noNestedEntity, Product.class);
         Integer update1 = productSkuManager.update(RestfulEntityManager.RoleEnum.APP, hasNestedEntity, ProductSku.class);
-        return new ProductAppSumPagedRep(update.longValue());
+        return new AppProductSumPagedRep(update.longValue());
     }
 
 

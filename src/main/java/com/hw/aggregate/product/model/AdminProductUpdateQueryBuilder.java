@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.hw.aggregate.product.model.Product.*;
-import static com.hw.aggregate.product.representation.ProductDetailAdminRep.*;
+import static com.hw.aggregate.product.representation.AdminProductDetailRep.*;
 import static com.hw.shared.AppConstant.*;
 
 @Component
