@@ -13,7 +13,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.hw.aggregate.product.model.Product.*;
-import static com.hw.aggregate.product.representation.AdminProductDetailRep.*;
+import static com.hw.aggregate.product.representation.AdminProductRep.*;
+import static com.hw.aggregate.product.representation.PublicProductSumPagedRep.ProductCardRepresentation.PUBLIC_REP_PRICE_LITERAL;
 
 
 @Component("productAdmin")
@@ -33,7 +34,7 @@ public class AdminProductSelectQueryBuilder extends SelectQueryBuilder<Product> 
         mappedSortBy.put(ADMIN_REP_ID_LITERAL, ID_LITERAL);
         mappedSortBy.put(ADMIN_REP_NAME_LITERAL, NAME_LITERAL);
         mappedSortBy.put(ADMIN_REP_SALES_LITERAL, TOTAL_SALES_LITERAL);
-        mappedSortBy.put(ADMIN_REP_PRICE_LITERAL, LOWEST_PRICE_LITERAL);
+        mappedSortBy.put(PUBLIC_REP_PRICE_LITERAL, LOWEST_PRICE_LITERAL);
         mappedSortBy.put(ADMIN_REP_END_AT_LITERAL, END_AT_LITERAL);
     }
 

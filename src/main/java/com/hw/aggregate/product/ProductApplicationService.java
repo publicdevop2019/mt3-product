@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.hw.aggregate.product.representation.AdminProductDetailRep.ADMIN_REP_SKU_LITERAL;
+import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SKU_LITERAL;
 import static com.hw.config.AppConstant.REVOKE;
 import static com.hw.shared.AppConstant.PATCH_OP_TYPE_DIFF;
 import static com.hw.shared.AppConstant.PATCH_OP_TYPE_SUM;
@@ -78,17 +78,17 @@ public class ProductApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public PublicProductDetailRep readForPublicById(Long id) {
+    public PublicProductRep readForPublicById(Long id) {
         SumPagedRep<Product> productDetailSumPagedRep = productDetailManager.readById(RestfulEntityManager.RoleEnum.PUBLIC, id.toString(), Product.class);
         if (productDetailSumPagedRep.getData().size() == 0)
             throw new ProductNotFoundException();
-        return new PublicProductDetailRep(productDetailSumPagedRep.getData().get(0), attributeApplicationService);
+        return new PublicProductRep(productDetailSumPagedRep.getData().get(0), attributeApplicationService);
     }
 
     @Transactional(readOnly = true)
-    public AdminProductDetailRep readForAdminById(Long id) {
+    public AdminProductRep readForAdminById(Long id) {
         Product productDetail = getForAdminProductDetail(id);
-        return new AdminProductDetailRep(productDetail);
+        return new AdminProductRep(productDetail);
     }
 
     @Transactional
@@ -109,9 +109,9 @@ public class ProductApplicationService {
     }
 
     @Transactional
-    public AdminProductDetailRep patchForAdminById(Long id, JsonPatch patch) {
+    public AdminProductRep patchForAdminById(Long id, JsonPatch patch) {
         Product productDetail = getForAdminProductDetail(id);
-        return new AdminProductDetailRep(ProductPatchMiddleLayer.doPatch(patch, productDetail, om, repo));
+        return new AdminProductRep(ProductPatchMiddleLayer.doPatch(patch, productDetail, om, repo));
     }
 
     @Transactional

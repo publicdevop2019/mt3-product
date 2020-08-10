@@ -16,10 +16,11 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hw.aggregate.product.model.Product.*;
-import static com.hw.aggregate.product.representation.AdminProductDetailRep.*;
-import static com.hw.shared.AppConstant.PATCH_OP_TYPE_SUM;
+import static com.hw.aggregate.product.model.Product.ID_LITERAL;
+import static com.hw.aggregate.product.model.Product.TOTAL_SALES_LITERAL;
+import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SALES_LITERAL;
 import static com.hw.shared.AppConstant.PATCH_OP_TYPE_DIFF;
+import static com.hw.shared.AppConstant.PATCH_OP_TYPE_SUM;
 
 @Component
 public class AppProductUpdateQueryBuilder extends UpdateQueryBuilder<Product> {
@@ -35,8 +36,6 @@ public class AppProductUpdateQueryBuilder extends UpdateQueryBuilder<Product> {
     @Override
     protected void setUpdateValue(Root<Product> root, CriteriaUpdate<Product> criteriaUpdate, PatchCommand e) {
         ArrayList<Boolean> booleans = new ArrayList<>();
-        booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_STORAGE_ORDER_LITERAL, STORAGE_ORDER_LITERAL, root, criteriaUpdate, e));
-        booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_STORAGE_ACTUAL_LITERAL, STORAGE_ACTUAL_LITERAL, root, criteriaUpdate, e));
         booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_SALES_LITERAL, TOTAL_SALES_LITERAL, root, criteriaUpdate, e));
         Boolean hasFieldChange = booleans.stream().reduce(false, (a, b) -> a || b);
         if (!hasFieldChange) {
@@ -100,21 +99,13 @@ public class AppProductUpdateQueryBuilder extends UpdateQueryBuilder<Product> {
     }
 
     private Predicate getStorageMustNotNegativeClause(CriteriaBuilder cb, Root<Product> root, PatchCommand command) {
-        String filedLiteral;
-        if (command.getPath().equalsIgnoreCase(ADMIN_REP_STORAGE_ORDER_LITERAL)) {
-            filedLiteral = STORAGE_ORDER_LITERAL;
-        } else if (command.getPath().equalsIgnoreCase(ADMIN_REP_STORAGE_ACTUAL_LITERAL)) {
-            filedLiteral = STORAGE_ACTUAL_LITERAL;
-        } else {
-            filedLiteral = TOTAL_SALES_LITERAL;
-        }
+        String filedLiteral = TOTAL_SALES_LITERAL;
         Expression<Integer> diff = cb.diff(root.get(filedLiteral), parseInteger(command.getValue()));
         return cb.greaterThanOrEqualTo(diff, 0);
     }
 
     private boolean storagePatchOpSub(PatchCommand command) {
-        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF) && (command.getPath().contains(ADMIN_REP_STORAGE_ORDER_LITERAL) ||
-                command.getPath().contains(ADMIN_REP_STORAGE_ACTUAL_LITERAL) || command.getPath().contains(ADMIN_REP_SALES_LITERAL));
+        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF) && (command.getPath().contains(ADMIN_REP_SALES_LITERAL));
     }
 
 }

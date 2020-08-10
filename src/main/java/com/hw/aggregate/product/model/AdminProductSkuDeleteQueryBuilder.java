@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.hw.aggregate.product.model.ProductSku.SKU_PRODUCT_ID_LITERAL;
-import static com.hw.aggregate.product.representation.AdminProductDetailRep.ADMIN_REP_ID_LITERAL;
+import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_ID_LITERAL;
 
 @Component
 public class AdminProductSkuDeleteQueryBuilder extends DeleteQueryBuilder<ProductSku> {

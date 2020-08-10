@@ -4,7 +4,9 @@ import com.hw.aggregate.product.ProductApplicationService;
 import com.hw.aggregate.product.ProductRepo;
 import com.hw.aggregate.product.command.AdminCreateProductCommand;
 import com.hw.aggregate.product.command.AdminUpdateProductCommand;
-import com.hw.aggregate.product.exception.*;
+import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
+import com.hw.aggregate.product.exception.SkuAlreadyExistException;
+import com.hw.aggregate.product.exception.SkuNotExistException;
 import com.hw.shared.Auditable;
 import com.hw.shared.PatchCommand;
 import com.hw.shared.StringSetConverter;
@@ -17,8 +19,8 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.hw.aggregate.product.representation.AdminProductDetailRep.*;
-import static com.hw.aggregate.product.representation.AdminProductDetailRep.ProductSkuAdminRepresentation.*;
+import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SKU_LITERAL;
+import static com.hw.aggregate.product.representation.AdminProductRep.ProductSkuAdminRepresentation.*;
 import static com.hw.shared.AppConstant.*;
 
 
@@ -80,14 +82,6 @@ public class Product extends Auditable {
     @Column(length = 10000)
     private ArrayList<ProductAttrSaleImages> attributeSaleImages;
 
-    @Column(updatable = false)
-    private Integer storageOrder;
-    public transient static final String STORAGE_ORDER_LITERAL = "storageOrder";
-
-    @Column(updatable = false)
-    private Integer storageActual;
-    public transient static final String STORAGE_ACTUAL_LITERAL = "storageActual";
-
     private BigDecimal lowestPrice;
     public transient static final String LOWEST_PRICE_LITERAL = "lowestPrice";
 
@@ -112,73 +106,23 @@ public class Product extends Auditable {
         this.attrGen = command.getAttributesGen();
         this.startAt = command.getStartAt();
         this.endAt = command.getEndAt();
-        if (command.getSkus() != null && command.getSkus().size() != 0) {
-            command.getSkus().forEach(e -> {
-                if (e.getSales() == null)
-                    e.setSales(0);
-                e.setAttributesSales(new TreeSet<>(e.getAttributesSales()));
-            });
-            adjustSku(command.getSkus(), productApplicationService);
-            this.attrSalesTotal = command.getSkus().stream().map(AdminUpdateProductCommand.UpdateProductAdminSkuCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
-            this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e ->
-                    {
-                        ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
-                        productAttrSaleImages.setAttributeSales(e.getAttributeSales());
-                        productAttrSaleImages.setImageUrls((LinkedHashSet<String>) e.getImageUrls());
-                        return productAttrSaleImages;
-                    }
-            ).collect(Collectors.toCollection(ArrayList::new));
-            this.lowestPrice = findLowestPrice(this);
-        } else {
-            this.productSkuList = null;
-            this.lowestPrice = command.getPrice();
-            ArrayList<PatchCommand> patchCommands = new ArrayList<>();
-            if (command.getDecreaseOrderStorage() != null) {
-                PatchCommand patchCommand = new PatchCommand();
-                patchCommand.setOp(PATCH_OP_TYPE_DIFF);
-                String query = toNoSkuQueryPath(command, this);
-                patchCommand.setPath(query);
-                patchCommand.setValue(command.getDecreaseOrderStorage());
-                patchCommands.add(patchCommand);
-            }
-            if (command.getDecreaseActualStorage() != null) {
-                PatchCommand patchCommand = new PatchCommand();
-                patchCommand.setOp(PATCH_OP_TYPE_DIFF);
-                String query = toNoSkuQueryPath(command, this);
-                patchCommand.setPath(query);
-                patchCommand.setValue(command.getDecreaseActualStorage());
-                patchCommands.add(patchCommand);
-            }
-            if (command.getIncreaseOrderStorage() != null) {
-                PatchCommand patchCommand = new PatchCommand();
-                patchCommand.setOp(PATCH_OP_TYPE_SUM);
-                String query = toNoSkuQueryPath(command, this);
-                patchCommand.setPath(query);
-                patchCommand.setValue(command.getIncreaseOrderStorage());
-                patchCommands.add(patchCommand);
-            }
-            if (command.getIncreaseActualStorage() != null) {
-                PatchCommand patchCommand = new PatchCommand();
-                patchCommand.setOp(PATCH_OP_TYPE_SUM);
-                String query = toNoSkuQueryPath(command, this);
-                patchCommand.setPath(query);
-                patchCommand.setValue(command.getIncreaseActualStorage());
-                patchCommands.add(patchCommand);
-            }
-            String changeId = UUID.randomUUID().toString();
-            productApplicationService.patchForAdmin(patchCommands, changeId);
-        }
+        command.getSkus().forEach(e -> {
+            if (e.getSales() == null)
+                e.setSales(0);
+            e.setAttributesSales(new TreeSet<>(e.getAttributesSales()));
+        });
+        adjustSku(command.getSkus(), productApplicationService);
+        this.attrSalesTotal = command.getSkus().stream().map(AdminUpdateProductCommand.UpdateProductAdminSkuCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
+        this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e ->
+                {
+                    ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
+                    productAttrSaleImages.setAttributeSales(e.getAttributeSales());
+                    productAttrSaleImages.setImageUrls((LinkedHashSet<String>) e.getImageUrls());
+                    return productAttrSaleImages;
+                }
+        ).collect(Collectors.toCollection(ArrayList::new));
+        this.lowestPrice = findLowestPrice(this);
         repo.save(this);
-    }
-
-    private String toNoSkuQueryPath(AdminUpdateProductCommand command, Product productDetail) {
-        if (command.getDecreaseOrderStorage() != null || command.getIncreaseOrderStorage() != null) {
-            return "/" + productDetail.getId() + "/" + ADMIN_REP_STORAGE_ORDER_LITERAL;
-        }
-        if (command.getDecreaseActualStorage() != null || command.getIncreaseActualStorage() != null) {
-            return "/" + productDetail.getId() + "/" + ADMIN_REP_STORAGE_ACTUAL_LITERAL;
-        }
-        return null;
     }
 
     private void adjustSku(List<AdminUpdateProductCommand.UpdateProductAdminSkuCommand> commands, ProductApplicationService productApplicationService) {
@@ -217,7 +161,7 @@ public class Product extends Auditable {
         if (command.getDecreaseOrderStorage() != null) {
             PatchCommand patchCommand = new PatchCommand();
             patchCommand.setOp(PATCH_OP_TYPE_DIFF);
-            String query = toSkuQueryPath(command, this);
+            String query = toSkuQueryPath(command, ADMIN_REP_SKU_STORAGE_ORDER_LITERAL, this);
             patchCommand.setPath(query);
             patchCommand.setValue(command.getDecreaseOrderStorage());
             patchCommands.add(patchCommand);
@@ -225,7 +169,7 @@ public class Product extends Auditable {
         if (command.getDecreaseActualStorage() != null) {
             PatchCommand patchCommand = new PatchCommand();
             patchCommand.setOp(PATCH_OP_TYPE_DIFF);
-            String query = toSkuQueryPath(command, this);
+            String query = toSkuQueryPath(command, ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL, this);
             patchCommand.setPath(query);
             patchCommand.setValue(command.getDecreaseActualStorage());
             patchCommands.add(patchCommand);
@@ -233,7 +177,7 @@ public class Product extends Auditable {
         if (command.getIncreaseOrderStorage() != null) {
             PatchCommand patchCommand = new PatchCommand();
             patchCommand.setOp(PATCH_OP_TYPE_SUM);
-            String query = toSkuQueryPath(command, this);
+            String query = toSkuQueryPath(command, ADMIN_REP_SKU_STORAGE_ORDER_LITERAL, this);
             patchCommand.setPath(query);
             patchCommand.setValue(command.getIncreaseOrderStorage());
             patchCommands.add(patchCommand);
@@ -241,7 +185,7 @@ public class Product extends Auditable {
         if (command.getIncreaseActualStorage() != null) {
             PatchCommand patchCommand = new PatchCommand();
             patchCommand.setOp(PATCH_OP_TYPE_SUM);
-            String query = toSkuQueryPath(command, this);
+            String query = toSkuQueryPath(command, ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL, this);
             patchCommand.setPath(query);
             patchCommand.setValue(command.getIncreaseActualStorage());
             patchCommands.add(patchCommand);
@@ -250,19 +194,12 @@ public class Product extends Auditable {
         productApplicationService.patchForAdmin(patchCommands, changeId);
     }
 
-    private String toSkuQueryPath(AdminUpdateProductCommand.UpdateProductAdminSkuCommand command, Product productDetail) {
+    private String toSkuQueryPath(AdminUpdateProductCommand.UpdateProductAdminSkuCommand command, String storageType, Product productDetail) {
         Set<String> attributesSales1 = command.getAttributesSales();
         String join = String.join(",", attributesSales1);
         String replace = join.replace(":", "-").replace("/", "~/");
-
         String s = "/" + productDetail.getId() + "/" + ADMIN_REP_SKU_LITERAL + "?" + HTTP_PARAM_QUERY + "=" + ADMIN_REP_ATTR_SALES_LITERAL + ":" + replace;
-        if (command.getDecreaseOrderStorage() != null || command.getIncreaseOrderStorage() != null) {
-            return s + "/" + ADMIN_REP_SKU_STORAGE_ORDER_LITERAL;
-        }
-        if (command.getDecreaseActualStorage() != null || command.getIncreaseActualStorage() != null) {
-            return s + "/" + ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL;
-        }
-        return null;
+        return s + "/" + storageType;
     }
 
 
@@ -279,39 +216,31 @@ public class Product extends Auditable {
         this.attrGen = command.getAttributesGen();
         this.startAt = (command.getStartAt());
         this.endAt = (command.getEndAt());
-        if (command.getSkus() != null && command.getSkus().size() != 0) {
-            command.getSkus().forEach(e -> {
-                if (e.getSales() == null)
-                    e.setSales(0);
-                e.setAttributesSales(e.getAttributesSales());
-            });
-            this.attrSalesTotal = command.getSkus().stream().map(AdminCreateProductCommand.CreateProductSkuAdminCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
-            this.productSkuList = command.getSkus().stream().map(e -> {
-                ProductSku productSku = new ProductSku();
-                productSku.setPrice(e.getPrice());
-                productSku.setProductId(this.id);
-                productSku.setAttributesSales(e.getAttributesSales());
-                productSku.setStorageOrder(e.getStorageOrder());
-                productSku.setStorageActual(e.getStorageActual());
-                productSku.setSales(e.getSales());
-                return productSku;
-            }).collect(Collectors.toList());
-            this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e ->
-                    {
-                        ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
-                        productAttrSaleImages.setAttributeSales(e.getAttributeSales());
-                        productAttrSaleImages.setImageUrls((LinkedHashSet<String>) e.getImageUrls());
-                        return productAttrSaleImages;
-                    }
-            ).collect(Collectors.toCollection(ArrayList::new));
-            this.lowestPrice = findLowestPrice(this);
-            this.totalSales = calcTotalSales(this);
-        } else {
-            this.storageOrder = command.getStorageOrder();
-            this.storageActual = command.getStorageActual();
-            this.totalSales = command.getSales();
-            this.lowestPrice = command.getPrice();
-        }
+        command.getSkus().forEach(e -> {
+            if (e.getSales() == null)
+                e.setSales(0);
+            e.setAttributesSales(e.getAttributesSales());
+        });
+        this.attrSalesTotal = command.getSkus().stream().map(AdminCreateProductCommand.CreateProductSkuAdminCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
+        this.productSkuList = command.getSkus().stream().map(e -> {
+            ProductSku productSku = new ProductSku();
+            productSku.setPrice(e.getPrice());
+            productSku.setProductId(this.id);
+            productSku.setAttributesSales(e.getAttributesSales());
+            productSku.setStorageOrder(e.getStorageOrder());
+            productSku.setStorageActual(e.getStorageActual());
+            productSku.setSales(e.getSales());
+            return productSku;
+        }).collect(Collectors.toList());
+        this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e -> {
+                    ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
+                    productAttrSaleImages.setAttributeSales(e.getAttributeSales());
+                    productAttrSaleImages.setImageUrls((LinkedHashSet<String>) e.getImageUrls());
+                    return productAttrSaleImages;
+                }
+        ).collect(Collectors.toCollection(ArrayList::new));
+        this.lowestPrice = findLowestPrice(this);
+        this.totalSales = calcTotalSales(this);
     }
 
 

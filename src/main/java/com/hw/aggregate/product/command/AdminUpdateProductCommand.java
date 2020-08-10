@@ -29,11 +29,6 @@ public class AdminUpdateProductCommand {
     private Set<String> attributesGen;
     private List<UpdateProductAdminSkuCommand> skus;
     private List<UpdateProductAttrImageAdminCommand> attributeSaleImages;
-    private Integer decreaseActualStorage;
-    private Integer decreaseOrderStorage;
-    private Integer increaseActualStorage;
-    private Integer increaseOrderStorage;
-    private BigDecimal price;
 
     @Data
     public static class UpdateProductAdminSkuCommand {

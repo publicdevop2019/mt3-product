@@ -43,7 +43,11 @@ public abstract class UpdateQueryBuilder<T> {
         });
         jsonPatchCommandCount.keySet().forEach(e -> {
             if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUM) || e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF)) {
-                e.setValue(Integer.parseInt((String) e.getValue()) * jsonPatchCommandCount.get(e));
+                if (e.getValue() instanceof Integer) {
+                    e.setValue((Integer) e.getValue() * jsonPatchCommandCount.get(e));
+                } else {
+                    e.setValue(Integer.parseInt((String) e.getValue()) * jsonPatchCommandCount.get(e));
+                }
             }
         });
         Set<PatchCommand> patchCommands = jsonPatchCommandCount.keySet();

@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.hw.aggregate.product.model.ProductSku.*;
-import static com.hw.aggregate.product.representation.AdminProductDetailRep.*;
-import static com.hw.aggregate.product.representation.AdminProductDetailRep.ProductSkuAdminRepresentation.*;
+import static com.hw.aggregate.product.representation.AdminProductRep.*;
+import static com.hw.aggregate.product.representation.AdminProductRep.ProductSkuAdminRepresentation.*;
 import static com.hw.shared.AppConstant.*;
 
 @Component
@@ -127,7 +127,6 @@ public class AppProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<ProductS
 
 
     private boolean storagePatchOpSub(PatchCommand command) {
-        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF) && (command.getPath().contains(ADMIN_REP_STORAGE_ORDER_LITERAL) ||
-                command.getPath().contains(ADMIN_REP_STORAGE_ACTUAL_LITERAL) || command.getPath().contains(ADMIN_REP_SALES_LITERAL));
+        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF) && (command.getPath().contains(ADMIN_REP_SALES_LITERAL));
     }
 }

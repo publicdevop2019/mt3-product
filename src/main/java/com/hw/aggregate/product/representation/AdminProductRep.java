@@ -1,7 +1,7 @@
 package com.hw.aggregate.product.representation;
 
-import com.hw.aggregate.product.model.ProductAttrSaleImages;
 import com.hw.aggregate.product.model.Product;
+import com.hw.aggregate.product.model.ProductAttrSaleImages;
 import com.hw.aggregate.product.model.ProductOption;
 import com.hw.aggregate.product.model.ProductSku;
 import lombok.Data;
@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class AdminProductDetailRep {
+public class AdminProductRep {
     private Long id;
     public transient static final String ADMIN_REP_ID_LITERAL = "id";
 
@@ -45,19 +45,10 @@ public class AdminProductDetailRep {
 
     private List<ProductAttrSaleImagesAdminRepresentation> attributeSaleImages;
 
-    private Integer storageOrder;
-    public transient static final String ADMIN_REP_STORAGE_ORDER_LITERAL = "storageOrder";
+    private Integer totalSales;
+    public transient static final String ADMIN_REP_SALES_LITERAL = "totalSales";
 
-    private Integer storageActual;
-    public transient static final String ADMIN_REP_STORAGE_ACTUAL_LITERAL = "storageActual";
-
-    private BigDecimal price;
-    public transient static final String ADMIN_REP_PRICE_LITERAL = "price";
-
-    private Integer sales;
-    public transient static final String ADMIN_REP_SALES_LITERAL = "sales";
-
-    public AdminProductDetailRep(Product productDetail) {
+    public AdminProductRep(Product productDetail) {
         this.id = productDetail.getId();
         this.name = productDetail.getName();
         this.imageUrlSmall = productDetail.getImageUrlSmall();
@@ -70,15 +61,8 @@ public class AdminProductDetailRep {
         this.attributesKey = productDetail.getAttrKey();
         this.attributesProd = productDetail.getAttrProd();
         this.attributesGen = productDetail.getAttrGen();
-
-        if (productDetail.getProductSkuList() != null && productDetail.getProductSkuList().size() != 0) {
-            this.skus = productDetail.getProductSkuList().stream().map(ProductSkuAdminRepresentation::new).collect(Collectors.toList());
-        } else {
-            this.price = productDetail.getLowestPrice();
-            this.sales = productDetail.getTotalSales();
-            this.storageActual = productDetail.getStorageActual();
-            this.storageOrder = productDetail.getStorageOrder();
-        }
+        this.skus = productDetail.getProductSkuList().stream().map(ProductSkuAdminRepresentation::new).collect(Collectors.toList());
+        this.totalSales = productDetail.getTotalSales();
         if (productDetail.getAttributeSaleImages() != null)
             this.attributeSaleImages = productDetail.getAttributeSaleImages().stream().map(ProductAttrSaleImagesAdminRepresentation::new).collect(Collectors.toList());
     }

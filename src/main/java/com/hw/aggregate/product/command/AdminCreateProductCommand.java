@@ -30,10 +30,8 @@ public class AdminCreateProductCommand {
     private List<CreateProductSkuAdminCommand> skus;
     private List<CreateProductAttrImageAdminCommand> attributeSaleImages;
 
-    private Integer storageOrder;
-    private Integer storageActual;
-    private BigDecimal price;
-    private Integer sales;
+    private BigDecimal lowestPrice;
+    private Integer totalSales;
 
     @Data
     public static class CreateProductSkuAdminCommand {

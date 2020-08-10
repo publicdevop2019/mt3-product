@@ -4,8 +4,8 @@ import com.hw.aggregate.attribute.BizAttributeApplicationService;
 import com.hw.aggregate.attribute.representation.BizAttributeSummaryRepresentation;
 import com.hw.aggregate.product.exception.AttributeNameNotFoundException;
 import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
-import com.hw.aggregate.product.model.ProductAttrSaleImages;
 import com.hw.aggregate.product.model.Product;
+import com.hw.aggregate.product.model.ProductAttrSaleImages;
 import com.hw.aggregate.product.model.ProductOption;
 import com.hw.aggregate.product.model.ProductSku;
 import lombok.Data;
@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
-public class PublicProductDetailRep {
+public class PublicProductRep {
     private Long id;
     private String name;
     private String imageUrlSmall;
@@ -28,32 +28,28 @@ public class PublicProductDetailRep {
     private List<ProductAttrSaleImagesCustomerRepresentation> attributeSaleImages;
     private List<ProductOption> selectedOptions;
     private Map<String, String> attrIdMap;
-    private Integer storage;
 
-    public PublicProductDetailRep(Product productDetail, BizAttributeApplicationService bizAttributeApplicationService) {
+    public PublicProductRep(Product productDetail, BizAttributeApplicationService bizAttributeApplicationService) {
         this.id = productDetail.getId();
         this.name = productDetail.getName();
         this.imageUrlSmall = productDetail.getImageUrlSmall();
         this.imageUrlLarge = productDetail.getImageUrlLarge();
         this.description = productDetail.getDescription();
         this.specification = productDetail.getSpecification();
-        if (productDetail.getProductSkuList() != null && productDetail.getProductSkuList().size() != 0) {
-            this.lowestPrice = findLowestPrice(productDetail);
-            this.totalSales = calcTotalSales(productDetail);
-            this.skus = getCustomerSku(productDetail);
-            this.attrIdMap = new HashMap<>();
-            this.skus.stream().map(ProductSkuCustomerRepresentation::getAttributeSales).flatMap(Collection::stream).collect(Collectors.toList())
-                    .stream().map(e -> e.split(":")[0]).forEach(el -> attrIdMap.put(el, null));
-            String search = "id:" + String.join(".", this.attrIdMap.keySet());
+        this.lowestPrice = findLowestPrice(productDetail);
+        this.totalSales = calcTotalSales(productDetail);
+        this.skus = getCustomerSku(productDetail);
+        this.attrIdMap = new HashMap<>();
+        this.skus.stream().map(ProductSkuCustomerRepresentation::getAttributeSales).flatMap(Collection::stream).collect(Collectors.toList())
+                .stream().map(e -> e.split(":")[0]).forEach(el -> attrIdMap.put(el, null));
+        String search = "id:" + String.join(".", this.attrIdMap.keySet());
+        BizAttributeSummaryRepresentation bizAttributeSummaryRepresentation;
+        if (this.attrIdMap.keySet().size() > 0) {
             String page = "size:" + this.attrIdMap.keySet().size();
-            BizAttributeSummaryRepresentation bizAttributeSummaryRepresentation = bizAttributeApplicationService.adminQuery(search, page, "0");
+            bizAttributeSummaryRepresentation = bizAttributeApplicationService.adminQuery(search, page, "0");
             this.attrIdMap.keySet().forEach(e -> {
                 attrIdMap.put(e, findName(e, bizAttributeSummaryRepresentation));
             });
-        } else {
-            this.lowestPrice = productDetail.getLowestPrice();
-            this.totalSales = productDetail.getTotalSales();
-            this.storage = productDetail.getStorageOrder();
         }
         if (productDetail.getAttributeSaleImages() != null)
             this.attributeSaleImages = productDetail.getAttributeSaleImages().stream().map(ProductAttrSaleImagesCustomerRepresentation::new).collect(Collectors.toList());

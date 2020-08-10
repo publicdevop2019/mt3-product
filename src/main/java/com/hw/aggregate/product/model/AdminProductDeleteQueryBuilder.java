@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.hw.aggregate.product.model.Product.ID_LITERAL;
-import static com.hw.aggregate.product.representation.AdminProductDetailRep.ADMIN_REP_ID_LITERAL;
+import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_ID_LITERAL;
 
 @Component
 public class AdminProductDeleteQueryBuilder extends DeleteQueryBuilder<Product> {
