@@ -1,6 +1,7 @@
 package com.hw.aggregate.product.model;
 
 
+import com.hw.aggregate.product.exception.AttrSalesParseException;
 import com.hw.aggregate.product.exception.NoUpdatableFieldException;
 import com.hw.aggregate.product.exception.UnsupportedPatchOperationException;
 import com.hw.aggregate.product.exception.UpdateFiledValueException;
@@ -65,7 +66,7 @@ public class AppProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<ProductS
     }
 
     /**
-     * @param command [{"op":"add","path":"/837195323695104/skus?query=attributeSales:835604723556352-淡粉色,835604663263232-185~/100A~/XXL/storageActual","value":"1"}]
+     * @param command [{"op":"add","path":"/skus?query=attributeSales:835604723556352-淡粉色,835604663263232-185~/100A~/XXL/storageActual","value":"1"}]
      * @return 835604723556352:淡粉色,835604663263232:185/100A/XXL
      */
     private String parseAttrSales(PatchCommand command) {
@@ -73,7 +74,7 @@ public class AppProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<ProductS
         String replace1 = replace.replace("~/", "$");
         String[] split = replace1.split("/");
         if (split.length != 2)
-            throw new NoUpdatableFieldException();
+            throw new AttrSalesParseException();
         return split[0].replace("-", ":").replace("$", "/");
     }
 

@@ -6,6 +6,7 @@ import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.hw.shared.AppConstant.PATCH_OP_TYPE_DIFF;
@@ -33,6 +34,35 @@ public abstract class UpdateQueryBuilder<T> {
      * ]
      */
     public Integer update(List<PatchCommand> commands, Class<T> clazz) {
+        Map<PatchCommand, List<String>> jsonPatchCommandListHashMap = optimizePatchCommands(commands);
+        Map<PatchCommand, CriteriaUpdate<T>> patchCommandCriteriaUpdateHashMap = new LinkedHashMap<>();
+        jsonPatchCommandListHashMap.keySet().forEach(comm -> {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaUpdate<T> criteriaUpdate = cb.createCriteriaUpdate(clazz);
+            Root<T> root = criteriaUpdate.from(clazz);
+            Predicate or = getWhereClause(root, jsonPatchCommandListHashMap.get(comm), comm);
+            if (or != null)
+                criteriaUpdate.where(or);
+            setUpdateValue(root, criteriaUpdate, comm);
+            patchCommandCriteriaUpdateHashMap.put(comm, criteriaUpdate);
+        });
+        AtomicInteger count = new AtomicInteger(0);
+        patchCommandCriteriaUpdateHashMap.forEach((key, value) -> {
+            int i = em.createQuery(value).executeUpdate();
+            if (key.getExpect() == null) {
+                count.addAndGet(i);
+            } else {
+                if (key.getExpect().equals(i)) {
+                    count.addAndGet(i);
+                } else {
+                    throw new PatchCommandExpectNotMatchException();
+                }
+            }
+        });
+        return count.get();
+    }
+
+    private Map<PatchCommand, List<String>> optimizePatchCommands(List<PatchCommand> commands) {
         Map<PatchCommand, Integer> jsonPatchCommandCount = new HashMap<>();
         commands.forEach(e -> {
             if (jsonPatchCommandCount.containsKey(e)) {
@@ -67,18 +97,7 @@ public abstract class UpdateQueryBuilder<T> {
                 jsonPatchCommandListHashMap.put(e, strings);
             }
         });
-        List<CriteriaUpdate<T>> criteriaUpdates = jsonPatchCommandListHashMap.keySet().stream().map(e -> {
-            CriteriaBuilder cb = em.getCriteriaBuilder();
-            CriteriaUpdate<T> criteriaUpdate = cb.createCriteriaUpdate(clazz);
-            Root<T> root = criteriaUpdate.from(clazz);
-            Predicate or = getWhereClause(root, jsonPatchCommandListHashMap.get(e), e);
-            if (or != null)
-                criteriaUpdate.where(or);
-            setUpdateValue(root, criteriaUpdate, e);
-            return criteriaUpdate;
-        }).collect(Collectors.toList());
-        // how to validate number of rows updated ?
-        return criteriaUpdates.stream().map(e -> em.createQuery(e).executeUpdate()).reduce(0, Integer::sum);
+        return jsonPatchCommandListHashMap;
     }
 
     private boolean hasMoreThanOne(PatchCommand e) {

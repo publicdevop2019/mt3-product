@@ -4,6 +4,7 @@ import com.hw.aggregate.catalog.exception.CatalogNotFoundException;
 import com.hw.aggregate.product.exception.*;
 import com.hw.shared.DeepCopyException;
 import com.hw.shared.ErrorMessage;
+import com.hw.shared.PatchCommandExpectNotMatchException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -32,7 +33,8 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
             UnsupportedPatchOperationException.class,
             UpdateFiledValueException.class,
             HangingTransactionException.class,
-            RollbackNotSupportedException.class
+            RollbackNotSupportedException.class,
+            PatchCommandExpectNotMatchException.class,
     })
     protected ResponseEntity<?> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);
