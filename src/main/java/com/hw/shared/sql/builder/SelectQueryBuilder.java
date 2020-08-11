@@ -1,5 +1,9 @@
-package com.hw.shared;
+package com.hw.shared.sql.builder;
 
+import com.hw.shared.sql.clause.WhereClause;
+import com.hw.shared.sql.clause.SelectFieldIdWhereClause;
+import com.hw.shared.sql.exception.MaxPageSizeExceedException;
+import com.hw.shared.sql.exception.UnsupportedQueryException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
@@ -7,25 +11,25 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 
-public abstract class SelectQueryBuilder<T> implements WhereClause<T> {
+public abstract class SelectQueryBuilder<T> {
     protected Integer DEFAULT_PAGE_SIZE;
     protected Integer MAX_PAGE_SIZE;
     protected Integer DEFAULT_PAGE_NUM = 0;
     protected String DEFAULT_SORT_BY = COMMON_ENTITY_ID;
     protected Map<String, String> mappedSortBy = new HashMap<>();
+    protected Map<String, WhereClause<T>> supportedWhereField = new HashMap<>();
+    protected Set<WhereClause<T>> defaultWhereField = new HashSet<>();
     protected Sort.Direction DEFAULT_SORT_ORDER = Sort.Direction.ASC;
     protected EntityManager em;
 
     protected SelectQueryBuilder() {
         mappedSortBy.put(COMMON_ENTITY_ID, COMMON_ENTITY_ID);
+        supportedWhereField.put(COMMON_ENTITY_ID, new SelectFieldIdWhereClause<>());
     }
 
     public List<T> select(String search, String page, Class<T> clazz) {
@@ -33,10 +37,28 @@ public abstract class SelectQueryBuilder<T> implements WhereClause<T> {
         CriteriaQuery<T> query = cb.createQuery(clazz);
         Root<T> root = query.from(clazz);
         PageRequest pageRequest = getPageRequest(page);
-        Predicate queryClause = getWhereClause(root, search);
+
+        if (search == null)
+            return null;
+        String[] queryParams = search.split(",");
+        List<Predicate> results = new ArrayList<>();
+        for (String param : queryParams) {
+            String[] split = param.split(":");
+            if (split.length == 2) {
+                if (supportedWhereField.get(split[0]) != null && !split[1].isBlank()) {
+                    WhereClause<T> tWhereClause = supportedWhereField.get(split[0]);
+                    Predicate whereClause = tWhereClause.getWhereClause(split[1], cb, root);
+                    results.add(whereClause);
+                }
+            }
+        }
+        Predicate and = cb.and(results.toArray(new Predicate[0]));
+        if (defaultWhereField.size() != 0) {
+            cb.and(defaultWhereField.stream().map(e -> e.getWhereClause("", cb, root)).distinct().toArray(Predicate[]::new));
+        }
         query.select(root);
-        if (queryClause != null)
-            query.where(queryClause);
+        if (and != null)
+            query.where(and);
         Set<Order> collect = pageRequest.getSort().get().map(e -> {
             if (e.getDirection().isAscending()) {
                 return cb.asc(root.get(e.getProperty()));
@@ -56,10 +78,24 @@ public abstract class SelectQueryBuilder<T> implements WhereClause<T> {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<T> root = query.from(clazz);
-        Predicate queryClause = getWhereClause(root, search);
+        List<Predicate> results = new ArrayList<>();
+        if (search == null)
+            return null;
+        String[] queryParams = search.split(",");
+        for (String param : queryParams) {
+            String[] split = param.split(":");
+            if (split.length == 2) {
+                if (supportedWhereField.get(split[0]) != null && !split[1].isBlank()) {
+                    WhereClause<T> tWhereClause = supportedWhereField.get(split[0]);
+                    Predicate whereClause = tWhereClause.getWhereClause(split[1], cb, root);
+                    results.add(whereClause);
+                }
+            }
+        }
+        Predicate and = cb.and(results.toArray(new Predicate[0]));
         query.select(cb.count(root));
-        if (queryClause != null)
-            query.where(queryClause);
+        if (and != null)
+            query.where(and);
         return em.createQuery(query).getSingleResult();
     }
 
@@ -95,4 +131,5 @@ public abstract class SelectQueryBuilder<T> implements WhereClause<T> {
         Sort sort = new Sort(sortOrder, sortBy);
         return PageRequest.of(pageNumber, pageSize, sort);
     }
+
 }

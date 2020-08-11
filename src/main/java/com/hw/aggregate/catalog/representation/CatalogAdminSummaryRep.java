@@ -1,7 +1,7 @@
 package com.hw.aggregate.catalog.representation;
 
 import com.hw.aggregate.catalog.model.Catalog;
-import com.hw.shared.SumPagedRep;
+import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
 
 import java.util.Set;

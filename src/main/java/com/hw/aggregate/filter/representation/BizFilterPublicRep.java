@@ -1,7 +1,7 @@
 package com.hw.aggregate.filter.representation;
 
 import com.hw.aggregate.filter.model.BizFilter;
-import com.hw.shared.SumPagedRep;
+import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.hw.shared;
+package com.hw.shared.sql;
 
 import lombok.Data;
 

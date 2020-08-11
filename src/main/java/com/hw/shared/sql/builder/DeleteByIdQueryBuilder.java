@@ -1,7 +1,6 @@
-package com.hw.aggregate.product.model;
+package com.hw.shared.sql.builder;
 
-import com.hw.shared.DeleteQueryBuilder;
-import com.hw.shared.WhereQueryNotFoundException;
+import com.hw.shared.sql.exception.WhereQueryNotFoundException;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;

@@ -8,7 +8,7 @@ import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
 import com.hw.aggregate.product.exception.SkuAlreadyExistException;
 import com.hw.aggregate.product.exception.SkuNotExistException;
 import com.hw.shared.Auditable;
-import com.hw.shared.PatchCommand;
+import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.StringSetConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;

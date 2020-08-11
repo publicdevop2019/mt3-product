@@ -1,7 +1,7 @@
 package com.hw.aggregate.product.model;
 
-import com.hw.shared.WhereQueryNotFoundException;
-import com.hw.shared.SelectQueryBuilder;
+import com.hw.shared.sql.exception.WhereQueryNotFoundException;
+import com.hw.shared.sql.builder.SelectQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

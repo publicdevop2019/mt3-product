@@ -1,7 +1,7 @@
 package com.hw.aggregate.filter.model;
 
-import com.hw.shared.SelectQueryBuilder;
-import com.hw.shared.UnsupportedQueryException;
+import com.hw.shared.sql.builder.SelectQueryBuilder;
+import com.hw.shared.sql.exception.UnsupportedQueryException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -10,10 +10,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import static com.hw.aggregate.filter.model.BizFilter.ID_LITERAL;
 import static com.hw.aggregate.filter.model.BizFilter.LINKED_CATALOG_LITERAL;
 
 @Component

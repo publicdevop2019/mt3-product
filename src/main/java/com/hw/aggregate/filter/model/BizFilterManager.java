@@ -1,6 +1,6 @@
 package com.hw.aggregate.filter.model;
 
-import com.hw.shared.RestfulEntityManager;
+import com.hw.shared.sql.RestfulEntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

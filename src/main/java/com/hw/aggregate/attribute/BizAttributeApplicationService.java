@@ -8,13 +8,11 @@ import com.hw.aggregate.attribute.representation.BizAttributeAdminRep;
 import com.hw.aggregate.attribute.representation.BizAttributeCreatedRep;
 import com.hw.aggregate.attribute.representation.BizAttributeSumRep;
 import com.hw.shared.DefaultApplicationService;
-import com.hw.shared.SumPagedRep;
+import com.hw.shared.sql.SumPagedRep;
 import com.hw.shared.IdGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
 
 @Service
 public class BizAttributeApplicationService extends DefaultApplicationService {

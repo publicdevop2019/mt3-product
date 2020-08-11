@@ -6,7 +6,7 @@ import com.hw.aggregate.product.command.AdminUpdateProductCommand;
 import com.hw.aggregate.product.representation.AdminProductSumPagedRep;
 import com.hw.aggregate.product.representation.AppProductSumPagedRep;
 import com.hw.aggregate.product.representation.PublicProductSumPagedRep;
-import com.hw.shared.PatchCommand;
+import com.hw.shared.sql.PatchCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,7 @@
 package com.hw.aggregate.attribute.representation;
 
 import com.hw.aggregate.attribute.model.BizAttribute;
-import com.hw.shared.SumPagedRep;
+import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
 
 import java.util.List;

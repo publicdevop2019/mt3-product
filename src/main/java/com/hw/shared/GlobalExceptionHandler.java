@@ -1,5 +1,7 @@
 package com.hw.shared;
 
+import com.hw.shared.sql.exception.MaxPageSizeExceedException;
+import com.hw.shared.sql.exception.UnsupportedQueryException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

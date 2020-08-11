@@ -1,4 +1,9 @@
-package com.hw.shared;
+package com.hw.shared.sql;
+
+import com.hw.shared.sql.builder.DeleteQueryBuilder;
+import com.hw.shared.sql.builder.SelectQueryBuilder;
+import com.hw.shared.sql.builder.UpdateQueryBuilder;
+import com.hw.shared.sql.exception.QueryBuilderNotFoundException;
 
 import java.util.HashMap;
 import java.util.List;

@@ -1,4 +1,7 @@
-package com.hw.shared;
+package com.hw.shared.sql.builder;
+
+import com.hw.shared.sql.PatchCommand;
+import com.hw.shared.sql.exception.PatchCommandExpectNotMatchException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;

@@ -3,7 +3,7 @@ package com.hw.aggregate.product.representation;
 import com.hw.aggregate.product.model.Product;
 import com.hw.aggregate.product.model.ProductOption;
 import com.hw.aggregate.product.model.ProductSku;
-import com.hw.shared.SumPagedRep;
+import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
 
 import java.util.List;

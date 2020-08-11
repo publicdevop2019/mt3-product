@@ -1,5 +1,6 @@
 package com.hw.aggregate.product.model;
 
+import com.hw.shared.sql.builder.DeleteByIdQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
