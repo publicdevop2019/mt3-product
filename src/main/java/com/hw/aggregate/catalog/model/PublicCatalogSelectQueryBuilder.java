@@ -28,9 +28,6 @@ public class PublicCatalogSelectQueryBuilder extends SelectQueryBuilder<Catalog>
     PublicCatalogSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 1000;
         MAX_PAGE_SIZE = 1500;
-        DEFAULT_SORT_BY = "id";
-        mappedSortBy = new HashMap<>();
-        mappedSortBy.put("id", ID_LITERAL);
     }
 
 }

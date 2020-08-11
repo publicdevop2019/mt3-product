@@ -42,9 +42,6 @@ public class AdminCatalogSelectQueryBuilder extends SelectQueryBuilder<Catalog> 
     AdminCatalogSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 1000;
         MAX_PAGE_SIZE = 2000;
-        DEFAULT_SORT_BY = "id";
-        mappedSortBy = new HashMap<>();
-        mappedSortBy.put("id", ID_LITERAL);
         mappedSortBy.put("name", NAME_LITERAL);
     }
 }

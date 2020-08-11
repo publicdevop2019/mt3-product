@@ -47,9 +47,6 @@ public class AdminAttributeSelectQueryBuilder extends SelectQueryBuilder<BizAttr
     AdminAttributeSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 200;
         MAX_PAGE_SIZE = 200;
-        DEFAULT_SORT_BY = "id";
-        mappedSortBy = new HashMap<>();
-        mappedSortBy.put("id", COMMON_ENTITY_ID);
         mappedSortBy.put("name", NAME_LITERAL);
         mappedSortBy.put("type", TYPE_LITERAL);
     }

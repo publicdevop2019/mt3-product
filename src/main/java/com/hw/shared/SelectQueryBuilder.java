@@ -7,19 +7,26 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
+
 public abstract class SelectQueryBuilder<T> implements WhereClause<T> {
     protected Integer DEFAULT_PAGE_SIZE;
     protected Integer MAX_PAGE_SIZE;
     protected Integer DEFAULT_PAGE_NUM = 0;
-    protected String DEFAULT_SORT_BY;
-    protected Map<String, String> mappedSortBy;
+    protected String DEFAULT_SORT_BY = COMMON_ENTITY_ID;
+    protected Map<String, String> mappedSortBy = new HashMap<>();
     protected Sort.Direction DEFAULT_SORT_ORDER = Sort.Direction.ASC;
     protected EntityManager em;
+
+    protected SelectQueryBuilder() {
+        mappedSortBy.put(COMMON_ENTITY_ID, COMMON_ENTITY_ID);
+    }
 
     public List<T> select(String search, String page, Class<T> clazz) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -56,7 +63,7 @@ public abstract class SelectQueryBuilder<T> implements WhereClause<T> {
         return em.createQuery(query).getSingleResult();
     }
 
-    private PageRequest getPageRequest(String page){
+    private PageRequest getPageRequest(String page) {
         if (page == null) {
             Sort sort = new Sort(DEFAULT_SORT_ORDER, mappedSortBy.get(DEFAULT_SORT_BY));
             return PageRequest.of(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE, sort);

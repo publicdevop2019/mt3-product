@@ -25,9 +25,6 @@ public class AdminFilterSelectQueryBuilder extends SelectQueryBuilder<BizFilter>
     AdminFilterSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 40;
         MAX_PAGE_SIZE = 400;
-        DEFAULT_SORT_BY = "id";
-        mappedSortBy = new HashMap<>();
-        mappedSortBy.put("id", ID_LITERAL);
     }
 
     public Predicate getWhereClause(Root<BizFilter> root, String search) {
