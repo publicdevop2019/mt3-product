@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 @Data
 public class AdminProductRep {
     private Long id;
-    public transient static final String ADMIN_REP_ID_LITERAL = "id";
 
     private String name;
     public transient static final String ADMIN_REP_NAME_LITERAL = "name";

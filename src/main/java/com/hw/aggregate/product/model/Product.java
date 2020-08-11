@@ -32,7 +32,6 @@ import static com.hw.shared.AppConstant.*;
 public class Product extends Auditable {
     @Id
     private Long id;
-    public transient static final String ID_LITERAL = "id";
 
     private String imageUrlSmall;
 

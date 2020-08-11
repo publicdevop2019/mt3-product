@@ -16,11 +16,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hw.aggregate.product.model.Product.ID_LITERAL;
 import static com.hw.aggregate.product.model.Product.TOTAL_SALES_LITERAL;
 import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SALES_LITERAL;
-import static com.hw.shared.AppConstant.PATCH_OP_TYPE_DIFF;
-import static com.hw.shared.AppConstant.PATCH_OP_TYPE_SUM;
+import static com.hw.shared.AppConstant.*;
 
 @Component
 public class AppProductUpdateQueryBuilder extends UpdateQueryBuilder<Product> {
@@ -86,7 +84,7 @@ public class AppProductUpdateQueryBuilder extends UpdateQueryBuilder<Product> {
         List<Predicate> results = new ArrayList<>();
         for (String str : search) {
             //make sure if storage change, value is not negative
-            Predicate equal = cb.equal(root.get(ID_LITERAL), Long.parseLong(str));
+            Predicate equal = cb.equal(root.get(COMMON_ENTITY_ID), Long.parseLong(str));
             if (storagePatchOpSub(command)) {
                 Predicate negativeClause = getStorageMustNotNegativeClause(cb, root, command);
                 Predicate and = cb.and(equal, negativeClause);

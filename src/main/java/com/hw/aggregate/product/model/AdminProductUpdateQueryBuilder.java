@@ -87,7 +87,7 @@ public class AdminProductUpdateQueryBuilder extends UpdateQueryBuilder<Product> 
         List<Predicate> results = new ArrayList<>();
         for (String str : search) {
             //make sure if storage change, value is not negative
-            Predicate equal = cb.equal(root.get(ID_LITERAL), Long.parseLong(str));
+            Predicate equal = cb.equal(root.get(COMMON_ENTITY_ID), Long.parseLong(str));
             results.add(equal);
         }
         return cb.or(results.toArray(new Predicate[0]));

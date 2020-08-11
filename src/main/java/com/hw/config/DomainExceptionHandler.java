@@ -5,6 +5,7 @@ import com.hw.aggregate.product.exception.*;
 import com.hw.shared.DeepCopyException;
 import com.hw.shared.ErrorMessage;
 import com.hw.shared.PatchCommandExpectNotMatchException;
+import com.hw.shared.WhereQueryNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -29,7 +30,7 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
             SkuAlreadyExistException.class,
             SkuNotExistException.class,
             ProductDetailPatchException.class,
-            QueryNotFoundException.class,
+            WhereQueryNotFoundException.class,
             UnsupportedPatchOperationException.class,
             UpdateFiledValueException.class,
             HangingTransactionException.class,

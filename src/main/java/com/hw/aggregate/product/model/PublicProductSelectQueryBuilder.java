@@ -1,6 +1,6 @@
 package com.hw.aggregate.product.model;
 
-import com.hw.aggregate.product.exception.QueryNotFoundException;
+import com.hw.shared.WhereQueryNotFoundException;
 import com.hw.shared.SelectQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -36,7 +36,7 @@ public class PublicProductSelectQueryBuilder extends SelectQueryBuilder<Product>
     public Predicate getWhereClause(Root<Product> root, String search) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         if (search == null)
-            throw new QueryNotFoundException();
+            throw new WhereQueryNotFoundException();
         Predicate queryClause = adminSelectQueryBuilder.getWhereClause(root, search);
         Predicate statusClause = getStatusClause(root);
         return cb.and(queryClause, statusClause);

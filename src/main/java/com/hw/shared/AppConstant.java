@@ -14,4 +14,5 @@ public class AppConstant {
     public static final String PATCH_OP_TYPE_ADD = "add";
     public static final String PATCH_OP_TYPE_DIFF = "diff";
     public static final String PATCH_OP_TYPE_REPLACE = "replace";
+    public static final String COMMON_ENTITY_ID = "id";
 }
