@@ -1,4 +1,4 @@
-package com.hw.aggregate.catalog.model;
+package com.hw.aggregate.filter.model;
 
 import com.hw.shared.SelectQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,17 +12,25 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.hw.aggregate.catalog.model.Catalog.*;
+import static com.hw.aggregate.filter.model.BizFilter.ID_LITERAL;
+import static com.hw.aggregate.filter.model.BizFilter.LINKED_CATALOG_LITERAL;
 
-
-@Component("catalogAdmin")
-public class AdminQueryBuilder extends SelectQueryBuilder<Catalog> {
+@Component
+public class AdminFilterSelectQueryBuilder extends SelectQueryBuilder<BizFilter> {
     @Autowired
     private void setEntityManager(EntityManager entityManager) {
         em = entityManager;
     }
 
-    public Predicate getWhereClause(Root<Catalog> root, String search) {
+    AdminFilterSelectQueryBuilder() {
+        DEFAULT_PAGE_SIZE = 40;
+        MAX_PAGE_SIZE = 400;
+        DEFAULT_SORT_BY = "id";
+        mappedSortBy = new HashMap<>();
+        mappedSortBy.put("id", ID_LITERAL);
+    }
+
+    public Predicate getWhereClause(Root<BizFilter> root, String search) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         if (search == null)
             return null;
@@ -31,20 +39,11 @@ public class AdminQueryBuilder extends SelectQueryBuilder<Catalog> {
         for (String param : queryParams) {
             String[] split = param.split(":");
             if (split.length == 2) {
-                if ("type".equals(split[0]) && !split[1].isBlank()) {
-                    results.add(cb.equal(root.get(TYPE_LITERAL).as(String.class), split[1]));
+                if ("catalog".equals(split[0]) && !split[1].isBlank()) {
+                    results.add(cb.like(root.get(LINKED_CATALOG_LITERAL).as(String.class), "%" + split[1] + "%"));
                 }
             }
         }
         return cb.and(results.toArray(new Predicate[0]));
-    }
-
-    AdminQueryBuilder() {
-        DEFAULT_PAGE_SIZE = 1000;
-        MAX_PAGE_SIZE = 2000;
-        DEFAULT_SORT_BY = "id";
-        mappedSortBy = new HashMap<>();
-        mappedSortBy.put("id", ID_LITERAL);
-        mappedSortBy.put("name", NAME_LITERAL);
     }
 }

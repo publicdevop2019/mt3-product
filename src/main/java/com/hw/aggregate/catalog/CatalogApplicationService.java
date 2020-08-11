@@ -2,22 +2,21 @@ package com.hw.aggregate.catalog;
 
 import com.hw.aggregate.catalog.command.CreateCatalogCommand;
 import com.hw.aggregate.catalog.command.UpdateCatalogCommand;
-import com.hw.aggregate.catalog.model.AdminQueryBuilder;
+import com.hw.aggregate.catalog.exception.CatalogNotFoundException;
 import com.hw.aggregate.catalog.model.Catalog;
-import com.hw.aggregate.catalog.model.CustomerQueryBuilder;
-import com.hw.aggregate.catalog.representation.CatalogAdminRepresentation;
-import com.hw.aggregate.catalog.representation.CatalogAdminSummaryRepresentation;
-import com.hw.aggregate.catalog.representation.CatalogCreatedRepresentation;
-import com.hw.aggregate.catalog.representation.CatalogCustomerSummaryRepresentation;
+import com.hw.aggregate.catalog.model.CatalogManager;
+import com.hw.aggregate.catalog.representation.CatalogAdminRep;
+import com.hw.aggregate.catalog.representation.CatalogAdminSummaryRep;
+import com.hw.aggregate.catalog.representation.CatalogCreatedRep;
+import com.hw.aggregate.catalog.representation.CatalogPublicSummaryRep;
 import com.hw.shared.DefaultApplicationService;
-import com.hw.shared.SumPagedRep;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.RestfulEntityManager;
+import com.hw.shared.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
 
 @Slf4j
 @Service
@@ -28,46 +27,44 @@ public class CatalogApplicationService extends DefaultApplicationService {
 
     @Autowired
     private IdGenerator idGenerator;
-
     @Autowired
-    private EntityManager entityManager;
-
-    @Autowired
-    private CustomerQueryBuilder customerQueryBuilder;
-
-    @Autowired
-    private AdminQueryBuilder adminQueryBuilder;
+    private CatalogManager catalogManager;
 
     @Transactional(readOnly = true)
-    public CatalogCustomerSummaryRepresentation customerQuery(String search, String page, String countFlag) {
-        SumPagedRep<Catalog> select = select(customerQueryBuilder, search, page, countFlag, Catalog.class);
-        return new CatalogCustomerSummaryRepresentation(select);
+    public CatalogPublicSummaryRep readForPublicByQuery(String search, String page, String countFlag) {
+        SumPagedRep<Catalog> catalogSumPagedRep = catalogManager.readByQuery(RestfulEntityManager.RoleEnum.PUBLIC, search, page, countFlag, Catalog.class);
+        return new CatalogPublicSummaryRep(catalogSumPagedRep);
     }
 
     @Transactional(readOnly = true)
-    public CatalogAdminSummaryRepresentation adminQuery(String search, String page, String countFlag) {
-        SumPagedRep<Catalog> select = select(adminQueryBuilder, search, page, countFlag, Catalog.class);
-        return new CatalogAdminSummaryRepresentation(select);
+    public CatalogAdminSummaryRep readForAdminByQuery(String search, String page, String countFlag) {
+        SumPagedRep<Catalog> catalogSumPagedRep = catalogManager.readByQuery(RestfulEntityManager.RoleEnum.ADMIN, search, page, countFlag, Catalog.class);
+        return new CatalogAdminSummaryRep(catalogSumPagedRep);
     }
 
     @Transactional
-    public CatalogCreatedRepresentation create(CreateCatalogCommand command) {
-        return new CatalogCreatedRepresentation(Catalog.create(idGenerator.getId(), command, repo));
+    public CatalogCreatedRep createForAdmin(CreateCatalogCommand command) {
+        return new CatalogCreatedRep(Catalog.create(idGenerator.getId(), command, repo));
     }
 
     @Transactional
-    public void update(Long id, UpdateCatalogCommand command) {
-        Catalog read = Catalog.read(id, repo);
-        read.update(command, repo);
+    public void replaceForAdminById(Long id, UpdateCatalogCommand command) {
+        SumPagedRep<Catalog> catalogSumPagedRep = catalogManager.readById(RestfulEntityManager.RoleEnum.ADMIN, id.toString(), Catalog.class);
+        if (catalogSumPagedRep.getData().size() == 0)
+            throw new CatalogNotFoundException();
+        catalogSumPagedRep.getData().get(0).update(command, repo);
     }
 
     @Transactional
-    public void delete(Long id) {
-        Catalog.delete(id, repo);
+    public void deleteForAdminById(Long id) {
+        catalogManager.deleteById(RestfulEntityManager.RoleEnum.ADMIN, id.toString(), Catalog.class);
     }
 
     @Transactional(readOnly = true)
-    public CatalogAdminRepresentation read(Long id) {
-        return new CatalogAdminRepresentation(Catalog.read(id, repo));
+    public CatalogAdminRep readForAdminById(Long id) {
+        SumPagedRep<Catalog> catalogSumPagedRep = catalogManager.readById(RestfulEntityManager.RoleEnum.ADMIN, id.toString(), Catalog.class);
+        if (catalogSumPagedRep.getData().size() == 0)
+            throw new CatalogNotFoundException();
+        return new CatalogAdminRep(catalogSumPagedRep.getData().get(0));
     }
 }

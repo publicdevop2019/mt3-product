@@ -1,7 +1,7 @@
 package com.hw.aggregate.product.representation;
 
 import com.hw.aggregate.attribute.BizAttributeApplicationService;
-import com.hw.aggregate.attribute.representation.BizAttributeSummaryRepresentation;
+import com.hw.aggregate.attribute.representation.BizAttributeSumRep;
 import com.hw.aggregate.product.exception.AttributeNameNotFoundException;
 import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
 import com.hw.aggregate.product.model.Product;
@@ -43,7 +43,7 @@ public class PublicProductRep {
         this.skus.stream().map(ProductSkuCustomerRepresentation::getAttributeSales).flatMap(Collection::stream).collect(Collectors.toList())
                 .stream().map(e -> e.split(":")[0]).forEach(el -> attrIdMap.put(el, null));
         String search = "id:" + String.join(".", this.attrIdMap.keySet());
-        BizAttributeSummaryRepresentation bizAttributeSummaryRepresentation;
+        BizAttributeSumRep bizAttributeSummaryRepresentation;
         if (this.attrIdMap.keySet().size() > 0) {
             String page = "size:" + this.attrIdMap.keySet().size();
             bizAttributeSummaryRepresentation = bizAttributeApplicationService.adminQuery(search, page, "0");
@@ -81,8 +81,8 @@ public class PublicProductRep {
         }
     }
 
-    private String findName(String id, BizAttributeSummaryRepresentation attributeSummaryRepresentation) {
-        Optional<BizAttributeSummaryRepresentation.BizAttributeCardRepresentation> first = attributeSummaryRepresentation.getData().stream().filter(e -> e.getId().toString().equals(id)).findFirst();
+    private String findName(String id, BizAttributeSumRep attributeSummaryRepresentation) {
+        Optional<BizAttributeSumRep.BizAttributeCardRepresentation> first = attributeSummaryRepresentation.getData().stream().filter(e -> e.getId().toString().equals(id)).findFirst();
         if (first.isEmpty())
             throw new AttributeNameNotFoundException();
         return first.get().getName();

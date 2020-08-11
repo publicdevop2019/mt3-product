@@ -5,6 +5,7 @@ import com.hw.aggregate.attribute.command.CreateBizAttributeCommand;
 import com.hw.aggregate.attribute.command.UpdateBizAttributeCommand;
 import com.hw.aggregate.attribute.exception.BizAttributeNotFoundException;
 import com.hw.shared.Auditable;
+import com.hw.shared.EnumDBConverter;
 import com.hw.shared.LinkedHashSetConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -77,5 +78,29 @@ public class BizAttribute extends Auditable {
         if (byId.isEmpty())
             throw new BizAttributeNotFoundException();
         return byId.get();
+    }
+
+    public enum AttributeMethod {
+        MANUAL,
+        SELECT;
+
+        public static class DBConverter extends EnumDBConverter {
+            public DBConverter() {
+                super(AttributeMethod.class);
+            }
+        }
+    }
+
+    public enum BizAttributeType {
+        KEY_ATTR,
+        SALES_ATTR,
+        PROD_ATTR,
+        GEN_ATTR;
+
+        public static class DBConverter extends EnumDBConverter {
+            public DBConverter() {
+                super(BizAttributeType.class);
+            }
+        }
     }
 }

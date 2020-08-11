@@ -4,10 +4,10 @@ import com.hw.aggregate.catalog.model.Catalog;
 import lombok.Data;
 
 @Data
-public class CatalogCreatedRepresentation {
+public class CatalogCreatedRep {
     private Long id;
 
-    public CatalogCreatedRepresentation(Catalog catalog) {
+    public CatalogCreatedRep(Catalog catalog) {
         id = catalog.getId();
     }
 }

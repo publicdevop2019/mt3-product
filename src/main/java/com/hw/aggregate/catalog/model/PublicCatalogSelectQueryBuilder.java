@@ -11,19 +11,21 @@ import java.util.HashMap;
 
 import static com.hw.aggregate.catalog.model.Catalog.ID_LITERAL;
 
-@Component("catalogCustomer")
-public class CustomerQueryBuilder extends SelectQueryBuilder<Catalog> {
+@Component
+public class PublicCatalogSelectQueryBuilder extends SelectQueryBuilder<Catalog> {
     @Autowired
-    private AdminQueryBuilder adminQueryBuilder;
+    private AdminCatalogSelectQueryBuilder adminQueryBuilder;
+
     @Autowired
     private void setEntityManager(EntityManager entityManager) {
         em = entityManager;
     }
+
     public Predicate getWhereClause(Root<Catalog> root, String search) {
-        return adminQueryBuilder.getWhereClause(root, "type:" + CatalogType.FRONTEND.name());
+        return adminQueryBuilder.getWhereClause(root, "type:" + Catalog.CatalogType.FRONTEND.name());
     }
 
-    CustomerQueryBuilder() {
+    PublicCatalogSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 1000;
         MAX_PAGE_SIZE = 1500;
         DEFAULT_SORT_BY = "id";

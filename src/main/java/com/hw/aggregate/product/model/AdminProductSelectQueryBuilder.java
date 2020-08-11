@@ -18,7 +18,7 @@ import static com.hw.aggregate.product.representation.PublicProductSumPagedRep.P
 import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 
 
-@Component("productAdmin")
+@Component
 public class AdminProductSelectQueryBuilder extends SelectQueryBuilder<Product> {
     @Autowired
     private void setEntityManager(EntityManager entityManager) {

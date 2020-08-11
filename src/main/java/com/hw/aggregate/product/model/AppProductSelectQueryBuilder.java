@@ -1,7 +1,7 @@
 package com.hw.aggregate.product.model;
 
-import com.hw.shared.WhereQueryNotFoundException;
 import com.hw.shared.SelectQueryBuilder;
+import com.hw.shared.WhereQueryNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +12,9 @@ import javax.persistence.criteria.Root;
 import java.time.Instant;
 import java.util.HashMap;
 
-@Component("productApp")
+import static com.hw.aggregate.product.model.Product.*;
+
+@Component
 public class AppProductSelectQueryBuilder extends SelectQueryBuilder<Product> {
 
     @Autowired
@@ -28,9 +30,9 @@ public class AppProductSelectQueryBuilder extends SelectQueryBuilder<Product> {
         MAX_PAGE_SIZE = 40;
         DEFAULT_SORT_BY = "name";
         mappedSortBy = new HashMap<>();
-        mappedSortBy.put("name", "name");
-        mappedSortBy.put("price", "lowestPrice");
-        mappedSortBy.put("sales", "totalSales");
+        mappedSortBy.put("name", NAME_LITERAL);
+        mappedSortBy.put("price", LOWEST_PRICE_LITERAL);
+        mappedSortBy.put("sales", TOTAL_SALES_LITERAL);
     }
 
     public Predicate getWhereClause(Root<Product> root, String search) {
@@ -45,11 +47,11 @@ public class AppProductSelectQueryBuilder extends SelectQueryBuilder<Product> {
 
     private Predicate getStatusClause(Root<Product> root) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        Predicate startAtLessThanOrEqualToCurrentEpochMilli = cb.lessThanOrEqualTo(root.get("startAt").as(Long.class), Instant.now().toEpochMilli());
-        Predicate startAtNotNull = cb.isNotNull(root.get("startAt").as(Long.class));
+        Predicate startAtLessThanOrEqualToCurrentEpochMilli = cb.lessThanOrEqualTo(root.get(START_AT_LITERAL).as(Long.class), Instant.now().toEpochMilli());
+        Predicate startAtNotNull = cb.isNotNull(root.get(START_AT_LITERAL).as(Long.class));
         Predicate and = cb.and(startAtNotNull, startAtLessThanOrEqualToCurrentEpochMilli);
-        Predicate endAtGreaterThanCurrentEpochMilli = cb.gt(root.get("endAt").as(Long.class), Instant.now().toEpochMilli());
-        Predicate endAtIsNull = cb.isNull(root.get("endAt").as(Long.class));
+        Predicate endAtGreaterThanCurrentEpochMilli = cb.gt(root.get(END_AT_LITERAL).as(Long.class), Instant.now().toEpochMilli());
+        Predicate endAtIsNull = cb.isNull(root.get(END_AT_LITERAL).as(Long.class));
         Predicate or = cb.or(endAtGreaterThanCurrentEpochMilli, endAtIsNull);
         return cb.and(and, or);
     }

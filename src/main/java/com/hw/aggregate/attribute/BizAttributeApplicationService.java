@@ -2,11 +2,11 @@ package com.hw.aggregate.attribute;
 
 import com.hw.aggregate.attribute.command.CreateBizAttributeCommand;
 import com.hw.aggregate.attribute.command.UpdateBizAttributeCommand;
-import com.hw.aggregate.attribute.model.AdminQueryBuilder;
+import com.hw.aggregate.attribute.model.AdminAttributeSelectQueryBuilder;
 import com.hw.aggregate.attribute.model.BizAttribute;
-import com.hw.aggregate.attribute.representation.BizAttributeAdminRepresentation;
-import com.hw.aggregate.attribute.representation.BizAttributeCreatedRepresentation;
-import com.hw.aggregate.attribute.representation.BizAttributeSummaryRepresentation;
+import com.hw.aggregate.attribute.representation.BizAttributeAdminRep;
+import com.hw.aggregate.attribute.representation.BizAttributeCreatedRep;
+import com.hw.aggregate.attribute.representation.BizAttributeSumRep;
 import com.hw.shared.DefaultApplicationService;
 import com.hw.shared.SumPagedRep;
 import com.hw.shared.IdGenerator;
@@ -23,14 +23,12 @@ public class BizAttributeApplicationService extends DefaultApplicationService {
     @Autowired
     private IdGenerator idGenerator;
     @Autowired
-    private AdminQueryBuilder adminQueryBuilder;
-    @Autowired
-    private EntityManager entityManager;
+    private AdminAttributeSelectQueryBuilder adminQueryBuilder;
 
     @Transactional
-    public BizAttributeCreatedRepresentation create(CreateBizAttributeCommand command) {
+    public BizAttributeCreatedRep create(CreateBizAttributeCommand command) {
         BizAttribute attribute = BizAttribute.create(idGenerator.getId(), command, repo);
-        return new BizAttributeCreatedRepresentation(attribute);
+        return new BizAttributeCreatedRep(attribute);
     }
 
     @Transactional
@@ -45,13 +43,13 @@ public class BizAttributeApplicationService extends DefaultApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public BizAttributeSummaryRepresentation adminQuery(String search, String page, String countFlag) {
+    public BizAttributeSumRep adminQuery(String search, String page, String countFlag) {
         SumPagedRep<BizAttribute> select = select(adminQueryBuilder, search, page, countFlag, BizAttribute.class);
-        return new BizAttributeSummaryRepresentation(select);
+        return new BizAttributeSumRep(select);
     }
 
     @Transactional(readOnly = true)
-    public BizAttributeAdminRepresentation getById(Long id) {
-        return new BizAttributeAdminRepresentation(BizAttribute.read(id, repo));
+    public BizAttributeAdminRep getById(Long id) {
+        return new BizAttributeAdminRep(BizAttribute.read(id, repo));
     }
 }

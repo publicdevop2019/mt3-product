@@ -1,6 +1,6 @@
 package com.hw.aggregate.catalog.command;
 
-import com.hw.aggregate.catalog.model.CatalogType;
+import com.hw.aggregate.catalog.model.Catalog;
 import lombok.Data;
 
 import java.util.Set;
@@ -10,5 +10,5 @@ public class UpdateCatalogCommand {
     private String name;
     private Long parentId;
     private Set<String> attributes;
-    private CatalogType catalogType;
+    private Catalog.CatalogType catalogType;
 }

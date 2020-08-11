@@ -4,10 +4,10 @@ import com.hw.aggregate.filter.model.BizFilter;
 import lombok.Data;
 
 @Data
-public class BizFilterCreatedRepresentation {
+public class BizFilterCreatedRep {
     private Long id;
 
-    public BizFilterCreatedRepresentation(BizFilter bizFilter) {
+    public BizFilterCreatedRep(BizFilter bizFilter) {
         this.id = bizFilter.getId();
     }
 }

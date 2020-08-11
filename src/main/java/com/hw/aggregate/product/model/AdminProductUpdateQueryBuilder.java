@@ -31,10 +31,6 @@ public class AdminProductUpdateQueryBuilder extends UpdateQueryBuilder<Product> 
         em = entityManager;
     }
 
-    //    [
-    //    {"op":"add","path":"/storageOrder","value":"1"},
-    //    {"op":"sub","path":"/storageActual","value":"2"}
-    //    ]
     @Override
     protected void setUpdateValue(Root<Product> root, CriteriaUpdate<Product> criteriaUpdate, PatchCommand e) {
         ArrayList<Boolean> booleans = new ArrayList<>();
@@ -86,7 +82,6 @@ public class AdminProductUpdateQueryBuilder extends UpdateQueryBuilder<Product> 
         CriteriaBuilder cb = em.getCriteriaBuilder();
         List<Predicate> results = new ArrayList<>();
         for (String str : search) {
-            //make sure if storage change, value is not negative
             Predicate equal = cb.equal(root.get(COMMON_ENTITY_ID), Long.parseLong(str));
             results.add(equal);
         }

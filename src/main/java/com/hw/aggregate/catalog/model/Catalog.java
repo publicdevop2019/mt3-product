@@ -3,8 +3,8 @@ package com.hw.aggregate.catalog.model;
 import com.hw.aggregate.catalog.CatalogRepository;
 import com.hw.aggregate.catalog.command.CreateCatalogCommand;
 import com.hw.aggregate.catalog.command.UpdateCatalogCommand;
-import com.hw.aggregate.catalog.exception.CatalogNotFoundException;
 import com.hw.shared.Auditable;
+import com.hw.shared.EnumDBConverter;
 import com.hw.shared.StringSetConverter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.Optional;
 import java.util.Set;
 
 @Entity
@@ -46,12 +45,6 @@ public class Catalog extends Auditable {
         return repo.save(new Catalog(id, command));
     }
 
-    public static Catalog read(Long id, CatalogRepository repo) {
-        Optional<Catalog> findById = repo.findById(id);
-        if (findById.isEmpty())
-            throw new CatalogNotFoundException();
-        return findById.get();
-    }
 
     public void update(UpdateCatalogCommand command, CatalogRepository repo) {
         this.setName(command.getName());
@@ -61,10 +54,6 @@ public class Catalog extends Auditable {
         repo.save(this);
     }
 
-    public static void delete(Long id, CatalogRepository repo) {
-        Catalog catalog = read(id, repo);
-        repo.delete(catalog);
-    }
 
     private Catalog(Long id, CreateCatalogCommand command) {
         this.id = id;
@@ -72,5 +61,17 @@ public class Catalog extends Auditable {
         this.parentId = command.getParentId();
         this.attributes = command.getAttributes();
         this.type = command.getCatalogType();
+    }
+
+    public enum CatalogType {
+        FRONTEND,
+        BACKEND,
+        ;
+
+        public static class DBConverter extends EnumDBConverter {
+            public DBConverter() {
+                super(CatalogType.class);
+            }
+        }
     }
 }

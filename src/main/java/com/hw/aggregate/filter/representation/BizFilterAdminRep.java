@@ -8,12 +8,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class BizFilterAdminRepresentation {
+public class BizFilterAdminRep {
     private Long id;
     private Set<String> catalogs;
     private List<BizFilterItemAdminRepresentation> filters;
 
-    public BizFilterAdminRepresentation(BizFilter read) {
+    public BizFilterAdminRep(BizFilter read) {
         this.id = read.getId();
         this.catalogs = read.getLinkedCatalog();
         this.filters = read.getFilterItems().stream().map(BizFilterItemAdminRepresentation::new).collect(Collectors.toList());

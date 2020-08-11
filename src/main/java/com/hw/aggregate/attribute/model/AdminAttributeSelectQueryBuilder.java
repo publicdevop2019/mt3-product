@@ -18,8 +18,8 @@ import static com.hw.aggregate.attribute.model.BizAttribute.TYPE_LITERAL;
 import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 
 
-@Component("attributeAdmin")
-public class AdminQueryBuilder extends SelectQueryBuilder<BizAttribute> {
+@Component
+public class AdminAttributeSelectQueryBuilder extends SelectQueryBuilder<BizAttribute> {
     @Autowired
     private void setEntityManager(EntityManager entityManager) {
         em = entityManager;
@@ -44,7 +44,7 @@ public class AdminQueryBuilder extends SelectQueryBuilder<BizAttribute> {
         return cb.and(results.toArray(new Predicate[0]));
     }
 
-    AdminQueryBuilder() {
+    AdminAttributeSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 200;
         MAX_PAGE_SIZE = 200;
         DEFAULT_SORT_BY = "id";

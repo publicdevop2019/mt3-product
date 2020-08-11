@@ -3,7 +3,6 @@ package com.hw.aggregate.filter.model;
 import com.hw.aggregate.filter.BizFilterRepository;
 import com.hw.aggregate.filter.command.CreateBizFilterCommand;
 import com.hw.aggregate.filter.command.UpdateBizFilterCommand;
-import com.hw.aggregate.filter.exception.BizFilterNotFoundException;
 import com.hw.shared.Auditable;
 import com.hw.shared.LinkedHashSetConverter;
 import lombok.Data;
@@ -12,7 +11,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.Set;
 
 @Data
@@ -42,7 +40,7 @@ public class BizFilter extends Auditable {
         return repository.save(bizFilter);
     }
 
-    public void update(UpdateBizFilterCommand command, BizFilterRepository repository) {
+    public void replace(UpdateBizFilterCommand command, BizFilterRepository repository) {
         this.linkedCatalog = command.getCatalogs();
         this.filterItems = new ArrayList<>();
         command.getFilters().forEach(e -> {
@@ -53,20 +51,6 @@ public class BizFilter extends Auditable {
             this.filterItems.add(bizFilterItem);
         });
         repository.save(this);
-    }
-
-    public static BizFilter read(Long id, BizFilterRepository repository) {
-        Optional<BizFilter> byId = repository.findById(id);
-        if (byId.isEmpty())
-            throw new BizFilterNotFoundException();
-        return byId.get();
-    }
-
-    public static void delete(Long id, BizFilterRepository repository) {
-        Optional<BizFilter> byId = repository.findById(id);
-        if (byId.isEmpty())
-            throw new BizFilterNotFoundException();
-        repository.deleteById(id);
     }
 
     private BizFilter(Long id, CreateBizFilterCommand command) {

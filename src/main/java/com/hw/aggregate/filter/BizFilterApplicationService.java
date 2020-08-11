@@ -2,24 +2,22 @@ package com.hw.aggregate.filter;
 
 import com.hw.aggregate.filter.command.CreateBizFilterCommand;
 import com.hw.aggregate.filter.command.UpdateBizFilterCommand;
-import com.hw.aggregate.filter.model.AdminSelectQueryBuilder;
+import com.hw.aggregate.filter.exception.BizFilterNotFoundException;
 import com.hw.aggregate.filter.model.BizFilter;
-import com.hw.aggregate.filter.model.CustomerQueryBuilder;
-import com.hw.aggregate.filter.representation.BizFilterAdminRepresentation;
-import com.hw.aggregate.filter.representation.BizFilterAdminSummaryRepresentation;
-import com.hw.aggregate.filter.representation.BizFilterCreatedRepresentation;
-import com.hw.aggregate.filter.representation.BizFilterCustomerRepresentation;
-import com.hw.shared.DefaultApplicationService;
-import com.hw.shared.SumPagedRep;
+import com.hw.aggregate.filter.model.BizFilterManager;
+import com.hw.aggregate.filter.representation.BizFilterAdminRep;
+import com.hw.aggregate.filter.representation.BizFilterAdminSumRep;
+import com.hw.aggregate.filter.representation.BizFilterCreatedRep;
+import com.hw.aggregate.filter.representation.BizFilterPublicRep;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.RestfulEntityManager;
+import com.hw.shared.SumPagedRep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-
 @Service
-public class BizFilterApplicationService extends DefaultApplicationService {
+public class BizFilterApplicationService {
     @Autowired
     private BizFilterRepository repo;
 
@@ -27,45 +25,45 @@ public class BizFilterApplicationService extends DefaultApplicationService {
     private IdGenerator idGenerator;
 
     @Autowired
-    private EntityManager entityManager;
-
-    @Autowired
-    private AdminSelectQueryBuilder adminQueryBuilder;
-
-    @Autowired
-    private CustomerQueryBuilder customerQueryBuilder;
+    private BizFilterManager bizFilterManager;
 
     @Transactional
-    public BizFilterCreatedRepresentation create(CreateBizFilterCommand command) {
+    public BizFilterCreatedRep createForAdmin(CreateBizFilterCommand command) {
         BizFilter bizFilter = BizFilter.create(idGenerator.getId(), command, repo);
-        return new BizFilterCreatedRepresentation(bizFilter);
+        return new BizFilterCreatedRep(bizFilter);
     }
 
     @Transactional
-    public void update(Long filterId, UpdateBizFilterCommand command) {
-        BizFilter read = BizFilter.read(filterId, repo);
-        read.update(command, repo);
+    public void replaceForAdmin(Long filterId, UpdateBizFilterCommand command) {
+        SumPagedRep<BizFilter> bizFilterSumPagedRep = bizFilterManager.readById(RestfulEntityManager.RoleEnum.ADMIN, filterId.toString(), BizFilter.class);
+        if (bizFilterSumPagedRep.getData().size() == 0)
+            throw new BizFilterNotFoundException();
+        bizFilterSumPagedRep.getData().get(0).replace(command, repo);
     }
 
     @Transactional
-    public void delete(Long filterId) {
-        BizFilter.delete(filterId, repo);
+    public void deleteForAdminById(Long filterId) {
+        bizFilterManager.deleteById(RestfulEntityManager.RoleEnum.ADMIN, filterId.toString(), BizFilter.class);
     }
 
     @Transactional(readOnly = true)
-    public BizFilterAdminRepresentation getById(Long filterId) {
-        return new BizFilterAdminRepresentation(BizFilter.read(filterId, repo));
+    public BizFilterAdminRep readForAdminById(Long filterId) {
+        SumPagedRep<BizFilter> bizFilterSumPagedRep = bizFilterManager.readById(RestfulEntityManager.RoleEnum.ADMIN, filterId.toString(), BizFilter.class);
+        if (bizFilterSumPagedRep.getData().size() == 0)
+            throw new BizFilterNotFoundException();
+        return new BizFilterAdminRep(bizFilterSumPagedRep.getData().get(0));
     }
 
     @Transactional(readOnly = true)
-    public BizFilterAdminSummaryRepresentation adminQuery(String search, String page, String countFlag) {
-        SumPagedRep<BizFilter> select1 = select(adminQueryBuilder, search, page, countFlag, BizFilter.class);
-        return new BizFilterAdminSummaryRepresentation(select1);
+    public BizFilterAdminSumRep readForAdminByQuery(String search, String page, String countFlag) {
+        SumPagedRep<BizFilter> bizFilterSumPagedRep = bizFilterManager.readByQuery(RestfulEntityManager.RoleEnum.ADMIN, search, page, countFlag, BizFilter.class);
+        return new BizFilterAdminSumRep(bizFilterSumPagedRep);
     }
 
     @Transactional(readOnly = true)
-    public BizFilterCustomerRepresentation customerQuery(String search, String page, String countFlag) {
-        SumPagedRep<BizFilter> select1 = select(customerQueryBuilder, search, page, countFlag, BizFilter.class);
-        return new BizFilterCustomerRepresentation(select1);
+    public BizFilterPublicRep readForPublicByQuery(String search, String page, String countFlag) {
+        SumPagedRep<BizFilter> bizFilterSumPagedRep = bizFilterManager.readByQuery(RestfulEntityManager.RoleEnum.PUBLIC, search, page, countFlag, BizFilter.class);
+        return new BizFilterPublicRep(bizFilterSumPagedRep);
     }
+
 }
