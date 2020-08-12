@@ -4,17 +4,12 @@ import com.hw.aggregate.attribute.model.BizAttribute;
 import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class BizAttributeSumRep {
-    private List<BizAttributeCardRepresentation> data;
-    private Long totalItemCount;
-
+public class BizAttributeSumRep extends SumPagedRep<BizAttributeSumRep.BizAttributeCardRepresentation> {
     public BizAttributeSumRep(SumPagedRep<BizAttribute> select) {
-
         this.data = select.getData().stream().map(BizAttributeCardRepresentation::new).collect(Collectors.toList());
         this.totalItemCount = select.getTotalItemCount();
     }

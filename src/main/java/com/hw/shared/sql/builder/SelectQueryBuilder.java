@@ -1,7 +1,8 @@
 package com.hw.shared.sql.builder;
 
-import com.hw.shared.sql.clause.WhereClause;
 import com.hw.shared.sql.clause.SelectFieldIdWhereClause;
+import com.hw.shared.sql.clause.WhereClause;
+import com.hw.shared.sql.exception.EmptyWhereClauseException;
 import com.hw.shared.sql.exception.MaxPageSizeExceedException;
 import com.hw.shared.sql.exception.UnsupportedQueryException;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +27,7 @@ public abstract class SelectQueryBuilder<T> {
     protected Set<WhereClause<T>> defaultWhereField = new HashSet<>();
     protected Sort.Direction DEFAULT_SORT_ORDER = Sort.Direction.ASC;
     protected EntityManager em;
+    protected boolean allowEmptyClause = false;
 
     protected SelectQueryBuilder() {
         mappedSortBy.put(COMMON_ENTITY_ID, COMMON_ENTITY_ID);
@@ -36,27 +38,31 @@ public abstract class SelectQueryBuilder<T> {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<T> query = cb.createQuery(clazz);
         Root<T> root = query.from(clazz);
+        query.select(root);
         PageRequest pageRequest = getPageRequest(page);
 
-        if (search == null)
-            return null;
-        String[] queryParams = search.split(",");
         List<Predicate> results = new ArrayList<>();
-        for (String param : queryParams) {
-            String[] split = param.split(":");
-            if (split.length == 2) {
-                if (supportedWhereField.get(split[0]) != null && !split[1].isBlank()) {
-                    WhereClause<T> tWhereClause = supportedWhereField.get(split[0]);
-                    Predicate whereClause = tWhereClause.getWhereClause(split[1], cb, root);
-                    results.add(whereClause);
+        if (search == null) {
+            if (!allowEmptyClause)
+                throw new EmptyWhereClauseException();
+        } else {
+            String[] queryParams = search.split(",");
+            for (String param : queryParams) {
+                String[] split = param.split(":");
+                if (split.length == 2) {
+                    if (supportedWhereField.get(split[0]) != null && !split[1].isBlank()) {
+                        WhereClause<T> tWhereClause = supportedWhereField.get(split[0]);
+                        Predicate whereClause = tWhereClause.getWhereClause(split[1], cb, root);
+                        results.add(whereClause);
+                    }
                 }
             }
         }
-        Predicate and = cb.and(results.toArray(new Predicate[0]));
         if (defaultWhereField.size() != 0) {
-            cb.and(defaultWhereField.stream().map(e -> e.getWhereClause("", cb, root)).distinct().toArray(Predicate[]::new));
+            Set<Predicate> collect = defaultWhereField.stream().map(e -> e.getWhereClause(null, cb, root)).distinct().collect(Collectors.toSet());
+            results.addAll(collect);
         }
-        query.select(root);
+        Predicate and = cb.and(results.toArray(new Predicate[0]));
         if (and != null)
             query.where(and);
         Set<Order> collect = pageRequest.getSort().get().map(e -> {
@@ -78,22 +84,29 @@ public abstract class SelectQueryBuilder<T> {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<T> root = query.from(clazz);
+        query.select(cb.count(root));
         List<Predicate> results = new ArrayList<>();
-        if (search == null)
-            return null;
-        String[] queryParams = search.split(",");
-        for (String param : queryParams) {
-            String[] split = param.split(":");
-            if (split.length == 2) {
-                if (supportedWhereField.get(split[0]) != null && !split[1].isBlank()) {
-                    WhereClause<T> tWhereClause = supportedWhereField.get(split[0]);
-                    Predicate whereClause = tWhereClause.getWhereClause(split[1], cb, root);
-                    results.add(whereClause);
+        if (search == null) {
+            if (!allowEmptyClause)
+                throw new EmptyWhereClauseException();
+        } else {
+            String[] queryParams = search.split(",");
+            for (String param : queryParams) {
+                String[] split = param.split(":");
+                if (split.length == 2) {
+                    if (supportedWhereField.get(split[0]) != null && !split[1].isBlank()) {
+                        WhereClause<T> tWhereClause = supportedWhereField.get(split[0]);
+                        Predicate whereClause = tWhereClause.getWhereClause(split[1], cb, root);
+                        results.add(whereClause);
+                    }
                 }
             }
         }
+        if (defaultWhereField.size() != 0) {
+            Set<Predicate> collect = defaultWhereField.stream().map(e -> e.getWhereClause(null, cb, root)).distinct().collect(Collectors.toSet());
+            results.addAll(collect);
+        }
         Predicate and = cb.and(results.toArray(new Predicate[0]));
-        query.select(cb.count(root));
         if (and != null)
             query.where(and);
         return em.createQuery(query).getSingleResult();

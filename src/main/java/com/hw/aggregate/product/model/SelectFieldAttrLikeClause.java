@@ -39,7 +39,7 @@ public class SelectFieldAttrLikeClause<T> extends WhereClause<T> {
     }
 
     @Override
-    protected Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root) {
+    public Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root) {
         //sort before search
         Set<String> strings = new TreeSet<>(Arrays.asList(query.split("\\$")));
         List<Predicate> list1 = strings.stream().filter(e -> !e.contains("+")).map(e -> getAndExpression(e, cb, root)).collect(Collectors.toList());

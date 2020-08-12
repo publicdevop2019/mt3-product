@@ -9,7 +9,6 @@ import com.hw.aggregate.catalog.representation.CatalogAdminRep;
 import com.hw.aggregate.catalog.representation.CatalogAdminSummaryRep;
 import com.hw.aggregate.catalog.representation.CatalogCreatedRep;
 import com.hw.aggregate.catalog.representation.CatalogPublicSummaryRep;
-import com.hw.shared.DefaultApplicationService;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.sql.RestfulEntityManager;
 import com.hw.shared.sql.SumPagedRep;
@@ -20,13 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-public class CatalogApplicationService extends DefaultApplicationService {
+public class CatalogApplicationService {
 
     @Autowired
     private CatalogRepository repo;
 
     @Autowired
     private IdGenerator idGenerator;
+
     @Autowired
     private CatalogManager catalogManager;
 

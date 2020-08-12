@@ -10,7 +10,7 @@ public class SelectFieldEnumStringEqualClause<T> extends WhereClause<T> {
     }
 
     @Override
-    protected Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root) {
+    public Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root) {
         return cb.equal(root.get(entityFieldName).as(String.class), query);
     }
 }

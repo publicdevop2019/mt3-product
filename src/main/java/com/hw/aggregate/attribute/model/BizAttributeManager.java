@@ -14,10 +14,14 @@ public class BizAttributeManager extends RestfulEntityManager<BizAttribute> {
     @Autowired
     private AdminAttributeSelectQueryBuilder adminAttributeSelectQueryBuilder;
 
+    @Autowired
+    private AppAttributeSelectQueryBuilder appAttributeSelectQueryBuilder;
+
     @PostConstruct
     @Override
     protected void configQueryBuilder() {
-        this.selectQueryBuilder.put(RestfulEntityManager.RoleEnum.PUBLIC, adminAttributeSelectQueryBuilder);
-        this.deleteQueryBuilder.put(RestfulEntityManager.RoleEnum.ADMIN, adminAttributeDeleteQueryBuilder);
+        this.selectQueryBuilder.put(RoleEnum.APP, appAttributeSelectQueryBuilder);
+        this.selectQueryBuilder.put(RoleEnum.ADMIN, adminAttributeSelectQueryBuilder);
+        this.deleteQueryBuilder.put(RoleEnum.ADMIN, adminAttributeDeleteQueryBuilder);
     }
 }

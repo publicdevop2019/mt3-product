@@ -36,6 +36,7 @@ public class AdminProductSelectQueryBuilder extends SelectQueryBuilder<Product> 
         supportedWhereField.put("attr", new SelectFieldAttrLikeClause<>());
         supportedWhereField.put("name", new SelectFieldStringLikeClause<>(NAME_LITERAL));
         supportedWhereField.put("price", new SelectFieldNumberRangeClause<>(LOWEST_PRICE_LITERAL));
+        allowEmptyClause=true;
     }
 
 }

@@ -1,22 +1,21 @@
 package com.hw.aggregate.product.model;
 
-import com.hw.shared.sql.exception.WhereQueryNotFoundException;
 import com.hw.shared.sql.builder.SelectQueryBuilder;
+import com.hw.shared.sql.clause.SelectFieldNumberRangeClause;
+import com.hw.shared.sql.clause.SelectFieldStringLikeClause;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import java.time.Instant;
-import java.util.HashMap;
+
+import static com.hw.aggregate.product.model.Product.*;
+import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_NAME_LITERAL;
+import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SALES_LITERAL;
+import static com.hw.aggregate.product.representation.PublicProductSumPagedRep.ProductCardRepresentation.PUBLIC_REP_PRICE_LITERAL;
+import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 
 @Component
 public class PublicProductSelectQueryBuilder extends SelectQueryBuilder<Product> {
-
-    @Autowired
-    private AdminProductSelectQueryBuilder adminSelectQueryBuilder;
 
     @Autowired
     private void setEntityManager(EntityManager entityManager) {
@@ -26,31 +25,16 @@ public class PublicProductSelectQueryBuilder extends SelectQueryBuilder<Product>
     PublicProductSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 20;
         MAX_PAGE_SIZE = 40;
-        DEFAULT_SORT_BY = "name";
-        mappedSortBy = new HashMap<>();
-        mappedSortBy.put("name", "name");
-        mappedSortBy.put("price", "lowestPrice");
-        mappedSortBy.put("sales", "totalSales");
+        DEFAULT_SORT_BY = ADMIN_REP_NAME_LITERAL;
+        mappedSortBy.put(ADMIN_REP_NAME_LITERAL, NAME_LITERAL);
+        mappedSortBy.put(ADMIN_REP_SALES_LITERAL, TOTAL_SALES_LITERAL);
+        mappedSortBy.put(PUBLIC_REP_PRICE_LITERAL, LOWEST_PRICE_LITERAL);
+        supportedWhereField.put("attr", new SelectFieldAttrLikeClause<>());
+        supportedWhereField.put("name", new SelectFieldStringLikeClause<>(NAME_LITERAL));
+        supportedWhereField.put("price", new SelectFieldNumberRangeClause<>(LOWEST_PRICE_LITERAL));
+        defaultWhereField.add(new SelectStatusClause<>());
+
+        mappedSortBy.remove(COMMON_ENTITY_ID);
     }
 
-    public Predicate getWhereClause(Root<Product> root, String search) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        if (search == null)
-            throw new WhereQueryNotFoundException();
-        Predicate queryClause = adminSelectQueryBuilder.getWhereClause(root, search);
-        Predicate statusClause = getStatusClause(root);
-        return cb.and(queryClause, statusClause);
-    }
-
-
-    private Predicate getStatusClause(Root<Product> root) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        Predicate startAtLessThanOrEqualToCurrentEpochMilli = cb.lessThanOrEqualTo(root.get("startAt").as(Long.class), Instant.now().toEpochMilli());
-        Predicate startAtNotNull = cb.isNotNull(root.get("startAt").as(Long.class));
-        Predicate and = cb.and(startAtNotNull, startAtLessThanOrEqualToCurrentEpochMilli);
-        Predicate endAtGreaterThanCurrentEpochMilli = cb.gt(root.get("endAt").as(Long.class), Instant.now().toEpochMilli());
-        Predicate endAtIsNull = cb.isNull(root.get("endAt").as(Long.class));
-        Predicate or = cb.or(endAtGreaterThanCurrentEpochMilli, endAtIsNull);
-        return cb.and(and, or);
-    }
 }

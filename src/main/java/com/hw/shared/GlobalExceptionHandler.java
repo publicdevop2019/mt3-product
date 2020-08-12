@@ -1,7 +1,10 @@
 package com.hw.shared;
 
-import com.hw.shared.sql.exception.MaxPageSizeExceedException;
-import com.hw.shared.sql.exception.UnsupportedQueryException;
+import com.hw.aggregate.product.exception.HangingTransactionException;
+import com.hw.aggregate.product.exception.RollbackNotSupportedException;
+import com.hw.aggregate.product.exception.UnsupportedPatchOperationException;
+import com.hw.aggregate.product.exception.UpdateFiledValueException;
+import com.hw.shared.sql.exception.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,7 +29,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             ObjectOptimisticLockingFailureException.class,
             JwtTokenExtractException.class,
             UnsupportedQueryException.class,
-            MaxPageSizeExceedException.class
+            MaxPageSizeExceedException.class,
+            EmptyWhereClauseException.class,
+            WhereQueryNotFoundException.class,
+            UnsupportedPatchOperationException.class,
+            UpdateFiledValueException.class,
+            HangingTransactionException.class,
+            RollbackNotSupportedException.class,
+            PatchCommandExpectNotMatchException.class,
     })
     protected ResponseEntity<Object> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);
@@ -38,7 +48,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {
             InternalServerException.class,
             RuntimeException.class,
-            JwtTokenRetrievalException.class
+            JwtTokenRetrievalException.class,
+            DeepCopyException.class
     })
     protected ResponseEntity<Object> handle500Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);

@@ -12,7 +12,7 @@ import static com.hw.aggregate.product.model.Product.START_AT_LITERAL;
 
 public class SelectStatusClause<T> extends WhereClause<T> {
     @Override
-    protected Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root) {
+    public Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root) {
         Predicate startAtLessThanOrEqualToCurrentEpochMilli = cb.lessThanOrEqualTo(root.get(START_AT_LITERAL).as(Long.class), Instant.now().toEpochMilli());
         Predicate startAtNotNull = cb.isNotNull(root.get(START_AT_LITERAL).as(Long.class));
         Predicate and = cb.and(startAtNotNull, startAtLessThanOrEqualToCurrentEpochMilli);

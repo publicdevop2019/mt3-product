@@ -9,41 +9,41 @@ import org.springframework.web.bind.annotation.*;
 import static com.hw.shared.AppConstant.*;
 
 @RestController
-@RequestMapping(produces = "application/json")
+@RequestMapping(produces = "application/json", path = "attributes")
 public class BizAttributeController {
     @Autowired
     private BizAttributeApplicationService attributeApplicationService;
 
-    @GetMapping("admin/attributes")
-    public ResponseEntity<?> adminQuery(
+    @GetMapping("admin")
+    public ResponseEntity<?> readForAdminByQuery(
             @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        return ResponseEntity.ok(attributeApplicationService.adminQuery(queryParam, pageParam, skipCount));
+        return ResponseEntity.ok(attributeApplicationService.readForAdminByQuery(queryParam, pageParam, skipCount));
     }
 
-    @GetMapping("admin/attributes/{id}")
-    public ResponseEntity<?> getById(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(attributeApplicationService.getById(id));
+    @GetMapping("admin/{id}")
+    public ResponseEntity<?> readForAdminById(@PathVariable(name = "id") Long id) {
+        return ResponseEntity.ok(attributeApplicationService.readForAdminById(id));
     }
 
-    @PostMapping("admin/attributes")
-    public ResponseEntity<?> create(@RequestBody CreateBizAttributeCommand command) {
-        return ResponseEntity.ok().header("Location", attributeApplicationService.create(command).getId().toString()).build();
+    @PostMapping("admin")
+    public ResponseEntity<?> createForAdmin(@RequestBody CreateBizAttributeCommand command) {
+        return ResponseEntity.ok().header("Location", attributeApplicationService.createForAdmin(command).getId().toString()).build();
     }
 
 
-    @PutMapping("admin/attributes/{id}")
-    public ResponseEntity<?> update(@PathVariable(name = "id") Long id, @RequestBody UpdateBizAttributeCommand command) {
-        attributeApplicationService.update(id, command);
+    @PutMapping("admin/{id}")
+    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody UpdateBizAttributeCommand command) {
+        attributeApplicationService.replaceForAdminById(id, command);
         return ResponseEntity.ok().build();
     }
 
 
-    @DeleteMapping("admin/attributes/{id}")
-    public ResponseEntity<?> delete(@PathVariable(name = "id") Long id) {
-        attributeApplicationService.delete(id);
+    @DeleteMapping("admin/{id}")
+    public ResponseEntity<?> deleteForAdminById(@PathVariable(name = "id") Long id) {
+        attributeApplicationService.deleteForAdminById(id);
         return ResponseEntity.ok().build();
     }
 }

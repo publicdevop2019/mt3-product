@@ -30,12 +30,7 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
             SkuAlreadyExistException.class,
             SkuNotExistException.class,
             ProductDetailPatchException.class,
-            WhereQueryNotFoundException.class,
-            UnsupportedPatchOperationException.class,
-            UpdateFiledValueException.class,
-            HangingTransactionException.class,
-            RollbackNotSupportedException.class,
-            PatchCommandExpectNotMatchException.class,
+
     })
     protected ResponseEntity<?> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);
@@ -47,7 +42,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {
             NoLowestPriceFoundException.class,
             AttributeNameNotFoundException.class,
-            DeepCopyException.class
     })
     protected ResponseEntity<Object> handle500Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);

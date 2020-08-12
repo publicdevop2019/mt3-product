@@ -14,7 +14,7 @@ public class SelectFieldNumberRangeClause<T> extends WhereClause<T> {
     }
 
     @Override
-    protected Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root) {
+    public Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root) {
         String[] split = query.split("\\$");
         List<Predicate> results = new ArrayList<>();
         for (String str : split) {

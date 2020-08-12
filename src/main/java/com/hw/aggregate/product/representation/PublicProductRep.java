@@ -46,7 +46,7 @@ public class PublicProductRep {
         BizAttributeSumRep bizAttributeSummaryRepresentation;
         if (this.attrIdMap.keySet().size() > 0) {
             String page = "size:" + this.attrIdMap.keySet().size();
-            bizAttributeSummaryRepresentation = bizAttributeApplicationService.adminQuery(search, page, "0");
+            bizAttributeSummaryRepresentation = bizAttributeApplicationService.readForAppByQuery(search, page, "0");
             this.attrIdMap.keySet().forEach(e -> {
                 attrIdMap.put(e, findName(e, bizAttributeSummaryRepresentation));
             });
