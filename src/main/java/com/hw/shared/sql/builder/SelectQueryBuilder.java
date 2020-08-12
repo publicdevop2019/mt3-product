@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 
 public abstract class SelectQueryBuilder<T> {
-    protected Integer DEFAULT_PAGE_SIZE;
-    protected Integer MAX_PAGE_SIZE;
+    protected Integer DEFAULT_PAGE_SIZE = 10;
+    protected Integer MAX_PAGE_SIZE = 20;
     protected Integer DEFAULT_PAGE_NUM = 0;
     protected String DEFAULT_SORT_BY = COMMON_ENTITY_ID;
     protected Map<String, String> mappedSortBy = new HashMap<>();
