@@ -8,8 +8,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class BizAttributeSumRep extends SumPagedRep<BizAttributeSumRep.BizAttributeCardRepresentation> {
-    public BizAttributeSumRep(SumPagedRep<BizAttribute> select) {
+public class BizAttributeAdminSumRep extends SumPagedRep<BizAttributeAdminSumRep.BizAttributeCardRepresentation> {
+    public BizAttributeAdminSumRep(SumPagedRep<BizAttribute> select) {
         this.data = select.getData().stream().map(BizAttributeCardRepresentation::new).collect(Collectors.toList());
         this.totalItemCount = select.getTotalItemCount();
     }

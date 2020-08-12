@@ -6,9 +6,9 @@ import com.hw.aggregate.catalog.exception.CatalogNotFoundException;
 import com.hw.aggregate.catalog.model.Catalog;
 import com.hw.aggregate.catalog.model.CatalogManager;
 import com.hw.aggregate.catalog.representation.CatalogAdminRep;
-import com.hw.aggregate.catalog.representation.CatalogAdminSummaryRep;
+import com.hw.aggregate.catalog.representation.CatalogAdminSumRep;
 import com.hw.aggregate.catalog.representation.CatalogCreatedRep;
-import com.hw.aggregate.catalog.representation.CatalogPublicSummaryRep;
+import com.hw.aggregate.catalog.representation.CatalogPublicSumRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.sql.RestfulEntityManager;
 import com.hw.shared.sql.SumPagedRep;
@@ -31,15 +31,15 @@ public class CatalogApplicationService {
     private CatalogManager catalogManager;
 
     @Transactional(readOnly = true)
-    public CatalogPublicSummaryRep readForPublicByQuery(String search, String page, String countFlag) {
+    public CatalogPublicSumRep readForPublicByQuery(String search, String page, String countFlag) {
         SumPagedRep<Catalog> catalogSumPagedRep = catalogManager.readByQuery(RestfulEntityManager.RoleEnum.PUBLIC, search, page, countFlag, Catalog.class);
-        return new CatalogPublicSummaryRep(catalogSumPagedRep);
+        return new CatalogPublicSumRep(catalogSumPagedRep);
     }
 
     @Transactional(readOnly = true)
-    public CatalogAdminSummaryRep readForAdminByQuery(String search, String page, String countFlag) {
+    public CatalogAdminSumRep readForAdminByQuery(String search, String page, String countFlag) {
         SumPagedRep<Catalog> catalogSumPagedRep = catalogManager.readByQuery(RestfulEntityManager.RoleEnum.ADMIN, search, page, countFlag, Catalog.class);
-        return new CatalogAdminSummaryRep(catalogSumPagedRep);
+        return new CatalogAdminSumRep(catalogSumPagedRep);
     }
 
     @Transactional

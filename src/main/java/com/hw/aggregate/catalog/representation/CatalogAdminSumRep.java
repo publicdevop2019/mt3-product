@@ -8,9 +8,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class CatalogAdminSummaryRep extends SumPagedRep<CatalogAdminSummaryRep.CatalogSummaryCardRepresentation> {
+public class CatalogAdminSumRep extends SumPagedRep<CatalogAdminSumRep.CatalogSummaryCardRepresentation> {
 
-    public CatalogAdminSummaryRep(SumPagedRep<Catalog> select) {
+    public CatalogAdminSumRep(SumPagedRep<Catalog> select) {
         this.data = select.getData().stream().map(CatalogSummaryCardRepresentation::new).collect(Collectors.toList());
         this.totalItemCount = select.getTotalItemCount();
     }

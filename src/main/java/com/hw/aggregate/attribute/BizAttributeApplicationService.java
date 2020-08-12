@@ -7,7 +7,7 @@ import com.hw.aggregate.attribute.model.BizAttribute;
 import com.hw.aggregate.attribute.model.BizAttributeManager;
 import com.hw.aggregate.attribute.representation.BizAttributeAdminRep;
 import com.hw.aggregate.attribute.representation.BizAttributeCreatedRep;
-import com.hw.aggregate.attribute.representation.BizAttributeSumRep;
+import com.hw.aggregate.attribute.representation.BizAttributeAdminSumRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.sql.RestfulEntityManager;
 import com.hw.shared.sql.SumPagedRep;
@@ -44,9 +44,9 @@ public class BizAttributeApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public BizAttributeSumRep readForAdminByQuery(String search, String page, String countFlag) {
+    public BizAttributeAdminSumRep readForAdminByQuery(String search, String page, String countFlag) {
         SumPagedRep<BizAttribute> bizAttributeSumPagedRep = bizAttributeManager.readByQuery(RestfulEntityManager.RoleEnum.ADMIN, search, page, countFlag, BizAttribute.class);
-        return new BizAttributeSumRep(bizAttributeSumPagedRep);
+        return new BizAttributeAdminSumRep(bizAttributeSumPagedRep);
     }
 
     @Transactional(readOnly = true)
@@ -58,8 +58,8 @@ public class BizAttributeApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public BizAttributeSumRep readForAppByQuery(String search, String page, String countFlag) {
+    public BizAttributeAdminSumRep readForAppByQuery(String search, String page, String countFlag) {
         SumPagedRep<BizAttribute> bizAttributeSumPagedRep = bizAttributeManager.readByQuery(RestfulEntityManager.RoleEnum.APP, search, page, countFlag, BizAttribute.class);
-        return new BizAttributeSumRep(bizAttributeSumPagedRep);
+        return new BizAttributeAdminSumRep(bizAttributeSumPagedRep);
     }
 }
