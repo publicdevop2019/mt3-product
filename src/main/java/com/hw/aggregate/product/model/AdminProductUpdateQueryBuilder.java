@@ -2,6 +2,7 @@ package com.hw.aggregate.product.model;
 
 
 import com.hw.shared.rest.exception.UpdateFiledValueException;
+import com.hw.shared.sql.builder.UpdateByIdQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

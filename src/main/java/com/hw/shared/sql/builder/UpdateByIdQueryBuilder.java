@@ -1,4 +1,4 @@
-package com.hw.aggregate.product.model;
+package com.hw.shared.sql.builder;
 
 
 import com.hw.shared.rest.exception.NoUpdatableFieldException;
