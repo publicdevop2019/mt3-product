@@ -3,9 +3,12 @@ package com.hw.aggregate.attribute;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.attribute.command.CreateBizAttributeCommand;
 import com.hw.aggregate.attribute.command.UpdateBizAttributeCommand;
+import com.hw.shared.sql.PatchCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static com.hw.shared.AppConstant.*;
 
@@ -47,9 +50,16 @@ public class BizAttributeController {
         attributeApplicationService.deleteById(id);
         return ResponseEntity.ok().build();
     }
+
     @PatchMapping(path = "admin/{id}", consumes = "application/json-patch+json")
     public ResponseEntity<?> patchForAdminById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch) {
         attributeApplicationService.patchById(id, patch);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("admin")
+    public ResponseEntity<?> patchForAdminBatch(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        attributeApplicationService.patchBatch(patch, changeId);
         return ResponseEntity.ok().build();
     }
 }

@@ -9,13 +9,16 @@ import javax.annotation.PostConstruct;
 @Component
 public class BizAttributeManager extends RestfulEntityManager<BizAttribute> {
     @Autowired
-    private AdminAttributeDeleteQueryBuilder adminAttributeDeleteQueryBuilder;
+    private AdminBizAttributeDeleteQueryBuilder adminAttributeDeleteQueryBuilder;
 
     @Autowired
-    private AdminAttributeSelectQueryBuilder adminAttributeSelectQueryBuilder;
+    private AdminBizAttributeSelectQueryBuilder adminAttributeSelectQueryBuilder;
 
     @Autowired
-    private AppAttributeSelectQueryBuilder appAttributeSelectQueryBuilder;
+    private AppBizAttributeSelectQueryBuilder appAttributeSelectQueryBuilder;
+
+    @Autowired
+    private AdminBizAttributeUpdateQueryBuilder adminBizAttributeUpdateQueryBuilder;
 
     @PostConstruct
     @Override
@@ -23,5 +26,6 @@ public class BizAttributeManager extends RestfulEntityManager<BizAttribute> {
         this.selectQueryBuilder.put(RoleEnum.APP, appAttributeSelectQueryBuilder);
         this.selectQueryBuilder.put(RoleEnum.ADMIN, adminAttributeSelectQueryBuilder);
         this.deleteQueryBuilder.put(RoleEnum.ADMIN, adminAttributeDeleteQueryBuilder);
+        this.updateQueryBuilder.put(RoleEnum.ADMIN, adminBizAttributeUpdateQueryBuilder);
     }
 }

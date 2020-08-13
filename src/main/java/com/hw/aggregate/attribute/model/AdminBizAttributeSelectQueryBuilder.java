@@ -11,13 +11,13 @@ import static com.hw.aggregate.attribute.model.BizAttribute.TYPE_LITERAL;
 
 
 @Component
-public class AdminAttributeSelectQueryBuilder extends SelectQueryBuilder<BizAttribute> {
+public class AdminBizAttributeSelectQueryBuilder extends SelectQueryBuilder<BizAttribute> {
     @Autowired
     private void setEntityManager(EntityManager entityManager) {
         em = entityManager;
     }
 
-    AdminAttributeSelectQueryBuilder() {
+    AdminBizAttributeSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 200;
         MAX_PAGE_SIZE = 200;
         mappedSortBy.put("name", NAME_LITERAL);

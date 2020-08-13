@@ -6,10 +6,7 @@ import com.hw.shared.rest.exception.EntityPatchException;
 import com.hw.shared.rest.exception.UnsupportedPatchOperationException;
 import com.hw.shared.rest.exception.UpdateFiledValueException;
 import com.hw.shared.rest.exception.EntityNotExistException;
-import com.hw.shared.sql.exception.EmptyWhereClauseException;
-import com.hw.shared.sql.exception.MaxPageSizeExceedException;
-import com.hw.shared.sql.exception.PatchCommandExpectNotMatchException;
-import com.hw.shared.sql.exception.UnsupportedQueryException;
+import com.hw.shared.sql.exception.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -43,6 +40,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             PatchCommandExpectNotMatchException.class,
             EntityNotExistException.class,
             EntityPatchException.class,
+            QueryBuilderNotFoundException.class
     })
     protected ResponseEntity<Object> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);

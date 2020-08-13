@@ -28,7 +28,7 @@ public abstract class UpdateByIdQueryBuilder<T> extends UpdateQueryBuilder<T> {
     protected void setUpdateValue(Root<T> root, CriteriaUpdate<T> criteriaUpdate, PatchCommand command) {
         ArrayList<Boolean> booleans = new ArrayList<>();
         filedMap.keySet().forEach(e -> {
-            booleans.add(setUpdateValueFor("/" + e, filedMap.get(e), criteriaUpdate, command));
+            booleans.add(setUpdateValueFor(e, filedMap.get(e), criteriaUpdate, command));
         });
         Boolean hasFieldChange = booleans.stream().reduce(false, (a, b) -> a || b);
         if (!hasFieldChange) {
@@ -37,7 +37,7 @@ public abstract class UpdateByIdQueryBuilder<T> extends UpdateQueryBuilder<T> {
     }
 
     private boolean setUpdateValueFor(String fieldPath, String fieldLiteral, CriteriaUpdate<T> criteriaUpdate, PatchCommand command) {
-        if (command.getPath().equalsIgnoreCase(fieldPath)) {
+        if (command.getPath().contains(fieldPath)) {
             if (command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_REMOVE)) {
                 criteriaUpdate.set(fieldLiteral, null);
                 return true;

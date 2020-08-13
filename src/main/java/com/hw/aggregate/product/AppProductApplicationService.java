@@ -128,19 +128,6 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
         return deepCopy;
     }
 
-    private List<PatchCommand> getDeepCopy(List<PatchCommand> patchCommands) {
-        List<PatchCommand> deepCopy;
-        try {
-            deepCopy = om.readValue(om.writeValueAsString(patchCommands), new TypeReference<List<PatchCommand>>() {
-            });
-        } catch (IOException e) {
-            log.error("error during deep copy", e);
-            throw new DeepCopyException();
-        }
-        return deepCopy;
-    }
-
-
     private void saveChangeRecord(List<PatchCommand> details, String changeId) {
         ChangeRecord changeRecord = new ChangeRecord();
         changeRecord.setPatchCommands((ArrayList<PatchCommand>) details);

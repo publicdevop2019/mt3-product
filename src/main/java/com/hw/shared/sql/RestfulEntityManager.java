@@ -48,7 +48,7 @@ public abstract class RestfulEntityManager<T> {
 
     public Integer deleteByQuery(RoleEnum roleEnum, String query, Class<T> clazz) {
         DeleteQueryBuilder<T> deleteQueryBuilder = this.deleteQueryBuilder.get(roleEnum);
-        if (selectQueryBuilder == null)
+        if (deleteQueryBuilder == null)
             throw new QueryBuilderNotFoundException();
         return deleteQueryBuilder.delete(query, clazz);
     }
@@ -59,7 +59,7 @@ public abstract class RestfulEntityManager<T> {
 
     public Integer update(RoleEnum roleEnum, List<PatchCommand> commands, Class<T> clazz) {
         UpdateQueryBuilder<T> updateQueryBuilder = this.updateQueryBuilder.get(roleEnum);
-        if (selectQueryBuilder == null)
+        if (updateQueryBuilder == null)
             throw new QueryBuilderNotFoundException();
         return updateQueryBuilder.update(commands, clazz);
     }

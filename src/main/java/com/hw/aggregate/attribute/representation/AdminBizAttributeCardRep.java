@@ -12,7 +12,9 @@ public class AdminBizAttributeCardRep {
     private String description;
     private Set<String> selectValues;
     private BizAttribute.AttributeMethod method;
+    public transient static final String ADMIN_REP_METHOD_LITERAL = "method";
     private BizAttribute.BizAttributeType type;
+    public transient static final String ADMIN_REP_TYPE_LITERAL = "type";
 
     public AdminBizAttributeCardRep(BizAttribute attribute) {
         this.id = attribute.getId();
