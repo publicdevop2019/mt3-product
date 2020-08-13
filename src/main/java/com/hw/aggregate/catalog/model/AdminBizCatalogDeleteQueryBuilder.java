@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import javax.persistence.EntityManager;
 
 @Component
-public class AdminCatalogDeleteQueryBuilder extends DeleteByIdQueryBuilder<Catalog> {
+public class AdminBizCatalogDeleteQueryBuilder extends DeleteByIdQueryBuilder<BizCatalog> {
     @Autowired
     private void setEntityManager(EntityManager entityManager) {
         em = entityManager;

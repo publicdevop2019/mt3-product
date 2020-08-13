@@ -8,7 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Data
-public class AdminCatalogPatchMiddleLayer extends TypedClass<AdminCatalogPatchMiddleLayer> {
+public class AdminBizCatalogPatchMiddleLayer extends TypedClass<AdminBizCatalogPatchMiddleLayer> {
 
     private String name;
 
@@ -16,17 +16,17 @@ public class AdminCatalogPatchMiddleLayer extends TypedClass<AdminCatalogPatchMi
     @JsonDeserialize(as= LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
     private Set<String> attributes;
 
-    private Catalog.CatalogType type;
+    private BizCatalog.CatalogType type;
 
-    public AdminCatalogPatchMiddleLayer(Catalog catalog) {
-        super(AdminCatalogPatchMiddleLayer.class);
+    public AdminBizCatalogPatchMiddleLayer(BizCatalog catalog) {
+        super(AdminBizCatalogPatchMiddleLayer.class);
         this.name = catalog.getName();
         this.parentId = catalog.getParentId();
         this.attributes = catalog.getAttributes();
         this.type = catalog.getType();
     }
 
-    public AdminCatalogPatchMiddleLayer() {
-        super(AdminCatalogPatchMiddleLayer.class);
+    public AdminBizCatalogPatchMiddleLayer() {
+        super(AdminBizCatalogPatchMiddleLayer.class);
     }
 }

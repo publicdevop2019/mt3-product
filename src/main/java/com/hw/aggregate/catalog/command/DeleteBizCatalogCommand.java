@@ -1,4 +1,4 @@
 package com.hw.aggregate.catalog.command;
 
-public interface DeleteCatalogCommand {
+public interface DeleteBizCatalogCommand {
 }

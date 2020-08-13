@@ -2,7 +2,7 @@ package com.hw.aggregate.product;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.aggregate.attribute.AppBizAttributeApplicationService;
-import com.hw.aggregate.catalog.PublicCatalogApplicationService;
+import com.hw.aggregate.catalog.PublicBizCatalogApplicationService;
 import com.hw.aggregate.product.command.AdminCreateProductCommand;
 import com.hw.aggregate.product.command.AdminUpdateProductCommand;
 import com.hw.aggregate.product.exception.HangingTransactionException;
@@ -37,7 +37,7 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
     private ChangeRecordRepository changeHistoryRepository;
 
     @Autowired
-    private PublicCatalogApplicationService catalogApplicationService;
+    private PublicBizCatalogApplicationService catalogApplicationService;
 
     @Autowired
     private AppBizAttributeApplicationService attributeApplicationService;

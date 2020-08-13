@@ -8,21 +8,21 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 
-import static com.hw.aggregate.catalog.model.Catalog.TYPE_LITERAL;
+import static com.hw.aggregate.catalog.model.BizCatalog.TYPE_LITERAL;
 
 @Component
-public class PublicCatalogSelectQueryBuilder extends SelectQueryBuilder<Catalog> {
+public class PublicBizCatalogSelectQueryBuilder extends SelectQueryBuilder<BizCatalog> {
 
     @Autowired
     private void setEntityManager(EntityManager entityManager) {
         em = entityManager;
     }
 
-    PublicCatalogSelectQueryBuilder() {
+    PublicBizCatalogSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 1000;
         MAX_PAGE_SIZE = 1500;
         supportedWhereField.put("type", new SelectFieldEnumStringEqualClause<>(TYPE_LITERAL));
-        defaultWhereField.add(new SelectEqualClause<>(TYPE_LITERAL, Catalog.CatalogType.FRONTEND.name()));
+        defaultWhereField.add(new SelectEqualClause<>(TYPE_LITERAL, BizCatalog.CatalogType.FRONTEND.name()));
     }
 
 }

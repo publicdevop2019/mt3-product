@@ -1,14 +1,14 @@
 package com.hw.aggregate.catalog.command;
 
-import com.hw.aggregate.catalog.model.Catalog;
+import com.hw.aggregate.catalog.model.BizCatalog;
 import lombok.Data;
 
 import java.util.Set;
 
 @Data
-public class UpdateCatalogCommand {
+public class UpdateBizCatalogCommand {
     private String name;
     private Long parentId;
     private Set<String> attributes;
-    private Catalog.CatalogType catalogType;
+    private BizCatalog.CatalogType catalogType;
 }

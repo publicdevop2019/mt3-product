@@ -1,22 +1,25 @@
 package com.hw.aggregate.catalog;
 
-import com.hw.aggregate.catalog.command.CreateCatalogCommand;
-import com.hw.aggregate.catalog.command.UpdateCatalogCommand;
+import com.hw.aggregate.catalog.command.CreateBizCatalogCommand;
+import com.hw.aggregate.catalog.command.UpdateBizCatalogCommand;
+import com.hw.shared.sql.PatchCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static com.hw.shared.AppConstant.*;
 
 @RestController
 @RequestMapping(produces = "application/json", path = "catalogs")
-public class CatalogController {
+public class BizCatalogController {
 
     @Autowired
-    private PublicCatalogApplicationService catalogPublicApplicationService;
+    private PublicBizCatalogApplicationService catalogPublicApplicationService;
 
     @Autowired
-    private AdminCatalogApplicationService catalogAdminApplicationService;
+    private AdminBizCatalogApplicationService catalogAdminApplicationService;
 
     @GetMapping("public")
     public ResponseEntity<?> readForPublicByQuery(
@@ -37,13 +40,13 @@ public class CatalogController {
     }
 
     @PostMapping("admin")
-    public ResponseEntity<?> createForAdmin(@RequestBody CreateCatalogCommand command) {
+    public ResponseEntity<?> createForAdmin(@RequestBody CreateBizCatalogCommand command) {
         return ResponseEntity.ok().header("Location", catalogAdminApplicationService.create(command).getId().toString()).build();
     }
 
 
     @PutMapping("admin/{id}")
-    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody UpdateCatalogCommand command) {
+    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody UpdateBizCatalogCommand command) {
         catalogAdminApplicationService.replaceById(id, command);
         return ResponseEntity.ok().build();
     }
@@ -57,6 +60,11 @@ public class CatalogController {
     @DeleteMapping("admin/{id}")
     public ResponseEntity<?> deleteForAdminById(@PathVariable(name = "id") Long id) {
         catalogAdminApplicationService.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+    @PatchMapping("admin")
+    public ResponseEntity<?> patchForAdminBatch(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        catalogAdminApplicationService.patchBatch(patch, changeId);
         return ResponseEntity.ok().build();
     }
 }

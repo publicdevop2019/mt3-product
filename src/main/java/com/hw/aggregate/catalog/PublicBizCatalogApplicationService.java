@@ -1,8 +1,8 @@
 package com.hw.aggregate.catalog;
 
-import com.hw.aggregate.catalog.model.Catalog;
-import com.hw.aggregate.catalog.model.CatalogManager;
-import com.hw.aggregate.catalog.representation.PublicCatalogCardRep;
+import com.hw.aggregate.catalog.model.BizCatalog;
+import com.hw.aggregate.catalog.model.BizCatalogManager;
+import com.hw.aggregate.catalog.representation.PublicBizCatalogCardRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.rest.CreatedRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
@@ -16,48 +16,48 @@ import javax.annotation.PostConstruct;
 
 @Slf4j
 @Service
-public class PublicCatalogApplicationService extends DefaultRoleBasedRestfulService<Catalog, PublicCatalogCardRep, Void, VoidTypedClass> {
+public class PublicBizCatalogApplicationService extends DefaultRoleBasedRestfulService<BizCatalog, PublicBizCatalogCardRep, Void, VoidTypedClass> {
 
     @Autowired
-    private CatalogRepository repo2;
+    private BizCatalogRepository repo2;
 
     @Autowired
     private IdGenerator idGenerator2;
 
     @Autowired
-    private CatalogManager catalogManager2;
+    private BizCatalogManager catalogManager2;
 
     @PostConstruct
     private void setUp() {
         repo = repo2;
         idGenerator = idGenerator2;
         restfulEntityManager = catalogManager2;
-        entityClass = Catalog.class;
+        entityClass = BizCatalog.class;
         role = RestfulEntityManager.RoleEnum.ADMIN;
     }
 
     @Override
-    public Catalog replaceEntity(Catalog catalog, Object command) {
+    public BizCatalog replaceEntity(BizCatalog catalog, Object command) {
         return null;
     }
 
     @Override
-    public PublicCatalogCardRep getEntitySumRepresentation(Catalog catalog) {
-        return new PublicCatalogCardRep(catalog);
+    public PublicBizCatalogCardRep getEntitySumRepresentation(BizCatalog catalog) {
+        return new PublicBizCatalogCardRep(catalog);
     }
 
     @Override
-    public Void getEntityRepresentation(Catalog catalog) {
+    public Void getEntityRepresentation(BizCatalog catalog) {
         return null;
     }
 
     @Override
-    protected <S extends CreatedRep> S getCreatedEntityRepresentation(Catalog created) {
+    protected <S extends CreatedRep> S getCreatedEntityRepresentation(BizCatalog created) {
         return null;
     }
 
     @Override
-    protected Catalog createEntity(long id, Object command) {
+    protected BizCatalog createEntity(long id, Object command) {
         return null;
     }
 }

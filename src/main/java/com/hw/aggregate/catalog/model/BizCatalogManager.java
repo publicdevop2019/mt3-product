@@ -7,15 +7,17 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 @Component
-public class CatalogManager extends RestfulEntityManager<Catalog> {
+public class BizCatalogManager extends RestfulEntityManager<BizCatalog> {
     @Autowired
-    private PublicCatalogSelectQueryBuilder publicCatalogSelectQueryBuilder;
+    private PublicBizCatalogSelectQueryBuilder publicCatalogSelectQueryBuilder;
 
     @Autowired
-    private AdminCatalogDeleteQueryBuilder adminCatalogDeleteQueryBuilder;
+    private AdminBizCatalogDeleteQueryBuilder adminCatalogDeleteQueryBuilder;
 
     @Autowired
-    private AdminCatalogSelectQueryBuilder adminCatalogSelectQueryBuilder;
+    private AdminBizCatalogSelectQueryBuilder adminCatalogSelectQueryBuilder;
+    @Autowired
+    private AdminBizCatalogUpdateQueryBuilder adminCatalogUpdateQueryBuilder;
 
     @PostConstruct
     @Override
@@ -23,5 +25,6 @@ public class CatalogManager extends RestfulEntityManager<Catalog> {
         this.selectQueryBuilder.put(RestfulEntityManager.RoleEnum.PUBLIC, publicCatalogSelectQueryBuilder);
         this.selectQueryBuilder.put(RestfulEntityManager.RoleEnum.ADMIN, adminCatalogSelectQueryBuilder);
         this.deleteQueryBuilder.put(RestfulEntityManager.RoleEnum.ADMIN, adminCatalogDeleteQueryBuilder);
+        this.updateQueryBuilder.put(RestfulEntityManager.RoleEnum.ADMIN, adminCatalogUpdateQueryBuilder);
     }
 }
