@@ -188,7 +188,7 @@ public class Product extends Auditable implements IdBasedEntity {
             patchCommands.add(patchCommand);
         }
         String changeId = UUID.randomUUID().toString();
-        productApplicationService.patch(patchCommands, changeId);
+        productApplicationService.patchBatch(patchCommands, changeId);
     }
 
     private String toSkuQueryPath(AdminUpdateProductCommand.UpdateProductAdminSkuCommand command, String storageType, Product productDetail) {

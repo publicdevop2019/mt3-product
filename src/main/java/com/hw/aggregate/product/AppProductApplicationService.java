@@ -86,7 +86,7 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
 
 
     @Transactional
-    public Long patchForApp(List<PatchCommand> commands, String changeId) {
+    public Long patchForAppBatch(List<PatchCommand> commands, String changeId) {
         if (changeHistoryRepository.findByChangeId(changeId + REVOKE).isPresent()) {
             throw new HangingTransactionException();
         }
@@ -110,7 +110,7 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
         if (byChangeId.isPresent()) {
             ChangeRecord changeRecord = byChangeId.get();
             List<PatchCommand> rollbackCmd = buildRollbackCommand(changeRecord.getPatchCommands());
-            patchForApp(rollbackCmd, id + REVOKE);
+            patchForAppBatch(rollbackCmd, id + REVOKE);
         }
     }
 

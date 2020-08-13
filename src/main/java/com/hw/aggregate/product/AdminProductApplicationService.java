@@ -1,6 +1,5 @@
 package com.hw.aggregate.product;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.aggregate.attribute.AppBizAttributeApplicationService;
 import com.hw.aggregate.catalog.PublicCatalogApplicationService;
@@ -10,7 +9,6 @@ import com.hw.aggregate.product.exception.HangingTransactionException;
 import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.AdminProductCardRep;
 import com.hw.aggregate.product.representation.AdminProductRep;
-import com.hw.shared.DeepCopyException;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.rest.CreatedEntityRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
@@ -22,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,8 +64,9 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
         om = om2;
     }
 
+    @Override
     @Transactional
-    public Long patch(List<PatchCommand> commands, String changeId) {
+    public Integer patchBatch(List<PatchCommand> commands, String changeId) {
         if (changeHistoryRepository.findByChangeId(changeId + REVOKE).isPresent()) {
             throw new HangingTransactionException();
         }
@@ -76,9 +74,8 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
         List<PatchCommand> deepCopy = getDeepCopy(commands);
         List<PatchCommand> hasNestedEntity = deepCopy.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         List<PatchCommand> noNestedEntity = deepCopy.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
-        Integer update1 = productSkuManager.update(RestfulEntityManager.RoleEnum.ADMIN, hasNestedEntity, ProductSku.class);
-        Integer update = productDetailManager.update(RestfulEntityManager.RoleEnum.ADMIN, noNestedEntity, Product.class);
-        return update.longValue();
+        productSkuManager.update(RestfulEntityManager.RoleEnum.ADMIN, hasNestedEntity, ProductSku.class);
+        return productDetailManager.update(RestfulEntityManager.RoleEnum.ADMIN, noNestedEntity, Product.class);
     }
 
     @Override
@@ -94,18 +91,6 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
     public Integer deleteById(Long id) {
         productSkuManager.deleteById(RestfulEntityManager.RoleEnum.ADMIN, id.toString(), ProductSku.class);
         return productDetailManager.deleteById(RestfulEntityManager.RoleEnum.ADMIN, id.toString(), Product.class);
-    }
-
-    private List<PatchCommand> getDeepCopy(List<PatchCommand> patchCommands) {
-        List<PatchCommand> deepCopy;
-        try {
-            deepCopy = om.readValue(om.writeValueAsString(patchCommands), new TypeReference<List<PatchCommand>>() {
-            });
-        } catch (IOException e) {
-            log.error("error during deep copy", e);
-            throw new DeepCopyException();
-        }
-        return deepCopy;
     }
 
     private void saveChangeRecord(List<PatchCommand> details, String changeId) {

@@ -73,7 +73,7 @@ public class ProductController {
 
     @PatchMapping("admin")
     public ResponseEntity<?> patchForAdminBatch(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        adminProductApplicationService.patch(patch, changeId);
+        adminProductApplicationService.patchBatch(patch, changeId);
         return ResponseEntity.ok().build();
     }
 
@@ -91,7 +91,7 @@ public class ProductController {
 
     @PatchMapping("app")
     public ResponseEntity<?> patchForApp(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        appProductApplicationService.patchForApp(patch, changeId);
+        appProductApplicationService.patchForAppBatch(patch, changeId);
         return ResponseEntity.ok().build();
     }
 

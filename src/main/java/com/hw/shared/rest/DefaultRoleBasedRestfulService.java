@@ -1,23 +1,29 @@
 package com.hw.shared.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
+import com.hw.shared.DeepCopyException;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.rest.exception.EntityNotExistException;
 import com.hw.shared.rest.exception.EntityPatchException;
+import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.RestfulEntityManager;
 import com.hw.shared.sql.SumPagedRep;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 public abstract class DefaultRoleBasedRestfulService<T, X, Y, Z extends TypedClass<Z>> {
 
     protected JpaRepository<T, Long> repo;
@@ -64,6 +70,12 @@ public abstract class DefaultRoleBasedRestfulService<T, X, Y, Z extends TypedCla
     }
 
     @Transactional
+    public Integer patchBatch(List<PatchCommand> commands,String changeId) {
+        List<PatchCommand> deepCopy = getDeepCopy(commands);
+        return restfulEntityManager.update(role, deepCopy, entityClass);
+    }
+
+    @Transactional
     public Integer deleteById(Long id) {
         return restfulEntityManager.deleteById(role, id.toString(), entityClass);
     }
@@ -93,6 +105,19 @@ public abstract class DefaultRoleBasedRestfulService<T, X, Y, Z extends TypedCla
             throw new EntityNotExistException();
         return tSumPagedRep;
     }
+
+    protected List<PatchCommand> getDeepCopy(List<PatchCommand> patchCommands) {
+        List<PatchCommand> deepCopy;
+        try {
+            deepCopy = om.readValue(om.writeValueAsString(patchCommands), new TypeReference<List<PatchCommand>>() {
+            });
+        } catch (IOException e) {
+            log.error("error during deep copy", e);
+            throw new DeepCopyException();
+        }
+        return deepCopy;
+    }
+
 
     public abstract T replaceEntity(T t, Object command);
 
