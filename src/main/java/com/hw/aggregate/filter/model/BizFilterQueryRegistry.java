@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 @Component
-public class BizFilterManager extends RestfulEntityManager<BizFilter> {
+public class BizFilterQueryRegistry extends RestfulEntityManager<BizFilter> {
     @Autowired
     private PublicFilterSelectQueryBuilder publicFilterSelectQueryBuilder;
 

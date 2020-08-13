@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 @Component
-public class BizAttributeManager extends RestfulEntityManager<BizAttribute> {
+public class BizAttributeQueryRegistry extends RestfulEntityManager<BizAttribute> {
     @Autowired
     private AdminBizAttributeDeleteQueryBuilder adminAttributeDeleteQueryBuilder;
 

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 @Component
-public class BizCatalogManager extends RestfulEntityManager<BizCatalog> {
+public class BizCatalogQueryRegistry extends RestfulEntityManager<BizCatalog> {
     @Autowired
     private PublicBizCatalogSelectQueryBuilder publicCatalogSelectQueryBuilder;
 

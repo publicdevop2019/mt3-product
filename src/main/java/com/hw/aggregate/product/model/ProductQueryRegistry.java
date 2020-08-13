@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 @Component
-public class ProductManager extends RestfulEntityManager<Product> {
+public class ProductQueryRegistry extends RestfulEntityManager<Product> {
     @Autowired
     private PublicProductSelectQueryBuilder publicProductSelectQueryBuilder;
 

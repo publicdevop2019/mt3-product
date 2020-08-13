@@ -46,9 +46,9 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
     private IdGenerator idGenerator2;
 
     @Autowired
-    private ProductManager productDetailManager;
+    private ProductQueryRegistry productDetailManager;
     @Autowired
-    private ProductSkuManager productSkuManager;
+    private ProductSkuQueryRegistry productSkuManager;
 
     @Autowired
     private ObjectMapper om2;

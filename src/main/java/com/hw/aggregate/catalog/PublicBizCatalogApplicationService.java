@@ -1,7 +1,7 @@
 package com.hw.aggregate.catalog;
 
 import com.hw.aggregate.catalog.model.BizCatalog;
-import com.hw.aggregate.catalog.model.BizCatalogManager;
+import com.hw.aggregate.catalog.model.BizCatalogQueryRegistry;
 import com.hw.aggregate.catalog.representation.PublicBizCatalogCardRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.rest.CreatedRep;
@@ -25,7 +25,7 @@ public class PublicBizCatalogApplicationService extends DefaultRoleBasedRestfulS
     private IdGenerator idGenerator2;
 
     @Autowired
-    private BizCatalogManager catalogManager2;
+    private BizCatalogQueryRegistry catalogManager2;
 
     @PostConstruct
     private void setUp() {

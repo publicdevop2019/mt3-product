@@ -1,12 +1,10 @@
 package com.hw.aggregate.product;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.aggregate.product.exception.HangingTransactionException;
 import com.hw.aggregate.product.exception.RollbackNotSupportedException;
 import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.AppProductCardRep;
-import com.hw.shared.DeepCopyException;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.rest.CreatedRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,9 +40,9 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
     private IdGenerator idGenerator2;
 
     @Autowired
-    private ProductManager productDetailManager;
+    private ProductQueryRegistry productDetailManager;
     @Autowired
-    private ProductSkuManager productSkuManager;
+    private ProductSkuQueryRegistry productSkuManager;
 
     @Autowired
     private ObjectMapper om2;

@@ -5,7 +5,7 @@ import com.hw.aggregate.attribute.command.CreateBizAttributeCommand;
 import com.hw.aggregate.attribute.command.UpdateBizAttributeCommand;
 import com.hw.aggregate.attribute.model.AdminBizAttributePatchMiddleLayer;
 import com.hw.aggregate.attribute.model.BizAttribute;
-import com.hw.aggregate.attribute.model.BizAttributeManager;
+import com.hw.aggregate.attribute.model.BizAttributeQueryRegistry;
 import com.hw.aggregate.attribute.representation.AdminBizAttributeCardRep;
 import com.hw.aggregate.attribute.representation.AdminBizAttributeRep;
 import com.hw.shared.IdGenerator;
@@ -24,7 +24,7 @@ public class AdminBizAttributeApplicationService extends DefaultRoleBasedRestful
     @Autowired
     private IdGenerator idGenerator2;
     @Autowired
-    private BizAttributeManager bizAttributeManager2;
+    private BizAttributeQueryRegistry bizAttributeManager2;
     @Autowired
     private ObjectMapper om2;
 

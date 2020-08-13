@@ -1,7 +1,7 @@
 package com.hw.aggregate.filter;
 
 import com.hw.aggregate.filter.model.BizFilter;
-import com.hw.aggregate.filter.model.BizFilterManager;
+import com.hw.aggregate.filter.model.BizFilterQueryRegistry;
 import com.hw.aggregate.filter.representation.PublicBizFilterCardRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.rest.CreatedRep;
@@ -26,7 +26,7 @@ public class PublicBizFilterApplicationService extends DefaultRoleBasedRestfulSe
     private IdGenerator idGenerator2;
 
     @Autowired
-    private BizFilterManager bizFilterManager2;
+    private BizFilterQueryRegistry bizFilterManager2;
 
     @PostConstruct
     private void setUp() {

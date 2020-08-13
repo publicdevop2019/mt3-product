@@ -2,7 +2,7 @@ package com.hw.aggregate.product;
 
 import com.hw.aggregate.attribute.AppBizAttributeApplicationService;
 import com.hw.aggregate.product.model.Product;
-import com.hw.aggregate.product.model.ProductManager;
+import com.hw.aggregate.product.model.ProductQueryRegistry;
 import com.hw.aggregate.product.representation.PublicProductCardRep;
 import com.hw.aggregate.product.representation.PublicProductRep;
 import com.hw.shared.IdGenerator;
@@ -30,7 +30,7 @@ public class PublicProductApplicationService extends DefaultRoleBasedRestfulServ
     private IdGenerator idGenerator2;
 
     @Autowired
-    private ProductManager productDetailManager;
+    private ProductQueryRegistry productDetailManager;
 
 
     @PostConstruct

@@ -1,7 +1,7 @@
 package com.hw.aggregate.attribute;
 
 import com.hw.aggregate.attribute.model.BizAttribute;
-import com.hw.aggregate.attribute.model.BizAttributeManager;
+import com.hw.aggregate.attribute.model.BizAttributeQueryRegistry;
 import com.hw.aggregate.attribute.representation.AppBizAttributeCardRep;
 import com.hw.shared.rest.CreatedRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
@@ -20,7 +20,7 @@ public class AppBizAttributeApplicationService extends DefaultRoleBasedRestfulSe
     @Autowired
     private IdGenerator idGenerator2;
     @Autowired
-    private BizAttributeManager bizAttributeManager2;
+    private BizAttributeQueryRegistry bizAttributeManager2;
 
     @PostConstruct
     private void setUp() {

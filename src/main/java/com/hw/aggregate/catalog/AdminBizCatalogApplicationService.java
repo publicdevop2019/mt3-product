@@ -5,7 +5,7 @@ import com.hw.aggregate.catalog.command.CreateBizCatalogCommand;
 import com.hw.aggregate.catalog.command.UpdateBizCatalogCommand;
 import com.hw.aggregate.catalog.model.AdminBizCatalogPatchMiddleLayer;
 import com.hw.aggregate.catalog.model.BizCatalog;
-import com.hw.aggregate.catalog.model.BizCatalogManager;
+import com.hw.aggregate.catalog.model.BizCatalogQueryRegistry;
 import com.hw.aggregate.catalog.representation.AdminBizCatalogCardRep;
 import com.hw.aggregate.catalog.representation.AdminBizCatalogRep;
 import com.hw.shared.IdGenerator;
@@ -30,7 +30,7 @@ public class AdminBizCatalogApplicationService extends DefaultRoleBasedRestfulSe
     private IdGenerator idGenerator2;
 
     @Autowired
-    private BizCatalogManager catalogManager2;
+    private BizCatalogQueryRegistry catalogManager2;
     @Autowired
     private ObjectMapper om2;
 

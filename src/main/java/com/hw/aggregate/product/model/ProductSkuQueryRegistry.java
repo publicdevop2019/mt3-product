@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 @Component
-public class ProductSkuManager extends RestfulEntityManager<ProductSku> {
+public class ProductSkuQueryRegistry extends RestfulEntityManager<ProductSku> {
 
     @Autowired
     private AdminProductSkuDeleteQueryBuilder adminDeleteQueryBuilder;
