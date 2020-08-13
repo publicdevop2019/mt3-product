@@ -2,6 +2,7 @@ package com.hw.config;
 
 import com.hw.aggregate.product.exception.*;
 import com.hw.shared.ErrorMessage;
+import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -24,8 +25,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
             ProductNotFoundException.class,
             SkuAlreadyExistException.class,
             SkuNotExistException.class,
-            ProductDetailPatchException.class,
-
     })
     protected ResponseEntity<?> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);

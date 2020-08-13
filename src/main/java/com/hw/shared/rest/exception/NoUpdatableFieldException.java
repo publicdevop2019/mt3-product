@@ -1,4 +1,4 @@
-package com.hw.aggregate.product.exception;
+package com.hw.shared.rest.exception;
 
 public class NoUpdatableFieldException extends RuntimeException{
 }

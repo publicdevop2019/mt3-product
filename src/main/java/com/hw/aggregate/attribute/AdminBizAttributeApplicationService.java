@@ -1,7 +1,9 @@
 package com.hw.aggregate.attribute;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.aggregate.attribute.command.CreateBizAttributeCommand;
 import com.hw.aggregate.attribute.command.UpdateBizAttributeCommand;
+import com.hw.aggregate.attribute.model.AdminBizAttributePatchMiddleLayer;
 import com.hw.aggregate.attribute.model.BizAttribute;
 import com.hw.aggregate.attribute.model.BizAttributeManager;
 import com.hw.aggregate.attribute.representation.AdminBizAttributeCardRep;
@@ -9,7 +11,6 @@ import com.hw.aggregate.attribute.representation.AdminBizAttributeRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.rest.CreatedEntityRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
-import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulEntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,13 +18,15 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 
 @Service
-public class AdminBizAttributeApplicationService extends DefaultRoleBasedRestfulService<BizAttribute, AdminBizAttributeCardRep, AdminBizAttributeRep, VoidTypedClass> {
+public class AdminBizAttributeApplicationService extends DefaultRoleBasedRestfulService<BizAttribute, AdminBizAttributeCardRep, AdminBizAttributeRep, AdminBizAttributePatchMiddleLayer> {
     @Autowired
     private BizAttributeRepository repo2;
     @Autowired
     private IdGenerator idGenerator2;
     @Autowired
     private BizAttributeManager bizAttributeManager2;
+    @Autowired
+    private ObjectMapper om2;
 
     @PostConstruct
     private void setUp() {
@@ -32,6 +35,8 @@ public class AdminBizAttributeApplicationService extends DefaultRoleBasedRestful
         restfulEntityManager = bizAttributeManager2;
         entityClass = BizAttribute.class;
         role = RestfulEntityManager.RoleEnum.ADMIN;
+        entityPatchSupplier = AdminBizAttributePatchMiddleLayer::new;
+        om = om2;
     }
 
     @Override

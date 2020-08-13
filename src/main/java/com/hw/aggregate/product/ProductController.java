@@ -72,7 +72,7 @@ public class ProductController {
     }
 
     @PatchMapping("admin")
-    public ResponseEntity<?> patchForAdmin(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<?> patchForAdminBatch(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         adminProductApplicationService.patch(patch, changeId);
         return ResponseEntity.ok().build();
     }

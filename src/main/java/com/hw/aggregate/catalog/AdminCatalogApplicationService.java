@@ -1,13 +1,17 @@
 package com.hw.aggregate.catalog;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.aggregate.catalog.command.CreateCatalogCommand;
 import com.hw.aggregate.catalog.command.UpdateCatalogCommand;
+import com.hw.aggregate.catalog.model.AdminCatalogPatchMiddleLayer;
 import com.hw.aggregate.catalog.model.Catalog;
 import com.hw.aggregate.catalog.model.CatalogManager;
 import com.hw.aggregate.catalog.representation.AdminCatalogCardRep;
 import com.hw.aggregate.catalog.representation.AdminCatalogRep;
 import com.hw.shared.IdGenerator;
-import com.hw.shared.rest.*;
+import com.hw.shared.rest.CreatedEntityRep;
+import com.hw.shared.rest.CreatedRep;
+import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.sql.RestfulEntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +21,7 @@ import javax.annotation.PostConstruct;
 
 @Slf4j
 @Service
-public class AdminCatalogApplicationService extends DefaultRoleBasedRestfulService<Catalog, AdminCatalogCardRep, AdminCatalogRep, VoidTypedClass> {
+public class AdminCatalogApplicationService extends DefaultRoleBasedRestfulService<Catalog, AdminCatalogCardRep, AdminCatalogRep, AdminCatalogPatchMiddleLayer> {
 
     @Autowired
     private CatalogRepository repo2;
@@ -27,6 +31,8 @@ public class AdminCatalogApplicationService extends DefaultRoleBasedRestfulServi
 
     @Autowired
     private CatalogManager catalogManager2;
+    @Autowired
+    private ObjectMapper om2;
 
     @PostConstruct
     private void setUp() {
@@ -35,6 +41,8 @@ public class AdminCatalogApplicationService extends DefaultRoleBasedRestfulServi
         restfulEntityManager = catalogManager2;
         entityClass = Catalog.class;
         role = RestfulEntityManager.RoleEnum.ADMIN;
+        entityPatchSupplier = AdminCatalogPatchMiddleLayer::new;
+        om = om2;
     }
 
     @Override

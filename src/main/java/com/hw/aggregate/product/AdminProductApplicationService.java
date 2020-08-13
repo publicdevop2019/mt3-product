@@ -32,7 +32,7 @@ import static com.hw.config.AppConstant.REVOKE;
 
 @Slf4j
 @Service
-public class AdminProductApplicationService extends DefaultRoleBasedRestfulService<Product, AdminProductCardRep, AdminProductRep, ProductPatchMiddleLayer> {
+public class AdminProductApplicationService extends DefaultRoleBasedRestfulService<Product, AdminProductCardRep, AdminProductRep, AdminProductPatchMiddleLayer> {
 
     @Autowired
     private ProductRepo repo2;
@@ -63,7 +63,7 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
         restfulEntityManager = productDetailManager;
         entityClass = Product.class;
         role = RestfulEntityManager.RoleEnum.ADMIN;
-        entityPatchSupplier = (ProductPatchMiddleLayer::new);
+        entityPatchSupplier = (AdminProductPatchMiddleLayer::new);
         om = om2;
     }
 

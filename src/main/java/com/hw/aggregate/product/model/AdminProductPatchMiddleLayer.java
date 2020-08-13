@@ -7,9 +7,9 @@ import lombok.Data;
  * @description this class defines what filed can be patched
  */
 @Data
-public class ProductPatchMiddleLayer extends TypedClass<ProductPatchMiddleLayer> {
-    public ProductPatchMiddleLayer() {
-        super(ProductPatchMiddleLayer.class);
+public class AdminProductPatchMiddleLayer extends TypedClass<AdminProductPatchMiddleLayer> {
+    public AdminProductPatchMiddleLayer() {
+        super(AdminProductPatchMiddleLayer.class);
     }
 
     private Long startAt;
@@ -17,8 +17,8 @@ public class ProductPatchMiddleLayer extends TypedClass<ProductPatchMiddleLayer>
     private Long endAt;
     private String name;
 
-    public ProductPatchMiddleLayer(Product productDetail) {
-        super(ProductPatchMiddleLayer.class);
+    public AdminProductPatchMiddleLayer(Product productDetail) {
+        super(AdminProductPatchMiddleLayer.class);
         this.startAt = productDetail.getStartAt();
         this.endAt = productDetail.getEndAt();
         this.name = productDetail.getName();

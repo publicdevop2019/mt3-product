@@ -2,9 +2,9 @@ package com.hw.aggregate.product.model;
 
 
 import com.hw.aggregate.product.exception.AttrSalesParseException;
-import com.hw.aggregate.product.exception.NoUpdatableFieldException;
-import com.hw.aggregate.product.exception.UnsupportedPatchOperationException;
-import com.hw.aggregate.product.exception.UpdateFiledValueException;
+import com.hw.shared.rest.exception.NoUpdatableFieldException;
+import com.hw.shared.rest.exception.UnsupportedPatchOperationException;
+import com.hw.shared.rest.exception.UpdateFiledValueException;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.builder.UpdateQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;

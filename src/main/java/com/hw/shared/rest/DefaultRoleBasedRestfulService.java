@@ -5,8 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
-import com.hw.aggregate.product.exception.ProductDetailPatchException;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.rest.exception.EntityNotExistException;
+import com.hw.shared.rest.exception.EntityPatchException;
 import com.hw.shared.sql.RestfulEntityManager;
 import com.hw.shared.sql.SumPagedRep;
 import org.springframework.beans.BeanUtils;
@@ -56,7 +57,7 @@ public abstract class DefaultRoleBasedRestfulService<T, X, Y, Z extends TypedCla
             patchMiddleLayer = om.treeToValue(patchedNode, command.getClazz());
         } catch (JsonPatchException | JsonProcessingException e) {
             e.printStackTrace();
-            throw new ProductDetailPatchException();
+            throw new EntityPatchException();
         }
         BeanUtils.copyProperties(patchMiddleLayer, original);
         repo.save(original);

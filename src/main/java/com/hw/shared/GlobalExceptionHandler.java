@@ -2,9 +2,10 @@ package com.hw.shared;
 
 import com.hw.aggregate.product.exception.HangingTransactionException;
 import com.hw.aggregate.product.exception.RollbackNotSupportedException;
-import com.hw.aggregate.product.exception.UnsupportedPatchOperationException;
-import com.hw.aggregate.product.exception.UpdateFiledValueException;
-import com.hw.shared.rest.EntityNotExistException;
+import com.hw.shared.rest.exception.EntityPatchException;
+import com.hw.shared.rest.exception.UnsupportedPatchOperationException;
+import com.hw.shared.rest.exception.UpdateFiledValueException;
+import com.hw.shared.rest.exception.EntityNotExistException;
 import com.hw.shared.sql.exception.EmptyWhereClauseException;
 import com.hw.shared.sql.exception.MaxPageSizeExceedException;
 import com.hw.shared.sql.exception.PatchCommandExpectNotMatchException;
@@ -40,7 +41,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             HangingTransactionException.class,
             RollbackNotSupportedException.class,
             PatchCommandExpectNotMatchException.class,
-            EntityNotExistException.class
+            EntityNotExistException.class,
+            EntityPatchException.class,
     })
     protected ResponseEntity<Object> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);
