@@ -24,7 +24,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
-public abstract class DefaultRoleBasedRestfulService<T, X, Y, Z extends TypedClass<Z>> {
+public abstract class DefaultRoleBasedRestfulService<T extends IdBasedEntity, X, Y, Z extends TypedClass<Z>> {
 
     protected JpaRepository<T, Long> repo;
     protected IdGenerator idGenerator;
@@ -38,7 +38,7 @@ public abstract class DefaultRoleBasedRestfulService<T, X, Y, Z extends TypedCla
     protected ObjectMapper om;
 
     @Transactional
-    public <S extends CreatedRep> S create(Object command) {
+    public CreatedEntityRep create(Object command) {
         T created = createEntity(idGenerator.getId(), command);
         repo.save(created);
         return getCreatedEntityRepresentation(created);
@@ -70,7 +70,7 @@ public abstract class DefaultRoleBasedRestfulService<T, X, Y, Z extends TypedCla
     }
 
     @Transactional
-    public Integer patchBatch(List<PatchCommand> commands,String changeId) {
+    public Integer patchBatch(List<PatchCommand> commands, String changeId) {
         List<PatchCommand> deepCopy = getDeepCopy(commands);
         return restfulEntityManager.update(role, deepCopy, entityClass);
     }
@@ -118,14 +118,15 @@ public abstract class DefaultRoleBasedRestfulService<T, X, Y, Z extends TypedCla
         return deepCopy;
     }
 
+    private CreatedEntityRep getCreatedEntityRepresentation(T created) {
+        return new CreatedEntityRep(created);
+    }
 
     public abstract T replaceEntity(T t, Object command);
 
     public abstract X getEntitySumRepresentation(T t);
 
     public abstract Y getEntityRepresentation(T t);
-
-    protected abstract <S extends CreatedRep> S getCreatedEntityRepresentation(T created);
 
     protected abstract T createEntity(long id, Object command);
 }

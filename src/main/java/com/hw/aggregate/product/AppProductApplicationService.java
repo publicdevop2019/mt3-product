@@ -72,11 +72,6 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
     }
 
     @Override
-    protected <S extends CreatedRep> S getCreatedEntityRepresentation(Product created) {
-        return null;
-    }
-
-    @Override
     protected Product createEntity(long id, Object command) {
         return null;
     }

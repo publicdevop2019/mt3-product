@@ -47,11 +47,6 @@ public class AppBizAttributeApplicationService extends DefaultRoleBasedRestfulSe
     }
 
     @Override
-    public CreatedRep getCreatedEntityRepresentation(BizAttribute created) {
-        return null;
-    }
-
-    @Override
     protected BizAttribute createEntity(long id, Object command) {
         return null;
     }

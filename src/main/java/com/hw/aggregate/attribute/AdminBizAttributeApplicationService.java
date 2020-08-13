@@ -55,11 +55,6 @@ public class AdminBizAttributeApplicationService extends DefaultRoleBasedRestful
     }
 
     @Override
-    public CreatedEntityRep getCreatedEntityRepresentation(BizAttribute created) {
-        return new CreatedEntityRep(created);
-    }
-
-    @Override
     protected BizAttribute createEntity(long id, Object command) {
         return BizAttribute.create(idGenerator.getId(), (CreateBizAttributeCommand) command);
     }

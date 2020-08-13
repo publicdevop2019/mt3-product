@@ -53,11 +53,6 @@ public class AdminBizFilterApplicationService extends DefaultRoleBasedRestfulSer
     }
 
     @Override
-    protected CreatedEntityRep getCreatedEntityRepresentation(BizFilter created) {
-        return new CreatedEntityRep(created);
-    }
-
-    @Override
     protected BizFilter createEntity(long id, Object command) {
         return BizFilter.create(id, (CreateBizFilterCommand) command);
     }

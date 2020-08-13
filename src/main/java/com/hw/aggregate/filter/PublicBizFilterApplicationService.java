@@ -66,11 +66,6 @@ public class PublicBizFilterApplicationService extends DefaultRoleBasedRestfulSe
     }
 
     @Override
-    protected <S extends CreatedRep> S getCreatedEntityRepresentation(BizFilter created) {
-        return null;
-    }
-
-    @Override
     protected BizFilter createEntity(long id, Object command) {
         return null;
     }

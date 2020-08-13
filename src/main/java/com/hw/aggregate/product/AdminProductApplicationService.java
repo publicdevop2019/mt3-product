@@ -117,10 +117,6 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
         return new AdminProductRep(product);
     }
 
-    @Override
-    protected CreatedEntityRep getCreatedEntityRepresentation(Product created) {
-        return new CreatedEntityRep(created);
-    }
 
     @Override
     protected Product createEntity(long id, Object command) {

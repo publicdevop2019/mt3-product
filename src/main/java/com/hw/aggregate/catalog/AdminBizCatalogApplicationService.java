@@ -62,11 +62,6 @@ public class AdminBizCatalogApplicationService extends DefaultRoleBasedRestfulSe
     }
 
     @Override
-    protected CreatedRep getCreatedEntityRepresentation(BizCatalog created) {
-        return new CreatedEntityRep(created);
-    }
-
-    @Override
     protected BizCatalog createEntity(long id, Object command) {
         return BizCatalog.create(idGenerator.getId(), (CreateBizCatalogCommand) command);
     }

@@ -52,11 +52,6 @@ public class PublicBizCatalogApplicationService extends DefaultRoleBasedRestfulS
     }
 
     @Override
-    protected <S extends CreatedRep> S getCreatedEntityRepresentation(BizCatalog created) {
-        return null;
-    }
-
-    @Override
     protected BizCatalog createEntity(long id, Object command) {
         return null;
     }
