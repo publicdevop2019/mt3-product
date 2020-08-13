@@ -6,14 +6,14 @@ import lombok.Data;
 import java.util.Set;
 
 @Data
-public class BizAttributeAdminRep {
+public class AdminBizAttributeRep {
     private String name;
     private String description;
     private BizAttribute.AttributeMethod method;
     private Set<String> selectValues;
     private BizAttribute.BizAttributeType type;
 
-    public BizAttributeAdminRep(BizAttribute attribute) {
+    public AdminBizAttributeRep(BizAttribute attribute) {
         this.name = attribute.getName();
         this.description = attribute.getDescription();
         this.selectValues = attribute.getSelectValues();

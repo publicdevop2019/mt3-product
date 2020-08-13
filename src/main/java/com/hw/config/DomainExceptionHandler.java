@@ -1,11 +1,7 @@
 package com.hw.config;
 
-import com.hw.aggregate.catalog.exception.CatalogNotFoundException;
 import com.hw.aggregate.product.exception.*;
-import com.hw.shared.DeepCopyException;
 import com.hw.shared.ErrorMessage;
-import com.hw.shared.sql.exception.PatchCommandExpectNotMatchException;
-import com.hw.shared.sql.exception.WhereQueryNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -25,7 +21,6 @@ import static com.hw.shared.AppConstant.HTTP_HEADER_ERROR_ID;
 public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {
-            CatalogNotFoundException.class,
             ProductNotFoundException.class,
             SkuAlreadyExistException.class,
             SkuNotExistException.class,

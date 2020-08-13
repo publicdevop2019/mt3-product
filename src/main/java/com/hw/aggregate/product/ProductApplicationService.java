@@ -3,9 +3,8 @@ package com.hw.aggregate.product;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
-import com.hw.aggregate.attribute.BizAttributeAdminApplicationService;
-import com.hw.aggregate.attribute.BizAttributeAppApplicationService;
-import com.hw.aggregate.catalog.CatalogApplicationService;
+import com.hw.aggregate.attribute.AppBizAttributeApplicationService;
+import com.hw.aggregate.catalog.PublicCatalogApplicationService;
 import com.hw.aggregate.product.command.AdminCreateProductCommand;
 import com.hw.aggregate.product.command.AdminUpdateProductCommand;
 import com.hw.shared.DeepCopyException;
@@ -44,10 +43,10 @@ public class ProductApplicationService {
     private ChangeRecordRepository changeHistoryRepository;
 
     @Autowired
-    private CatalogApplicationService catalogApplicationService;
+    private PublicCatalogApplicationService catalogApplicationService;
 
     @Autowired
-    private BizAttributeAppApplicationService attributeApplicationService;
+    private AppBizAttributeApplicationService attributeApplicationService;
 
     @Autowired
     private IdGenerator idGenerator;

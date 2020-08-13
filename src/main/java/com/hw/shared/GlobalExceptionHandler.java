@@ -4,7 +4,11 @@ import com.hw.aggregate.product.exception.HangingTransactionException;
 import com.hw.aggregate.product.exception.RollbackNotSupportedException;
 import com.hw.aggregate.product.exception.UnsupportedPatchOperationException;
 import com.hw.aggregate.product.exception.UpdateFiledValueException;
-import com.hw.shared.sql.exception.*;
+import com.hw.shared.rest.EntityNotExistException;
+import com.hw.shared.sql.exception.EmptyWhereClauseException;
+import com.hw.shared.sql.exception.MaxPageSizeExceedException;
+import com.hw.shared.sql.exception.PatchCommandExpectNotMatchException;
+import com.hw.shared.sql.exception.UnsupportedQueryException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,12 +35,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             UnsupportedQueryException.class,
             MaxPageSizeExceedException.class,
             EmptyWhereClauseException.class,
-            WhereQueryNotFoundException.class,
             UnsupportedPatchOperationException.class,
             UpdateFiledValueException.class,
             HangingTransactionException.class,
             RollbackNotSupportedException.class,
             PatchCommandExpectNotMatchException.class,
+            EntityNotExistException.class
     })
     protected ResponseEntity<Object> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);

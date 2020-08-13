@@ -6,19 +6,16 @@ import lombok.Data;
 import java.util.Set;
 
 @Data
-public class CatalogAdminRep {
+public class PublicCatalogCardRep {
+    private Long id;
     private String name;
-
+    private Set<String> attributes;
     private Long parentId;
 
-    private Set<String> attributes;
-
-    private Catalog.CatalogType catalogType;
-
-    public CatalogAdminRep(Catalog catalog) {
+    public PublicCatalogCardRep(Catalog catalog) {
+        this.id = catalog.getId();
         this.name = catalog.getName();
-        this.parentId = catalog.getParentId();
         this.attributes = catalog.getAttributes();
-        this.catalogType = catalog.getType();
+        this.parentId = catalog.getParentId();
     }
 }

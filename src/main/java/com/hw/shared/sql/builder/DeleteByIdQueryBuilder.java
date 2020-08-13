@@ -1,6 +1,6 @@
 package com.hw.shared.sql.builder;
 
-import com.hw.shared.sql.exception.WhereQueryNotFoundException;
+import com.hw.shared.sql.exception.EmptyWhereClauseException;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
@@ -18,7 +18,7 @@ public abstract class DeleteByIdQueryBuilder<T> extends DeleteQueryBuilder<T> {
     public Predicate getWhereClause(Root<T> root, String search) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         if (search == null)
-            throw new WhereQueryNotFoundException();
+            throw new EmptyWhereClauseException();
         String[] queryParams = search.split(",");
         List<Predicate> results = new ArrayList<>();
         for (String param : queryParams) {

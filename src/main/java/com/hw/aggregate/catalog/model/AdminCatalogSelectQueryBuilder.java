@@ -23,5 +23,6 @@ public class AdminCatalogSelectQueryBuilder extends SelectQueryBuilder<Catalog> 
         MAX_PAGE_SIZE = 2000;
         mappedSortBy.put("name", NAME_LITERAL);
         supportedWhereField.put("type", new SelectFieldEnumStringEqualClause<>(TYPE_LITERAL));
+        allowEmptyClause=true;
     }
 }

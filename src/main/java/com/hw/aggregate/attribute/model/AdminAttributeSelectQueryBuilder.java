@@ -22,6 +22,7 @@ public class AdminAttributeSelectQueryBuilder extends SelectQueryBuilder<BizAttr
         MAX_PAGE_SIZE = 200;
         mappedSortBy.put("name", NAME_LITERAL);
         mappedSortBy.put("type", TYPE_LITERAL);
+        allowEmptyClause=true;
     }
 
 }

@@ -13,7 +13,10 @@ import static com.hw.shared.AppConstant.*;
 public class CatalogController {
 
     @Autowired
-    private CatalogApplicationService catalogApplicationService;
+    private PublicCatalogApplicationService catalogPublicApplicationService;
+
+    @Autowired
+    private AdminCatalogApplicationService catalogAdminApplicationService;
 
     @GetMapping("public")
     public ResponseEntity<?> readForPublicByQuery(
@@ -21,7 +24,7 @@ public class CatalogController {
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        return ResponseEntity.ok(catalogApplicationService.readForPublicByQuery(queryParam, pageParam, skipCount));
+        return ResponseEntity.ok(catalogPublicApplicationService.readByQuery(queryParam, pageParam, skipCount));
     }
 
     @GetMapping("admin")
@@ -30,30 +33,30 @@ public class CatalogController {
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        return ResponseEntity.ok(catalogApplicationService.readForAdminByQuery(queryParam, pageParam, skipCount));
+        return ResponseEntity.ok(catalogAdminApplicationService.readByQuery(queryParam, pageParam, skipCount));
     }
 
     @PostMapping("admin")
     public ResponseEntity<?> createForAdmin(@RequestBody CreateCatalogCommand command) {
-        return ResponseEntity.ok().header("Location", catalogApplicationService.createForAdmin(command).getId().toString()).build();
+        return ResponseEntity.ok().header("Location", catalogAdminApplicationService.create(command).getId().toString()).build();
     }
 
 
     @PutMapping("admin/{id}")
     public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody UpdateCatalogCommand command) {
-        catalogApplicationService.replaceForAdminById(id, command);
+        catalogAdminApplicationService.replaceById(id, command);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("admin/{id}")
     public ResponseEntity<?> readForAdminById(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(catalogApplicationService.readForAdminById(id));
+        return ResponseEntity.ok(catalogAdminApplicationService.readById(id));
     }
 
 
     @DeleteMapping("admin/{id}")
     public ResponseEntity<?> deleteForAdminById(@PathVariable(name = "id") Long id) {
-        catalogApplicationService.deleteForAdminById(id);
+        catalogAdminApplicationService.deleteById(id);
         return ResponseEntity.ok().build();
     }
 }

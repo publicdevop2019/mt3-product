@@ -5,6 +5,7 @@ import com.hw.aggregate.filter.command.CreateBizFilterCommand;
 import com.hw.aggregate.filter.command.UpdateBizFilterCommand;
 import com.hw.shared.Auditable;
 import com.hw.shared.LinkedHashSetConverter;
+import com.hw.shared.rest.IdBasedEntity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,7 +18,7 @@ import java.util.Set;
 @Entity
 @Table(name = "biz_filter")
 @NoArgsConstructor
-public class BizFilter extends Auditable {
+public class BizFilter extends Auditable implements IdBasedEntity {
     @Id
     private Long id;
     public transient static final String ID_LITERAL = "id";
@@ -35,12 +36,11 @@ public class BizFilter extends Auditable {
         private Set<String> selectValues;
     }
 
-    public static BizFilter create(Long id, CreateBizFilterCommand command, BizFilterRepository repository) {
-        BizFilter bizFilter = new BizFilter(id, command);
-        return repository.save(bizFilter);
+    public static BizFilter create(Long id, CreateBizFilterCommand command) {
+        return new BizFilter(id, command);
     }
 
-    public void replace(UpdateBizFilterCommand command, BizFilterRepository repository) {
+    public void replace(UpdateBizFilterCommand command) {
         this.linkedCatalog = command.getCatalogs();
         this.filterItems = new ArrayList<>();
         command.getFilters().forEach(e -> {
@@ -50,7 +50,6 @@ public class BizFilter extends Auditable {
             bizFilterItem.setSelectValues(e.getValues());
             this.filterItems.add(bizFilterItem);
         });
-        repository.save(this);
     }
 
     private BizFilter(Long id, CreateBizFilterCommand command) {

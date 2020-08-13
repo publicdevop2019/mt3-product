@@ -4,10 +4,11 @@ import com.hw.aggregate.attribute.command.CreateBizAttributeCommand;
 import com.hw.aggregate.attribute.command.UpdateBizAttributeCommand;
 import com.hw.aggregate.attribute.model.BizAttribute;
 import com.hw.aggregate.attribute.model.BizAttributeManager;
-import com.hw.aggregate.attribute.representation.BizAttributeAdminRep;
-import com.hw.aggregate.attribute.representation.BizAttributeAdminSumRep.BizAttributeCardRepresentation;
-import com.hw.aggregate.attribute.representation.BizAttributeAdminCreatedRep;
+import com.hw.aggregate.attribute.representation.AdminBizAttributeCardRep;
+import com.hw.aggregate.attribute.representation.AdminBizAttributeRep;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.rest.CreatedEntityRep;
+import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.sql.RestfulEntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 
 @Service
-public class BizAttributeAdminApplicationService extends DefaultRoleBasedApplicationService<BizAttribute> {
+public class AdminBizAttributeApplicationService extends DefaultRoleBasedRestfulService<BizAttribute, AdminBizAttributeCardRep, AdminBizAttributeRep> {
     @Autowired
     private BizAttributeRepository repo2;
     @Autowired
@@ -38,18 +39,18 @@ public class BizAttributeAdminApplicationService extends DefaultRoleBasedApplica
     }
 
     @Override
-    public BizAttributeCardRepresentation getEntitySumRepresentation(BizAttribute bizAttribute) {
-        return new BizAttributeCardRepresentation(bizAttribute);
+    public AdminBizAttributeCardRep getEntitySumRepresentation(BizAttribute bizAttribute) {
+        return new AdminBizAttributeCardRep(bizAttribute);
     }
 
     @Override
-    public BizAttributeAdminRep getEntityRepresentation(BizAttribute bizAttribute) {
-        return new BizAttributeAdminRep(bizAttribute);
+    public AdminBizAttributeRep getEntityRepresentation(BizAttribute bizAttribute) {
+        return new AdminBizAttributeRep(bizAttribute);
     }
 
     @Override
-    public BizAttributeAdminCreatedRep getCreatedEntityRepresentation(BizAttribute created) {
-        return new BizAttributeAdminCreatedRep(created);
+    public CreatedEntityRep getCreatedEntityRepresentation(BizAttribute created) {
+        return new CreatedEntityRep(created);
     }
 
     @Override

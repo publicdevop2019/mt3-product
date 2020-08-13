@@ -6,6 +6,7 @@ import com.hw.aggregate.catalog.command.UpdateCatalogCommand;
 import com.hw.shared.Auditable;
 import com.hw.shared.EnumDBConverter;
 import com.hw.shared.StringSetConverter;
+import com.hw.shared.rest.IdBasedEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,7 @@ import java.util.Set;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-public class Catalog extends Auditable {
+public class Catalog extends Auditable implements IdBasedEntity {
 
     @Id
     private Long id;
@@ -41,17 +42,16 @@ public class Catalog extends Auditable {
     private CatalogType type;
     public transient static final String TYPE_LITERAL = "type";
 
-    public static Catalog create(Long id, CreateCatalogCommand command, CatalogRepository repo) {
-        return repo.save(new Catalog(id, command));
+    public static Catalog create(Long id, CreateCatalogCommand command) {
+        return new Catalog(id, command);
     }
 
 
-    public void update(UpdateCatalogCommand command, CatalogRepository repo) {
+    public void replace(UpdateCatalogCommand command) {
         this.setName(command.getName());
         this.setParentId(command.getParentId());
         this.setAttributes(command.getAttributes());
         this.setType(command.getCatalogType());
-        repo.save(this);
     }
 
 

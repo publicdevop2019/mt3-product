@@ -12,7 +12,7 @@ import static com.hw.shared.AppConstant.*;
 @RequestMapping(produces = "application/json", path = "attributes")
 public class BizAttributeController {
     @Autowired
-    private BizAttributeAdminApplicationService attributeApplicationService;
+    private AdminBizAttributeApplicationService attributeApplicationService;
 
     @GetMapping("admin")
     public ResponseEntity<?> readForAdminByQuery(

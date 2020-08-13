@@ -1,19 +1,15 @@
-package com.hw.aggregate.attribute;
+package com.hw.shared.rest;
 
-import com.hw.aggregate.attribute.command.CreateBizAttributeCommand;
-import com.hw.aggregate.attribute.command.UpdateBizAttributeCommand;
-import com.hw.aggregate.attribute.representation.CreatedRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.sql.RestfulEntityManager;
 import com.hw.shared.sql.SumPagedRep;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class DefaultRoleBasedApplicationService<T> {
+public abstract class DefaultRoleBasedRestfulService<T, X, Y> {
 
     protected JpaRepository<T, Long> repo;
     protected IdGenerator idGenerator;
@@ -24,14 +20,14 @@ public abstract class DefaultRoleBasedApplicationService<T> {
     protected RestfulEntityManager.RoleEnum role;
 
     @Transactional
-    public <S extends CreatedRep> S create(CreateBizAttributeCommand command) {
+    public <S extends CreatedRep> S create(Object command) {
         T created = createEntity(idGenerator.getId(), command);
         repo.save(created);
         return getCreatedEntityRepresentation(created);
     }
 
     @Transactional
-    public void replaceById(Long id, UpdateBizAttributeCommand command) {
+    public void replaceById(Long id, Object command) {
         SumPagedRep<T> tSumPagedRep = getEntityById(id);
         T after = replaceEntity(tSumPagedRep.getData().get(0), command);
         repo.save(after);
@@ -39,20 +35,20 @@ public abstract class DefaultRoleBasedApplicationService<T> {
 
 
     @Transactional
-    public void deleteById(Long attributeId) {
-        restfulEntityManager.deleteById(role, attributeId.toString(), entityClass);
+    public void deleteById(Long id) {
+        restfulEntityManager.deleteById(role, id.toString(), entityClass);
     }
 
     @Transactional(readOnly = true)
-    public SumPagedRep<Object> readByQuery(String query, String page, String config) {
+    public SumPagedRep<X> readByQuery(String query, String page, String config) {
         SumPagedRep<T> tSumPagedRep = restfulEntityManager.readByQuery(role, query, page, config, entityClass);
-        List<Object> col = tSumPagedRep.getData().stream().map(this::getEntitySumRepresentation).collect(Collectors.toList());
+        List<X> col = tSumPagedRep.getData().stream().map(this::getEntitySumRepresentation).collect(Collectors.toList());
         return new SumPagedRep<>(col, tSumPagedRep.getTotalItemCount());
     }
 
 
     @Transactional(readOnly = true)
-    public Object readById(Long id) {
+    public Y readById(Long id) {
         SumPagedRep<T> tSumPagedRep = getEntityById(id);
         return getEntityRepresentation(tSumPagedRep.getData().get(0));
     }
@@ -60,15 +56,15 @@ public abstract class DefaultRoleBasedApplicationService<T> {
     private SumPagedRep<T> getEntityById(Long id) {
         SumPagedRep<T> tSumPagedRep = restfulEntityManager.readById(role, id.toString(), entityClass);
         if (tSumPagedRep.getData().size() == 0)
-            throw new EntityNotFoundException();
+            throw new EntityNotExistException();
         return tSumPagedRep;
     }
 
     public abstract T replaceEntity(T t, Object command);
 
-    public abstract Object getEntitySumRepresentation(T t);
+    public abstract X getEntitySumRepresentation(T t);
 
-    public abstract Object getEntityRepresentation(T t);
+    public abstract Y getEntityRepresentation(T t);
 
     protected abstract <S extends CreatedRep> S getCreatedEntityRepresentation(T created);
 

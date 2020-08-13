@@ -1,9 +1,7 @@
 package com.hw.aggregate.product.representation;
 
-import com.hw.aggregate.attribute.BizAttributeAdminApplicationService;
-import com.hw.aggregate.attribute.BizAttributeAppApplicationService;
-import com.hw.aggregate.attribute.representation.BizAttributeAdminSumRep;
-import com.hw.aggregate.attribute.representation.BizAttributeAppSumRep;
+import com.hw.aggregate.attribute.AppBizAttributeApplicationService;
+import com.hw.aggregate.attribute.representation.AppBizAttributeCardRep;
 import com.hw.aggregate.product.exception.AttributeNameNotFoundException;
 import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
 import com.hw.aggregate.product.model.Product;
@@ -32,7 +30,7 @@ public class PublicProductRep {
     private List<ProductOption> selectedOptions;
     private Map<String, String> attrIdMap;
 
-    public PublicProductRep(Product productDetail, BizAttributeAppApplicationService bizAttributeApplicationService) {
+    public PublicProductRep(Product productDetail, AppBizAttributeApplicationService bizAttributeApplicationService) {
         this.id = productDetail.getId();
         this.name = productDetail.getName();
         this.imageUrlSmall = productDetail.getImageUrlSmall();
@@ -46,7 +44,7 @@ public class PublicProductRep {
         this.skus.stream().map(ProductSkuCustomerRepresentation::getAttributeSales).flatMap(Collection::stream).collect(Collectors.toList())
                 .stream().map(e -> e.split(":")[0]).forEach(el -> attrIdMap.put(el, null));
         String search = "id:" + String.join(".", this.attrIdMap.keySet());
-        SumPagedRep<Object> bizAttributeSummaryRepresentation;
+        SumPagedRep<AppBizAttributeCardRep> bizAttributeSummaryRepresentation;
         if (this.attrIdMap.keySet().size() > 0) {
             String page = "size:" + this.attrIdMap.keySet().size();
             bizAttributeSummaryRepresentation = bizAttributeApplicationService.readByQuery(search, page, "0");
@@ -84,8 +82,8 @@ public class PublicProductRep {
         }
     }
 
-    private String findName(String id, SumPagedRep<Object> attributeSummaryRepresentation) {
-        Optional<BizAttributeAppSumRep.BizAttributeCardRepresentation> first = attributeSummaryRepresentation.getData().stream().filter(e -> ((BizAttributeAppSumRep.BizAttributeCardRepresentation)e).getId().toString().equals(id)).findFirst();
+    private String findName(String id, SumPagedRep<AppBizAttributeCardRep> attributeSummaryRepresentation) {
+        Optional<AppBizAttributeCardRep> first = attributeSummaryRepresentation.getData().stream().filter(e -> e.getId().toString().equals(id)).findFirst();
         if (first.isEmpty())
             throw new AttributeNameNotFoundException();
         return first.get().getName();

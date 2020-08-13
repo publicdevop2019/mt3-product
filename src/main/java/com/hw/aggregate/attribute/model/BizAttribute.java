@@ -1,12 +1,11 @@
 package com.hw.aggregate.attribute.model;
 
-import com.hw.aggregate.attribute.BizAttributeRepository;
 import com.hw.aggregate.attribute.command.CreateBizAttributeCommand;
 import com.hw.aggregate.attribute.command.UpdateBizAttributeCommand;
-import com.hw.aggregate.attribute.exception.BizAttributeNotFoundException;
 import com.hw.shared.Auditable;
 import com.hw.shared.EnumDBConverter;
 import com.hw.shared.LinkedHashSetConverter;
+import com.hw.shared.rest.IdBasedEntity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,14 +13,13 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Optional;
 import java.util.Set;
 
 @Data
 @Entity
 @Table(name = "biz_attribute")
 @NoArgsConstructor
-public class BizAttribute extends Auditable {
+public class BizAttribute extends Auditable implements IdBasedEntity {
     @Id
     private Long id;
     public transient static final String ID_LITERAL = "id";
@@ -64,18 +62,6 @@ public class BizAttribute extends Auditable {
         this.setSelectValues(command.getSelectValues());
         this.setType(command.getType());
         return this;
-    }
-
-    public static void delete(Long attributeId, BizAttributeRepository attributeRepository) {
-        BizAttribute read = read(attributeId, attributeRepository);
-        attributeRepository.delete(read);
-    }
-
-    public static BizAttribute read(Long attributeId, BizAttributeRepository attributeRepository) {
-        Optional<BizAttribute> byId = attributeRepository.findById(attributeId);
-        if (byId.isEmpty())
-            throw new BizAttributeNotFoundException();
-        return byId.get();
     }
 
     public enum AttributeMethod {

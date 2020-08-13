@@ -13,13 +13,15 @@ import static com.hw.shared.AppConstant.*;
 public class BizFilterController {
 
     @Autowired
-    private BizFilterApplicationService bizFilterApplicationService;
+    private AdminBizFilterApplicationService bizFilterApplicationService;
+    @Autowired
+    private PublicBizFilterApplicationService publicBizFilterApplicationService;
 
     @GetMapping("public")
     public ResponseEntity<?> readForPublicByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
                                                   @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
                                                   @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
-        return ResponseEntity.ok(bizFilterApplicationService.readForPublicByQuery(queryParam, pageParam, skipCount));
+        return ResponseEntity.ok(publicBizFilterApplicationService.readByQuery(queryParam, pageParam, skipCount));
     }
 
     @GetMapping("admin")
@@ -28,30 +30,30 @@ public class BizFilterController {
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        return ResponseEntity.ok(bizFilterApplicationService.readForAdminByQuery(queryParam, pageParam, skipCount));
+        return ResponseEntity.ok(bizFilterApplicationService.readByQuery(queryParam, pageParam, skipCount));
     }
 
     @GetMapping("admin/{id}")
     public ResponseEntity<?> readForAdminById(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(bizFilterApplicationService.readForAdminById(id));
+        return ResponseEntity.ok(bizFilterApplicationService.readById(id));
     }
 
     @PostMapping("admin")
     public ResponseEntity<?> createForAdmin(@RequestBody CreateBizFilterCommand command) {
-        return ResponseEntity.ok().header("Location", bizFilterApplicationService.createForAdmin(command).getId().toString()).build();
+        return ResponseEntity.ok().header("Location", bizFilterApplicationService.create(command).getId().toString()).build();
     }
 
 
     @PutMapping("admin/{id}")
     public ResponseEntity<?> replaceForAdmin(@PathVariable(name = "id") Long id, @RequestBody UpdateBizFilterCommand command) {
-        bizFilterApplicationService.replaceForAdmin(id, command);
+        bizFilterApplicationService.replaceById(id, command);
         return ResponseEntity.ok().build();
     }
 
 
     @DeleteMapping("admin/{id}")
     public ResponseEntity<?> deleteForAdminById(@PathVariable(name = "id") Long id) {
-        bizFilterApplicationService.deleteForAdminById(id);
+        bizFilterApplicationService.deleteById(id);
         return ResponseEntity.ok().build();
     }
 }

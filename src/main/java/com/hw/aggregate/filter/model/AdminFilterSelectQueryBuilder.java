@@ -20,6 +20,7 @@ public class AdminFilterSelectQueryBuilder extends SelectQueryBuilder<BizFilter>
         DEFAULT_PAGE_SIZE = 40;
         MAX_PAGE_SIZE = 400;
         supportedWhereField.put("catalog", new SelectFieldStringEqualClause<>(LINKED_CATALOG_LITERAL));
+        allowEmptyClause=true;
     }
 
 }

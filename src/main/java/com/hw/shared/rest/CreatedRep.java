@@ -1,4 +1,4 @@
-package com.hw.aggregate.attribute.representation;
+package com.hw.shared.rest;
 
 public abstract class CreatedRep {
     public abstract Long getId();
