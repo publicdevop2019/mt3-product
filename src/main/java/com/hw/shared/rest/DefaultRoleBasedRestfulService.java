@@ -35,8 +35,13 @@ public abstract class DefaultRoleBasedRestfulService<T, X, Y> {
 
 
     @Transactional
-    public void deleteById(Long id) {
-        restfulEntityManager.deleteById(role, id.toString(), entityClass);
+    public Integer deleteById(Long id) {
+        return restfulEntityManager.deleteById(role, id.toString(), entityClass);
+    }
+
+    @Transactional
+    public Integer deleteByQuery(String query) {
+        return restfulEntityManager.deleteByQuery(role, query, entityClass);
     }
 
     @Transactional(readOnly = true)

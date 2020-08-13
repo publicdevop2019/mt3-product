@@ -3,9 +3,6 @@ package com.hw.aggregate.product;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.product.command.AdminCreateProductCommand;
 import com.hw.aggregate.product.command.AdminUpdateProductCommand;
-import com.hw.aggregate.product.representation.AdminProductSumPagedRep;
-import com.hw.aggregate.product.representation.AppProductSumPagedRep;
-import com.hw.aggregate.product.representation.PublicProductSumPagedRep;
 import com.hw.shared.sql.PatchCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,90 +19,94 @@ import static com.hw.shared.AppConstant.*;
 public class ProductController {
 
     @Autowired
-    private ProductApplicationService productService;
+    private AdminProductApplicationService adminProductApplicationService;
+    @Autowired
+    private AppProductApplicationService appProductApplicationService;
+    @Autowired
+    private PublicProductApplicationService publicProductApplicationService;
 
     @GetMapping("public")
-    public ResponseEntity<PublicProductSumPagedRep> readForPublicByQuery(
+    public ResponseEntity<?> readForPublicByQuery(
             @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        return ResponseEntity.ok(productService.readForPublicByQuery(queryParam, pageParam, skipCount));
+        return ResponseEntity.ok(publicProductApplicationService.readByQuery(queryParam, pageParam, skipCount));
     }
 
     @GetMapping("public/{id}")
     public ResponseEntity<?> readForPublicById(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(productService.readForPublicById(id));
+        return ResponseEntity.ok(publicProductApplicationService.readById(id));
     }
 
     @GetMapping("admin")
-    public ResponseEntity<AdminProductSumPagedRep> readForAdminByQuery(
+    public ResponseEntity<?> readForAdminByQuery(
             @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipFlag) {
-        return ResponseEntity.ok(productService.readForAdminByQuery(queryParam, pageParam, skipFlag));
+        return ResponseEntity.ok(adminProductApplicationService.readByQuery(queryParam, pageParam, skipFlag));
     }
 
     @GetMapping("admin/{id}")
     public ResponseEntity<?> readForAdminById(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(productService.readForAdminById(id));
+        return ResponseEntity.ok(adminProductApplicationService.readById(id));
     }
 
 
     @PostMapping("admin")
     public ResponseEntity<?> createForAdmin(@RequestBody AdminCreateProductCommand productDetail) {
-        return ResponseEntity.ok().header("Location", productService.createForAdmin(productDetail).getId()).build();
+        return ResponseEntity.ok().header("Location", adminProductApplicationService.create(productDetail).getId().toString()).build();
     }
 
 
     @PutMapping("admin/{id}")
     public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody AdminUpdateProductCommand newProductDetail) {
-        productService.replaceForAdminById(id, newProductDetail);
+        adminProductApplicationService.replaceById(id, newProductDetail);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping(path = "admin/{id}", consumes = "application/json-patch+json")
     public ResponseEntity<?> patchForAdminById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch) {
-        return ResponseEntity.ok(productService.patchForAdminById(id, patch));
+        return ResponseEntity.ok(adminProductApplicationService.patchById(id, patch));
     }
 
     @PatchMapping("admin")
     public ResponseEntity<?> patchForAdmin(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        productService.patchForAdmin(patch, changeId);
+        adminProductApplicationService.patch(patch, changeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("admin/{id}")
     public ResponseEntity<?> deleteForAdminById(@PathVariable(name = "id") Long id) {
-        productService.deleteForAdminById(id);
+        adminProductApplicationService.deleteById(id);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("admin")
     public ResponseEntity<?> deleteForAdminByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam) {
-        productService.deleteForAdminByQuery(queryParam);
+        adminProductApplicationService.deleteByQuery(queryParam);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("app")
     public ResponseEntity<?> patchForApp(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        productService.patchForApp(patch, changeId);
+        appProductApplicationService.patchForApp(patch, changeId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("app")
-    public ResponseEntity<AppProductSumPagedRep> readForAppByQuery(
+    public ResponseEntity<?> readForAppByQuery(
             @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        return ResponseEntity.ok(productService.readForAppByQuery(queryParam, pageParam, skipCount));
+        return ResponseEntity.ok(appProductApplicationService.readByQuery(queryParam, pageParam, skipCount));
     }
 
 
     @DeleteMapping("change/app/{id}")
     public ResponseEntity<?> rollbackChange(@PathVariable(name = "id") String id) {
-        productService.rollbackChangeForApp(id);
+        appProductApplicationService.rollbackChangeForApp(id);
         return ResponseEntity.ok().build();
     }
 

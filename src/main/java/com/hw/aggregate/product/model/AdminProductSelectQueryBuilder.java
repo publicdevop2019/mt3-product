@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 import static com.hw.aggregate.product.model.Product.*;
 import static com.hw.aggregate.product.representation.AdminProductRep.*;
-import static com.hw.aggregate.product.representation.PublicProductSumPagedRep.ProductCardRepresentation.PUBLIC_REP_PRICE_LITERAL;
+import static com.hw.aggregate.product.representation.PublicProductCardRep.PUBLIC_REP_PRICE_LITERAL;
 import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 
 

@@ -1,13 +1,13 @@
 package com.hw.aggregate.product.model;
 
-import com.hw.aggregate.product.ProductApplicationService;
-import com.hw.aggregate.product.ProductRepo;
+import com.hw.aggregate.product.AdminProductApplicationService;
 import com.hw.aggregate.product.command.AdminCreateProductCommand;
 import com.hw.aggregate.product.command.AdminUpdateProductCommand;
 import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
 import com.hw.aggregate.product.exception.SkuAlreadyExistException;
 import com.hw.aggregate.product.exception.SkuNotExistException;
 import com.hw.shared.Auditable;
+import com.hw.shared.rest.IdBasedEntity;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.StringSetConverter;
 import lombok.Data;
@@ -29,7 +29,7 @@ import static com.hw.shared.AppConstant.*;
 @Table(name = "biz_product")
 @NoArgsConstructor
 @Slf4j
-public class Product extends Auditable {
+public class Product extends Auditable implements IdBasedEntity {
     @Id
     private Long id;
 
@@ -88,12 +88,11 @@ public class Product extends Auditable {
     private Integer totalSales;
     public transient static final String TOTAL_SALES_LITERAL = "totalSales";
 
-    public static Product create(Long id, AdminCreateProductCommand command, ProductRepo repo) {
-        Product productDetail = new Product(id, command);
-        return repo.save(productDetail);
+    public static Product create(Long id, AdminCreateProductCommand command) {
+        return new Product(id, command);
     }
 
-    public void replace(AdminUpdateProductCommand command, ProductApplicationService productApplicationService, ProductRepo repo) {
+    public void replace(AdminUpdateProductCommand command, AdminProductApplicationService productApplicationService) {
         this.imageUrlSmall = command.getImageUrlSmall();
         this.name = command.getName();
         this.description = command.getDescription();
@@ -121,10 +120,9 @@ public class Product extends Auditable {
                 }
         ).collect(Collectors.toCollection(ArrayList::new));
         this.lowestPrice = findLowestPrice(this);
-        repo.save(this);
     }
 
-    private void adjustSku(List<AdminUpdateProductCommand.UpdateProductAdminSkuCommand> commands, ProductApplicationService productApplicationService) {
+    private void adjustSku(List<AdminUpdateProductCommand.UpdateProductAdminSkuCommand> commands, AdminProductApplicationService productApplicationService) {
         commands.forEach(command -> {
             if (command.getStorageActual() != null && command.getStorageOrder() != null) {
                 // new sku
@@ -155,7 +153,7 @@ public class Product extends Auditable {
         this.productSkuList.removeAll(collect);
     }
 
-    private void updateStorage(ProductApplicationService productApplicationService, AdminUpdateProductCommand.UpdateProductAdminSkuCommand command) {
+    private void updateStorage(AdminProductApplicationService productApplicationService, AdminUpdateProductCommand.UpdateProductAdminSkuCommand command) {
         ArrayList<PatchCommand> patchCommands = new ArrayList<>();
         if (command.getDecreaseOrderStorage() != null) {
             PatchCommand patchCommand = new PatchCommand();
@@ -190,7 +188,7 @@ public class Product extends Auditable {
             patchCommands.add(patchCommand);
         }
         String changeId = UUID.randomUUID().toString();
-        productApplicationService.patchForAdmin(patchCommands, changeId);
+        productApplicationService.patch(patchCommands, changeId);
     }
 
     private String toSkuQueryPath(AdminUpdateProductCommand.UpdateProductAdminSkuCommand command, String storageType, Product productDetail) {
