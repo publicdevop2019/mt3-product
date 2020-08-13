@@ -3,7 +3,8 @@ package com.hw.aggregate.product;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
-import com.hw.aggregate.attribute.BizAttributeApplicationService;
+import com.hw.aggregate.attribute.BizAttributeAdminApplicationService;
+import com.hw.aggregate.attribute.BizAttributeAppApplicationService;
 import com.hw.aggregate.catalog.CatalogApplicationService;
 import com.hw.aggregate.product.command.AdminCreateProductCommand;
 import com.hw.aggregate.product.command.AdminUpdateProductCommand;
@@ -46,7 +47,7 @@ public class ProductApplicationService {
     private CatalogApplicationService catalogApplicationService;
 
     @Autowired
-    private BizAttributeApplicationService attributeApplicationService;
+    private BizAttributeAppApplicationService attributeApplicationService;
 
     @Autowired
     private IdGenerator idGenerator;

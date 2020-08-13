@@ -44,10 +44,8 @@ public class BizAttribute extends Auditable {
     private BizAttributeType type;
     public transient static final String TYPE_LITERAL = "type";
 
-    public static BizAttribute create(Long id, CreateBizAttributeCommand command, BizAttributeRepository attributeRepository) {
-        BizAttribute attribute = new BizAttribute(id, command);
-        attributeRepository.save(attribute);
-        return attribute;
+    public static BizAttribute create(Long id, CreateBizAttributeCommand command) {
+        return new BizAttribute(id, command);
     }
 
     private BizAttribute(Long id, CreateBizAttributeCommand command) {
@@ -59,13 +57,13 @@ public class BizAttribute extends Auditable {
         this.type = command.getType();
     }
 
-    public void update(UpdateBizAttributeCommand command, BizAttributeRepository attributeRepository) {
+    public BizAttribute replace(UpdateBizAttributeCommand command) {
         this.setName(command.getName());
         this.setDescription(command.getDescription());
         this.setMethod(command.getMethod());
         this.setSelectValues(command.getSelectValues());
         this.setType(command.getType());
-        attributeRepository.save(this);
+        return this;
     }
 
     public static void delete(Long attributeId, BizAttributeRepository attributeRepository) {

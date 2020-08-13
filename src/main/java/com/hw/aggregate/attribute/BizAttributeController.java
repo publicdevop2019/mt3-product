@@ -12,7 +12,7 @@ import static com.hw.shared.AppConstant.*;
 @RequestMapping(produces = "application/json", path = "attributes")
 public class BizAttributeController {
     @Autowired
-    private BizAttributeApplicationService attributeApplicationService;
+    private BizAttributeAdminApplicationService attributeApplicationService;
 
     @GetMapping("admin")
     public ResponseEntity<?> readForAdminByQuery(
@@ -20,30 +20,30 @@ public class BizAttributeController {
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        return ResponseEntity.ok(attributeApplicationService.readForAdminByQuery(queryParam, pageParam, skipCount));
+        return ResponseEntity.ok(attributeApplicationService.readByQuery(queryParam, pageParam, skipCount));
     }
 
     @GetMapping("admin/{id}")
     public ResponseEntity<?> readForAdminById(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(attributeApplicationService.readForAdminById(id));
+        return ResponseEntity.ok(attributeApplicationService.readById(id));
     }
 
     @PostMapping("admin")
     public ResponseEntity<?> createForAdmin(@RequestBody CreateBizAttributeCommand command) {
-        return ResponseEntity.ok().header("Location", attributeApplicationService.createForAdmin(command).getId().toString()).build();
+        return ResponseEntity.ok().header("Location", attributeApplicationService.create(command).getId().toString()).build();
     }
 
 
     @PutMapping("admin/{id}")
     public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody UpdateBizAttributeCommand command) {
-        attributeApplicationService.replaceForAdminById(id, command);
+        attributeApplicationService.replaceById(id, command);
         return ResponseEntity.ok().build();
     }
 
 
     @DeleteMapping("admin/{id}")
     public ResponseEntity<?> deleteForAdminById(@PathVariable(name = "id") Long id) {
-        attributeApplicationService.deleteForAdminById(id);
+        attributeApplicationService.deleteById(id);
         return ResponseEntity.ok().build();
     }
 }

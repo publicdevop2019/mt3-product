@@ -4,10 +4,10 @@ import com.hw.aggregate.attribute.model.BizAttribute;
 import lombok.Data;
 
 @Data
-public class BizAttributeCreatedRep {
+public class BizAttributeAdminCreatedRep extends CreatedRep{
     private Long id;
 
-    public BizAttributeCreatedRep(BizAttribute attribute) {
+    public BizAttributeAdminCreatedRep(BizAttribute attribute) {
         this.id = attribute.getId();
     }
 }
