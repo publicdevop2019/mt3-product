@@ -17,7 +17,7 @@ import javax.annotation.PostConstruct;
 
 @Slf4j
 @Service
-public class PublicProductApplicationService extends DefaultRoleBasedRestfulService<Product, PublicProductCardRep, PublicProductRep> {
+public class PublicProductApplicationService extends DefaultRoleBasedRestfulService<Product, PublicProductCardRep, PublicProductRep,Void> {
 
     @Autowired
     private ProductRepo repo2;

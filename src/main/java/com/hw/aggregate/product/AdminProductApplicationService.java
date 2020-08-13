@@ -2,13 +2,11 @@ package com.hw.aggregate.product;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.attribute.AppBizAttributeApplicationService;
 import com.hw.aggregate.catalog.PublicCatalogApplicationService;
 import com.hw.aggregate.product.command.AdminCreateProductCommand;
 import com.hw.aggregate.product.command.AdminUpdateProductCommand;
 import com.hw.aggregate.product.exception.HangingTransactionException;
-import com.hw.aggregate.product.exception.ProductNotFoundException;
 import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.AdminProductCardRep;
 import com.hw.aggregate.product.representation.AdminProductRep;
@@ -18,7 +16,6 @@ import com.hw.shared.rest.CreatedEntityRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.RestfulEntityManager;
-import com.hw.shared.sql.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,7 +32,7 @@ import static com.hw.config.AppConstant.REVOKE;
 
 @Slf4j
 @Service
-public class AdminProductApplicationService extends DefaultRoleBasedRestfulService<Product, AdminProductCardRep, AdminProductRep> {
+public class AdminProductApplicationService extends DefaultRoleBasedRestfulService<Product, AdminProductCardRep, AdminProductRep, ProductPatchMiddleLayer> {
 
     @Autowired
     private ProductRepo repo2;
@@ -57,7 +54,7 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
     private ProductSkuManager productSkuManager;
 
     @Autowired
-    private ObjectMapper om;
+    private ObjectMapper om2;
 
     @PostConstruct
     private void setUp() {
@@ -66,15 +63,9 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
         restfulEntityManager = productDetailManager;
         entityClass = Product.class;
         role = RestfulEntityManager.RoleEnum.ADMIN;
-    }
-
-    @Transactional
-    public AdminProductRep patchById(Long id, JsonPatch patch) {
-        SumPagedRep<Product> productDetailSumPagedRep = productDetailManager.readById(RestfulEntityManager.RoleEnum.ADMIN, id.toString(), Product.class);
-        if (productDetailSumPagedRep.getData().size() == 0)
-            throw new ProductNotFoundException();
-        Product product = productDetailSumPagedRep.getData().get(0);
-        return new AdminProductRep(ProductPatchMiddleLayer.doPatch(patch, product, om, repo2));
+        entityPatchSupplier = (ProductPatchMiddleLayer::new);
+        om = om2;
+        entityPatchClass = ProductPatchMiddleLayer.class;
     }
 
     @Transactional

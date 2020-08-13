@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class PublicBizFilterApplicationService extends DefaultRoleBasedRestfulService<BizFilter, PublicBizFilterCardRep, Void> {
+public class PublicBizFilterApplicationService extends DefaultRoleBasedRestfulService<BizFilter, PublicBizFilterCardRep, Void,Void> {
     @Autowired
     private BizFilterRepository repo2;
 

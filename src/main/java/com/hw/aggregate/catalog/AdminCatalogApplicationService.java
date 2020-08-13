@@ -19,7 +19,7 @@ import javax.annotation.PostConstruct;
 
 @Slf4j
 @Service
-public class AdminCatalogApplicationService extends DefaultRoleBasedRestfulService<Catalog, AdminCatalogCardRep, AdminCatalogRep> {
+public class AdminCatalogApplicationService extends DefaultRoleBasedRestfulService<Catalog, AdminCatalogCardRep, AdminCatalogRep,Void> {
 
     @Autowired
     private CatalogRepository repo2;

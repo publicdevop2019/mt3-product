@@ -31,7 +31,7 @@ import static com.hw.shared.AppConstant.PATCH_OP_TYPE_SUM;
 
 @Slf4j
 @Service
-public class AppProductApplicationService extends DefaultRoleBasedRestfulService<Product, AppProductCardRep, Void> {
+public class AppProductApplicationService extends DefaultRoleBasedRestfulService<Product, AppProductCardRep, Void, Void> {
 
     @Autowired
     private ProductRepo repo2;
@@ -47,7 +47,7 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
     private ProductSkuManager productSkuManager;
 
     @Autowired
-    private ObjectMapper om;
+    private ObjectMapper om2;
 
     @PostConstruct
     private void setUp() {

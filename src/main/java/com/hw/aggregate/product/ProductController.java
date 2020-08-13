@@ -67,7 +67,8 @@ public class ProductController {
 
     @PatchMapping(path = "admin/{id}", consumes = "application/json-patch+json")
     public ResponseEntity<?> patchForAdminById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch) {
-        return ResponseEntity.ok(adminProductApplicationService.patchById(id, patch));
+        adminProductApplicationService.patchById(id, patch);
+        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("admin")

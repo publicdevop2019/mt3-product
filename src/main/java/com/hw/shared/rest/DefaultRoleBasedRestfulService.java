@@ -1,15 +1,23 @@
 package com.hw.shared.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
+import com.hw.aggregate.product.exception.ProductDetailPatchException;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.sql.RestfulEntityManager;
 import com.hw.shared.sql.SumPagedRep;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public abstract class DefaultRoleBasedRestfulService<T, X, Y> {
+public abstract class DefaultRoleBasedRestfulService<T, X, Y, Z> {
 
     protected JpaRepository<T, Long> repo;
     protected IdGenerator idGenerator;
@@ -17,7 +25,12 @@ public abstract class DefaultRoleBasedRestfulService<T, X, Y> {
 
     protected Class<T> entityClass;
 
+    protected Class<Z> entityPatchClass;
+
+    protected Function<T, Z> entityPatchSupplier;
+
     protected RestfulEntityManager.RoleEnum role;
+    protected ObjectMapper om;
 
     @Transactional
     public <S extends CreatedRep> S create(Object command) {
@@ -33,6 +46,23 @@ public abstract class DefaultRoleBasedRestfulService<T, X, Y> {
         repo.save(after);
     }
 
+    @Transactional
+    public void patchById(Long id, JsonPatch patch) {
+        SumPagedRep<T> entityById = getEntityById(id);
+        T original = entityById.getData().get(0);
+        Z command = entityPatchSupplier.apply(original);
+        Z patchMiddleLayer;
+        try {
+            JsonNode jsonNode = om.convertValue(command, JsonNode.class);
+            JsonNode patchedNode = patch.apply(jsonNode);
+            patchMiddleLayer = om.treeToValue(patchedNode, entityPatchClass);
+        } catch (JsonPatchException | JsonProcessingException e) {
+            e.printStackTrace();
+            throw new ProductDetailPatchException();
+        }
+        BeanUtils.copyProperties(patchMiddleLayer, original);
+        repo.save(original);
+    }
 
     @Transactional
     public Integer deleteById(Long id) {
