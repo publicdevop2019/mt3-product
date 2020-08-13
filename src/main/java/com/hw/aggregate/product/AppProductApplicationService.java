@@ -10,6 +10,7 @@ import com.hw.shared.DeepCopyException;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.rest.CreatedRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
+import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.RestfulEntityManager;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +32,7 @@ import static com.hw.shared.AppConstant.PATCH_OP_TYPE_SUM;
 
 @Slf4j
 @Service
-public class AppProductApplicationService extends DefaultRoleBasedRestfulService<Product, AppProductCardRep, Void, Void> {
+public class AppProductApplicationService extends DefaultRoleBasedRestfulService<Product, AppProductCardRep, Void, VoidTypedClass> {
 
     @Autowired
     private ProductRepo repo2;

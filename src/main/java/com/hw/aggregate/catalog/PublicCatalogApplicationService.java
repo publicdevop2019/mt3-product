@@ -6,6 +6,7 @@ import com.hw.aggregate.catalog.representation.PublicCatalogCardRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.rest.CreatedRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
+import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulEntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ import javax.annotation.PostConstruct;
 
 @Slf4j
 @Service
-public class PublicCatalogApplicationService extends DefaultRoleBasedRestfulService<Catalog, PublicCatalogCardRep, Void,Void> {
+public class PublicCatalogApplicationService extends DefaultRoleBasedRestfulService<Catalog, PublicCatalogCardRep, Void, VoidTypedClass> {
 
     @Autowired
     private CatalogRepository repo2;

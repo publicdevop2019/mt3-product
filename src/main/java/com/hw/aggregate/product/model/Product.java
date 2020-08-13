@@ -7,9 +7,9 @@ import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
 import com.hw.aggregate.product.exception.SkuAlreadyExistException;
 import com.hw.aggregate.product.exception.SkuNotExistException;
 import com.hw.shared.Auditable;
+import com.hw.shared.StringSetConverter;
 import com.hw.shared.rest.IdBasedEntity;
 import com.hw.shared.sql.PatchCommand;
-import com.hw.shared.StringSetConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -249,6 +249,5 @@ public class Product extends Auditable implements IdBasedEntity {
         ProductSku productSku = productDetail.getProductSkuList().stream().min(Comparator.comparing(ProductSku::getPrice)).orElseThrow(NoLowestPriceFoundException::new);
         return productSku.getPrice();
     }
-
 
 }

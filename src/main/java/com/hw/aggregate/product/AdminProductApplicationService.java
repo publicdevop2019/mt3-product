@@ -65,7 +65,6 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
         role = RestfulEntityManager.RoleEnum.ADMIN;
         entityPatchSupplier = (ProductPatchMiddleLayer::new);
         om = om2;
-        entityPatchClass = ProductPatchMiddleLayer.class;
     }
 
     @Transactional

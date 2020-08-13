@@ -6,6 +6,7 @@ import com.hw.aggregate.filter.representation.PublicBizFilterCardRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.rest.CreatedRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
+import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulEntityManager;
 import com.hw.shared.sql.SumPagedRep;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class PublicBizFilterApplicationService extends DefaultRoleBasedRestfulService<BizFilter, PublicBizFilterCardRep, Void,Void> {
+public class PublicBizFilterApplicationService extends DefaultRoleBasedRestfulService<BizFilter, PublicBizFilterCardRep, Void, VoidTypedClass> {
     @Autowired
     private BizFilterRepository repo2;
 

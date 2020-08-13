@@ -9,6 +9,7 @@ import com.hw.aggregate.attribute.representation.AdminBizAttributeRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.rest.CreatedEntityRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
+import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulEntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 
 @Service
-public class AdminBizAttributeApplicationService extends DefaultRoleBasedRestfulService<BizAttribute, AdminBizAttributeCardRep, AdminBizAttributeRep,Void> {
+public class AdminBizAttributeApplicationService extends DefaultRoleBasedRestfulService<BizAttribute, AdminBizAttributeCardRep, AdminBizAttributeRep, VoidTypedClass> {
     @Autowired
     private BizAttributeRepository repo2;
     @Autowired

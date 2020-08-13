@@ -17,15 +17,13 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public abstract class DefaultRoleBasedRestfulService<T, X, Y, Z> {
+public abstract class DefaultRoleBasedRestfulService<T, X, Y, Z extends TypedClass<Z>> {
 
     protected JpaRepository<T, Long> repo;
     protected IdGenerator idGenerator;
     protected RestfulEntityManager<T> restfulEntityManager;
 
     protected Class<T> entityClass;
-
-    protected Class<Z> entityPatchClass;
 
     protected Function<T, Z> entityPatchSupplier;
 
@@ -55,7 +53,7 @@ public abstract class DefaultRoleBasedRestfulService<T, X, Y, Z> {
         try {
             JsonNode jsonNode = om.convertValue(command, JsonNode.class);
             JsonNode patchedNode = patch.apply(jsonNode);
-            patchMiddleLayer = om.treeToValue(patchedNode, entityPatchClass);
+            patchMiddleLayer = om.treeToValue(patchedNode, command.getClazz());
         } catch (JsonPatchException | JsonProcessingException e) {
             e.printStackTrace();
             throw new ProductDetailPatchException();

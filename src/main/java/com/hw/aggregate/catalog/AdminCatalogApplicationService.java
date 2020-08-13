@@ -7,9 +7,7 @@ import com.hw.aggregate.catalog.model.CatalogManager;
 import com.hw.aggregate.catalog.representation.AdminCatalogCardRep;
 import com.hw.aggregate.catalog.representation.AdminCatalogRep;
 import com.hw.shared.IdGenerator;
-import com.hw.shared.rest.CreatedEntityRep;
-import com.hw.shared.rest.CreatedRep;
-import com.hw.shared.rest.DefaultRoleBasedRestfulService;
+import com.hw.shared.rest.*;
 import com.hw.shared.sql.RestfulEntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,7 @@ import javax.annotation.PostConstruct;
 
 @Slf4j
 @Service
-public class AdminCatalogApplicationService extends DefaultRoleBasedRestfulService<Catalog, AdminCatalogCardRep, AdminCatalogRep,Void> {
+public class AdminCatalogApplicationService extends DefaultRoleBasedRestfulService<Catalog, AdminCatalogCardRep, AdminCatalogRep, VoidTypedClass> {
 
     @Autowired
     private CatalogRepository repo2;
