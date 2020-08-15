@@ -3,6 +3,7 @@ package com.hw.aggregate.attribute;
 import com.hw.aggregate.attribute.model.BizAttribute;
 import com.hw.aggregate.attribute.model.BizAttributeQueryRegistry;
 import com.hw.aggregate.attribute.representation.AppBizAttributeCardRep;
+import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.CreatedRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.IdGenerator;
@@ -21,7 +22,8 @@ public class AppBizAttributeApplicationService extends DefaultRoleBasedRestfulSe
     private IdGenerator idGenerator2;
     @Autowired
     private BizAttributeQueryRegistry bizAttributeManager2;
-
+    @Autowired
+    private ChangeRepository changeHistoryRepository;
     @PostConstruct
     private void setUp() {
         repo = repo2;
@@ -29,6 +31,7 @@ public class AppBizAttributeApplicationService extends DefaultRoleBasedRestfulSe
         restfulEntityManager = bizAttributeManager2;
         entityClass = BizAttribute.class;
         role = RestfulEntityManager.RoleEnum.APP;
+        changeRepository = changeHistoryRepository;
     }
 
     @Override

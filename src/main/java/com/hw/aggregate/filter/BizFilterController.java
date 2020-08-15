@@ -39,14 +39,14 @@ public class BizFilterController {
     }
 
     @PostMapping("admin")
-    public ResponseEntity<?> createForAdmin(@RequestBody CreateBizFilterCommand command) {
-        return ResponseEntity.ok().header("Location", bizFilterApplicationService.create(command).getId().toString()).build();
+    public ResponseEntity<?> createForAdmin(@RequestBody CreateBizFilterCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        return ResponseEntity.ok().header("Location", bizFilterApplicationService.create(command,changeId).getId().toString()).build();
     }
 
 
     @PutMapping("admin/{id}")
-    public ResponseEntity<?> replaceForAdmin(@PathVariable(name = "id") Long id, @RequestBody UpdateBizFilterCommand command) {
-        bizFilterApplicationService.replaceById(id, command);
+    public ResponseEntity<?> replaceForAdmin(@PathVariable(name = "id") Long id, @RequestBody UpdateBizFilterCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        bizFilterApplicationService.replaceById(id, command,changeId);
         return ResponseEntity.ok().build();
     }
 

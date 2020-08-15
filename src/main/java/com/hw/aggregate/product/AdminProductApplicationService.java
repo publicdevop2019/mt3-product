@@ -9,8 +9,9 @@ import com.hw.aggregate.product.exception.HangingTransactionException;
 import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.AdminProductCardRep;
 import com.hw.aggregate.product.representation.AdminProductRep;
+import com.hw.shared.idempotent.ChangeRecord;
 import com.hw.shared.IdGenerator;
-import com.hw.shared.rest.CreatedEntityRep;
+import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.RestfulEntityManager;
@@ -34,7 +35,7 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
     @Autowired
     private ProductRepo repo2;
     @Autowired
-    private ChangeRecordRepository changeHistoryRepository;
+    private ChangeRepository changeHistoryRepository;
 
     @Autowired
     private PublicBizCatalogApplicationService catalogApplicationService;
@@ -62,6 +63,7 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
         role = RestfulEntityManager.RoleEnum.ADMIN;
         entityPatchSupplier = (AdminProductPatchMiddleLayer::new);
         om = om2;
+        changeRepository = changeHistoryRepository;
     }
 
     @Override
@@ -91,14 +93,6 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
     public Integer deleteById(Long id) {
         productSkuManager.deleteById(RestfulEntityManager.RoleEnum.ADMIN, id.toString(), ProductSku.class);
         return productDetailManager.deleteById(RestfulEntityManager.RoleEnum.ADMIN, id.toString(), Product.class);
-    }
-
-    private void saveChangeRecord(List<PatchCommand> details, String changeId) {
-        ChangeRecord changeRecord = new ChangeRecord();
-        changeRecord.setPatchCommands((ArrayList<PatchCommand>) details);
-        changeRecord.setChangeId(changeId);
-        changeRecord.setId(idGenerator.getId());
-        changeHistoryRepository.save(changeRecord);
     }
 
     @Override

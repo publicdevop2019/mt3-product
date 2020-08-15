@@ -1,26 +1,25 @@
-package com.hw.aggregate.product.model;
+package com.hw.shared.idempotent;
 
 import com.hw.shared.Auditable;
 import com.hw.shared.sql.PatchCommand;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.ArrayList;
 
 @Entity
-@Table
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"changeId", "entityType"}))
 @Data
 public class ChangeRecord extends Auditable {
     @Id
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String changeId;
+    @Column(nullable = false)
+    private String entityType;
 
-    @Column(nullable = false, length = 100000)
+    @Column(length = 100000)
     private ArrayList<PatchCommand> patchCommands;
 
 }

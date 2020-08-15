@@ -9,6 +9,7 @@ import com.hw.aggregate.catalog.model.BizCatalogQueryRegistry;
 import com.hw.aggregate.catalog.representation.AdminBizCatalogCardRep;
 import com.hw.aggregate.catalog.representation.AdminBizCatalogRep;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.CreatedEntityRep;
 import com.hw.shared.rest.CreatedRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
@@ -33,7 +34,8 @@ public class AdminBizCatalogApplicationService extends DefaultRoleBasedRestfulSe
     private BizCatalogQueryRegistry catalogManager2;
     @Autowired
     private ObjectMapper om2;
-
+    @Autowired
+    private ChangeRepository changeHistoryRepository;
     @PostConstruct
     private void setUp() {
         repo = repo2;
@@ -43,6 +45,7 @@ public class AdminBizCatalogApplicationService extends DefaultRoleBasedRestfulSe
         role = RestfulEntityManager.RoleEnum.ADMIN;
         entityPatchSupplier = AdminBizCatalogPatchMiddleLayer::new;
         om = om2;
+        changeRepository = changeHistoryRepository;
     }
 
     @Override

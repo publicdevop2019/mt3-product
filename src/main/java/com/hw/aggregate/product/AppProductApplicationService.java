@@ -3,10 +3,14 @@ package com.hw.aggregate.product;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.aggregate.product.exception.HangingTransactionException;
 import com.hw.aggregate.product.exception.RollbackNotSupportedException;
-import com.hw.aggregate.product.model.*;
+import com.hw.aggregate.product.model.Product;
+import com.hw.aggregate.product.model.ProductQueryRegistry;
+import com.hw.aggregate.product.model.ProductSku;
+import com.hw.aggregate.product.model.ProductSkuQueryRegistry;
 import com.hw.aggregate.product.representation.AppProductCardRep;
 import com.hw.shared.IdGenerator;
-import com.hw.shared.rest.CreatedRep;
+import com.hw.shared.idempotent.ChangeRecord;
+import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.PatchCommand;
@@ -17,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,7 +37,7 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
     @Autowired
     private ProductRepo repo2;
     @Autowired
-    private ChangeRecordRepository changeHistoryRepository;
+    private ChangeRepository changeHistoryRepository;
 
     @Autowired
     private IdGenerator idGenerator2;
@@ -54,6 +57,7 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
         restfulEntityManager = productDetailManager;
         entityClass = Product.class;
         role = RestfulEntityManager.RoleEnum.APP;
+        changeRepository = changeHistoryRepository;
     }
 
     @Override
@@ -120,13 +124,6 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
         return deepCopy;
     }
 
-    private void saveChangeRecord(List<PatchCommand> details, String changeId) {
-        ChangeRecord changeRecord = new ChangeRecord();
-        changeRecord.setPatchCommands((ArrayList<PatchCommand>) details);
-        changeRecord.setChangeId(changeId);
-        changeRecord.setId(idGenerator.getId());
-        changeHistoryRepository.save(changeRecord);
-    }
 
 }
 

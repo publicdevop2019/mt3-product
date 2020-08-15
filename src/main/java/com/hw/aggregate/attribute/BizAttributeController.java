@@ -33,14 +33,14 @@ public class BizAttributeController {
     }
 
     @PostMapping("admin")
-    public ResponseEntity<?> createForAdmin(@RequestBody CreateBizAttributeCommand command) {
-        return ResponseEntity.ok().header("Location", attributeApplicationService.create(command).getId().toString()).build();
+    public ResponseEntity<?> createForAdmin(@RequestBody CreateBizAttributeCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        return ResponseEntity.ok().header("Location", attributeApplicationService.create(command,changeId).getId().toString()).build();
     }
 
 
     @PutMapping("admin/{id}")
-    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody UpdateBizAttributeCommand command) {
-        attributeApplicationService.replaceById(id, command);
+    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody UpdateBizAttributeCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        attributeApplicationService.replaceById(id, command,changeId);
         return ResponseEntity.ok().build();
     }
 
@@ -52,8 +52,8 @@ public class BizAttributeController {
     }
 
     @PatchMapping(path = "admin/{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<?> patchForAdminById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch) {
-        attributeApplicationService.patchById(id, patch);
+    public ResponseEntity<?> patchForAdminById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        attributeApplicationService.patchById(id, patch,changeId);
         return ResponseEntity.ok().build();
     }
 

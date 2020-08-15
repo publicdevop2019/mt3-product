@@ -8,6 +8,8 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.hw.shared.DeepCopyException;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.idempotent.ChangeRecord;
+import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.exception.EntityNotExistException;
 import com.hw.shared.rest.exception.EntityPatchException;
 import com.hw.shared.sql.PatchCommand;
@@ -19,6 +21,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -36,23 +39,27 @@ public abstract class DefaultRoleBasedRestfulService<T extends IdBasedEntity, X,
 
     protected RestfulEntityManager.RoleEnum role;
     protected ObjectMapper om;
+    protected ChangeRepository changeRepository;
 
     @Transactional
-    public CreatedEntityRep create(Object command) {
+    public CreatedEntityRep create(Object command, String changeId) {
+        saveChangeRecord(null, changeId);
         T created = createEntity(idGenerator.getId(), command);
         repo.save(created);
         return getCreatedEntityRepresentation(created);
     }
 
     @Transactional
-    public void replaceById(Long id, Object command) {
+    public void replaceById(Long id, Object command, String changeId) {
+        saveChangeRecord(null, changeId);
         SumPagedRep<T> tSumPagedRep = getEntityById(id);
         T after = replaceEntity(tSumPagedRep.getData().get(0), command);
         repo.save(after);
     }
 
     @Transactional
-    public void patchById(Long id, JsonPatch patch) {
+    public void patchById(Long id, JsonPatch patch, String changeId) {
+        saveChangeRecord(null, changeId);
         SumPagedRep<T> entityById = getEntityById(id);
         T original = entityById.getData().get(0);
         Z command = entityPatchSupplier.apply(original);
@@ -71,6 +78,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends IdBasedEntity, X,
 
     @Transactional
     public Integer patchBatch(List<PatchCommand> commands, String changeId) {
+        saveChangeRecord(commands, changeId);
         List<PatchCommand> deepCopy = getDeepCopy(commands);
         return restfulEntityManager.update(role, deepCopy, entityClass);
     }
@@ -116,6 +124,15 @@ public abstract class DefaultRoleBasedRestfulService<T extends IdBasedEntity, X,
             throw new DeepCopyException();
         }
         return deepCopy;
+    }
+
+    protected void saveChangeRecord(List<PatchCommand> details, String changeId) {
+        ChangeRecord changeRecord = new ChangeRecord();
+        changeRecord.setPatchCommands((ArrayList<PatchCommand>) details);
+        changeRecord.setChangeId(changeId);
+        changeRecord.setId(idGenerator.getId());
+        changeRecord.setEntityType(entityClass.getName());
+        changeRepository.save(changeRecord);
     }
 
     private CreatedEntityRep getCreatedEntityRepresentation(T created) {

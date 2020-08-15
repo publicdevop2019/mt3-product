@@ -54,20 +54,20 @@ public class ProductController {
 
 
     @PostMapping("admin")
-    public ResponseEntity<?> createForAdmin(@RequestBody AdminCreateProductCommand productDetail) {
-        return ResponseEntity.ok().header("Location", adminProductApplicationService.create(productDetail).getId().toString()).build();
+    public ResponseEntity<?> createForAdmin(@RequestBody AdminCreateProductCommand productDetail, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        return ResponseEntity.ok().header("Location", adminProductApplicationService.create(productDetail,changeId).getId().toString()).build();
     }
 
 
     @PutMapping("admin/{id}")
-    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody AdminUpdateProductCommand newProductDetail) {
-        adminProductApplicationService.replaceById(id, newProductDetail);
+    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody AdminUpdateProductCommand newProductDetail, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        adminProductApplicationService.replaceById(id, newProductDetail,changeId);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping(path = "admin/{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<?> patchForAdminById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch) {
-        adminProductApplicationService.patchById(id, patch);
+    public ResponseEntity<?> patchForAdminById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        adminProductApplicationService.patchById(id, patch,changeId);
         return ResponseEntity.ok().build();
     }
 

@@ -6,6 +6,7 @@ import com.hw.aggregate.product.model.ProductQueryRegistry;
 import com.hw.aggregate.product.representation.PublicProductCardRep;
 import com.hw.aggregate.product.representation.PublicProductRep;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.CreatedRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
@@ -31,7 +32,8 @@ public class PublicProductApplicationService extends DefaultRoleBasedRestfulServ
 
     @Autowired
     private ProductQueryRegistry productDetailManager;
-
+    @Autowired
+    private ChangeRepository changeHistoryRepository;
 
     @PostConstruct
     private void setUp() {
@@ -40,6 +42,7 @@ public class PublicProductApplicationService extends DefaultRoleBasedRestfulServ
         restfulEntityManager = productDetailManager;
         entityClass = Product.class;
         role = RestfulEntityManager.RoleEnum.PUBLIC;
+        changeRepository = changeHistoryRepository;
     }
 
     @Override

@@ -40,14 +40,14 @@ public class BizCatalogController {
     }
 
     @PostMapping("admin")
-    public ResponseEntity<?> createForAdmin(@RequestBody CreateBizCatalogCommand command) {
-        return ResponseEntity.ok().header("Location", catalogAdminApplicationService.create(command).getId().toString()).build();
+    public ResponseEntity<?> createForAdmin(@RequestBody CreateBizCatalogCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        return ResponseEntity.ok().header("Location", catalogAdminApplicationService.create(command,changeId).getId().toString()).build();
     }
 
 
     @PutMapping("admin/{id}")
-    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody UpdateBizCatalogCommand command) {
-        catalogAdminApplicationService.replaceById(id, command);
+    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody UpdateBizCatalogCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        catalogAdminApplicationService.replaceById(id, command,changeId);
         return ResponseEntity.ok().build();
     }
 
