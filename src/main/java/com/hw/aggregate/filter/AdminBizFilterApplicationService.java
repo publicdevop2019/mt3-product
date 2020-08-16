@@ -52,7 +52,7 @@ public class AdminBizFilterApplicationService extends DefaultRoleBasedRestfulSer
 
     @Override
     public AdminBizFilterRep getEntityRepresentation(BizFilter bizFilter) {
-        return null;
+        return new AdminBizFilterRep(bizFilter);
     }
 
     @Override

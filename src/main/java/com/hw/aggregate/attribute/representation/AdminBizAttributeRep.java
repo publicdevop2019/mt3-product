@@ -7,6 +7,7 @@ import java.util.Set;
 
 @Data
 public class AdminBizAttributeRep {
+    private Long id;
     private String name;
     private String description;
     private BizAttribute.AttributeMethod method;
@@ -14,6 +15,7 @@ public class AdminBizAttributeRep {
     private BizAttribute.BizAttributeType type;
 
     public AdminBizAttributeRep(BizAttribute attribute) {
+        this.id = attribute.getId();
         this.name = attribute.getName();
         this.description = attribute.getDescription();
         this.selectValues = attribute.getSelectValues();

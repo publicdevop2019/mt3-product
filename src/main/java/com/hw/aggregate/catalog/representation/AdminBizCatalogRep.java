@@ -7,6 +7,7 @@ import java.util.Set;
 
 @Data
 public class AdminBizCatalogRep {
+    private Long id;
     private String name;
 
     private Long parentId;
@@ -16,6 +17,7 @@ public class AdminBizCatalogRep {
     private BizCatalog.CatalogType catalogType;
 
     public AdminBizCatalogRep(BizCatalog catalog) {
+        this.id = catalog.getId();
         this.name = catalog.getName();
         this.parentId = catalog.getParentId();
         this.attributes = catalog.getAttributes();
