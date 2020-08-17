@@ -1,5 +1,6 @@
 package com.hw.aggregate.catalog;
 
+import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.catalog.command.CreateBizCatalogCommand;
 import com.hw.aggregate.catalog.command.UpdateBizCatalogCommand;
 import com.hw.shared.sql.PatchCommand;
@@ -41,13 +42,13 @@ public class BizCatalogController {
 
     @PostMapping("admin")
     public ResponseEntity<?> createForAdmin(@RequestBody CreateBizCatalogCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        return ResponseEntity.ok().header("Location", catalogAdminApplicationService.create(command,changeId).getId().toString()).build();
+        return ResponseEntity.ok().header("Location", catalogAdminApplicationService.create(command, changeId).getId().toString()).build();
     }
 
 
     @PutMapping("admin/{id}")
     public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody UpdateBizCatalogCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        catalogAdminApplicationService.replaceById(id, command,changeId);
+        catalogAdminApplicationService.replaceById(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
@@ -62,6 +63,13 @@ public class BizCatalogController {
         catalogAdminApplicationService.deleteById(id);
         return ResponseEntity.ok().build();
     }
+
+    @PatchMapping(path = "admin/{id}", consumes = "application/json-patch+json")
+    public ResponseEntity<?> patchForAdminById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        catalogAdminApplicationService.patchById(id, patch, changeId);
+        return ResponseEntity.ok().build();
+    }
+
     @PatchMapping("admin")
     public ResponseEntity<?> patchForAdminBatch(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         catalogAdminApplicationService.patchBatch(patch, changeId);

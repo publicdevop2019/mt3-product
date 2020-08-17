@@ -14,6 +14,7 @@ public
 class AdminProductCardRep {
     private Long id;
     private String name;
+    private String coverImage;
     private Integer totalSales;
     private List<BigDecimal> priceList;
     private Set<String> attributesKey;
@@ -28,6 +29,7 @@ class AdminProductCardRep {
         this.attributesKey = productDetail.getAttrKey();
         this.startAt = productDetail.getStartAt();
         this.endAt = productDetail.getEndAt();
+        this.coverImage = productDetail.getImageUrlSmall();
     }
 
 }
