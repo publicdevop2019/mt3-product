@@ -2,6 +2,7 @@ package com.hw.shared.sql.builder;
 
 import com.hw.shared.sql.clause.SelectFieldIdWhereClause;
 import com.hw.shared.sql.clause.WhereClause;
+import com.hw.shared.sql.exception.EmptyQueryValueException;
 import com.hw.shared.sql.exception.EmptyWhereClauseException;
 import com.hw.shared.sql.exception.MaxPageSizeExceedException;
 import com.hw.shared.sql.exception.UnsupportedQueryException;
@@ -55,6 +56,8 @@ public abstract class SelectQueryBuilder<T> {
                         Predicate whereClause = tWhereClause.getWhereClause(split[1], cb, root);
                         results.add(whereClause);
                     }
+                } else {
+                    throw new EmptyQueryValueException();
                 }
             }
         }
