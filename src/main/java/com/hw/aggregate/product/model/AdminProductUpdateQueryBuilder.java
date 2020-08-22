@@ -11,8 +11,8 @@ import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import java.math.BigInteger;
 
-import static com.hw.aggregate.product.model.Product.END_AT_LITERAL;
-import static com.hw.aggregate.product.model.Product.START_AT_LITERAL;
+import static com.hw.aggregate.product.model.Product.PRODUCT_END_AT_LITERAL;
+import static com.hw.aggregate.product.model.Product.PRODUCT_START_AT_LITERAL;
 import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_END_AT_LITERAL;
 import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_START_AT_LITERAL;
 
@@ -25,8 +25,8 @@ public class AdminProductUpdateQueryBuilder extends UpdateByIdQueryBuilder<Produ
 
     @PostConstruct
     private void setUp() {
-        filedMap.put(ADMIN_REP_START_AT_LITERAL, START_AT_LITERAL);
-        filedMap.put(ADMIN_REP_END_AT_LITERAL, END_AT_LITERAL);
+        filedMap.put(ADMIN_REP_START_AT_LITERAL, PRODUCT_START_AT_LITERAL);
+        filedMap.put(ADMIN_REP_END_AT_LITERAL, PRODUCT_END_AT_LITERAL);
         filedTypeMap.put(ADMIN_REP_START_AT_LITERAL, this::parseLong);
         filedTypeMap.put(ADMIN_REP_END_AT_LITERAL, this::parseLong);
     }

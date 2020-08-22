@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import static com.hw.aggregate.product.model.Product.*;
 
 public class SelectFieldAttrLikeClause<T> extends WhereClause<T> {
-    private final String[] attrs = {ATTR_KEY_LITERAL, ATTR_PROD_LITERAL, ATTR_GEN_LITERAL, ATTR_SALES_TOTAL_LITERAL};
+    private final String[] attrs = {PRODUCT_ATTR_KEY_LITERAL, PRODUCT_ATTR_PROD_LITERAL, PRODUCT_ATTR_GEN_LITERAL, PRODUCT_ATTR_SALES_TOTAL_LITERAL};
 
     private Predicate getOrExpression(String input, CriteriaBuilder cb, Root<T> root) {
         if (input.split("-").length != 2)

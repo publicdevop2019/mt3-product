@@ -28,7 +28,7 @@ public class BizCatalogController {
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        return ResponseEntity.ok(catalogPublicApplicationService.readByQuery(queryParam, pageParam, skipCount));
+        return ResponseEntity.ok(catalogPublicApplicationService.readByQuery(null, pageParam, skipCount));
     }
 
     @GetMapping("admin")

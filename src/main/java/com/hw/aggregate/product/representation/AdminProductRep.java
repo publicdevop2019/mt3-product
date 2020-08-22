@@ -46,6 +46,8 @@ public class AdminProductRep {
 
     private Integer totalSales;
     public transient static final String ADMIN_REP_SALES_LITERAL = "totalSales";
+    private BigDecimal lowestPrice;
+    public static final String ADMIN_REP_PRICE_LITERAL = "lowestPrice";
 
     public AdminProductRep(Product productDetail) {
         this.id = productDetail.getId();
@@ -62,6 +64,7 @@ public class AdminProductRep {
         this.attributesGen = productDetail.getAttrGen();
         this.skus = productDetail.getProductSkuList().stream().map(ProductSkuAdminRepresentation::new).collect(Collectors.toList());
         this.totalSales = productDetail.getTotalSales();
+        this.lowestPrice = productDetail.getLowestPrice();
         if (productDetail.getAttributeSaleImages() != null)
             this.attributeSaleImages = productDetail.getAttributeSaleImages().stream().map(ProductAttrSaleImagesAdminRepresentation::new).collect(Collectors.toList());
     }

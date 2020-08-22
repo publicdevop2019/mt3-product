@@ -36,44 +36,44 @@ public class Product extends Auditable implements IdBasedEntity {
     private String imageUrlSmall;
 
     private String name;
-    public transient static final String NAME_LITERAL = "name";
+    public transient static final String PRODUCT_NAME_LITERAL = "name";
 
     private String description;
 
     private Long endAt;
-    public transient static final String END_AT_LITERAL = "endAt";
+    public transient static final String PRODUCT_END_AT_LITERAL = "endAt";
 
     private Long startAt;
-    public transient static final String START_AT_LITERAL = "startAt";
+    public transient static final String PRODUCT_START_AT_LITERAL = "startAt";
 
     @Column(length = 10000)
     @Convert(converter = ProductOption.ProductOptionConverter.class)
     private List<ProductOption> selectedOptions;
-    public transient static final String SELECTED_OPTIONS_LITERAL = "selectedOptions";
+    public transient static final String PRODUCT_SELECTED_OPTIONS_LITERAL = "selectedOptions";
 
     @Convert(converter = StringSetConverter.class)
     private Set<String> imageUrlLarge;
-    public transient static final String IMAGE_URL_LARGE_LITERAL = "imageUrlLarge";
+    public transient static final String PRODUCT_IMAGE_URL_LARGE_LITERAL = "imageUrlLarge";
 
     @Convert(converter = StringSetConverter.class)
     private Set<String> specification;
-    public transient static final String SPEC_LITERAL = "specification";
+    public transient static final String PRODUCT_SPEC_LITERAL = "specification";
 
     @Convert(converter = StringSetConverter.class)
     private Set<String> attrKey;
-    public transient static final String ATTR_KEY_LITERAL = "attrKey";
+    public transient static final String PRODUCT_ATTR_KEY_LITERAL = "attrKey";
 
     @Convert(converter = StringSetConverter.class)
     private Set<String> attrProd;
-    public transient static final String ATTR_PROD_LITERAL = "attrProd";
+    public transient static final String PRODUCT_ATTR_PROD_LITERAL = "attrProd";
 
     @Convert(converter = StringSetConverter.class)
     private Set<String> attrGen;
-    public transient static final String ATTR_GEN_LITERAL = "attrGen";
+    public transient static final String PRODUCT_ATTR_GEN_LITERAL = "attrGen";
 
     @Convert(converter = StringSetConverter.class)
     private Set<String> attrSalesTotal;
-    public transient static final String ATTR_SALES_TOTAL_LITERAL = "attrSalesTotal";
+    public transient static final String PRODUCT_ATTR_SALES_TOTAL_LITERAL = "attrSalesTotal";
 
     @OneToMany(targetEntity = ProductSku.class, mappedBy = "productId", cascade = {CascadeType.ALL})
     private List<ProductSku> productSkuList;
@@ -82,11 +82,11 @@ public class Product extends Auditable implements IdBasedEntity {
     private ArrayList<ProductAttrSaleImages> attributeSaleImages;
 
     private BigDecimal lowestPrice;
-    public transient static final String LOWEST_PRICE_LITERAL = "lowestPrice";
+    public transient static final String PRODUCT_LOWEST_PRICE_LITERAL = "lowestPrice";
 
     @Column(updatable = false)
     private Integer totalSales;
-    public transient static final String TOTAL_SALES_LITERAL = "totalSales";
+    public transient static final String PRODUCT_TOTAL_SALES_LITERAL = "totalSales";
 
     public static Product create(Long id, AdminCreateProductCommand command) {
         return new Product(id, command);

@@ -16,7 +16,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hw.aggregate.product.model.Product.TOTAL_SALES_LITERAL;
+import static com.hw.aggregate.product.model.Product.PRODUCT_TOTAL_SALES_LITERAL;
 import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SALES_LITERAL;
 import static com.hw.shared.AppConstant.*;
 
@@ -34,7 +34,7 @@ public class AppProductUpdateQueryBuilder extends UpdateQueryBuilder<Product> {
     @Override
     protected void setUpdateValue(Root<Product> root, CriteriaUpdate<Product> criteriaUpdate, PatchCommand e) {
         ArrayList<Boolean> booleans = new ArrayList<>();
-        booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_SALES_LITERAL, TOTAL_SALES_LITERAL, root, criteriaUpdate, e));
+        booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_SALES_LITERAL, PRODUCT_TOTAL_SALES_LITERAL, root, criteriaUpdate, e));
         Boolean hasFieldChange = booleans.stream().reduce(false, (a, b) -> a || b);
         if (!hasFieldChange) {
             throw new NoUpdatableFieldException();
@@ -97,7 +97,7 @@ public class AppProductUpdateQueryBuilder extends UpdateQueryBuilder<Product> {
     }
 
     private Predicate getStorageMustNotNegativeClause(CriteriaBuilder cb, Root<Product> root, PatchCommand command) {
-        String filedLiteral = TOTAL_SALES_LITERAL;
+        String filedLiteral = PRODUCT_TOTAL_SALES_LITERAL;
         Expression<Integer> diff = cb.diff(root.get(filedLiteral), parseInteger(command.getValue()));
         return cb.greaterThanOrEqualTo(diff, 0);
     }

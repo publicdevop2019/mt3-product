@@ -9,11 +9,13 @@ import java.math.BigDecimal;
 public class PublicProductCardRep {
     private Long id;
     private String name;
+    public static final String PUBLIC_REP_NAME_LITERAL = "name";
     private String imageUrlSmall;
     private String description;
     private BigDecimal lowestPrice;
     public static final String PUBLIC_REP_PRICE_LITERAL = "lowestPrice";
     private Integer totalSales;
+    public static final String PUBLIC_REP_TOTAL_SALES_LITERAL = "totalSales";
 
     public PublicProductCardRep(Product productDetail) {
         this.id = productDetail.getId();
