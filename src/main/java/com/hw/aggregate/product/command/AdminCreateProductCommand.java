@@ -35,7 +35,6 @@ public class AdminCreateProductCommand {
 
     @Data
     public static class CreateProductSkuAdminCommand {
-        @JsonDeserialize(as= LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
         private Set<String> attributesSales;
         private Integer storageOrder;
         private Integer storageActual;

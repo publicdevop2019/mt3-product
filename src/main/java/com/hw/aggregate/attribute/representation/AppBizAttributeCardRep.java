@@ -10,5 +10,6 @@ public class AppBizAttributeCardRep {
 
     public AppBizAttributeCardRep(BizAttribute attribute) {
         this.id = attribute.getId();
+        this.name = attribute.getName();
     }
 }

@@ -30,7 +30,7 @@ public class PublicProductRep {
     private List<ProductOption> selectedOptions;
     private Map<String, String> attrIdMap;
 
-    public PublicProductRep(Product productDetail, AppBizAttributeApplicationService bizAttributeApplicationService) {
+    public PublicProductRep(Product productDetail, AppBizAttributeApplicationService appBizAttributeApplicationService) {
         this.id = productDetail.getId();
         this.name = productDetail.getName();
         this.imageUrlSmall = productDetail.getImageUrlSmall();
@@ -41,13 +41,13 @@ public class PublicProductRep {
         this.totalSales = calcTotalSales(productDetail);
         this.skus = getCustomerSku(productDetail);
         this.attrIdMap = new HashMap<>();
-        this.skus.stream().map(ProductSkuCustomerRepresentation::getAttributeSales).flatMap(Collection::stream).collect(Collectors.toList())
+        this.skus.stream().map(ProductSkuCustomerRepresentation::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toList())
                 .stream().map(e -> e.split(":")[0]).forEach(el -> attrIdMap.put(el, null));
         String search = "id:" + String.join(".", this.attrIdMap.keySet());
         SumPagedRep<AppBizAttributeCardRep> bizAttributeSummaryRepresentation;
         if (this.attrIdMap.keySet().size() > 0) {
             String page = "size:" + this.attrIdMap.keySet().size();
-            bizAttributeSummaryRepresentation = bizAttributeApplicationService.readByQuery(search, page, "0");
+            bizAttributeSummaryRepresentation = appBizAttributeApplicationService.readByQuery(search, page, "0");
             this.attrIdMap.keySet().forEach(e -> {
                 attrIdMap.put(e, findName(e, bizAttributeSummaryRepresentation));
             });
@@ -59,12 +59,12 @@ public class PublicProductRep {
 
     @Data
     public static class ProductSkuCustomerRepresentation {
-        private Set<String> attributeSales;
+        private Set<String> attributesSales;
         private Integer storage;
         private BigDecimal price;
 
         public ProductSkuCustomerRepresentation(ProductSku productSku) {
-            this.attributeSales = productSku.getAttributesSales();
+            this.attributesSales = productSku.getAttributesSales();
             this.storage = productSku.getStorageOrder();
             this.price = productSku.getPrice();
         }

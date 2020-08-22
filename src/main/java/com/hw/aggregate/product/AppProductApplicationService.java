@@ -57,6 +57,7 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
         restfulEntityManager = productDetailManager;
         entityClass = Product.class;
         role = RestfulEntityManager.RoleEnum.APP;
+        om = om2;
         changeRepository = changeHistoryRepository;
     }
 

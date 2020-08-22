@@ -36,7 +36,6 @@ public class AdminUpdateProductCommand {
         private Integer decreaseOrderStorage;
         private Integer increaseActualStorage;
         private Integer increaseOrderStorage;
-        @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
         private Set<String> attributesSales;
         private BigDecimal price;
         private Integer storageOrder;//for new sku

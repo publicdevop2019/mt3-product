@@ -1,7 +1,6 @@
 package com.hw.aggregate.product.model;
 
 
-import com.hw.aggregate.product.exception.AttrSalesParseException;
 import com.hw.shared.rest.exception.NoUpdatableFieldException;
 import com.hw.shared.rest.exception.UnsupportedPatchOperationException;
 import com.hw.shared.rest.exception.UpdateFiledValueException;
@@ -15,10 +14,15 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.*;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.hw.aggregate.product.model.ProductSku.*;
-import static com.hw.aggregate.product.representation.AdminProductRep.*;
+import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SALES_LITERAL;
+import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SKU_LITERAL;
 import static com.hw.aggregate.product.representation.AdminProductRep.ProductSkuAdminRepresentation.*;
 import static com.hw.shared.AppConstant.*;
 
@@ -66,7 +70,7 @@ public class AppProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<ProductS
     }
 
     /**
-     * @param command [{"op":"add","path":"/skus?query=attributeSales:835604723556352-淡粉色,835604663263232-185~/100A~/XXL/storageActual","value":"1"}]
+     * @param command [{"op":"add","path":"/837195323695104/skus?query=attributesSales:835604723556352-淡粉色,835604663263232-185~/100A~/XXL/storageActual","value":"1"}]
      * @return 835604723556352:淡粉色,835604663263232:185/100A/XXL
      */
     private String parseAttrSales(PatchCommand command) {
@@ -74,8 +78,13 @@ public class AppProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<ProductS
         String replace1 = replace.replace("~/", "$");
         String[] split = replace1.split("/");
         if (split.length != 2)
-            throw new AttrSalesParseException();
-        return split[0].replace("-", ":").replace("$", "/");
+            throw new NoUpdatableFieldException();
+        String $ = split[0].replace("-", ":").replace("$", "/");
+        return Arrays.stream($.split(",")).sorted((a, b) -> {
+            long l = Long.parseLong(a.split(":")[0]);
+            long l1 = Long.parseLong(b.split(":")[0]);
+            return Long.compare(l, l1);
+        }).collect(Collectors.joining(","));
     }
 
     private Boolean setUpdateStorageValueFor(String fieldPath, String filedLiteral, Root<ProductSku> root, CriteriaUpdate<ProductSku> criteriaUpdate, PatchCommand e) {
