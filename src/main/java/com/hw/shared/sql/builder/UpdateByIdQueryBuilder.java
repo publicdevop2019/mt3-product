@@ -4,7 +4,6 @@ package com.hw.shared.sql.builder;
 import com.hw.shared.rest.exception.NoUpdatableFieldException;
 import com.hw.shared.rest.exception.UnsupportedPatchOperationException;
 import com.hw.shared.sql.PatchCommand;
-import com.hw.shared.sql.builder.UpdateQueryBuilder;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.criteria.CriteriaBuilder;

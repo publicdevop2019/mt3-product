@@ -2,10 +2,10 @@ package com.hw.shared;
 
 import com.hw.aggregate.product.exception.HangingTransactionException;
 import com.hw.aggregate.product.exception.RollbackNotSupportedException;
+import com.hw.shared.rest.exception.EntityNotExistException;
 import com.hw.shared.rest.exception.EntityPatchException;
 import com.hw.shared.rest.exception.UnsupportedPatchOperationException;
 import com.hw.shared.rest.exception.UpdateFiledValueException;
-import com.hw.shared.rest.exception.EntityNotExistException;
 import com.hw.shared.sql.exception.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
