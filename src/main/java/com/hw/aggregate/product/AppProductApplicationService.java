@@ -1,8 +1,6 @@
 package com.hw.aggregate.product;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hw.aggregate.product.exception.HangingTransactionException;
-import com.hw.aggregate.product.exception.RollbackNotSupportedException;
 import com.hw.aggregate.product.model.Product;
 import com.hw.aggregate.product.model.ProductQueryRegistry;
 import com.hw.aggregate.product.model.ProductSku;
@@ -13,8 +11,10 @@ import com.hw.shared.idempotent.ChangeRecord;
 import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
+import com.hw.shared.rest.exception.HangingTransactionException;
+import com.hw.shared.rest.exception.RollbackNotSupportedException;
 import com.hw.shared.sql.PatchCommand;
-import com.hw.shared.sql.RestfulEntityManager;
+import com.hw.shared.sql.RestfulQueryRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,9 +54,9 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
     private void setUp() {
         repo = repo2;
         idGenerator = idGenerator2;
-        restfulEntityManager = productDetailManager;
+        queryRegistry = productDetailManager;
         entityClass = Product.class;
-        role = RestfulEntityManager.RoleEnum.APP;
+        role = RestfulQueryRegistry.RoleEnum.APP;
         om = om2;
         changeRepository = changeHistoryRepository;
     }
@@ -91,8 +91,8 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
         List<PatchCommand> deepCopy = getDeepCopy(commands);
         List<PatchCommand> hasNestedEntity = deepCopy.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         List<PatchCommand> noNestedEntity = deepCopy.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
-        Integer update = productDetailManager.update(RestfulEntityManager.RoleEnum.APP, noNestedEntity, Product.class);
-        Integer update1 = productSkuManager.update(RestfulEntityManager.RoleEnum.APP, hasNestedEntity, ProductSku.class);
+        Integer update = productDetailManager.update(role, noNestedEntity, Product.class);
+        Integer update1 = productSkuManager.update(role, hasNestedEntity, ProductSku.class);
         return update.longValue();
     }
 

@@ -4,14 +4,13 @@ import com.hw.aggregate.filter.command.CreateBizFilterCommand;
 import com.hw.aggregate.filter.command.UpdateBizFilterCommand;
 import com.hw.aggregate.filter.model.BizFilter;
 import com.hw.aggregate.filter.model.BizFilterQueryRegistry;
-import com.hw.aggregate.filter.representation.AdminBizFilterRep;
 import com.hw.aggregate.filter.representation.AdminBizFilterCardRep;
+import com.hw.aggregate.filter.representation.AdminBizFilterRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.ChangeRepository;
-import com.hw.shared.rest.CreatedEntityRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
-import com.hw.shared.sql.RestfulEntityManager;
+import com.hw.shared.sql.RestfulQueryRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,13 +28,14 @@ public class AdminBizFilterApplicationService extends DefaultRoleBasedRestfulSer
     private BizFilterQueryRegistry bizFilterManager2;
     @Autowired
     private ChangeRepository changeHistoryRepository;
+
     @PostConstruct
     private void setUp() {
         repo = repo2;
         idGenerator = idGenerator2;
-        restfulEntityManager = bizFilterManager2;
+        queryRegistry = bizFilterManager2;
         entityClass = BizFilter.class;
-        role = RestfulEntityManager.RoleEnum.ADMIN;
+        role = RestfulQueryRegistry.RoleEnum.ADMIN;
         changeRepository = changeHistoryRepository;
     }
 

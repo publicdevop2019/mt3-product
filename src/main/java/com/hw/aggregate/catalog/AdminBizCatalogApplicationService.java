@@ -10,10 +10,8 @@ import com.hw.aggregate.catalog.representation.AdminBizCatalogCardRep;
 import com.hw.aggregate.catalog.representation.AdminBizCatalogRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.ChangeRepository;
-import com.hw.shared.rest.CreatedEntityRep;
-import com.hw.shared.rest.CreatedRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
-import com.hw.shared.sql.RestfulEntityManager;
+import com.hw.shared.sql.RestfulQueryRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,18 +29,19 @@ public class AdminBizCatalogApplicationService extends DefaultRoleBasedRestfulSe
     private IdGenerator idGenerator2;
 
     @Autowired
-    private BizCatalogQueryRegistry catalogManager2;
+    private BizCatalogQueryRegistry registry;
     @Autowired
     private ObjectMapper om2;
     @Autowired
     private ChangeRepository changeHistoryRepository;
+
     @PostConstruct
     private void setUp() {
         repo = repo2;
         idGenerator = idGenerator2;
-        restfulEntityManager = catalogManager2;
+        queryRegistry = registry;
         entityClass = BizCatalog.class;
-        role = RestfulEntityManager.RoleEnum.ADMIN;
+        role = RestfulQueryRegistry.RoleEnum.ADMIN;
         entityPatchSupplier = AdminBizCatalogPatchMiddleLayer::new;
         om = om2;
         changeRepository = changeHistoryRepository;

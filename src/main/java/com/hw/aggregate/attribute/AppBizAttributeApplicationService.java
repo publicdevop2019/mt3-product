@@ -3,12 +3,11 @@ package com.hw.aggregate.attribute;
 import com.hw.aggregate.attribute.model.BizAttribute;
 import com.hw.aggregate.attribute.model.BizAttributeQueryRegistry;
 import com.hw.aggregate.attribute.representation.AppBizAttributeCardRep;
-import com.hw.shared.idempotent.ChangeRepository;
-import com.hw.shared.rest.CreatedRep;
-import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.idempotent.ChangeRepository;
+import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
-import com.hw.shared.sql.RestfulEntityManager;
+import com.hw.shared.sql.RestfulQueryRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,13 +23,14 @@ public class AppBizAttributeApplicationService extends DefaultRoleBasedRestfulSe
     private BizAttributeQueryRegistry bizAttributeManager2;
     @Autowired
     private ChangeRepository changeHistoryRepository;
+
     @PostConstruct
     private void setUp() {
         repo = repo2;
         idGenerator = idGenerator2;
-        restfulEntityManager = bizAttributeManager2;
+        queryRegistry = bizAttributeManager2;
         entityClass = BizAttribute.class;
-        role = RestfulEntityManager.RoleEnum.APP;
+        role = RestfulQueryRegistry.RoleEnum.APP;
         changeRepository = changeHistoryRepository;
     }
 

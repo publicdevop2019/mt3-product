@@ -13,7 +13,7 @@ import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.exception.EntityNotExistException;
 import com.hw.shared.rest.exception.EntityPatchException;
 import com.hw.shared.sql.PatchCommand;
-import com.hw.shared.sql.RestfulEntityManager;
+import com.hw.shared.sql.RestfulQueryRegistry;
 import com.hw.shared.sql.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -31,13 +31,13 @@ public abstract class DefaultRoleBasedRestfulService<T extends IdBasedEntity, X,
 
     protected JpaRepository<T, Long> repo;
     protected IdGenerator idGenerator;
-    protected RestfulEntityManager<T> restfulEntityManager;
+    protected RestfulQueryRegistry<T> queryRegistry;
 
     protected Class<T> entityClass;
 
     protected Function<T, Z> entityPatchSupplier;
 
-    protected RestfulEntityManager.RoleEnum role;
+    protected RestfulQueryRegistry.RoleEnum role;
     protected ObjectMapper om;
     protected ChangeRepository changeRepository;
 
@@ -80,22 +80,22 @@ public abstract class DefaultRoleBasedRestfulService<T extends IdBasedEntity, X,
     public Integer patchBatch(List<PatchCommand> commands, String changeId) {
         saveChangeRecord(commands, changeId);
         List<PatchCommand> deepCopy = getDeepCopy(commands);
-        return restfulEntityManager.update(role, deepCopy, entityClass);
+        return queryRegistry.update(role, deepCopy, entityClass);
     }
 
     @Transactional
     public Integer deleteById(Long id) {
-        return restfulEntityManager.deleteById(role, id.toString(), entityClass);
+        return queryRegistry.deleteById(role, id.toString(), entityClass);
     }
 
     @Transactional
     public Integer deleteByQuery(String query) {
-        return restfulEntityManager.deleteByQuery(role, query, entityClass);
+        return queryRegistry.deleteByQuery(role, query, entityClass);
     }
 
     @Transactional(readOnly = true)
     public SumPagedRep<X> readByQuery(String query, String page, String config) {
-        SumPagedRep<T> tSumPagedRep = restfulEntityManager.readByQuery(role, query, page, config, entityClass);
+        SumPagedRep<T> tSumPagedRep = queryRegistry.readByQuery(role, query, page, config, entityClass);
         List<X> col = tSumPagedRep.getData().stream().map(this::getEntitySumRepresentation).collect(Collectors.toList());
         return new SumPagedRep<>(col, tSumPagedRep.getTotalItemCount());
     }
@@ -108,7 +108,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends IdBasedEntity, X,
     }
 
     private SumPagedRep<T> getEntityById(Long id) {
-        SumPagedRep<T> tSumPagedRep = restfulEntityManager.readById(role, id.toString(), entityClass);
+        SumPagedRep<T> tSumPagedRep = queryRegistry.readById(role, id.toString(), entityClass);
         if (tSumPagedRep.getData().size() == 0)
             throw new EntityNotExistException();
         return tSumPagedRep;

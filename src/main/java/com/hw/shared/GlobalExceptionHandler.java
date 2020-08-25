@@ -1,7 +1,7 @@
 package com.hw.shared;
 
-import com.hw.aggregate.product.exception.HangingTransactionException;
-import com.hw.aggregate.product.exception.RollbackNotSupportedException;
+import com.hw.shared.idempotent.exception.HangingTransactionException;
+import com.hw.shared.idempotent.exception.RollbackNotSupportedException;
 import com.hw.shared.rest.exception.EntityNotExistException;
 import com.hw.shared.rest.exception.EntityPatchException;
 import com.hw.shared.rest.exception.UnsupportedPatchOperationException;

@@ -5,10 +5,9 @@ import com.hw.aggregate.filter.model.BizFilterQueryRegistry;
 import com.hw.aggregate.filter.representation.PublicBizFilterCardRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.ChangeRepository;
-import com.hw.shared.rest.CreatedRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
-import com.hw.shared.sql.RestfulEntityManager;
+import com.hw.shared.sql.RestfulQueryRegistry;
 import com.hw.shared.sql.SumPagedRep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,20 +29,21 @@ public class PublicBizFilterApplicationService extends DefaultRoleBasedRestfulSe
     private BizFilterQueryRegistry bizFilterManager2;
     @Autowired
     private ChangeRepository changeHistoryRepository;
+
     @PostConstruct
     private void setUp() {
         repo = repo2;
         idGenerator = idGenerator2;
-        restfulEntityManager = bizFilterManager2;
+        queryRegistry = bizFilterManager2;
         entityClass = BizFilter.class;
-        role = RestfulEntityManager.RoleEnum.PUBLIC;
+        role = RestfulQueryRegistry.RoleEnum.PUBLIC;
         changeRepository = changeHistoryRepository;
     }
 
     @Transactional(readOnly = true)
     @Override
     public SumPagedRep<PublicBizFilterCardRep> readByQuery(String query, String page, String config) {
-        SumPagedRep<BizFilter> select1 = restfulEntityManager.readByQuery(role, query, page, config, entityClass);
+        SumPagedRep<BizFilter> select1 = queryRegistry.readByQuery(role, query, page, config, entityClass);
         List<BizFilter> data = select1.getData();
         List<PublicBizFilterCardRep> collect = null;
         if (data.size() != 0) {

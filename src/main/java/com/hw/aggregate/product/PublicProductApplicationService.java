@@ -7,10 +7,9 @@ import com.hw.aggregate.product.representation.PublicProductCardRep;
 import com.hw.aggregate.product.representation.PublicProductRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.ChangeRepository;
-import com.hw.shared.rest.CreatedRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
-import com.hw.shared.sql.RestfulEntityManager;
+import com.hw.shared.sql.RestfulQueryRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,9 +38,9 @@ public class PublicProductApplicationService extends DefaultRoleBasedRestfulServ
     private void setUp() {
         repo = repo2;
         idGenerator = idGenerator2;
-        restfulEntityManager = productDetailManager;
+        queryRegistry = productDetailManager;
         entityClass = Product.class;
-        role = RestfulEntityManager.RoleEnum.PUBLIC;
+        role = RestfulQueryRegistry.RoleEnum.PUBLIC;
         changeRepository = changeHistoryRepository;
     }
 

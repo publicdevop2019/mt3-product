@@ -9,11 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class RestfulEntityManager<T> {
+public abstract class RestfulQueryRegistry<T> {
     public enum RoleEnum {
         ROOT,
         ADMIN,
-        CUSTOMER,
+        USER,
         APP,
         PUBLIC
     }
