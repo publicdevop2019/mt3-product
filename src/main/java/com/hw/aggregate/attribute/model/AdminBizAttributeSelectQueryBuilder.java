@@ -19,7 +19,7 @@ public class AdminBizAttributeSelectQueryBuilder extends SelectQueryBuilder<BizA
 
     AdminBizAttributeSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 200;
-        MAX_PAGE_SIZE = 200;
+        MAX_PAGE_SIZE = 1000;
         mappedSortBy.put("name", NAME_LITERAL);
         mappedSortBy.put("type", TYPE_LITERAL);
         allowEmptyClause=true;
