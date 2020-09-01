@@ -1,6 +1,7 @@
 package com.hw.aggregate.filter.model;
 
 import com.hw.shared.sql.builder.SelectQueryBuilder;
+import com.hw.shared.sql.clause.SelectFieldCollectionContainsClause;
 import com.hw.shared.sql.clause.SelectFieldStringEqualClause;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,7 @@ public class AdminBizFilterSelectQueryBuilder extends SelectQueryBuilder<BizFilt
     AdminBizFilterSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 40;
         MAX_PAGE_SIZE = 400;
-        supportedWhereField.put("catalog", new SelectFieldStringEqualClause<>(ENTITY_CATALOG_LITERAL));
+        supportedWhereField.put(ENTITY_CATALOG_LITERAL, new SelectFieldCollectionContainsClause<>(ENTITY_CATALOG_LITERAL));
         allowEmptyClause=true;
     }
 

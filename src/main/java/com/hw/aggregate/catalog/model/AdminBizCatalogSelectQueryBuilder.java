@@ -2,13 +2,13 @@ package com.hw.aggregate.catalog.model;
 
 import com.hw.shared.sql.builder.SelectQueryBuilder;
 import com.hw.shared.sql.clause.SelectFieldEnumStringEqualClause;
+import com.hw.shared.sql.clause.SelectFieldLongEqualClause;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 
-import static com.hw.aggregate.catalog.model.BizCatalog.NAME_LITERAL;
-import static com.hw.aggregate.catalog.model.BizCatalog.TYPE_LITERAL;
+import static com.hw.aggregate.catalog.model.BizCatalog.*;
 
 
 @Component
@@ -21,8 +21,9 @@ public class AdminBizCatalogSelectQueryBuilder extends SelectQueryBuilder<BizCat
     AdminBizCatalogSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 1000;
         MAX_PAGE_SIZE = 2000;
-        mappedSortBy.put("name", NAME_LITERAL);
-        supportedWhereField.put("type", new SelectFieldEnumStringEqualClause<>(TYPE_LITERAL));
-        allowEmptyClause=true;
+        mappedSortBy.put(NAME_LITERAL, NAME_LITERAL);
+        supportedWhereField.put(TYPE_LITERAL, new SelectFieldEnumStringEqualClause<>(TYPE_LITERAL));
+        supportedWhereField.put(PARENT_ID_LITERAL, new SelectFieldLongEqualClause<>(PARENT_ID_LITERAL));
+        allowEmptyClause = true;
     }
 }
