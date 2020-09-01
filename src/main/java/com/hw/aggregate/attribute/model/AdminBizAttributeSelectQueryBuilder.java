@@ -1,7 +1,8 @@
 package com.hw.aggregate.attribute.model;
 
 import com.hw.shared.sql.builder.SelectQueryBuilder;
-import com.hw.shared.sql.clause.SelectFieldCollectionContainsClause;
+import com.hw.shared.sql.clause.SelectFieldStringEqualClause;
+import com.hw.shared.sql.clause.SelectFieldStringLikeClause;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,9 +24,9 @@ public class AdminBizAttributeSelectQueryBuilder extends SelectQueryBuilder<BizA
         MAX_PAGE_SIZE = 1000;
         mappedSortBy.put(NAME_LITERAL, NAME_LITERAL);
         mappedSortBy.put(TYPE_LITERAL, TYPE_LITERAL);
-        supportedWhereField.put(NAME_LITERAL,new SelectFieldCollectionContainsClause<>(NAME_LITERAL));
-        supportedWhereField.put(TYPE_LITERAL,new SelectFieldCollectionContainsClause<>(TYPE_LITERAL));
-        allowEmptyClause=true;
+        supportedWhereField.put(NAME_LITERAL, new SelectFieldStringLikeClause<>(NAME_LITERAL));
+        supportedWhereField.put(TYPE_LITERAL, new SelectFieldStringEqualClause<>(TYPE_LITERAL));
+        allowEmptyClause = true;
     }
 
 }
