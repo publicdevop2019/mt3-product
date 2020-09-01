@@ -1,5 +1,6 @@
 package com.hw.aggregate.filter;
 
+import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.filter.command.CreateBizFilterCommand;
 import com.hw.aggregate.filter.command.UpdateBizFilterCommand;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,13 +41,13 @@ public class BizFilterController {
 
     @PostMapping("admin")
     public ResponseEntity<?> createForAdmin(@RequestBody CreateBizFilterCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        return ResponseEntity.ok().header("Location", bizFilterApplicationService.create(command,changeId).getId().toString()).build();
+        return ResponseEntity.ok().header("Location", bizFilterApplicationService.create(command, changeId).getId().toString()).build();
     }
 
 
     @PutMapping("admin/{id}")
     public ResponseEntity<?> replaceForAdmin(@PathVariable(name = "id") Long id, @RequestBody UpdateBizFilterCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        bizFilterApplicationService.replaceById(id, command,changeId);
+        bizFilterApplicationService.replaceById(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
@@ -54,6 +55,18 @@ public class BizFilterController {
     @DeleteMapping("admin/{id}")
     public ResponseEntity<?> deleteForAdminById(@PathVariable(name = "id") Long id) {
         bizFilterApplicationService.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("admin")
+    public ResponseEntity<?> deleteForAdminByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam) {
+        bizFilterApplicationService.deleteByQuery(queryParam);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping(path = "admin/{id}", consumes = "application/json-patch+json")
+    public ResponseEntity<?> patchForAdminById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        bizFilterApplicationService.patchById(id, patch, changeId);
         return ResponseEntity.ok().build();
     }
 }

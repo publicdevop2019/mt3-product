@@ -12,10 +12,10 @@ public class BizFilterQueryRegistry extends RestfulQueryRegistry<BizFilter> {
     private PublicFilterSelectQueryBuilder publicFilterSelectQueryBuilder;
 
     @Autowired
-    private AdminFilterDeleteQueryBuilder adminFilterDeleteQueryBuilder;
+    private AdminBizFilterDeleteQueryBuilder adminFilterDeleteQueryBuilder;
 
     @Autowired
-    private AdminFilterSelectQueryBuilder adminFilterSelectQueryBuilder;
+    private AdminBizFilterSelectQueryBuilder adminFilterSelectQueryBuilder;
 
     @PostConstruct
     @Override

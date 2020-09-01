@@ -1,7 +1,9 @@
 package com.hw.aggregate.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.aggregate.filter.command.CreateBizFilterCommand;
 import com.hw.aggregate.filter.command.UpdateBizFilterCommand;
+import com.hw.aggregate.filter.model.AdminBizFilterPatchMiddleLayer;
 import com.hw.aggregate.filter.model.BizFilter;
 import com.hw.aggregate.filter.model.BizFilterQueryRegistry;
 import com.hw.aggregate.filter.representation.AdminBizFilterCardRep;
@@ -17,7 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 
 @Service
-public class AdminBizFilterApplicationService extends DefaultRoleBasedRestfulService<BizFilter, AdminBizFilterCardRep, AdminBizFilterRep, VoidTypedClass> {
+public class AdminBizFilterApplicationService extends DefaultRoleBasedRestfulService<BizFilter, AdminBizFilterCardRep, AdminBizFilterRep, AdminBizFilterPatchMiddleLayer> {
     @Autowired
     private BizFilterRepository repo2;
 
@@ -28,7 +30,8 @@ public class AdminBizFilterApplicationService extends DefaultRoleBasedRestfulSer
     private BizFilterQueryRegistry bizFilterManager2;
     @Autowired
     private ChangeRepository changeHistoryRepository;
-
+    @Autowired
+    private ObjectMapper om2;
     @PostConstruct
     private void setUp() {
         repo = repo2;
@@ -37,6 +40,8 @@ public class AdminBizFilterApplicationService extends DefaultRoleBasedRestfulSer
         entityClass = BizFilter.class;
         role = RestfulQueryRegistry.RoleEnum.ADMIN;
         changeRepository = changeHistoryRepository;
+        entityPatchSupplier= AdminBizFilterPatchMiddleLayer::new;
+        om=om2;
     }
 
     @Override

@@ -9,9 +9,11 @@ import java.util.Set;
 public class AdminBizFilterCardRep {
     private Long id;
     private Set<String> catalogs;
+    private String description;
 
     public AdminBizFilterCardRep(BizFilter e) {
         id = e.getId();
-        catalogs = e.getLinkedCatalog();
+        catalogs = e.getCatalogs();
+        description=e.getDescription();
     }
 }

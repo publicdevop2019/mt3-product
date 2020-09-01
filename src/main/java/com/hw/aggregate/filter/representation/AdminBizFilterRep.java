@@ -12,11 +12,12 @@ public class AdminBizFilterRep {
     private Long id;
     private Set<String> catalogs;
     private List<BizFilterItemAdminRepresentation> filters;
-
+    private String description;
     public AdminBizFilterRep(BizFilter read) {
         this.id = read.getId();
-        this.catalogs = read.getLinkedCatalog();
+        this.catalogs = read.getCatalogs();
         this.filters = read.getFilterItems().stream().map(BizFilterItemAdminRepresentation::new).collect(Collectors.toList());
+        this.description=read.getDescription();
     }
 
     @Data

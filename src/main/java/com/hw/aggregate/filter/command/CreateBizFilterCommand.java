@@ -12,6 +12,7 @@ public class CreateBizFilterCommand {
     private List<BizFilterItemCommand> filters;
     @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
     private Set<String> catalogs;
+    private String description;
 
     @Data
     public static class BizFilterItemCommand {
