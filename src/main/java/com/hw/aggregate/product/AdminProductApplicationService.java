@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SKU_LITERAL;
-import static com.hw.config.AppConstant.REVOKE;
+import static com.hw.shared.AppConstant.CHANGE_REVOKED;
 
 @Slf4j
 @Service
@@ -68,10 +68,10 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
     @Override
     @Transactional
     public Integer patchBatch(List<PatchCommand> commands, String changeId) {
-        if (changeHistoryRepository.findByChangeId(changeId + REVOKE).isPresent()) {
+        if (changeHistoryRepository.findByChangeIdAndEntityType(changeId + CHANGE_REVOKED, entityClass.getName()).isPresent()) {
             throw new HangingTransactionException();
         }
-        saveChangeRecord(commands, changeId);
+        saveChangeRecord(commands, changeId, null);
         List<PatchCommand> deepCopy = getDeepCopy(commands);
         List<PatchCommand> hasNestedEntity = deepCopy.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         List<PatchCommand> noNestedEntity = deepCopy.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
@@ -81,7 +81,7 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
 
     @Override
     @Transactional
-    public Integer deleteByQuery(String query) {
+    public Integer deleteByQuery(String query, String changeId) {
         //delete sku first
         productSkuManager.deleteByQuery(role, query, ProductSku.class);
         return productDetailManager.deleteByQuery(role, query, Product.class);
@@ -89,7 +89,7 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
 
     @Override
     @Transactional
-    public Integer deleteById(Long id) {
+    public Integer deleteById(Long id, String changeId) {
         productSkuManager.deleteById(role, id.toString(), ProductSku.class);
         return productDetailManager.deleteById(role, id.toString(), Product.class);
     }

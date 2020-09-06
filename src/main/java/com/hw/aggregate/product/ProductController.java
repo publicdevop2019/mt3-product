@@ -56,13 +56,13 @@ public class ProductController {
 
     @PostMapping("admin")
     public ResponseEntity<?> createForAdmin(@RequestBody AdminCreateProductCommand productDetail, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        return ResponseEntity.ok().header("Location", adminProductApplicationService.create(productDetail,changeId).getId().toString()).build();
+        return ResponseEntity.ok().header("Location", adminProductApplicationService.create(productDetail, changeId).getId().toString()).build();
     }
 
 
     @PutMapping("admin/{id}")
     public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody AdminUpdateProductCommand newProductDetail, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        adminProductApplicationService.replaceById(id, newProductDetail,changeId);
+        adminProductApplicationService.replaceById(id, newProductDetail, changeId);
         return ResponseEntity.ok().build();
     }
 
@@ -70,7 +70,7 @@ public class ProductController {
     public ResponseEntity<?> patchForAdminById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(HTTP_HEADER_CHANGE_ID, changeId);
-        adminProductApplicationService.patchById(id, patch,params);
+        adminProductApplicationService.patchById(id, patch, params);
         return ResponseEntity.ok().build();
     }
 
@@ -81,14 +81,14 @@ public class ProductController {
     }
 
     @DeleteMapping("admin/{id}")
-    public ResponseEntity<?> deleteForAdminById(@PathVariable(name = "id") Long id) {
-        adminProductApplicationService.deleteById(id);
+    public ResponseEntity<?> deleteForAdminById(@PathVariable(name = "id") Long id, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        adminProductApplicationService.deleteById(id, changeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("admin")
-    public ResponseEntity<?> deleteForAdminByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam) {
-        adminProductApplicationService.deleteByQuery(queryParam);
+    public ResponseEntity<?> deleteForAdminByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        adminProductApplicationService.deleteByQuery(queryParam, changeId);
         return ResponseEntity.ok().build();
     }
 

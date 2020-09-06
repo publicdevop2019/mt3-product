@@ -55,14 +55,14 @@ public class BizFilterController {
 
 
     @DeleteMapping("admin/{id}")
-    public ResponseEntity<?> deleteForAdminById(@PathVariable(name = "id") Long id) {
-        bizFilterApplicationService.deleteById(id);
+    public ResponseEntity<?> deleteForAdminById(@PathVariable(name = "id") Long id, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        bizFilterApplicationService.deleteById(id,changeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("admin")
-    public ResponseEntity<?> deleteForAdminByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam) {
-        bizFilterApplicationService.deleteByQuery(queryParam);
+    public ResponseEntity<?> deleteForAdminByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        bizFilterApplicationService.deleteByQuery(queryParam,changeId);
         return ResponseEntity.ok().build();
     }
 

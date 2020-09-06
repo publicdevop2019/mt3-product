@@ -47,14 +47,14 @@ public class BizAttributeController {
 
 
     @DeleteMapping("admin/{id}")
-    public ResponseEntity<?> deleteForAdminById(@PathVariable(name = "id") Long id) {
-        attributeApplicationService.deleteById(id);
+    public ResponseEntity<?> deleteForAdminById(@PathVariable(name = "id") Long id, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        attributeApplicationService.deleteById(id,changeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("admin")
-    public ResponseEntity<?> deleteForAdminByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam) {
-        attributeApplicationService.deleteByQuery(queryParam);
+    public ResponseEntity<?> deleteForAdminByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        attributeApplicationService.deleteByQuery(queryParam,changeId);
         return ResponseEntity.ok().build();
     }
 

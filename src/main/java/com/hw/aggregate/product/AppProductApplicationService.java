@@ -27,9 +27,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SKU_LITERAL;
-import static com.hw.config.AppConstant.REVOKE;
-import static com.hw.shared.AppConstant.PATCH_OP_TYPE_DIFF;
-import static com.hw.shared.AppConstant.PATCH_OP_TYPE_SUM;
+import static com.hw.shared.AppConstant.*;
 
 @Slf4j
 @Service
@@ -105,14 +103,14 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
 
     @Transactional
     public Long patchForAppBatch(List<PatchCommand> commands, String changeId) {
-        if (changeHistoryRepository.findByChangeId(changeId + REVOKE).isPresent()) {
+        if (changeHistoryRepository.findByChangeIdAndEntityType(changeId + CHANGE_REVOKED, entityClass.getName()).isPresent()) {
             throw new HangingTransactionException();
         }
-        saveChangeRecord(commands, changeId);
+        saveChangeRecord(commands, changeId, null);
         List<PatchCommand> deepCopy = getDeepCopy(commands);
         List<PatchCommand> hasNestedEntity = deepCopy.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         List<PatchCommand> noNestedEntity = deepCopy.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
-        Integer update = productDetailManager.update(role, noNestedEntity, Product.class);
+        Integer update = productDetailManager.update(role, noNestedEntity, entityClass);
         Integer update1 = productSkuManager.update(role, hasNestedEntity, ProductSku.class);
         return update.longValue();
     }
@@ -121,14 +119,14 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
     @Transactional
     public void rollbackChangeForApp(String id) {
         log.info("start of rollback change {}", id);
-        if (changeHistoryRepository.findByChangeId(id + REVOKE).isPresent()) {
+        if (changeHistoryRepository.findByChangeIdAndEntityType(id + CHANGE_REVOKED, entityClass.getName()).isPresent()) {
             throw new HangingTransactionException();
         }
-        Optional<ChangeRecord> byChangeId = changeHistoryRepository.findByChangeId(id);
+        Optional<ChangeRecord> byChangeId = changeHistoryRepository.findByChangeIdAndEntityType(id, entityClass.getName());
         if (byChangeId.isPresent()) {
             ChangeRecord changeRecord = byChangeId.get();
             List<PatchCommand> rollbackCmd = buildRollbackCommand(changeRecord.getPatchCommands());
-            patchForAppBatch(rollbackCmd, id + REVOKE);
+            patchForAppBatch(rollbackCmd, id + CHANGE_REVOKED);
         }
     }
 

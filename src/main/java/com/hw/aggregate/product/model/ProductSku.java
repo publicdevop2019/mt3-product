@@ -1,5 +1,6 @@
 package com.hw.aggregate.product.model;
 
+import com.hw.shared.Auditable;
 import com.hw.shared.StringSetConverter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +18,7 @@ import java.util.Set;
 @Entity
 @Table(name = "biz_product_sku")
 @IdClass(ProductSku.PK.class)
-public class ProductSku {
+public class ProductSku extends Auditable {
     @Id
     private Set<String> attributesSales;
     public transient static final String SKU_ATTR_SALES_LITERAL = "attributesSales";
