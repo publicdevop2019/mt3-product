@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -79,6 +80,26 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
     @Override
     protected Product createEntity(long id, Object command) {
         return null;
+    }
+
+    @Override
+    public void preDelete(Product product) {
+
+    }
+
+    @Override
+    public void postDelete(Product product) {
+
+    }
+
+    @Override
+    protected void prePatch(Product product, Map<String, Object> params, VoidTypedClass middleLayer) {
+
+    }
+
+    @Override
+    protected void postPatch(Product product, Map<String, Object> params, VoidTypedClass middleLayer) {
+
     }
 
 

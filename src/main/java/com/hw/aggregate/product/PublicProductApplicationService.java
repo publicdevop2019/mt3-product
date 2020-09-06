@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -62,6 +63,26 @@ public class PublicProductApplicationService extends DefaultRoleBasedRestfulServ
     @Override
     protected Product createEntity(long id, Object command) {
         return null;
+    }
+
+    @Override
+    public void preDelete(Product product) {
+
+    }
+
+    @Override
+    public void postDelete(Product product) {
+
+    }
+
+    @Override
+    protected void prePatch(Product product, Map<String, Object> params, VoidTypedClass middleLayer) {
+
+    }
+
+    @Override
+    protected void postPatch(Product product, Map<String, Object> params, VoidTypedClass middleLayer) {
+
     }
 }
 

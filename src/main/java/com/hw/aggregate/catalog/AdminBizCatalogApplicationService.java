@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -66,5 +67,25 @@ public class AdminBizCatalogApplicationService extends DefaultRoleBasedRestfulSe
     @Override
     protected BizCatalog createEntity(long id, Object command) {
         return BizCatalog.create(idGenerator.getId(), (CreateBizCatalogCommand) command);
+    }
+
+    @Override
+    public void preDelete(BizCatalog bizCatalog) {
+
+    }
+
+    @Override
+    public void postDelete(BizCatalog bizCatalog) {
+
+    }
+
+    @Override
+    protected void prePatch(BizCatalog bizCatalog, Map<String, Object> params, AdminBizCatalogPatchMiddleLayer middleLayer) {
+
+    }
+
+    @Override
+    protected void postPatch(BizCatalog bizCatalog, Map<String, Object> params, AdminBizCatalogPatchMiddleLayer middleLayer) {
+
     }
 }

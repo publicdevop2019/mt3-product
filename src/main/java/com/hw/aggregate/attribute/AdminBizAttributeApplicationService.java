@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Map;
 
 @Service
 public class AdminBizAttributeApplicationService extends DefaultRoleBasedRestfulService<BizAttribute, AdminBizAttributeCardRep, AdminBizAttributeRep, AdminBizAttributePatchMiddleLayer> {
@@ -60,5 +61,25 @@ public class AdminBizAttributeApplicationService extends DefaultRoleBasedRestful
     @Override
     protected BizAttribute createEntity(long id, Object command) {
         return BizAttribute.create(idGenerator.getId(), (CreateBizAttributeCommand) command);
+    }
+
+    @Override
+    public void preDelete(BizAttribute bizAttribute) {
+
+    }
+
+    @Override
+    public void postDelete(BizAttribute bizAttribute) {
+
+    }
+
+    @Override
+    protected void prePatch(BizAttribute bizAttribute, Map<String, Object> params, AdminBizAttributePatchMiddleLayer middleLayer) {
+
+    }
+
+    @Override
+    protected void postPatch(BizAttribute bizAttribute, Map<String, Object> params, AdminBizAttributePatchMiddleLayer middleLayer) {
+
     }
 }

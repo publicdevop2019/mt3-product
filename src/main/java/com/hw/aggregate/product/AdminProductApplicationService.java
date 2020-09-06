@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SKU_LITERAL;
@@ -113,6 +114,26 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
     @Override
     protected Product createEntity(long id, Object command) {
         return Product.create(id, (AdminCreateProductCommand) command);
+    }
+
+    @Override
+    public void preDelete(Product product) {
+
+    }
+
+    @Override
+    public void postDelete(Product product) {
+
+    }
+
+    @Override
+    protected void prePatch(Product product, Map<String, Object> params, AdminProductPatchMiddleLayer middleLayer) {
+
+    }
+
+    @Override
+    protected void postPatch(Product product, Map<String, Object> params, AdminProductPatchMiddleLayer middleLayer) {
+
     }
 }
 

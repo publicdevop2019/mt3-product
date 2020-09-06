@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 
 import static com.hw.shared.AppConstant.*;
@@ -67,7 +68,9 @@ public class ProductController {
 
     @PatchMapping(path = "admin/{id}", consumes = "application/json-patch+json")
     public ResponseEntity<?> patchForAdminById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        adminProductApplicationService.patchById(id, patch,changeId);
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(HTTP_HEADER_CHANGE_ID, changeId);
+        adminProductApplicationService.patchById(id, patch,params);
         return ResponseEntity.ok().build();
     }
 

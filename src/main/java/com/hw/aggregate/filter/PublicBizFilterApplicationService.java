@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -71,5 +72,25 @@ public class PublicBizFilterApplicationService extends DefaultRoleBasedRestfulSe
     @Override
     protected BizFilter createEntity(long id, Object command) {
         return null;
+    }
+
+    @Override
+    public void preDelete(BizFilter bizFilter) {
+
+    }
+
+    @Override
+    public void postDelete(BizFilter bizFilter) {
+
+    }
+
+    @Override
+    protected void prePatch(BizFilter bizFilter, Map<String, Object> params, VoidTypedClass middleLayer) {
+
+    }
+
+    @Override
+    protected void postPatch(BizFilter bizFilter, Map<String, Object> params, VoidTypedClass middleLayer) {
+
     }
 }
