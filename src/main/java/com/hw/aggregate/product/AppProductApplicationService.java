@@ -7,10 +7,11 @@ import com.hw.aggregate.product.model.ProductSku;
 import com.hw.aggregate.product.model.ProductSkuQueryRegistry;
 import com.hw.aggregate.product.representation.AppProductCardRep;
 import com.hw.shared.IdGenerator;
-import com.hw.shared.idempotent.ChangeRecord;
 import com.hw.shared.idempotent.ChangeRepository;
+import com.hw.shared.idempotent.OperationType;
 import com.hw.shared.idempotent.exception.HangingTransactionException;
 import com.hw.shared.idempotent.exception.RollbackNotSupportedException;
+import com.hw.shared.idempotent.model.ChangeRecord;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.PatchCommand;
@@ -106,7 +107,7 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
         if (changeHistoryRepository.findByChangeIdAndEntityType(changeId + CHANGE_REVOKED, entityClass.getName()).isPresent()) {
             throw new HangingTransactionException();
         }
-        saveChangeRecord(commands, changeId, null);
+        saveChangeRecord(commands, changeId, OperationType.PATCH_BATCH, null);
         List<PatchCommand> deepCopy = getDeepCopy(commands);
         List<PatchCommand> hasNestedEntity = deepCopy.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         List<PatchCommand> noNestedEntity = deepCopy.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());

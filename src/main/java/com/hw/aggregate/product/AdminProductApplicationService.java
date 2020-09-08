@@ -10,6 +10,7 @@ import com.hw.aggregate.product.representation.AdminProductCardRep;
 import com.hw.aggregate.product.representation.AdminProductRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.ChangeRepository;
+import com.hw.shared.idempotent.OperationType;
 import com.hw.shared.idempotent.exception.HangingTransactionException;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.sql.PatchCommand;
@@ -71,7 +72,7 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
         if (changeHistoryRepository.findByChangeIdAndEntityType(changeId + CHANGE_REVOKED, entityClass.getName()).isPresent()) {
             throw new HangingTransactionException();
         }
-        saveChangeRecord(commands, changeId, null);
+        saveChangeRecord(commands, changeId, OperationType.PATCH_BATCH,null);
         List<PatchCommand> deepCopy = getDeepCopy(commands);
         List<PatchCommand> hasNestedEntity = deepCopy.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         List<PatchCommand> noNestedEntity = deepCopy.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
