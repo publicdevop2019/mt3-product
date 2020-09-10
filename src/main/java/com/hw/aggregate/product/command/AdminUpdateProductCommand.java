@@ -11,6 +11,7 @@ import java.util.Set;
 
 @Data
 public class AdminUpdateProductCommand {
+    private String changeId;
     private String name;
     private String imageUrlSmall;
     @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received

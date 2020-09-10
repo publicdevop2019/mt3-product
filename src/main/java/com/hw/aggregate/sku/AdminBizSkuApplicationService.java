@@ -9,6 +9,7 @@ import com.hw.aggregate.sku.model.BizSkuQueryRegistry;
 import com.hw.aggregate.sku.representation.AdminBizSkuCardRep;
 import com.hw.aggregate.sku.representation.AdminBizSkuRep;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.sql.RestfulQueryRegistry;
@@ -23,7 +24,7 @@ public class AdminBizSkuApplicationService extends DefaultRoleBasedRestfulServic
     @Autowired
     private BizSkuRepo repo2;
     @Autowired
-    private ChangeRepository changeHistoryRepository;
+    private AppChangeRecordApplicationService changeHistoryRepository;
 
     @Autowired
     private IdGenerator idGenerator2;
@@ -43,7 +44,7 @@ public class AdminBizSkuApplicationService extends DefaultRoleBasedRestfulServic
         role = RestfulQueryRegistry.RoleEnum.ADMIN;
         entityPatchSupplier = (AdminBizSkuPatchMiddleLayer::new);
         om = om2;
-        changeRepository = changeHistoryRepository;
+        appChangeRecordApplicationService = changeHistoryRepository;
     }
 
     @Override

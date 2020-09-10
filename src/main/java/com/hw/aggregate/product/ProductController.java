@@ -61,8 +61,9 @@ public class ProductController {
 
 
     @PutMapping("admin/{id}")
-    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody AdminUpdateProductCommand newProductDetail, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        adminProductApplicationService.replaceById(id, newProductDetail, changeId);
+    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody AdminUpdateProductCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        command.setChangeId(changeId);
+        adminProductApplicationService.replaceById(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
@@ -94,7 +95,7 @@ public class ProductController {
 
     @PatchMapping("app")
     public ResponseEntity<?> patchForApp(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        appProductApplicationService.patchForAppBatch(patch, changeId);
+        appProductApplicationService.patchBatch(patch, changeId);
         return ResponseEntity.ok().build();
     }
 
@@ -110,7 +111,7 @@ public class ProductController {
 
     @DeleteMapping("change/app/{id}")
     public ResponseEntity<?> rollbackChange(@PathVariable(name = "id") String id) {
-        appProductApplicationService.rollbackChangeForApp(id);
+        appProductApplicationService.rollback(id);
         return ResponseEntity.ok().build();
     }
 

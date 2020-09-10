@@ -1,18 +1,24 @@
 package com.hw.aggregate.product.model;
 
+import com.hw.aggregate.product.AppProductApplicationService;
 import com.hw.aggregate.product.command.AdminCreateProductCommand;
 import com.hw.aggregate.product.command.AdminUpdateProductCommand;
 import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
 import com.hw.aggregate.product.exception.SkuAlreadyExistException;
 import com.hw.aggregate.product.exception.SkuNotExistException;
+import com.hw.aggregate.product.representation.AppProductCardRep;
 import com.hw.aggregate.sku.AppBizSkuApplicationService;
 import com.hw.aggregate.sku.command.AppCreateBizSkuCommand;
 import com.hw.aggregate.sku.command.AppUpdateBizSkuCommand;
+import com.hw.aggregate.sku.representation.AppBizSkuRep;
 import com.hw.shared.Auditable;
 import com.hw.shared.StringSetConverter;
 import com.hw.shared.rest.CreatedEntityRep;
 import com.hw.shared.rest.IdBasedEntity;
+import com.hw.shared.rest.exception.EntityNotExistException;
+import com.hw.shared.rest.exception.NoUpdatableFieldException;
 import com.hw.shared.sql.PatchCommand;
+import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +28,9 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.hw.aggregate.product.representation.AdminProductRep.ProductSkuAdminRepresentation.ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL;
-import static com.hw.aggregate.product.representation.AdminProductRep.ProductSkuAdminRepresentation.ADMIN_REP_SKU_STORAGE_ORDER_LITERAL;
-import static com.hw.shared.AppConstant.PATCH_OP_TYPE_DIFF;
-import static com.hw.shared.AppConstant.PATCH_OP_TYPE_SUM;
+import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SKU_LITERAL;
+import static com.hw.aggregate.product.representation.AdminProductRep.ProductSkuAdminRepresentation.*;
+import static com.hw.shared.AppConstant.*;
 
 
 @Data
@@ -150,9 +155,13 @@ public class Product extends Auditable implements IdBasedEntity {
                 }
                 //update price
                 Long aLong = this.attrSalesMap.get(getAttrSalesKey(command.getAttributesSales()));
-                AppUpdateBizSkuCommand appUpdateBizSkuCommand = new AppUpdateBizSkuCommand();
-                appUpdateBizSkuCommand.setPrice(command.getPrice());
-                skuApplicationService.replaceById(aLong, appUpdateBizSkuCommand, UUID.randomUUID().toString());
+                AppBizSkuRep appBizSkuRep = skuApplicationService.readById(aLong);
+                if (appBizSkuRep.getPrice().compareTo(command.getPrice()) != 0) {
+                    AppUpdateBizSkuCommand appUpdateBizSkuCommand = new AppUpdateBizSkuCommand();
+                    appUpdateBizSkuCommand.setPrice(command.getPrice());
+                    //price will be update in a different changeId
+                    skuApplicationService.replaceById(aLong, appUpdateBizSkuCommand, UUID.randomUUID().toString());
+                }
                 updateStorage(skuApplicationService, command);
 
             }
@@ -203,7 +212,8 @@ public class Product extends Auditable implements IdBasedEntity {
             patchCommands.add(patchCommand);
         }
         String changeId = UUID.randomUUID().toString();
-        productApplicationService.patchBatch(patchCommands, changeId);
+        if (patchCommands.size() > 0)
+            productApplicationService.patchBatch(patchCommands, changeId);
     }
 
     private String toSkuQueryPath(AdminUpdateProductCommand.UpdateProductAdminSkuCommand command, String storageType) {
@@ -268,4 +278,42 @@ public class Product extends Auditable implements IdBasedEntity {
         return updateProductAdminSkuCommand.getPrice();
     }
 
+    public static List<PatchCommand> convertToSkuCommands(List<PatchCommand> hasNestedEntity, AppProductApplicationService appProductApplicationService) {
+        Set<String> collect = hasNestedEntity.stream().map(e -> e.getPath().split("/")[1]).collect(Collectors.toSet());
+        String join = "id:" + String.join(".", collect);
+        SumPagedRep<AppProductCardRep> appProductCardRepSumPagedRep = appProductApplicationService.readByQuery(join, null, "sc:1");
+        hasNestedEntity.forEach(e -> {
+            String[] split = e.getPath().split("/");
+            String id = split[1];
+            String fieldName = split[split.length - 1];
+            String attrSales = parseAttrSales(e);
+            Optional<AppProductCardRep> first = appProductCardRepSumPagedRep.getData().stream().filter(ee -> ee.getId().toString().equals(id)).findFirst();
+            if (first.isPresent()) {
+                Long aLong = first.get().getAttrSalesMap().get(attrSales);
+                e.setPath("/" + aLong + "/" + fieldName);
+            } else {
+                throw new EntityNotExistException();
+            }
+        });
+
+        return null;
+    }
+
+    /**
+     * @param command [{"op":"add","path":"/837195323695104/skus?query=attributesSales:835604723556352-淡粉色,835604663263232-185~/100A~/XXL/storageActual","value":"1"}]
+     * @return 835604723556352:淡粉色,835604663263232:185/100A/XXL
+     */
+    private static String parseAttrSales(PatchCommand command) {
+        String replace = command.getPath().replace("/" + ADMIN_REP_SKU_LITERAL + "?" + HTTP_PARAM_QUERY + "=" + ADMIN_REP_ATTR_SALES_LITERAL + ":", "");
+        String replace1 = replace.replace("~/", "$");
+        String[] split = replace1.split("/");
+        if (split.length != 2)
+            throw new NoUpdatableFieldException();
+        String $ = split[0].replace("-", ":").replace("$", "/");
+        return Arrays.stream($.split(",")).sorted((a, b) -> {
+            long l = Long.parseLong(a.split(":")[0]);
+            long l1 = Long.parseLong(b.split(":")[0]);
+            return Long.compare(l, l1);
+        }).collect(Collectors.joining(","));
+    }
 }

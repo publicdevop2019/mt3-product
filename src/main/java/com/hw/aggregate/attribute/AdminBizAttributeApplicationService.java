@@ -9,6 +9,7 @@ import com.hw.aggregate.attribute.model.BizAttributeQueryRegistry;
 import com.hw.aggregate.attribute.representation.AdminBizAttributeCardRep;
 import com.hw.aggregate.attribute.representation.AdminBizAttributeRep;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.sql.RestfulQueryRegistry;
@@ -29,7 +30,7 @@ public class AdminBizAttributeApplicationService extends DefaultRoleBasedRestful
     @Autowired
     private ObjectMapper om2;
     @Autowired
-    private ChangeRepository changeHistoryRepository;
+    private AppChangeRecordApplicationService changeHistoryRepository;
 
     @PostConstruct
     private void setUp() {
@@ -40,7 +41,7 @@ public class AdminBizAttributeApplicationService extends DefaultRoleBasedRestful
         role = RestfulQueryRegistry.RoleEnum.ADMIN;
         entityPatchSupplier = AdminBizAttributePatchMiddleLayer::new;
         om = om2;
-        changeRepository = changeHistoryRepository;
+        appChangeRecordApplicationService = changeHistoryRepository;
     }
 
     @Override

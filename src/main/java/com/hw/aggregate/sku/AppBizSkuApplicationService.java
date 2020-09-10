@@ -1,15 +1,14 @@
 package com.hw.aggregate.sku;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hw.aggregate.sku.command.AdminCreateBizSkuCommand;
-import com.hw.aggregate.sku.command.AdminUpdateBizSkuCommand;
 import com.hw.aggregate.sku.command.AppCreateBizSkuCommand;
 import com.hw.aggregate.sku.command.AppUpdateBizSkuCommand;
 import com.hw.aggregate.sku.model.BizSku;
 import com.hw.aggregate.sku.model.BizSkuQueryRegistry;
 import com.hw.aggregate.sku.representation.AppBizSkuCardRep;
+import com.hw.aggregate.sku.representation.AppBizSkuRep;
 import com.hw.shared.IdGenerator;
-import com.hw.shared.idempotent.ChangeRepository;
+import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
@@ -20,11 +19,11 @@ import javax.annotation.PostConstruct;
 import java.util.Map;
 
 @Service
-public class AppBizSkuApplicationService extends DefaultRoleBasedRestfulService<BizSku, AppBizSkuCardRep, Void, VoidTypedClass> {
+public class AppBizSkuApplicationService extends DefaultRoleBasedRestfulService<BizSku, AppBizSkuCardRep, AppBizSkuRep, VoidTypedClass> {
     @Autowired
     private BizSkuRepo repo2;
     @Autowired
-    private ChangeRepository changeHistoryRepository;
+    private AppChangeRecordApplicationService changeHistoryRepository;
 
     @Autowired
     private IdGenerator idGenerator2;
@@ -43,12 +42,12 @@ public class AppBizSkuApplicationService extends DefaultRoleBasedRestfulService<
         entityClass = BizSku.class;
         role = RestfulQueryRegistry.RoleEnum.APP;
         om = om2;
-        changeRepository = changeHistoryRepository;
+        appChangeRecordApplicationService = changeHistoryRepository;
     }
 
     @Override
     public BizSku replaceEntity(BizSku bizSku, Object command) {
-        return bizSku.replace((AppUpdateBizSkuCommand)command);
+        return bizSku.replace((AppUpdateBizSkuCommand) command);
     }
 
     @Override
@@ -57,8 +56,8 @@ public class AppBizSkuApplicationService extends DefaultRoleBasedRestfulService<
     }
 
     @Override
-    public Void getEntityRepresentation(BizSku bizSku) {
-        return null;
+    public AppBizSkuRep getEntityRepresentation(BizSku bizSku) {
+        return new AppBizSkuRep(bizSku);
     }
 
     @Override

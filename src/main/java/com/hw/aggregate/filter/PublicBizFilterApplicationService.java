@@ -4,6 +4,7 @@ import com.hw.aggregate.filter.model.BizFilter;
 import com.hw.aggregate.filter.model.BizFilterQueryRegistry;
 import com.hw.aggregate.filter.representation.PublicBizFilterCardRep;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
@@ -29,7 +30,7 @@ public class PublicBizFilterApplicationService extends DefaultRoleBasedRestfulSe
     @Autowired
     private BizFilterQueryRegistry bizFilterManager2;
     @Autowired
-    private ChangeRepository changeHistoryRepository;
+    private AppChangeRecordApplicationService changeHistoryRepository;
 
     @PostConstruct
     private void setUp() {
@@ -38,7 +39,7 @@ public class PublicBizFilterApplicationService extends DefaultRoleBasedRestfulSe
         queryRegistry = bizFilterManager2;
         entityClass = BizFilter.class;
         role = RestfulQueryRegistry.RoleEnum.PUBLIC;
-        changeRepository = changeHistoryRepository;
+        appChangeRecordApplicationService = changeHistoryRepository;
     }
 
     @Transactional(readOnly = true)

@@ -12,20 +12,17 @@ import com.hw.aggregate.product.representation.AdminProductCardRep;
 import com.hw.aggregate.product.representation.AdminProductRep;
 import com.hw.aggregate.sku.AppBizSkuApplicationService;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.idempotent.ChangeRepository;
-import com.hw.shared.idempotent.OperationType;
-import com.hw.shared.idempotent.exception.HangingTransactionException;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.RestfulQueryRegistry;
-import com.hw.shared.sql.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +30,6 @@ import java.util.stream.Collectors;
 
 import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SKU_LITERAL;
 import static com.hw.aggregate.sku.model.BizSku.SKU_REFERENCE_ID_LITERAL;
-import static com.hw.shared.AppConstant.CHANGE_REVOKED;
 
 @Slf4j
 @Service
@@ -42,7 +38,7 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
     @Autowired
     private ProductRepo repo2;
     @Autowired
-    private ChangeRepository changeHistoryRepository;
+    private AppChangeRecordApplicationService changeHistoryRepository;
 
     @Autowired
     private PublicBizCatalogApplicationService catalogApplicationService;
@@ -74,40 +70,28 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
         role = RestfulQueryRegistry.RoleEnum.ADMIN;
         entityPatchSupplier = (AdminProductPatchMiddleLayer::new);
         om = om2;
-        changeRepository = changeHistoryRepository;
+        appChangeRecordApplicationService = changeHistoryRepository;
     }
 
     @Override
     @Transactional
     public Integer patchBatch(List<PatchCommand> commands, String changeId) {
-        if (changeHistoryRepository.findByChangeIdAndEntityType(changeId + CHANGE_REVOKED, entityClass.getName()).isPresent()) {
-            throw new HangingTransactionException();
-        }
-        saveChangeRecord(commands, changeId, OperationType.PATCH_BATCH, null);
-        List<PatchCommand> deepCopy = getDeepCopy(commands);
-        List<PatchCommand> hasNestedEntity = deepCopy.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
-        List<PatchCommand> noNestedEntity = deepCopy.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
-        appBizSkuApplicationService.patchBatch(appProductApplicationService.parseAttrSales(hasNestedEntity), changeId);
-        return productDetailManager.update(role, noNestedEntity, Product.class);
+        List<PatchCommand> hasNestedEntity = commands.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
+        List<PatchCommand> noNestedEntity = commands.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
+        appBizSkuApplicationService.patchBatch(Product.convertToSkuCommands(hasNestedEntity, appProductApplicationService), changeId);
+        return super.patchBatch(noNestedEntity, changeId);
     }
 
     @Override
     @Transactional
     public Integer deleteByQuery(String query, String changeId) {
-        SumPagedRep<AdminProductCardRep> adminProductCardRepSumPagedRep = readByQuery(query, null, null);
-        List<AdminProductCardRep> data = adminProductCardRepSumPagedRep.getData();
-        long l = adminProductCardRepSumPagedRep.getTotalItemCount() / data.size();
-        double ceil = Math.ceil(l);
-        int count = BigDecimal.valueOf(ceil).intValue();
-        for (int i = 1; i < count; i++) {
-            SumPagedRep<AdminProductCardRep> adminProductCardRepSumPagedRep1 = readByQuery(query, "num:" + i, "sc:1");
-            data.addAll(adminProductCardRepSumPagedRep1.getData());
-        }
+        List<AdminProductCardRep> data = getAllByQuery(query);
         Set<String> collect = data.stream().map(e -> e.getId().toString()).collect(Collectors.toSet());
         String join = SKU_REFERENCE_ID_LITERAL + ":" + String.join(".", collect);
         appBizSkuApplicationService.deleteByQuery(join, changeId);
         return productDetailManager.deleteByQuery(role, query, Product.class);
     }
+
 
     @Override
     @Transactional

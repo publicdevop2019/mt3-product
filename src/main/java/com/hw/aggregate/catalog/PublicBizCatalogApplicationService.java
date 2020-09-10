@@ -4,6 +4,7 @@ import com.hw.aggregate.catalog.model.BizCatalog;
 import com.hw.aggregate.catalog.model.BizCatalogQueryRegistry;
 import com.hw.aggregate.catalog.representation.PublicBizCatalogCardRep;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
@@ -28,7 +29,7 @@ public class PublicBizCatalogApplicationService extends DefaultRoleBasedRestfulS
     @Autowired
     private BizCatalogQueryRegistry registry;
     @Autowired
-    private ChangeRepository changeHistoryRepository;
+    private AppChangeRecordApplicationService changeHistoryRepository;
 
     @PostConstruct
     private void setUp() {
@@ -37,7 +38,7 @@ public class PublicBizCatalogApplicationService extends DefaultRoleBasedRestfulS
         queryRegistry = registry;
         entityClass = BizCatalog.class;
         role = RestfulQueryRegistry.RoleEnum.ADMIN;
-        changeRepository = changeHistoryRepository;
+        appChangeRecordApplicationService = changeHistoryRepository;
     }
 
     @Override
