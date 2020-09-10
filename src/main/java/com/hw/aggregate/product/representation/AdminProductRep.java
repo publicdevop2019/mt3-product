@@ -3,12 +3,13 @@ package com.hw.aggregate.product.representation;
 import com.hw.aggregate.product.model.Product;
 import com.hw.aggregate.product.model.ProductAttrSaleImages;
 import com.hw.aggregate.product.model.ProductOption;
-import com.hw.aggregate.product.model.ProductSku;
+import com.hw.aggregate.sku.AppBizSkuApplicationService;
+import com.hw.aggregate.sku.representation.AppBizSkuCardRep;
+import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -49,7 +50,7 @@ public class AdminProductRep {
     private BigDecimal lowestPrice;
     public static final String ADMIN_REP_PRICE_LITERAL = "lowestPrice";
 
-    public AdminProductRep(Product productDetail) {
+    public AdminProductRep(Product productDetail, AppBizSkuApplicationService skuApplicationService) {
         this.id = productDetail.getId();
         this.name = productDetail.getName();
         this.imageUrlSmall = productDetail.getImageUrlSmall();
@@ -62,7 +63,25 @@ public class AdminProductRep {
         this.attributesKey = productDetail.getAttrKey();
         this.attributesProd = productDetail.getAttrProd();
         this.attributesGen = productDetail.getAttrGen();
-        this.skus = productDetail.getProductSkuList().stream().map(ProductSkuAdminRepresentation::new).collect(Collectors.toList());
+
+        HashMap<String, Long> attrSalesMap = productDetail.getAttrSalesMap();
+        Set<String> collect = attrSalesMap.values().stream().map(Object::toString).collect(Collectors.toSet());
+        SumPagedRep<AppBizSkuCardRep> appBizSkuCardRepSumPagedRep = skuApplicationService.readByQuery("id:"+String.join(".", collect), null, null);
+        this.skus = attrSalesMap.keySet().stream().map(e -> {
+            ProductSkuAdminRepresentation appProductSkuRep = new ProductSkuAdminRepresentation();
+            Long aLong = attrSalesMap.get(e);
+            Optional<AppBizSkuCardRep> first = appBizSkuCardRepSumPagedRep.getData().stream().filter(ee -> ee.getId().equals(aLong)).findFirst();
+            if (first.isPresent()) {
+                HashSet<String> strings = new HashSet<>(Arrays.asList(e.split(",")));
+                appProductSkuRep.setSales(first.get().getSales());
+                appProductSkuRep.setPrice(first.get().getPrice());
+                appProductSkuRep.setAttributesSales(strings);
+                appProductSkuRep.setStorageActual(first.get().getStorageActual());
+                appProductSkuRep.setStorageOrder(first.get().getStorageOrder());
+            }
+            return appProductSkuRep;
+        }).collect(Collectors.toList());
+
         this.totalSales = productDetail.getTotalSales();
         this.lowestPrice = productDetail.getLowestPrice();
         if (productDetail.getAttributeSaleImages() != null)
@@ -81,13 +100,6 @@ public class AdminProductRep {
         private Integer sales;
         public transient static final String ADMIN_REP_SKU_SALES_LITERAL = "sales";
 
-        public ProductSkuAdminRepresentation(ProductSku sku) {
-            this.attributesSales = sku.getAttributesSales();
-            this.storageOrder = sku.getStorageOrder();
-            this.storageActual = sku.getStorageActual();
-            this.price = sku.getPrice();
-            this.sales = sku.getSales();
-        }
     }
 
     @Data

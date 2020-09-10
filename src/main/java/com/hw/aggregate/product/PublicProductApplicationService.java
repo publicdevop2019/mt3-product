@@ -5,6 +5,7 @@ import com.hw.aggregate.product.model.Product;
 import com.hw.aggregate.product.model.ProductQueryRegistry;
 import com.hw.aggregate.product.representation.PublicProductCardRep;
 import com.hw.aggregate.product.representation.PublicProductRep;
+import com.hw.aggregate.sku.AppBizSkuApplicationService;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
@@ -26,6 +27,9 @@ public class PublicProductApplicationService extends DefaultRoleBasedRestfulServ
 
     @Autowired
     private AppBizAttributeApplicationService appBizAttributeApplicationService;
+
+    @Autowired
+    private AppBizSkuApplicationService appBizSkuApplicationService;
 
     @Autowired
     private IdGenerator idGenerator2;
@@ -57,7 +61,7 @@ public class PublicProductApplicationService extends DefaultRoleBasedRestfulServ
 
     @Override
     public PublicProductRep getEntityRepresentation(Product product) {
-        return new PublicProductRep(product, appBizAttributeApplicationService);
+        return new PublicProductRep(product, appBizAttributeApplicationService,appBizSkuApplicationService);
     }
 
     @Override

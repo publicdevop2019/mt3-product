@@ -24,8 +24,6 @@ public class AdminProductSelectQueryBuilder extends SelectQueryBuilder<Product> 
     AdminProductSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 40;
         MAX_PAGE_SIZE = 400;
-        DEFAULT_SORT_BY = COMMON_ENTITY_ID;
-        mappedSortBy.put(COMMON_ENTITY_ID, COMMON_ENTITY_ID);
         mappedSortBy.put(ADMIN_REP_NAME_LITERAL, PRODUCT_NAME_LITERAL);
         mappedSortBy.put(ADMIN_REP_SALES_LITERAL, PRODUCT_TOTAL_SALES_LITERAL);
         mappedSortBy.put(ADMIN_REP_PRICE_LITERAL, PRODUCT_LOWEST_PRICE_LITERAL);

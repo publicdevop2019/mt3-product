@@ -15,10 +15,8 @@ import javax.persistence.criteria.*;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.hw.aggregate.product.model.ProductSku.*;
 import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SALES_LITERAL;

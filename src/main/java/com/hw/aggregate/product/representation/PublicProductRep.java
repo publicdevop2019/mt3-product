@@ -3,13 +3,15 @@ package com.hw.aggregate.product.representation;
 import com.hw.aggregate.attribute.AppBizAttributeApplicationService;
 import com.hw.aggregate.attribute.representation.AppBizAttributeCardRep;
 import com.hw.aggregate.product.exception.AttributeNameNotFoundException;
-import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
 import com.hw.aggregate.product.model.Product;
 import com.hw.aggregate.product.model.ProductAttrSaleImages;
 import com.hw.aggregate.product.model.ProductOption;
 import com.hw.aggregate.product.model.ProductSku;
+import com.hw.aggregate.sku.AppBizSkuApplicationService;
+import com.hw.aggregate.sku.representation.AppBizSkuCardRep;
 import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -30,17 +32,34 @@ public class PublicProductRep {
     private List<ProductOption> selectedOptions;
     private Map<String, String> attrIdMap;
 
-    public PublicProductRep(Product productDetail, AppBizAttributeApplicationService appBizAttributeApplicationService) {
+    public PublicProductRep(Product productDetail, AppBizAttributeApplicationService appBizAttributeApplicationService, AppBizSkuApplicationService skuApplicationService) {
         this.id = productDetail.getId();
         this.name = productDetail.getName();
         this.imageUrlSmall = productDetail.getImageUrlSmall();
         this.imageUrlLarge = productDetail.getImageUrlLarge();
         this.description = productDetail.getDescription();
         this.specification = productDetail.getSpecification();
-        this.lowestPrice = findLowestPrice(productDetail);
-        this.totalSales = calcTotalSales(productDetail);
-        this.skus = getCustomerSku(productDetail);
+
+        HashMap<String, Long> attrSalesMap = productDetail.getAttrSalesMap();
+        Set<String> collect = attrSalesMap.values().stream().map(Object::toString).collect(Collectors.toSet());
+        SumPagedRep<AppBizSkuCardRep> appBizSkuCardRepSumPagedRep = skuApplicationService.readByQuery("id:"+String.join(".", collect), null, null);
+        this.skus = attrSalesMap.keySet().stream().map(e -> {
+            ProductSkuCustomerRepresentation appProductSkuRep = new ProductSkuCustomerRepresentation();
+            Long aLong = attrSalesMap.get(e);
+            Optional<AppBizSkuCardRep> first = appBizSkuCardRepSumPagedRep.getData().stream().filter(ee -> ee.getId().equals(aLong)).findFirst();
+            if (first.isPresent()) {
+                HashSet<String> strings = new HashSet<>(Arrays.asList(e.split(",")));
+                appProductSkuRep.setAttributesSales(strings);
+                appProductSkuRep.setPrice(first.get().getPrice());
+                appProductSkuRep.setStorage(first.get().getStorageOrder());
+            }
+            return appProductSkuRep;
+        }).collect(Collectors.toList());
+
+        this.lowestPrice = productDetail.getLowestPrice();
+        this.totalSales = productDetail.getTotalSales();
         this.attrIdMap = new HashMap<>();
+
         this.skus.stream().map(ProductSkuCustomerRepresentation::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toList())
                 .stream().map(e -> e.split(":")[0]).forEach(el -> attrIdMap.put(el, null));
         String search = "id:" + String.join(".", this.attrIdMap.keySet());
@@ -58,17 +77,11 @@ public class PublicProductRep {
     }
 
     @Data
+    @NoArgsConstructor
     public static class ProductSkuCustomerRepresentation {
         private Set<String> attributesSales;
         private Integer storage;
         private BigDecimal price;
-
-        public ProductSkuCustomerRepresentation(ProductSku productSku) {
-            this.attributesSales = productSku.getAttributesSales();
-            this.storage = productSku.getStorageOrder();
-            this.price = productSku.getPrice();
-        }
-
     }
 
     @Data
@@ -89,17 +102,4 @@ public class PublicProductRep {
         return first.get().getName();
     }
 
-    private List<ProductSkuCustomerRepresentation> getCustomerSku(Product productDetail) {
-        List<ProductSku> productSkuList = productDetail.getProductSkuList();
-        return productSkuList.stream().map(ProductSkuCustomerRepresentation::new).collect(Collectors.toList());
-    }
-
-    private Integer calcTotalSales(Product productDetail) {
-        return productDetail.getProductSkuList().stream().map(ProductSku::getSales).reduce(0, Integer::sum);
-    }
-
-    private BigDecimal findLowestPrice(Product productDetail) {
-        ProductSku productSku = productDetail.getProductSkuList().stream().min(Comparator.comparing(ProductSku::getPrice)).orElseThrow(NoLowestPriceFoundException::new);
-        return productSku.getPrice();
-    }
 }

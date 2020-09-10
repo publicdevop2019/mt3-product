@@ -1,13 +1,16 @@
 package com.hw.aggregate.product.model;
 
-import com.hw.aggregate.product.AdminProductApplicationService;
 import com.hw.aggregate.product.command.AdminCreateProductCommand;
 import com.hw.aggregate.product.command.AdminUpdateProductCommand;
 import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
 import com.hw.aggregate.product.exception.SkuAlreadyExistException;
 import com.hw.aggregate.product.exception.SkuNotExistException;
+import com.hw.aggregate.sku.AppBizSkuApplicationService;
+import com.hw.aggregate.sku.command.AppCreateBizSkuCommand;
+import com.hw.aggregate.sku.command.AppUpdateBizSkuCommand;
 import com.hw.shared.Auditable;
 import com.hw.shared.StringSetConverter;
+import com.hw.shared.rest.CreatedEntityRep;
 import com.hw.shared.rest.IdBasedEntity;
 import com.hw.shared.sql.PatchCommand;
 import lombok.Data;
@@ -19,9 +22,10 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SKU_LITERAL;
-import static com.hw.aggregate.product.representation.AdminProductRep.ProductSkuAdminRepresentation.*;
-import static com.hw.shared.AppConstant.*;
+import static com.hw.aggregate.product.representation.AdminProductRep.ProductSkuAdminRepresentation.ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL;
+import static com.hw.aggregate.product.representation.AdminProductRep.ProductSkuAdminRepresentation.ADMIN_REP_SKU_STORAGE_ORDER_LITERAL;
+import static com.hw.shared.AppConstant.PATCH_OP_TYPE_DIFF;
+import static com.hw.shared.AppConstant.PATCH_OP_TYPE_SUM;
 
 
 @Data
@@ -75,8 +79,8 @@ public class Product extends Auditable implements IdBasedEntity {
     private Set<String> attrSalesTotal;
     public transient static final String PRODUCT_ATTR_SALES_TOTAL_LITERAL = "attrSalesTotal";
 
-    @OneToMany(targetEntity = ProductSku.class, mappedBy = "productId", cascade = {CascadeType.ALL})
-    private List<ProductSku> productSkuList;
+    @Column(length = 10000)
+    private HashMap<String, Long> attrSalesMap;
 
     @Column(length = 10000)
     private ArrayList<ProductAttrSaleImages> attributeSaleImages;
@@ -88,11 +92,11 @@ public class Product extends Auditable implements IdBasedEntity {
     private Integer totalSales;
     public transient static final String PRODUCT_TOTAL_SALES_LITERAL = "totalSales";
 
-    public static Product create(Long id, AdminCreateProductCommand command) {
-        return new Product(id, command);
+    public static Product create(Long id, AdminCreateProductCommand command, AppBizSkuApplicationService appBizSkuApplicationService) {
+        return new Product(id, command, appBizSkuApplicationService);
     }
 
-    public void replace(AdminUpdateProductCommand command, AdminProductApplicationService productApplicationService) {
+    public void replace(AdminUpdateProductCommand command, AppBizSkuApplicationService skuApplicationService) {
         this.imageUrlSmall = command.getImageUrlSmall();
         this.name = command.getName();
         this.description = command.getDescription();
@@ -109,7 +113,7 @@ public class Product extends Auditable implements IdBasedEntity {
                 e.setSales(0);
             e.setAttributesSales(new TreeSet<>(e.getAttributesSales()));
         });
-        adjustSku(command.getSkus(), productApplicationService);
+        adjustSku(command.getSkus(), skuApplicationService);
         this.attrSalesTotal = command.getSkus().stream().map(AdminUpdateProductCommand.UpdateProductAdminSkuCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
         this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e ->
                 {
@@ -119,46 +123,57 @@ public class Product extends Auditable implements IdBasedEntity {
                     return productAttrSaleImages;
                 }
         ).collect(Collectors.toCollection(ArrayList::new));
-        this.lowestPrice = findLowestPrice(this);
+        this.lowestPrice = findLowestPrice(command);
     }
 
-    private void adjustSku(List<AdminUpdateProductCommand.UpdateProductAdminSkuCommand> commands, AdminProductApplicationService productApplicationService) {
+    private void adjustSku(List<AdminUpdateProductCommand.UpdateProductAdminSkuCommand> commands, AppBizSkuApplicationService skuApplicationService) {
         commands.forEach(command -> {
             if (command.getStorageActual() != null && command.getStorageOrder() != null) {
                 // new sku
-                boolean b = this.productSkuList.stream().anyMatch(e -> e.getAttributesSales().equals(command.getAttributesSales()));
-                if (b)
+                if (this.attrSalesMap.containsKey(getAttrSalesKey(command.getAttributesSales()))) {
                     throw new SkuAlreadyExistException();
-                ProductSku productSku = new ProductSku();
-                productSku.setSales(command.getSales() == null ? 0 : command.getSales());
-                productSku.setStorageActual(command.getStorageActual());
-                productSku.setStorageOrder(command.getStorageOrder());
-                productSku.setAttributesSales(command.getAttributesSales());
-                productSku.setPrice(command.getPrice());
-                this.productSkuList.add(productSku);
+                }
+                AppCreateBizSkuCommand command1 = new AppCreateBizSkuCommand();
+                command1.setPrice(command.getPrice());
+                command1.setReferenceId(this.id.toString());
+                command1.setStorageOrder(command.getStorageOrder());
+                command1.setStorageActual(command.getStorageActual());
+                command1.setSales(command.getSales() == null ? 0 : command.getSales());
+                CreatedEntityRep createdEntityRep = skuApplicationService.create(command1, UUID.randomUUID().toString());
+                if (attrSalesMap == null)
+                    attrSalesMap = new HashMap<>();
+                attrSalesMap.put(getAttrSalesKey(command.getAttributesSales()), createdEntityRep.getId());
             } else {
                 //existing sku
-                Optional<ProductSku> first = this.productSkuList.stream().filter(e -> e.getAttributesSales().equals(command.getAttributesSales())).findFirst();
-                if (first.isEmpty())
+                if (!this.attrSalesMap.containsKey(getAttrSalesKey(command.getAttributesSales()))) {
                     throw new SkuNotExistException();
+                }
                 //update price
-                ProductSku productSku = first.get();
-                productSku.setPrice(command.getPrice());
-                updateStorage(productApplicationService, command);
+                Long aLong = this.attrSalesMap.get(getAttrSalesKey(command.getAttributesSales()));
+                AppUpdateBizSkuCommand appUpdateBizSkuCommand = new AppUpdateBizSkuCommand();
+                appUpdateBizSkuCommand.setPrice(command.getPrice());
+                skuApplicationService.replaceById(aLong, appUpdateBizSkuCommand, UUID.randomUUID().toString());
+                updateStorage(skuApplicationService, command);
 
             }
         });
         // find skus not in update command & remove
-        List<ProductSku> collect = this.productSkuList.stream().filter(e -> commands.stream().noneMatch(command -> command.getAttributesSales().equals(e.getAttributesSales()))).collect(Collectors.toList());
-        this.productSkuList.removeAll(collect);
+        List<String> collect = attrSalesMap.keySet().stream().filter(e -> commands.stream().noneMatch(command -> getAttrSalesKey(command.getAttributesSales()).equals(e))).collect(Collectors.toList());
+        Set<String> collect1 = collect.stream().map(e -> attrSalesMap.get(e).toString()).collect(Collectors.toSet());
+        if (collect1.size() > 0)
+            skuApplicationService.deleteByQuery(String.join(".", collect1), UUID.randomUUID().toString());
     }
 
-    private void updateStorage(AdminProductApplicationService productApplicationService, AdminUpdateProductCommand.UpdateProductAdminSkuCommand command) {
+    private String getAttrSalesKey(Set<String> attributesSales) {
+        return String.join(",", attributesSales);
+    }
+
+    private void updateStorage(AppBizSkuApplicationService productApplicationService, AdminUpdateProductCommand.UpdateProductAdminSkuCommand command) {
         ArrayList<PatchCommand> patchCommands = new ArrayList<>();
         if (command.getDecreaseOrderStorage() != null) {
             PatchCommand patchCommand = new PatchCommand();
             patchCommand.setOp(PATCH_OP_TYPE_DIFF);
-            String query = toSkuQueryPath(command, ADMIN_REP_SKU_STORAGE_ORDER_LITERAL, this);
+            String query = toSkuQueryPath(command, ADMIN_REP_SKU_STORAGE_ORDER_LITERAL);
             patchCommand.setPath(query);
             patchCommand.setValue(command.getDecreaseOrderStorage());
             patchCommands.add(patchCommand);
@@ -166,7 +181,7 @@ public class Product extends Auditable implements IdBasedEntity {
         if (command.getDecreaseActualStorage() != null) {
             PatchCommand patchCommand = new PatchCommand();
             patchCommand.setOp(PATCH_OP_TYPE_DIFF);
-            String query = toSkuQueryPath(command, ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL, this);
+            String query = toSkuQueryPath(command, ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL);
             patchCommand.setPath(query);
             patchCommand.setValue(command.getDecreaseActualStorage());
             patchCommands.add(patchCommand);
@@ -174,7 +189,7 @@ public class Product extends Auditable implements IdBasedEntity {
         if (command.getIncreaseOrderStorage() != null) {
             PatchCommand patchCommand = new PatchCommand();
             patchCommand.setOp(PATCH_OP_TYPE_SUM);
-            String query = toSkuQueryPath(command, ADMIN_REP_SKU_STORAGE_ORDER_LITERAL, this);
+            String query = toSkuQueryPath(command, ADMIN_REP_SKU_STORAGE_ORDER_LITERAL);
             patchCommand.setPath(query);
             patchCommand.setValue(command.getIncreaseOrderStorage());
             patchCommands.add(patchCommand);
@@ -182,7 +197,7 @@ public class Product extends Auditable implements IdBasedEntity {
         if (command.getIncreaseActualStorage() != null) {
             PatchCommand patchCommand = new PatchCommand();
             patchCommand.setOp(PATCH_OP_TYPE_SUM);
-            String query = toSkuQueryPath(command, ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL, this);
+            String query = toSkuQueryPath(command, ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL);
             patchCommand.setPath(query);
             patchCommand.setValue(command.getIncreaseActualStorage());
             patchCommands.add(patchCommand);
@@ -191,16 +206,13 @@ public class Product extends Auditable implements IdBasedEntity {
         productApplicationService.patchBatch(patchCommands, changeId);
     }
 
-    private String toSkuQueryPath(AdminUpdateProductCommand.UpdateProductAdminSkuCommand command, String storageType, Product productDetail) {
-        Set<String> attributesSales1 = command.getAttributesSales();
-        String join = String.join(",", attributesSales1);
-        String replace = join.replace(":", "-").replace("/", "~/");
-        String s = "/" + productDetail.getId() + "/" + ADMIN_REP_SKU_LITERAL + "?" + HTTP_PARAM_QUERY + "=" + ADMIN_REP_ATTR_SALES_LITERAL + ":" + replace;
-        return s + "/" + storageType;
+    private String toSkuQueryPath(AdminUpdateProductCommand.UpdateProductAdminSkuCommand command, String storageType) {
+        Long aLong = attrSalesMap.get(getAttrSalesKey(command.getAttributesSales()));
+        return "/" + aLong + "/" + storageType;
     }
 
 
-    private Product(Long id, AdminCreateProductCommand command) {
+    private Product(Long id, AdminCreateProductCommand command, AppBizSkuApplicationService appBizSkuApplicationService) {
         this.id = id;
         this.imageUrlSmall = command.getImageUrlSmall();
         this.name = command.getName();
@@ -219,16 +231,17 @@ public class Product extends Auditable implements IdBasedEntity {
             e.setAttributesSales(e.getAttributesSales());
         });
         this.attrSalesTotal = command.getSkus().stream().map(AdminCreateProductCommand.CreateProductSkuAdminCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
-        this.productSkuList = command.getSkus().stream().map(e -> {
-            ProductSku productSku = new ProductSku();
-            productSku.setPrice(e.getPrice());
-            productSku.setProductId(this.id);
-            productSku.setAttributesSales(e.getAttributesSales());
-            productSku.setStorageOrder(e.getStorageOrder());
-            productSku.setStorageActual(e.getStorageActual());
-            productSku.setSales(e.getSales());
-            return productSku;
-        }).collect(Collectors.toList());
+
+        for (AdminCreateProductCommand.CreateProductSkuAdminCommand skuAdminCommand : command.getSkus()) {
+            AppCreateBizSkuCommand command1 = new AppCreateBizSkuCommand();
+            command1.setPrice(skuAdminCommand.getPrice());
+            command1.setReferenceId(this.id.toString());
+            command1.setStorageOrder(skuAdminCommand.getStorageOrder());
+            command1.setStorageActual(skuAdminCommand.getStorageActual());
+            command1.setSales(skuAdminCommand.getSales());
+            CreatedEntityRep createdEntityRep = appBizSkuApplicationService.create(command1, UUID.randomUUID().toString());
+            attrSalesMap.put(String.join(",", skuAdminCommand.getAttributesSales()), createdEntityRep.getId());
+        }
         this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e -> {
                     ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
                     productAttrSaleImages.setAttributeSales(e.getAttributeSales());
@@ -236,18 +249,23 @@ public class Product extends Auditable implements IdBasedEntity {
                     return productAttrSaleImages;
                 }
         ).collect(Collectors.toCollection(ArrayList::new));
-        this.lowestPrice = findLowestPrice(this);
-        this.totalSales = calcTotalSales(this);
+        this.lowestPrice = findLowestPrice(command);
+        this.totalSales = calcTotalSales(command);
     }
 
 
-    private Integer calcTotalSales(Product productDetail) {
-        return productDetail.getProductSkuList().stream().map(ProductSku::getSales).reduce(0, Integer::sum);
+    private Integer calcTotalSales(AdminCreateProductCommand command) {
+        return command.getSkus().stream().map(AdminCreateProductCommand.CreateProductSkuAdminCommand::getSales).reduce(0, Integer::sum);
     }
 
-    private BigDecimal findLowestPrice(Product productDetail) {
-        ProductSku productSku = productDetail.getProductSkuList().stream().min(Comparator.comparing(ProductSku::getPrice)).orElseThrow(NoLowestPriceFoundException::new);
-        return productSku.getPrice();
+    private BigDecimal findLowestPrice(AdminCreateProductCommand command) {
+        AdminCreateProductCommand.CreateProductSkuAdminCommand createProductSkuAdminCommand = command.getSkus().stream().min(Comparator.comparing(AdminCreateProductCommand.CreateProductSkuAdminCommand::getPrice)).orElseThrow(NoLowestPriceFoundException::new);
+        return createProductSkuAdminCommand.getPrice();
+    }
+
+    private BigDecimal findLowestPrice(AdminUpdateProductCommand command) {
+        AdminUpdateProductCommand.UpdateProductAdminSkuCommand updateProductAdminSkuCommand = command.getSkus().stream().min(Comparator.comparing(AdminUpdateProductCommand.UpdateProductAdminSkuCommand::getPrice)).orElseThrow(NoLowestPriceFoundException::new);
+        return updateProductAdminSkuCommand.getPrice();
     }
 
 }

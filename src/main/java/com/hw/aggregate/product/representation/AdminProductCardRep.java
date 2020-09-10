@@ -16,7 +16,6 @@ class AdminProductCardRep {
     private String name;
     private String coverImage;
     private Integer totalSales;
-    private List<BigDecimal> priceList;
     private Set<String> attributesKey;
     private Long startAt;
     private Long endAt;
@@ -25,7 +24,6 @@ class AdminProductCardRep {
         this.id = productDetail.getId();
         this.name = productDetail.getName();
         this.totalSales = productDetail.getTotalSales();
-        this.priceList = productDetail.getProductSkuList().stream().map(ProductSku::getPrice).collect(Collectors.toList());
         this.attributesKey = productDetail.getAttrKey();
         this.startAt = productDetail.getStartAt();
         this.endAt = productDetail.getEndAt();

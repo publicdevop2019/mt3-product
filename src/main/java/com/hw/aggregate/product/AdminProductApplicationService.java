@@ -8,6 +8,7 @@ import com.hw.aggregate.product.command.AdminUpdateProductCommand;
 import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.product.representation.AdminProductCardRep;
 import com.hw.aggregate.product.representation.AdminProductRep;
+import com.hw.aggregate.sku.AppBizSkuApplicationService;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.idempotent.OperationType;
@@ -41,6 +42,9 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
     private PublicBizCatalogApplicationService catalogApplicationService;
 
     @Autowired
+    private AppBizSkuApplicationService appBizSkuApplicationService;
+
+    @Autowired
     private AppBizAttributeApplicationService attributeApplicationService;
 
     @Autowired
@@ -72,7 +76,7 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
         if (changeHistoryRepository.findByChangeIdAndEntityType(changeId + CHANGE_REVOKED, entityClass.getName()).isPresent()) {
             throw new HangingTransactionException();
         }
-        saveChangeRecord(commands, changeId, OperationType.PATCH_BATCH,null);
+        saveChangeRecord(commands, changeId, OperationType.PATCH_BATCH, null);
         List<PatchCommand> deepCopy = getDeepCopy(commands);
         List<PatchCommand> hasNestedEntity = deepCopy.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         List<PatchCommand> noNestedEntity = deepCopy.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
@@ -97,7 +101,7 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
 
     @Override
     public Product replaceEntity(Product product, Object command) {
-        product.replace((AdminUpdateProductCommand) command, this);
+        product.replace((AdminUpdateProductCommand) command, appBizSkuApplicationService);
         return product;
     }
 
@@ -108,13 +112,13 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
 
     @Override
     public AdminProductRep getEntityRepresentation(Product product) {
-        return new AdminProductRep(product);
+        return new AdminProductRep(product,appBizSkuApplicationService);
     }
 
 
     @Override
     protected Product createEntity(long id, Object command) {
-        return Product.create(id, (AdminCreateProductCommand) command);
+        return Product.create(id, (AdminCreateProductCommand) command, appBizSkuApplicationService);
     }
 
     @Override

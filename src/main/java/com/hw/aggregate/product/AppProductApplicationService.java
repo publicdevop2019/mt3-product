@@ -6,6 +6,7 @@ import com.hw.aggregate.product.model.ProductQueryRegistry;
 import com.hw.aggregate.product.model.ProductSku;
 import com.hw.aggregate.product.model.ProductSkuQueryRegistry;
 import com.hw.aggregate.product.representation.AppProductCardRep;
+import com.hw.aggregate.sku.AppBizSkuApplicationService;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.idempotent.OperationType;
@@ -41,11 +42,12 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
 
     @Autowired
     private IdGenerator idGenerator2;
-
     @Autowired
-    private ProductQueryRegistry productDetailManager;
+    private AppBizSkuApplicationService appBizSkuApplicationService;
     @Autowired
-    private ProductSkuQueryRegistry productSkuManager;
+    private ProductQueryRegistry productQueryRegistry;
+    @Autowired
+    private ProductSkuQueryRegistry productSkuQueryRegistry;
 
     @Autowired
     private ObjectMapper om2;
@@ -54,7 +56,7 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
     private void setUp() {
         repo = repo2;
         idGenerator = idGenerator2;
-        queryRegistry = productDetailManager;
+        queryRegistry = productQueryRegistry;
         entityClass = Product.class;
         role = RestfulQueryRegistry.RoleEnum.APP;
         om = om2;
@@ -68,7 +70,7 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
 
     @Override
     public AppProductCardRep getEntitySumRepresentation(Product product) {
-        return new AppProductCardRep(product);
+        return new AppProductCardRep(product, appBizSkuApplicationService);
     }
 
     @Override
@@ -111,8 +113,8 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
         List<PatchCommand> deepCopy = getDeepCopy(commands);
         List<PatchCommand> hasNestedEntity = deepCopy.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         List<PatchCommand> noNestedEntity = deepCopy.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
-        Integer update = productDetailManager.update(role, noNestedEntity, entityClass);
-        Integer update1 = productSkuManager.update(role, hasNestedEntity, ProductSku.class);
+        Integer update = productQueryRegistry.update(role, noNestedEntity, entityClass);
+        Integer update1 = productSkuQueryRegistry.update(role, hasNestedEntity, ProductSku.class);
         return update.longValue();
     }
 

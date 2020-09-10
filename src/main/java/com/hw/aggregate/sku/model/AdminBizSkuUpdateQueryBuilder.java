@@ -1,4 +1,4 @@
-package com.hw.aggregate.product.model;
+package com.hw.aggregate.sku.model;
 
 
 import com.hw.shared.rest.exception.NoUpdatableFieldException;
@@ -14,76 +14,49 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.*;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static com.hw.aggregate.product.model.ProductSku.*;
-import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SKU_LITERAL;
-import static com.hw.aggregate.product.representation.AdminProductRep.ProductSkuAdminRepresentation.*;
+import static com.hw.aggregate.sku.model.BizSku.SKU_STORAGE_ACTUAL_LITERAL;
+import static com.hw.aggregate.sku.model.BizSku.SKU_STORAGE_ORDER_LITERAL;
 import static com.hw.shared.AppConstant.*;
 
 @Component
-public class AdminProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<ProductSku> {
+public class AdminBizSkuUpdateQueryBuilder extends UpdateQueryBuilder<BizSku> {
     @Autowired
     private void setEntityManager(EntityManager entityManager) {
         em = entityManager;
     }
 
-    //    [
-    //    {"op":"add","path":"/001/skus/?query=attributeSales:8001-foo,8002-bar/storageOrder","value":"1"}
-    //    ]
     @Override
-    protected void setUpdateValue(Root<ProductSku> root, CriteriaUpdate<ProductSku> criteriaUpdate, PatchCommand e) {
+    protected void setUpdateValue(Root<BizSku> root, CriteriaUpdate<BizSku> criteriaUpdate, PatchCommand e) {
         ArrayList<Boolean> booleans = new ArrayList<>();
-        booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_SKU_STORAGE_ORDER_LITERAL, SKU_STORAGE_ORDER_LITERAL, root, criteriaUpdate, e));
-        booleans.add(setUpdateStorageValueFor("/" + ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL, SKU_STORAGE_ACTUAL_LITERAL, root, criteriaUpdate, e));
+        booleans.add(setUpdateStorageValueFor("/" + SKU_STORAGE_ORDER_LITERAL, SKU_STORAGE_ORDER_LITERAL, root, criteriaUpdate, e));
+        booleans.add(setUpdateStorageValueFor("/" + SKU_STORAGE_ACTUAL_LITERAL, SKU_STORAGE_ACTUAL_LITERAL, root, criteriaUpdate, e));
         Boolean hasFieldChange = booleans.stream().reduce(false, (a, b) -> a || b);
         if (!hasFieldChange) {
             throw new NoUpdatableFieldException();
         }
     }
 
-    // productId + salesAttributes can lock a sku entity
     @Override
-    protected Predicate getWhereClause(Root<ProductSku> root, List<String> parentIds, PatchCommand command) {
+    protected Predicate getWhereClause(Root<BizSku> root, List<String> ids, PatchCommand command) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         List<Predicate> results = new ArrayList<>();
-        for (String str : parentIds) {
-            Predicate parentIdClause = cb.equal(root.get(SKU_PRODUCT_ID_LITERAL), Long.parseLong(str));
-            Predicate saleAttrClause = cb.equal(root.get(SKU_ATTR_SALES_LITERAL).as(String.class), parseAttrSales(command));
-            Predicate combined = cb.and(parentIdClause, saleAttrClause);
+        for (String id : ids) {
+            Predicate idClause = cb.equal(root.get(COMMON_ENTITY_ID), Long.parseLong(id));
             if (storagePatchOpSub(command)) {
                 //make sure if storage change, value is not negative
                 Predicate negativeClause = getStorageMustNotNegativeClause(cb, root, command);
-                Predicate and = cb.and(combined, negativeClause);
+                Predicate and = cb.and(idClause, negativeClause);
                 results.add(and);
             } else {
-                results.add(combined);
+                results.add(idClause);
             }
         }
         return cb.or(results.toArray(new Predicate[0]));
     }
 
-    /**
-     * @param command [{"op":"add","path":"/837195323695104/skus?query=attributesSales:835604723556352-淡粉色,835604663263232-185~/100A~/XXL/storageActual","value":"1"}]
-     * @return 835604723556352:淡粉色,835604663263232:185/100A/XXL
-     */
-    private String parseAttrSales(PatchCommand command) {
-        String replace = command.getPath().replace("/" + ADMIN_REP_SKU_LITERAL + "?" + HTTP_PARAM_QUERY + "=" + ADMIN_REP_ATTR_SALES_LITERAL + ":", "");
-        String replace1 = replace.replace("~/", "$");
-        String[] split = replace1.split("/");
-        if (split.length != 2)
-            throw new NoUpdatableFieldException();
-        String $ = split[0].replace("-", ":").replace("$", "/");
-        return Arrays.stream($.split(",")).sorted((a, b) -> {
-            long l = Long.parseLong(a.split(":")[0]);
-            long l1 = Long.parseLong(b.split(":")[0]);
-            return Long.compare(l, l1);
-        }).collect(Collectors.joining(","));
-    }
-
-    private Boolean setUpdateStorageValueFor(String fieldPath, String filedLiteral, Root<ProductSku> root, CriteriaUpdate<ProductSku> criteriaUpdate, PatchCommand e) {
+    protected Boolean setUpdateStorageValueFor(String fieldPath, String filedLiteral, Root<BizSku> root, CriteriaUpdate<BizSku> criteriaUpdate, PatchCommand e) {
         if (e.getPath().contains(fieldPath)) {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUM)) {
@@ -118,9 +91,9 @@ public class AdminProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<Produc
         return parseLong(input).intValue();
     }
 
-    private Predicate getStorageMustNotNegativeClause(CriteriaBuilder cb, Root<ProductSku> root, PatchCommand command) {
+    private Predicate getStorageMustNotNegativeClause(CriteriaBuilder cb, Root<BizSku> root, PatchCommand command) {
         String filedLiteral;
-        if (command.getPath().equalsIgnoreCase(ADMIN_REP_SKU_STORAGE_ORDER_LITERAL)) {
+        if (command.getPath().equalsIgnoreCase(SKU_STORAGE_ORDER_LITERAL)) {
             filedLiteral = SKU_STORAGE_ORDER_LITERAL;
         } else {
             filedLiteral = SKU_STORAGE_ACTUAL_LITERAL;
@@ -130,7 +103,7 @@ public class AdminProductSkuUpdateQueryBuilder extends UpdateQueryBuilder<Produc
     }
 
     private boolean storagePatchOpSub(PatchCommand command) {
-        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF) && (command.getPath().contains(ADMIN_REP_SKU_STORAGE_ORDER_LITERAL) ||
-                command.getPath().contains(ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL));
+        return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF) && (command.getPath().contains(SKU_STORAGE_ORDER_LITERAL) ||
+                command.getPath().contains(SKU_STORAGE_ACTUAL_LITERAL));
     }
 }
