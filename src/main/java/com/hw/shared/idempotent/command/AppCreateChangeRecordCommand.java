@@ -5,6 +5,7 @@ import com.hw.shared.sql.PatchCommand;
 import lombok.Data;
 
 import java.util.ArrayList;
+
 @Data
 public class AppCreateChangeRecordCommand {
 
