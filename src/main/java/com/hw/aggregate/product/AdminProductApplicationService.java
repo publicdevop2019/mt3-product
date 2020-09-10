@@ -5,7 +5,9 @@ import com.hw.aggregate.attribute.AppBizAttributeApplicationService;
 import com.hw.aggregate.catalog.PublicBizCatalogApplicationService;
 import com.hw.aggregate.product.command.AdminCreateProductCommand;
 import com.hw.aggregate.product.command.AdminUpdateProductCommand;
-import com.hw.aggregate.product.model.*;
+import com.hw.aggregate.product.model.AdminProductPatchMiddleLayer;
+import com.hw.aggregate.product.model.Product;
+import com.hw.aggregate.product.model.ProductQueryRegistry;
 import com.hw.aggregate.product.representation.AdminProductCardRep;
 import com.hw.aggregate.product.representation.AdminProductRep;
 import com.hw.aggregate.sku.AppBizSkuApplicationService;
@@ -16,17 +18,21 @@ import com.hw.shared.idempotent.exception.HangingTransactionException;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.RestfulQueryRegistry;
+import com.hw.shared.sql.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SKU_LITERAL;
+import static com.hw.aggregate.sku.model.BizSku.SKU_REFERENCE_ID_LITERAL;
 import static com.hw.shared.AppConstant.CHANGE_REVOKED;
 
 @Slf4j
@@ -48,12 +54,13 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
     private AppBizAttributeApplicationService attributeApplicationService;
 
     @Autowired
+    private AppProductApplicationService appProductApplicationService;
+
+    @Autowired
     private IdGenerator idGenerator2;
 
     @Autowired
     private ProductQueryRegistry productDetailManager;
-    @Autowired
-    private ProductSkuQueryRegistry productSkuManager;
 
     @Autowired
     private ObjectMapper om2;
@@ -80,22 +87,32 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
         List<PatchCommand> deepCopy = getDeepCopy(commands);
         List<PatchCommand> hasNestedEntity = deepCopy.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         List<PatchCommand> noNestedEntity = deepCopy.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
-        productSkuManager.update(role, hasNestedEntity, ProductSku.class);
+        appBizSkuApplicationService.patchBatch(appProductApplicationService.parseAttrSales(hasNestedEntity), changeId);
         return productDetailManager.update(role, noNestedEntity, Product.class);
     }
 
     @Override
     @Transactional
     public Integer deleteByQuery(String query, String changeId) {
-        //delete sku first
-        productSkuManager.deleteByQuery(role, query, ProductSku.class);
+        SumPagedRep<AdminProductCardRep> adminProductCardRepSumPagedRep = readByQuery(query, null, null);
+        List<AdminProductCardRep> data = adminProductCardRepSumPagedRep.getData();
+        long l = adminProductCardRepSumPagedRep.getTotalItemCount() / data.size();
+        double ceil = Math.ceil(l);
+        int count = BigDecimal.valueOf(ceil).intValue();
+        for (int i = 1; i < count; i++) {
+            SumPagedRep<AdminProductCardRep> adminProductCardRepSumPagedRep1 = readByQuery(query, "num:" + i, "sc:1");
+            data.addAll(adminProductCardRepSumPagedRep1.getData());
+        }
+        Set<String> collect = data.stream().map(e -> e.getId().toString()).collect(Collectors.toSet());
+        String join = SKU_REFERENCE_ID_LITERAL + ":" + String.join(".", collect);
+        appBizSkuApplicationService.deleteByQuery(join, changeId);
         return productDetailManager.deleteByQuery(role, query, Product.class);
     }
 
     @Override
     @Transactional
     public Integer deleteById(Long id, String changeId) {
-        productSkuManager.deleteById(role, id.toString(), ProductSku.class);
+        appBizSkuApplicationService.deleteByQuery(SKU_REFERENCE_ID_LITERAL + ":" + id, changeId);
         return productDetailManager.deleteById(role, id.toString(), Product.class);
     }
 
@@ -112,7 +129,7 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
 
     @Override
     public AdminProductRep getEntityRepresentation(Product product) {
-        return new AdminProductRep(product,appBizSkuApplicationService);
+        return new AdminProductRep(product, appBizSkuApplicationService);
     }
 
 

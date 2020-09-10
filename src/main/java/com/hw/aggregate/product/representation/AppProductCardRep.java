@@ -17,13 +17,15 @@ class AppProductCardRep {
     private Long id;
     private List<ProductOption> selectedOptions;
     private List<AppProductSkuRep> productSkuList;
+    private HashMap<String, Long> attrSalesMap;
 
     public AppProductCardRep(Product productDetail, AppBizSkuApplicationService skuApplicationService) {
         this.id = productDetail.getId();
         this.selectedOptions = productDetail.getSelectedOptions();
+        this.attrSalesMap = productDetail.getAttrSalesMap();
         HashMap<String, Long> attrSalesMap = productDetail.getAttrSalesMap();
         Set<String> collect = attrSalesMap.values().stream().map(Object::toString).collect(Collectors.toSet());
-        SumPagedRep<AppBizSkuCardRep> appBizSkuCardRepSumPagedRep = skuApplicationService.readByQuery("id:"+String.join(".", collect), null, null);
+        SumPagedRep<AppBizSkuCardRep> appBizSkuCardRepSumPagedRep = skuApplicationService.readByQuery("id:" + String.join(".", collect), null, null);
         this.productSkuList = attrSalesMap.keySet().stream().map(e -> {
             AppProductSkuRep appProductSkuRep = new AppProductSkuRep();
             Long aLong = attrSalesMap.get(e);

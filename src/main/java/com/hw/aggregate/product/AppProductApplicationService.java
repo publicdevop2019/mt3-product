@@ -3,8 +3,6 @@ package com.hw.aggregate.product;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.aggregate.product.model.Product;
 import com.hw.aggregate.product.model.ProductQueryRegistry;
-import com.hw.aggregate.product.model.ProductSku;
-import com.hw.aggregate.product.model.ProductSkuQueryRegistry;
 import com.hw.aggregate.product.representation.AppProductCardRep;
 import com.hw.aggregate.sku.AppBizSkuApplicationService;
 import com.hw.shared.IdGenerator;
@@ -15,20 +13,21 @@ import com.hw.shared.idempotent.exception.RollbackNotSupportedException;
 import com.hw.shared.idempotent.model.ChangeRecord;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
+import com.hw.shared.rest.exception.NoUpdatableFieldException;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.RestfulQueryRegistry;
+import com.hw.shared.sql.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SKU_LITERAL;
+import static com.hw.aggregate.product.representation.AdminProductRep.ProductSkuAdminRepresentation.ADMIN_REP_ATTR_SALES_LITERAL;
 import static com.hw.shared.AppConstant.*;
 
 @Slf4j
@@ -46,8 +45,6 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
     private AppBizSkuApplicationService appBizSkuApplicationService;
     @Autowired
     private ProductQueryRegistry productQueryRegistry;
-    @Autowired
-    private ProductSkuQueryRegistry productSkuQueryRegistry;
 
     @Autowired
     private ObjectMapper om2;
@@ -114,10 +111,46 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
         List<PatchCommand> hasNestedEntity = deepCopy.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         List<PatchCommand> noNestedEntity = deepCopy.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         Integer update = productQueryRegistry.update(role, noNestedEntity, entityClass);
-        Integer update1 = productSkuQueryRegistry.update(role, hasNestedEntity, ProductSku.class);
+        appBizSkuApplicationService.patchBatch(parseAttrSales(hasNestedEntity), changeId);
         return update.longValue();
     }
 
+    public List<PatchCommand> parseAttrSales(List<PatchCommand> hasNestedEntity) {
+        Set<String> collect = hasNestedEntity.stream().map(e -> e.getPath().split("/")[1]).collect(Collectors.toSet());
+        String join = "id:" + String.join(".", collect);
+        SumPagedRep<AppProductCardRep> appProductCardRepSumPagedRep = readByQuery(join, null, "sc:1");
+        hasNestedEntity.forEach(e -> {
+            String[] split = e.getPath().split("/");
+            String id = split[1];
+            String fieldName = split[split.length - 1];
+            String attrSales = parseAttrSales(e);
+            Optional<AppProductCardRep> first = appProductCardRepSumPagedRep.getData().stream().filter(ee -> ee.getId().toString().equals(id)).findFirst();
+            if (first.isPresent()) {
+                Long aLong = first.get().getAttrSalesMap().get(attrSales);
+                e.setPath("/" + aLong + "/" + fieldName);
+            }
+        });
+
+        return null;
+    }
+
+    /**
+     * @param command [{"op":"add","path":"/837195323695104/skus?query=attributesSales:835604723556352-淡粉色,835604663263232-185~/100A~/XXL/storageActual","value":"1"}]
+     * @return 835604723556352:淡粉色,835604663263232:185/100A/XXL
+     */
+    private String parseAttrSales(PatchCommand command) {
+        String replace = command.getPath().replace("/" + ADMIN_REP_SKU_LITERAL + "?" + HTTP_PARAM_QUERY + "=" + ADMIN_REP_ATTR_SALES_LITERAL + ":", "");
+        String replace1 = replace.replace("~/", "$");
+        String[] split = replace1.split("/");
+        if (split.length != 2)
+            throw new NoUpdatableFieldException();
+        String $ = split[0].replace("-", ":").replace("$", "/");
+        return Arrays.stream($.split(",")).sorted((a, b) -> {
+            long l = Long.parseLong(a.split(":")[0]);
+            long l1 = Long.parseLong(b.split(":")[0]);
+            return Long.compare(l, l1);
+        }).collect(Collectors.joining(","));
+    }
 
     @Transactional
     public void rollbackChangeForApp(String id) {

@@ -6,7 +6,6 @@ import com.hw.aggregate.product.exception.AttributeNameNotFoundException;
 import com.hw.aggregate.product.model.Product;
 import com.hw.aggregate.product.model.ProductAttrSaleImages;
 import com.hw.aggregate.product.model.ProductOption;
-import com.hw.aggregate.product.model.ProductSku;
 import com.hw.aggregate.sku.AppBizSkuApplicationService;
 import com.hw.aggregate.sku.representation.AppBizSkuCardRep;
 import com.hw.shared.sql.SumPagedRep;
@@ -42,7 +41,7 @@ public class PublicProductRep {
 
         HashMap<String, Long> attrSalesMap = productDetail.getAttrSalesMap();
         Set<String> collect = attrSalesMap.values().stream().map(Object::toString).collect(Collectors.toSet());
-        SumPagedRep<AppBizSkuCardRep> appBizSkuCardRepSumPagedRep = skuApplicationService.readByQuery("id:"+String.join(".", collect), null, null);
+        SumPagedRep<AppBizSkuCardRep> appBizSkuCardRepSumPagedRep = skuApplicationService.readByQuery("id:" + String.join(".", collect), null, null);
         this.skus = attrSalesMap.keySet().stream().map(e -> {
             ProductSkuCustomerRepresentation appProductSkuRep = new ProductSkuCustomerRepresentation();
             Long aLong = attrSalesMap.get(e);
