@@ -118,7 +118,7 @@ public class Product extends Auditable implements IdBasedEntity {
                 e.setSales(0);
             e.setAttributesSales(new TreeSet<>(e.getAttributesSales()));
         });
-        adjustSku(command.getSkus(), skuApplicationService);
+        adjustSku(command.getSkus(), skuApplicationService,command.getChangeId());
         this.attrSalesTotal = command.getSkus().stream().map(AdminUpdateProductCommand.UpdateProductAdminSkuCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
         this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e ->
                 {
@@ -131,7 +131,7 @@ public class Product extends Auditable implements IdBasedEntity {
         this.lowestPrice = findLowestPrice(command);
     }
 
-    private void adjustSku(List<AdminUpdateProductCommand.UpdateProductAdminSkuCommand> commands, AppBizSkuApplicationService skuApplicationService) {
+    private void adjustSku(List<AdminUpdateProductCommand.UpdateProductAdminSkuCommand> commands, AppBizSkuApplicationService skuApplicationService,String changeId) {
         commands.forEach(command -> {
             if (command.getStorageActual() != null && command.getStorageOrder() != null) {
                 // new sku
@@ -162,7 +162,7 @@ public class Product extends Auditable implements IdBasedEntity {
                     //price will be update in a different changeId
                     skuApplicationService.replaceById(aLong, appUpdateBizSkuCommand, UUID.randomUUID().toString());
                 }
-                updateStorage(skuApplicationService, command);
+                updateStorage(skuApplicationService, command,changeId);
 
             }
         });
@@ -177,7 +177,7 @@ public class Product extends Auditable implements IdBasedEntity {
         return String.join(",", attributesSales);
     }
 
-    private void updateStorage(AppBizSkuApplicationService productApplicationService, AdminUpdateProductCommand.UpdateProductAdminSkuCommand command) {
+    private void updateStorage(AppBizSkuApplicationService productApplicationService, AdminUpdateProductCommand.UpdateProductAdminSkuCommand command,String changeId) {
         ArrayList<PatchCommand> patchCommands = new ArrayList<>();
         if (command.getDecreaseOrderStorage() != null) {
             PatchCommand patchCommand = new PatchCommand();
@@ -211,7 +211,6 @@ public class Product extends Auditable implements IdBasedEntity {
             patchCommand.setValue(command.getIncreaseActualStorage());
             patchCommands.add(patchCommand);
         }
-        String changeId = UUID.randomUUID().toString();
         if (patchCommands.size() > 0)
             productApplicationService.patchBatch(patchCommands, changeId);
     }
