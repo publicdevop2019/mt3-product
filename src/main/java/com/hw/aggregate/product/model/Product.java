@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SKU_LITERAL;
@@ -295,7 +296,7 @@ public class Product extends Auditable implements IdBasedEntity {
             }
         });
 
-        return null;
+        return hasNestedEntity;
     }
 
     /**
@@ -303,7 +304,10 @@ public class Product extends Auditable implements IdBasedEntity {
      * @return 835604723556352:淡粉色,835604663263232:185/100A/XXL
      */
     private static String parseAttrSales(PatchCommand command) {
-        String replace = command.getPath().replace("/" + ADMIN_REP_SKU_LITERAL + "?" + HTTP_PARAM_QUERY + "=" + ADMIN_REP_ATTR_SALES_LITERAL + ":", "");
+        AtomicInteger index = new AtomicInteger();
+        String[] split1 = command.getPath().split("/");
+        String collect = Arrays.stream(split1).filter((e) -> index.getAndIncrement() > 1).collect(Collectors.joining("/"));
+        String replace = collect.replace( ADMIN_REP_SKU_LITERAL + "?" + HTTP_PARAM_QUERY + "=" + ADMIN_REP_ATTR_SALES_LITERAL + ":", "");
         String replace1 = replace.replace("~/", "$");
         String[] split = replace1.split("/");
         if (split.length != 2)
