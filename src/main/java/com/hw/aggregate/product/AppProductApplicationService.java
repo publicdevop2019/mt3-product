@@ -7,7 +7,6 @@ import com.hw.aggregate.product.representation.AppProductCardRep;
 import com.hw.aggregate.sku.AppBizSkuApplicationService;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.AppChangeRecordApplicationService;
-import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.PatchCommand;
@@ -18,7 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SKU_LITERAL;
@@ -99,7 +99,8 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
     public Integer patchBatch(List<PatchCommand> commands, String changeId) {
         List<PatchCommand> hasNestedEntity = commands.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         List<PatchCommand> noNestedEntity = commands.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
-        appBizSkuApplicationService.patchBatch(Product.convertToSkuCommands(hasNestedEntity,this), changeId);
+        if (hasNestedEntity.size() > 0)
+            appBizSkuApplicationService.patchBatch(Product.convertToSkuCommands(hasNestedEntity, this), changeId);
         return super.patchBatch(noNestedEntity, changeId);
     }
 
