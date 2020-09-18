@@ -93,7 +93,7 @@ public class AdminBizSkuUpdateQueryBuilder extends UpdateQueryBuilder<BizSku> {
 
     private Predicate getStorageMustNotNegativeClause(CriteriaBuilder cb, Root<BizSku> root, PatchCommand command) {
         String filedLiteral;
-        if (command.getPath().equalsIgnoreCase(SKU_STORAGE_ORDER_LITERAL)) {
+        if (command.getPath().contains(SKU_STORAGE_ORDER_LITERAL)) {
             filedLiteral = SKU_STORAGE_ORDER_LITERAL;
         } else {
             filedLiteral = SKU_STORAGE_ACTUAL_LITERAL;
