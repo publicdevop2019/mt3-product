@@ -19,7 +19,7 @@ import static com.hw.shared.AppConstant.*;
 
 @Slf4j
 @RestController
-@RequestMapping(produces = "application/json", path = "sku")
+@RequestMapping(produces = "application/json", path = "skus")
 public class BizSkuController {
     @Autowired
     private AdminBizSkuApplicationService adminBizSkuApplicationService;
