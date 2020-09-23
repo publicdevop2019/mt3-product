@@ -3,6 +3,7 @@ package com.hw.aggregate.product.representation;
 import com.hw.aggregate.product.model.Product;
 import lombok.Data;
 
+import java.util.HashMap;
 import java.util.Set;
 
 @Data
@@ -15,15 +16,17 @@ class AdminProductCardRep {
     private Set<String> attributesKey;
     private Long startAt;
     private Long endAt;
+    private HashMap<String, Long> attrSalesMap;
 
-    public AdminProductCardRep(Product productDetail) {
-        this.id = productDetail.getId();
-        this.name = productDetail.getName();
-        this.totalSales = productDetail.getTotalSales();
-        this.attributesKey = productDetail.getAttrKey();
-        this.startAt = productDetail.getStartAt();
-        this.endAt = productDetail.getEndAt();
-        this.coverImage = productDetail.getImageUrlSmall();
+    public AdminProductCardRep(Product product) {
+        this.id = product.getId();
+        this.name = product.getName();
+        this.totalSales = product.getTotalSales();
+        this.attributesKey = product.getAttrKey();
+        this.startAt = product.getStartAt();
+        this.endAt = product.getEndAt();
+        this.coverImage = product.getImageUrlSmall();
+        this.attrSalesMap = product.getAttrSalesMap();
     }
 
 }
