@@ -97,11 +97,13 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
     @Override
     @Transactional
     public Integer patchBatch(List<PatchCommand> commands, String changeId) {
-        List<PatchCommand> hasNestedEntity = commands.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
-        List<PatchCommand> noNestedEntity = commands.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
-        if (hasNestedEntity.size() > 0)
-            appBizSkuApplicationService.patchBatch(Product.convertToSkuCommands(hasNestedEntity, this), changeId);
-        return super.patchBatch(noNestedEntity, changeId);
+        List<PatchCommand> skuChange = commands.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
+        List<PatchCommand> productChange = commands.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
+        if (!skuChange.isEmpty())
+            appBizSkuApplicationService.patchBatch(Product.convertToSkuCommands(skuChange, this), changeId);
+        if (!productChange.isEmpty())
+            return super.patchBatch(productChange, changeId);
+        return 0;
     }
 
 }
