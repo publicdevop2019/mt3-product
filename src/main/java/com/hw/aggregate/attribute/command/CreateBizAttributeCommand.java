@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.hw.aggregate.attribute.model.BizAttribute;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Data
-public class CreateBizAttributeCommand {
+public class CreateBizAttributeCommand implements Serializable {
+    private static final long serialVersionUID = 1;
     private String name;
     private String description;
     private BizAttribute.AttributeMethod method;

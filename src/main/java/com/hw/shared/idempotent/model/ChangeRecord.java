@@ -4,7 +4,6 @@ import com.hw.shared.Auditable;
 import com.hw.shared.idempotent.OperationType;
 import com.hw.shared.idempotent.command.AppCreateChangeRecordCommand;
 import com.hw.shared.rest.IdBasedEntity;
-import com.hw.shared.sql.PatchCommand;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

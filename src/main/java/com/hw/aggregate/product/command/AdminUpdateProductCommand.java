@@ -4,13 +4,15 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.hw.aggregate.product.model.ProductOption;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 @Data
-public class AdminUpdateProductCommand {
+public class AdminUpdateProductCommand implements Serializable {
+    private static final long serialVersionUID = 1;
     private String changeId;
     private String name;
     private String imageUrlSmall;
@@ -32,7 +34,8 @@ public class AdminUpdateProductCommand {
     private List<UpdateProductAttrImageAdminCommand> attributeSaleImages;
 
     @Data
-    public static class UpdateProductAdminSkuCommand {
+    public static class UpdateProductAdminSkuCommand implements Serializable{
+        private static final long serialVersionUID = 1;
         private Integer decreaseActualStorage;
         private Integer decreaseOrderStorage;
         private Integer increaseActualStorage;
@@ -45,7 +48,8 @@ public class AdminUpdateProductCommand {
     }
 
     @Data
-    public static class UpdateProductAttrImageAdminCommand {
+    public static class UpdateProductAttrImageAdminCommand implements Serializable{
+        private static final long serialVersionUID = 1;
         private String attributeSales;
         @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
         private Set<String> imageUrls;

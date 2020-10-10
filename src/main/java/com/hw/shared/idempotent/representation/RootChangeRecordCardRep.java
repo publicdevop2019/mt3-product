@@ -3,10 +3,7 @@ package com.hw.shared.idempotent.representation;
 import com.hw.shared.idempotent.OperationType;
 import com.hw.shared.idempotent.model.ChangeRecord;
 import com.hw.shared.idempotent.model.CustomByteArraySerializer;
-import com.hw.shared.sql.PatchCommand;
 import lombok.Data;
-
-import java.util.ArrayList;
 
 @Data
 public class RootChangeRecordCardRep {
