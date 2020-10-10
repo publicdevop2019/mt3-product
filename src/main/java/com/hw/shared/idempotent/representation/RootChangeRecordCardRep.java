@@ -2,6 +2,7 @@ package com.hw.shared.idempotent.representation;
 
 import com.hw.shared.idempotent.OperationType;
 import com.hw.shared.idempotent.model.ChangeRecord;
+import com.hw.shared.idempotent.model.CustomByteArraySerializer;
 import com.hw.shared.sql.PatchCommand;
 import lombok.Data;
 
@@ -14,18 +15,18 @@ public class RootChangeRecordCardRep {
     private String changeId;
     private String entityType;
 
-    private ArrayList<PatchCommand> patchCommands;
     private OperationType operationType;
     private String query;
     private String serviceBeanName;
+    private Object requestBody;
 
     public RootChangeRecordCardRep(ChangeRecord changeRecord) {
         this.id = changeRecord.getId();
         this.changeId = changeRecord.getChangeId();
         this.entityType = changeRecord.getEntityType();
-        this.patchCommands = changeRecord.getPatchCommands();
         this.operationType = changeRecord.getOperationType();
         this.query = changeRecord.getQuery();
         this.serviceBeanName = changeRecord.getServiceBeanName();
+        this.requestBody = CustomByteArraySerializer.convertToEntityAttribute(changeRecord.getRequestBody());
     }
 }

@@ -13,11 +13,9 @@ public class AppCreateChangeRecordCommand {
     private String changeId;
     private String entityType;
     private String serviceBeanName;
-
-    private ArrayList<PatchCommand> patchCommands;
-
     private OperationType operationType;
     private String query;
     private Object replacedVersion;
+    private Object requestBody;
     private List<Long> deletedIds;
 }

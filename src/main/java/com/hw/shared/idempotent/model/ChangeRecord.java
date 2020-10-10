@@ -27,14 +27,15 @@ public class ChangeRecord extends Auditable implements IdBasedEntity {
     @Column(nullable = false)
     private String serviceBeanName;
 
-    @Column(length = 100000)
-    private ArrayList<PatchCommand> patchCommands;
-
     @Lob
     @Column(columnDefinition = "BLOB")
     //@Convert(converter = CustomByteArraySerializer.class)
     // not using converter due to lazy load , no session error
     private byte[] replacedVersion;
+    @Lob
+    @Column(columnDefinition = "BLOB")
+    private byte[] requestBody;
+
     private ArrayList<Long> deletedIds;
     private OperationType operationType;
     private String query;
@@ -44,7 +45,7 @@ public class ChangeRecord extends Auditable implements IdBasedEntity {
         this.changeId = command.getChangeId();
         this.entityType = command.getEntityType();
         this.serviceBeanName = command.getServiceBeanName();
-        this.patchCommands = command.getPatchCommands();
+        this.requestBody = CustomByteArraySerializer.convertToDatabaseColumn(command.getRequestBody());
         this.operationType = command.getOperationType();
         this.query = command.getQuery();
         this.replacedVersion = CustomByteArraySerializer.convertToDatabaseColumn(command.getReplacedVersion());
