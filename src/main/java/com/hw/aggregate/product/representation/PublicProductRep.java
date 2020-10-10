@@ -23,7 +23,6 @@ public class PublicProductRep {
     private String imageUrlSmall;
     private Set<String> imageUrlLarge;
     private String description;
-    private Set<String> specification;
     private BigDecimal lowestPrice;
     private Integer totalSales;
     private List<ProductSkuCustomerRepresentation> skus;
@@ -37,7 +36,6 @@ public class PublicProductRep {
         this.imageUrlSmall = productDetail.getImageUrlSmall();
         this.imageUrlLarge = productDetail.getImageUrlLarge();
         this.description = productDetail.getDescription();
-        this.specification = productDetail.getSpecification();
 
         HashMap<String, Long> attrSalesMap = productDetail.getAttrSalesMap();
         Set<String> collect = attrSalesMap.values().stream().map(Object::toString).collect(Collectors.toSet());

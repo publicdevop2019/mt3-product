@@ -66,10 +66,6 @@ public class Product extends Auditable implements IdBasedEntity {
     public transient static final String PRODUCT_IMAGE_URL_LARGE_LITERAL = "imageUrlLarge";
 
     @Convert(converter = StringSetConverter.class)
-    private Set<String> specification;
-    public transient static final String PRODUCT_SPEC_LITERAL = "specification";
-
-    @Convert(converter = StringSetConverter.class)
     private Set<String> attrKey;
     public transient static final String PRODUCT_ATTR_KEY_LITERAL = "attrKey";
 
@@ -108,7 +104,6 @@ public class Product extends Auditable implements IdBasedEntity {
         this.description = command.getDescription();
         this.selectedOptions = command.getSelectedOptions();
         this.imageUrlLarge = command.getImageUrlLarge();
-        this.specification = command.getSpecification();
         this.attrKey = command.getAttributesKey();
         this.attrProd = command.getAttributesProd();
         this.attrGen = command.getAttributesGen();
@@ -229,7 +224,6 @@ public class Product extends Auditable implements IdBasedEntity {
         this.description = command.getDescription();
         this.selectedOptions = command.getSelectedOptions();
         this.imageUrlLarge = command.getImageUrlLarge();
-        this.specification = command.getSpecification();
         this.attrKey = command.getAttributesKey();
         this.attrProd = command.getAttributesProd();
         this.attrGen = command.getAttributesGen();

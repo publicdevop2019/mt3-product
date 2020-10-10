@@ -30,8 +30,6 @@ public class AdminProductRep {
     private Long endAt;
     public transient static final String ADMIN_REP_END_AT_LITERAL = "endAt";
 
-    private Set<String> specification;
-
     private List<ProductOption> selectedOptions;
 
     private Set<String> attributesKey;
@@ -59,7 +57,6 @@ public class AdminProductRep {
         this.endAt = productDetail.getEndAt();
         this.selectedOptions = productDetail.getSelectedOptions();
         this.imageUrlLarge = productDetail.getImageUrlLarge();
-        this.specification = productDetail.getSpecification();
         this.attributesKey = productDetail.getAttrKey();
         this.attributesProd = productDetail.getAttrProd();
         this.attributesGen = productDetail.getAttrGen();
