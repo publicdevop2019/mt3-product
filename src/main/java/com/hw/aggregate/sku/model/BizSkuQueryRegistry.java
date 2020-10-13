@@ -11,7 +11,6 @@ import javax.annotation.PostConstruct;
 public class BizSkuQueryRegistry extends RestfulQueryRegistry<BizSku> {
 
     @Autowired
-    @Qualifier("admin")
     private AdminBizSkuDeleteQueryBuilder adminDeleteQueryBuilder;
 
     @Autowired
@@ -23,7 +22,6 @@ public class BizSkuQueryRegistry extends RestfulQueryRegistry<BizSku> {
     @Autowired
     private AdminBizSkuSelectQueryBuilder adminBizSkuSelectQueryBuilder;
     @Autowired
-    @Qualifier("app")
     private AppBizSkuDeleteQueryBuilder appBizSkuDeleteQueryBuilder;
 
     @PostConstruct

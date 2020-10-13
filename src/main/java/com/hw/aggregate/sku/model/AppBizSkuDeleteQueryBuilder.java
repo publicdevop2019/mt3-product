@@ -14,15 +14,9 @@ import javax.persistence.criteria.Root;
 import static com.hw.aggregate.sku.model.BizSku.SKU_REFERENCE_ID_LITERAL;
 
 @Component
-@Qualifier("app")
 public class AppBizSkuDeleteQueryBuilder extends SoftDeleteQueryBuilder<BizSku> {
     AppBizSkuDeleteQueryBuilder(){
         supportedWhereField.put(SKU_REFERENCE_ID_LITERAL, new SelectFieldStringEqualClause<>(SKU_REFERENCE_ID_LITERAL));
-    }
-
-    @Override
-    protected Predicate getWhereClause(Root<BizSku> root, String fieldName) {
-        return null;
     }
 
     @Autowired

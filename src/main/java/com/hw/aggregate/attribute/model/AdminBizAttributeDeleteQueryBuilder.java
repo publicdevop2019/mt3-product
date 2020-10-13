@@ -1,13 +1,13 @@
 package com.hw.aggregate.attribute.model;
 
-import com.hw.shared.sql.builder.DeleteByIdQueryBuilder;
+import com.hw.shared.sql.builder.SoftDeleteQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 
 @Component
-public class AdminBizAttributeDeleteQueryBuilder extends DeleteByIdQueryBuilder<BizAttribute> {
+public class AdminBizAttributeDeleteQueryBuilder extends SoftDeleteQueryBuilder<BizAttribute> {
     @Autowired
     private void setEntityManager(EntityManager entityManager) {
         em = entityManager;
