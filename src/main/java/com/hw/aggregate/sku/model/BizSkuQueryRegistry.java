@@ -2,6 +2,7 @@ package com.hw.aggregate.sku.model;
 
 import com.hw.shared.sql.RestfulQueryRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -10,6 +11,7 @@ import javax.annotation.PostConstruct;
 public class BizSkuQueryRegistry extends RestfulQueryRegistry<BizSku> {
 
     @Autowired
+    @Qualifier("admin")
     private AdminBizSkuDeleteQueryBuilder adminDeleteQueryBuilder;
 
     @Autowired
@@ -21,6 +23,7 @@ public class BizSkuQueryRegistry extends RestfulQueryRegistry<BizSku> {
     @Autowired
     private AdminBizSkuSelectQueryBuilder adminBizSkuSelectQueryBuilder;
     @Autowired
+    @Qualifier("app")
     private AppBizSkuDeleteQueryBuilder appBizSkuDeleteQueryBuilder;
 
     @PostConstruct

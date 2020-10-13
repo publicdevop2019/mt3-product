@@ -114,20 +114,21 @@ public class Product extends Auditable implements IdBasedEntity {
                 e.setSales(0);
             e.setAttributesSales(new TreeSet<>(e.getAttributesSales()));
         });
-        adjustSku(command.getSkus(), skuApplicationService,command.getChangeId());
+        adjustSku(command.getSkus(), skuApplicationService, command.getChangeId());
         this.attrSalesTotal = command.getSkus().stream().map(AdminUpdateProductCommand.UpdateProductAdminSkuCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
-        this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e ->
-                {
-                    ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
-                    productAttrSaleImages.setAttributeSales(e.getAttributeSales());
-                    productAttrSaleImages.setImageUrls((LinkedHashSet<String>) e.getImageUrls());
-                    return productAttrSaleImages;
-                }
-        ).collect(Collectors.toCollection(ArrayList::new));
+        if (command.getAttributeSaleImages() != null)
+            this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e ->
+                    {
+                        ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
+                        productAttrSaleImages.setAttributeSales(e.getAttributeSales());
+                        productAttrSaleImages.setImageUrls((LinkedHashSet<String>) e.getImageUrls());
+                        return productAttrSaleImages;
+                    }
+            ).collect(Collectors.toCollection(ArrayList::new));
         this.lowestPrice = findLowestPrice(command);
     }
 
-    private void adjustSku(List<AdminUpdateProductCommand.UpdateProductAdminSkuCommand> commands, AppBizSkuApplicationService skuApplicationService,String changeId) {
+    private void adjustSku(List<AdminUpdateProductCommand.UpdateProductAdminSkuCommand> commands, AppBizSkuApplicationService skuApplicationService, String changeId) {
         commands.forEach(command -> {
             if (command.getStorageActual() != null && command.getStorageOrder() != null) {
                 // new sku
@@ -158,7 +159,7 @@ public class Product extends Auditable implements IdBasedEntity {
                     //price will be update in a different changeId
                     skuApplicationService.replaceById(aLong, appUpdateBizSkuCommand, UUID.randomUUID().toString());
                 }
-                updateStorage(skuApplicationService, command,changeId);
+                updateStorage(skuApplicationService, command, changeId);
 
             }
         });
@@ -173,7 +174,7 @@ public class Product extends Auditable implements IdBasedEntity {
         return String.join(",", attributesSales);
     }
 
-    private void updateStorage(AppBizSkuApplicationService productApplicationService, AdminUpdateProductCommand.UpdateProductAdminSkuCommand command,String changeId) {
+    private void updateStorage(AppBizSkuApplicationService productApplicationService, AdminUpdateProductCommand.UpdateProductAdminSkuCommand command, String changeId) {
         ArrayList<PatchCommand> patchCommands = new ArrayList<>();
         if (command.getDecreaseOrderStorage() != null) {
             PatchCommand patchCommand = new PatchCommand();
@@ -181,6 +182,7 @@ public class Product extends Auditable implements IdBasedEntity {
             String query = toSkuQueryPath(command, ADMIN_REP_SKU_STORAGE_ORDER_LITERAL);
             patchCommand.setPath(query);
             patchCommand.setValue(command.getDecreaseOrderStorage());
+            patchCommand.setExpect(1);
             patchCommands.add(patchCommand);
         }
         if (command.getDecreaseActualStorage() != null) {
@@ -189,6 +191,7 @@ public class Product extends Auditable implements IdBasedEntity {
             String query = toSkuQueryPath(command, ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL);
             patchCommand.setPath(query);
             patchCommand.setValue(command.getDecreaseActualStorage());
+            patchCommand.setExpect(1);
             patchCommands.add(patchCommand);
         }
         if (command.getIncreaseOrderStorage() != null) {
@@ -197,6 +200,7 @@ public class Product extends Auditable implements IdBasedEntity {
             String query = toSkuQueryPath(command, ADMIN_REP_SKU_STORAGE_ORDER_LITERAL);
             patchCommand.setPath(query);
             patchCommand.setValue(command.getIncreaseOrderStorage());
+            patchCommand.setExpect(1);
             patchCommands.add(patchCommand);
         }
         if (command.getIncreaseActualStorage() != null) {
@@ -205,6 +209,7 @@ public class Product extends Auditable implements IdBasedEntity {
             String query = toSkuQueryPath(command, ADMIN_REP_SKU_STORAGE_ACTUAL_LITERAL);
             patchCommand.setPath(query);
             patchCommand.setValue(command.getIncreaseActualStorage());
+            patchCommand.setExpect(1);
             patchCommands.add(patchCommand);
         }
         if (patchCommands.size() > 0)
@@ -244,15 +249,18 @@ public class Product extends Auditable implements IdBasedEntity {
             command1.setStorageActual(skuAdminCommand.getStorageActual());
             command1.setSales(skuAdminCommand.getSales());
             CreatedEntityRep createdEntityRep = appBizSkuApplicationService.create(command1, UUID.randomUUID().toString());
+            if (attrSalesMap == null)
+                attrSalesMap = new HashMap<>();
             attrSalesMap.put(String.join(",", skuAdminCommand.getAttributesSales()), createdEntityRep.getId());
         }
-        this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e -> {
-                    ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
-                    productAttrSaleImages.setAttributeSales(e.getAttributeSales());
-                    productAttrSaleImages.setImageUrls((LinkedHashSet<String>) e.getImageUrls());
-                    return productAttrSaleImages;
-                }
-        ).collect(Collectors.toCollection(ArrayList::new));
+        if (command.getAttributeSaleImages() != null)
+            this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e -> {
+                        ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
+                        productAttrSaleImages.setAttributeSales(e.getAttributeSales());
+                        productAttrSaleImages.setImageUrls((LinkedHashSet<String>) e.getImageUrls());
+                        return productAttrSaleImages;
+                    }
+            ).collect(Collectors.toCollection(ArrayList::new));
         this.lowestPrice = findLowestPrice(command);
         this.totalSales = calcTotalSales(command);
     }
@@ -301,7 +309,7 @@ public class Product extends Auditable implements IdBasedEntity {
         AtomicInteger index = new AtomicInteger();
         String[] split1 = command.getPath().split("/");
         String collect = Arrays.stream(split1).filter((e) -> index.getAndIncrement() > 1).collect(Collectors.joining("/"));
-        String replace = collect.replace( ADMIN_REP_SKU_LITERAL + "?" + HTTP_PARAM_QUERY + "=" + ADMIN_REP_ATTR_SALES_LITERAL + ":", "");
+        String replace = collect.replace(ADMIN_REP_SKU_LITERAL + "?" + HTTP_PARAM_QUERY + "=" + ADMIN_REP_ATTR_SALES_LITERAL + ":", "");
         String replace1 = replace.replace("~/", "$");
         String[] split = replace1.split("/");
         if (split.length != 2)
