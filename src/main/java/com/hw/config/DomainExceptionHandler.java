@@ -22,7 +22,6 @@ import static com.hw.shared.AppConstant.HTTP_HEADER_ERROR_ID;
 public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {
-            ProductNotFoundException.class,
             SkuAlreadyExistException.class,
             SkuNotExistException.class,
     })
