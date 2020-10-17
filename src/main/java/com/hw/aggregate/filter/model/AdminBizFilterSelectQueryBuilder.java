@@ -11,10 +11,6 @@ import static com.hw.aggregate.filter.model.BizFilter.ENTITY_CATALOG_LITERAL;
 
 @Component
 public class AdminBizFilterSelectQueryBuilder extends SelectQueryBuilder<BizFilter> {
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
 
     AdminBizFilterSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 40;

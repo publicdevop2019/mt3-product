@@ -9,8 +9,4 @@ import javax.persistence.EntityManager;
 @Component
 public class AdminProductDeleteQueryBuilder extends SoftDeleteQueryBuilder<Product> {
 
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
 }

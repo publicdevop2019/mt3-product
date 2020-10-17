@@ -16,8 +16,4 @@ public class AdminBizSkuDeleteQueryBuilder extends SoftDeleteQueryBuilder<BizSku
         supportedWhereField.put(SKU_REFERENCE_ID_LITERAL, new SelectFieldStringEqualClause<>(SKU_REFERENCE_ID_LITERAL));
     }
 
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
 }

@@ -22,11 +22,6 @@ import static com.hw.shared.AppConstant.*;
 
 @Component
 public class AppProductUpdateQueryBuilder extends UpdateQueryBuilder<Product> {
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
-
     //    [
     //    {"op":"add","path":"/storageOrder","value":"1"},
     //    {"op":"sub","path":"/storageActual","value":"2"}

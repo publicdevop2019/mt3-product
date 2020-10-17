@@ -16,8 +16,4 @@ public class AdminBizSkuSelectQueryBuilder extends SelectQueryBuilder<BizSku> {
         supportedWhereField.put(SKU_REFERENCE_ID_LITERAL, new SelectFieldStringEqualClause<>(SKU_REFERENCE_ID_LITERAL));
     }
 
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
 }

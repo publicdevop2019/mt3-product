@@ -37,9 +37,5 @@ public class AppBizSkuUpdateQueryBuilder extends UpdateQueryBuilder<BizSku> {
     protected Predicate getWhereClause(Root<BizSku> root, List<String> ids, PatchCommand command) {
         return adminBizSkuUpdateQueryBuilder.getWhereClause(root, ids, command);
     }
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
 
 }

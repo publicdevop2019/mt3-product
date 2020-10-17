@@ -13,10 +13,6 @@ import static com.hw.aggregate.catalog.model.BizCatalog.*;
 
 @Component
 public class AdminBizCatalogSelectQueryBuilder extends SelectQueryBuilder<BizCatalog> {
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
 
     AdminBizCatalogSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 1000;

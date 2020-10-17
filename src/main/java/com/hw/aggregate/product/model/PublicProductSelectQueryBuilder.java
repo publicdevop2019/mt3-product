@@ -15,11 +15,6 @@ import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 @Component
 public class PublicProductSelectQueryBuilder extends SelectQueryBuilder<Product> {
 
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
-
     PublicProductSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 20;
         MAX_PAGE_SIZE = 40;

@@ -8,15 +8,6 @@ import javax.persistence.EntityManager;
 
 @Component
 public class AppProductSelectQueryBuilder extends SelectQueryBuilder<Product> {
-
-    @Autowired
-    private AdminProductSelectQueryBuilder adminSelectQueryBuilder;
-
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
-
     AppProductSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 20;
         MAX_PAGE_SIZE = 40;

@@ -14,10 +14,6 @@ import static com.hw.aggregate.attribute.model.BizAttribute.TYPE_LITERAL;
 
 @Component
 public class AdminBizAttributeSelectQueryBuilder extends SelectQueryBuilder<BizAttribute> {
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
 
     AdminBizAttributeSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 200;

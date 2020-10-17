@@ -22,10 +22,6 @@ import static com.hw.shared.AppConstant.*;
 
 @Component
 public class AdminBizSkuUpdateQueryBuilder extends UpdateQueryBuilder<BizSku> {
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
 
     @Override
     protected void setUpdateValue(Root<BizSku> root, CriteriaUpdate<BizSku> criteriaUpdate, PatchCommand e) {

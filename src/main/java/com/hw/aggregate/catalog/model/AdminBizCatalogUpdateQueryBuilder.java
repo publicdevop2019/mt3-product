@@ -19,10 +19,6 @@ import static com.hw.aggregate.catalog.representation.AdminBizCatalogCardRep.ADM
 
 @Component
 public class AdminBizCatalogUpdateQueryBuilder extends UpdateByIdQueryBuilder<BizCatalog> {
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
 
     @PostConstruct
     private void setUp() {

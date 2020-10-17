@@ -14,10 +14,6 @@ import static com.hw.aggregate.attribute.representation.AdminBizAttributeCardRep
 
 @Component
 public class AdminBizAttributeUpdateQueryBuilder extends UpdateByIdQueryBuilder<BizAttribute> {
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
 
     @PostConstruct
     private void setUp() {

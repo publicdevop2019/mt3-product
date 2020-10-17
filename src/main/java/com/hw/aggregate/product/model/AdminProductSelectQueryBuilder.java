@@ -15,10 +15,6 @@ import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 
 @Component
 public class AdminProductSelectQueryBuilder extends SelectQueryBuilder<Product> {
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
 
 
     AdminProductSelectQueryBuilder() {

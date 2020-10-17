@@ -8,10 +8,6 @@ import javax.persistence.EntityManager;
 
 @Component
 public class AppBizAttributeSelectQueryBuilder extends SelectQueryBuilder<BizAttribute> {
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
 
     AppBizAttributeSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 10;
