@@ -1,16 +1,11 @@
 package com.hw.aggregate.filter;
 
 import com.hw.aggregate.filter.model.BizFilter;
-import com.hw.aggregate.filter.model.BizFilterQueryRegistry;
 import com.hw.aggregate.filter.representation.PublicBizFilterCardRep;
-import com.hw.shared.IdGenerator;
-import com.hw.shared.idempotent.AppChangeRecordApplicationService;
-import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import com.hw.shared.sql.SumPagedRep;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,25 +16,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class PublicBizFilterApplicationService extends DefaultRoleBasedRestfulService<BizFilter, PublicBizFilterCardRep, Void, VoidTypedClass> {
-    @Autowired
-    private BizFilterRepository repo2;
-
-    @Autowired
-    private IdGenerator idGenerator2;
-
-    @Autowired
-    private BizFilterQueryRegistry bizFilterManager2;
-    @Autowired
-    private AppChangeRecordApplicationService changeHistoryRepository;
 
     @PostConstruct
     private void setUp() {
-        repo = repo2;
-        idGenerator = idGenerator2;
-        queryRegistry = bizFilterManager2;
         entityClass = BizFilter.class;
         role = RestfulQueryRegistry.RoleEnum.PUBLIC;
-        appChangeRecordApplicationService = changeHistoryRepository;
     }
 
     @Transactional(readOnly = true)

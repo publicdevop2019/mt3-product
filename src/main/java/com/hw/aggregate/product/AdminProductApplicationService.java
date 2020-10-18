@@ -1,19 +1,14 @@
 package com.hw.aggregate.product;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.aggregate.attribute.AppBizAttributeApplicationService;
 import com.hw.aggregate.catalog.PublicBizCatalogApplicationService;
 import com.hw.aggregate.product.command.AdminCreateProductCommand;
 import com.hw.aggregate.product.command.AdminUpdateProductCommand;
 import com.hw.aggregate.product.model.AdminProductPatchMiddleLayer;
 import com.hw.aggregate.product.model.Product;
-import com.hw.aggregate.product.model.ProductQueryRegistry;
 import com.hw.aggregate.product.representation.AdminProductCardRep;
 import com.hw.aggregate.product.representation.AdminProductRep;
 import com.hw.aggregate.sku.AppBizSkuApplicationService;
-import com.hw.shared.IdGenerator;
-import com.hw.shared.idempotent.AppChangeRecordApplicationService;
-import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.RestfulQueryRegistry;
@@ -35,10 +30,6 @@ import static com.hw.aggregate.sku.model.BizSku.SKU_REFERENCE_ID_LITERAL;
 @Service
 public class AdminProductApplicationService extends DefaultRoleBasedRestfulService<Product, AdminProductCardRep, AdminProductRep, AdminProductPatchMiddleLayer> {
 
-    @Autowired
-    private ProductRepo repo2;
-    @Autowired
-    private AppChangeRecordApplicationService changeHistoryRepository;
 
     @Autowired
     private PublicBizCatalogApplicationService catalogApplicationService;
@@ -52,25 +43,12 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
     @Autowired
     private AppProductApplicationService appProductApplicationService;
 
-    @Autowired
-    private IdGenerator idGenerator2;
-
-    @Autowired
-    private ProductQueryRegistry productDetailManager;
-
-    @Autowired
-    private ObjectMapper om2;
 
     @PostConstruct
     private void setUp() {
-        repo = repo2;
-        idGenerator = idGenerator2;
-        queryRegistry = productDetailManager;
         entityClass = Product.class;
         role = RestfulQueryRegistry.RoleEnum.ADMIN;
         entityPatchSupplier = (AdminProductPatchMiddleLayer::new);
-        om = om2;
-        appChangeRecordApplicationService = changeHistoryRepository;
     }
 
     @Override
@@ -89,7 +67,7 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
         Set<String> collect = data.stream().map(e -> e.getId().toString()).collect(Collectors.toSet());
         String join = SKU_REFERENCE_ID_LITERAL + ":" + String.join(".", collect);
         appBizSkuApplicationService.deleteByQuery(join, changeId);
-        return productDetailManager.deleteByQuery(role, query, Product.class);
+        return queryRegistry.deleteByQuery(role, query, Product.class);
     }
 
 
@@ -97,7 +75,7 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
     @Transactional
     public Integer deleteById(Long id, String changeId) {
         appBizSkuApplicationService.deleteByQuery(SKU_REFERENCE_ID_LITERAL + ":" + id, changeId);
-        return productDetailManager.deleteById(role, id.toString(), Product.class);
+        return queryRegistry.deleteById(role, id.toString(), Product.class);
     }
 
     @Override

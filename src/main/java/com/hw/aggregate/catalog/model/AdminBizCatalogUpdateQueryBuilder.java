@@ -1,14 +1,11 @@
 package com.hw.aggregate.catalog.model;
 
-import com.hw.aggregate.attribute.model.BizAttribute;
 import com.hw.shared.rest.exception.UpdateFiledValueException;
 import com.hw.shared.sql.builder.UpdateByIdQueryBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
 import java.math.BigInteger;
 
 import static com.hw.aggregate.catalog.model.BizCatalog.PARENT_ID_LITERAL;

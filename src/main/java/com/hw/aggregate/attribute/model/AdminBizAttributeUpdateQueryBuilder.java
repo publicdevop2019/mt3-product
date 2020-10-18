@@ -1,11 +1,9 @@
 package com.hw.aggregate.attribute.model;
 
 import com.hw.shared.sql.builder.UpdateByIdQueryBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
 
 import static com.hw.aggregate.attribute.model.BizAttribute.METHOD_LITERAL;
 import static com.hw.aggregate.attribute.model.BizAttribute.TYPE_LITERAL;

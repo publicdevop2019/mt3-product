@@ -2,7 +2,6 @@ package com.hw.aggregate.sku.model;
 
 import com.hw.shared.sql.RestfulQueryRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;

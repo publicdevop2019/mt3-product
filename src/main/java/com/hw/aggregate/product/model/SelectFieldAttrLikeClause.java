@@ -1,7 +1,7 @@
 package com.hw.aggregate.product.model;
 
-import com.hw.shared.sql.exception.UnsupportedQueryException;
 import com.hw.shared.sql.clause.WhereClause;
+import com.hw.shared.sql.exception.UnsupportedQueryException;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;

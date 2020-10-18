@@ -1,11 +1,8 @@
 package com.hw.aggregate.sku;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.hw.aggregate.product.command.AdminCreateProductCommand;
-import com.hw.aggregate.product.command.AdminUpdateProductCommand;
 import com.hw.aggregate.sku.command.AdminCreateBizSkuCommand;
 import com.hw.aggregate.sku.command.AdminUpdateBizSkuCommand;
-import com.hw.aggregate.sku.model.AdminBizSkuUpdateQueryBuilder;
 import com.hw.shared.sql.PatchCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -3,14 +3,10 @@ package com.hw.aggregate.product.model;
 import com.hw.shared.sql.builder.SelectQueryBuilder;
 import com.hw.shared.sql.clause.SelectFieldNumberRangeClause;
 import com.hw.shared.sql.clause.SelectFieldStringLikeClause;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.persistence.EntityManager;
 
 import static com.hw.aggregate.product.model.Product.*;
 import static com.hw.aggregate.product.representation.AdminProductRep.*;
-import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 
 
 @Component

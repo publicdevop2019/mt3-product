@@ -6,11 +6,9 @@ import com.hw.shared.rest.exception.UnsupportedPatchOperationException;
 import com.hw.shared.rest.exception.UpdateFiledValueException;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.builder.UpdateQueryBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import javax.persistence.EntityManager;
 import javax.persistence.criteria.*;
 import java.math.BigInteger;
 import java.util.ArrayList;

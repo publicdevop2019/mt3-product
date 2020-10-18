@@ -2,13 +2,9 @@ package com.hw.aggregate.product;
 
 import com.hw.aggregate.attribute.AppBizAttributeApplicationService;
 import com.hw.aggregate.product.model.Product;
-import com.hw.aggregate.product.model.ProductQueryRegistry;
 import com.hw.aggregate.product.representation.PublicProductCardRep;
 import com.hw.aggregate.product.representation.PublicProductRep;
 import com.hw.aggregate.sku.AppBizSkuApplicationService;
-import com.hw.shared.IdGenerator;
-import com.hw.shared.idempotent.AppChangeRecordApplicationService;
-import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
@@ -23,8 +19,6 @@ import java.util.Map;
 @Service
 public class PublicProductApplicationService extends DefaultRoleBasedRestfulService<Product, PublicProductCardRep, PublicProductRep, VoidTypedClass> {
 
-    @Autowired
-    private ProductRepo repo2;
 
     @Autowired
     private AppBizAttributeApplicationService appBizAttributeApplicationService;
@@ -32,22 +26,11 @@ public class PublicProductApplicationService extends DefaultRoleBasedRestfulServ
     @Autowired
     private AppBizSkuApplicationService appBizSkuApplicationService;
 
-    @Autowired
-    private IdGenerator idGenerator2;
-
-    @Autowired
-    private ProductQueryRegistry productDetailManager;
-    @Autowired
-    private AppChangeRecordApplicationService changeHistoryRepository;
 
     @PostConstruct
     private void setUp() {
-        repo = repo2;
-        idGenerator = idGenerator2;
-        queryRegistry = productDetailManager;
         entityClass = Product.class;
         role = RestfulQueryRegistry.RoleEnum.PUBLIC;
-        appChangeRecordApplicationService = changeHistoryRepository;
     }
 
     @Override

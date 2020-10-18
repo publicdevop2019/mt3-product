@@ -1,15 +1,10 @@
 package com.hw.aggregate.attribute;
 
 import com.hw.aggregate.attribute.model.BizAttribute;
-import com.hw.aggregate.attribute.model.BizAttributeQueryRegistry;
 import com.hw.aggregate.attribute.representation.AppBizAttributeCardRep;
-import com.hw.shared.IdGenerator;
-import com.hw.shared.idempotent.AppChangeRecordApplicationService;
-import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -17,23 +12,11 @@ import java.util.Map;
 
 @Service
 public class AppBizAttributeApplicationService extends DefaultRoleBasedRestfulService<BizAttribute, AppBizAttributeCardRep, Void, VoidTypedClass> {
-    @Autowired
-    private BizAttributeRepository repo2;
-    @Autowired
-    private IdGenerator idGenerator2;
-    @Autowired
-    private BizAttributeQueryRegistry bizAttributeManager2;
-    @Autowired
-    private AppChangeRecordApplicationService changeHistoryRepository;
 
     @PostConstruct
     private void setUp() {
-        repo = repo2;
-        idGenerator = idGenerator2;
-        queryRegistry = bizAttributeManager2;
         entityClass = BizAttribute.class;
         role = RestfulQueryRegistry.RoleEnum.APP;
-        appChangeRecordApplicationService = changeHistoryRepository;
     }
 
     @Override

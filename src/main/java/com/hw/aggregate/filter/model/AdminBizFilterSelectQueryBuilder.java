@@ -2,10 +2,7 @@ package com.hw.aggregate.filter.model;
 
 import com.hw.shared.sql.builder.SelectQueryBuilder;
 import com.hw.shared.sql.clause.SelectFieldStringLikeClause;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.persistence.EntityManager;
 
 import static com.hw.aggregate.filter.model.BizFilter.ENTITY_CATALOG_LITERAL;
 

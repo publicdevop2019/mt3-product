@@ -2,7 +2,6 @@ package com.hw.aggregate.product.model;
 
 import com.hw.shared.rest.TypedClass;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * @description this class defines what filed can be patched

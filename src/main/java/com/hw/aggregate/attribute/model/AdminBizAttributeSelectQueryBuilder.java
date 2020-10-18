@@ -3,10 +3,7 @@ package com.hw.aggregate.attribute.model;
 import com.hw.shared.sql.builder.SelectQueryBuilder;
 import com.hw.shared.sql.clause.SelectFieldStringEqualClause;
 import com.hw.shared.sql.clause.SelectFieldStringLikeClause;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.persistence.EntityManager;
 
 import static com.hw.aggregate.attribute.model.BizAttribute.NAME_LITERAL;
 import static com.hw.aggregate.attribute.model.BizAttribute.TYPE_LITERAL;
