@@ -1,27 +1,12 @@
 package com.hw.aggregate.filter.model;
 
 import com.hw.shared.sql.RestfulQueryRegistry;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 
 @Component
 public class BizFilterQueryRegistry extends RestfulQueryRegistry<BizFilter> {
-    @Autowired
-    private PublicFilterSelectQueryBuilder publicFilterSelectQueryBuilder;
-
-    @Autowired
-    private AdminBizFilterDeleteQueryBuilder adminFilterDeleteQueryBuilder;
-
-    @Autowired
-    private AdminBizFilterSelectQueryBuilder adminFilterSelectQueryBuilder;
-
-    @PostConstruct
     @Override
-    protected void configQueryBuilder() {
-        this.selectQueryBuilder.put(RoleEnum.PUBLIC, publicFilterSelectQueryBuilder);
-        this.deleteQueryBuilder.put(RoleEnum.ADMIN, adminFilterDeleteQueryBuilder);
-        this.selectQueryBuilder.put(RoleEnum.ADMIN, adminFilterSelectQueryBuilder);
+    public Class<BizFilter> getEntityClass() {
+        return BizFilter.class;
     }
 }
