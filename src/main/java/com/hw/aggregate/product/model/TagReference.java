@@ -21,4 +21,5 @@ public class TagReferenceMap extends Auditable implements IdBasedEntity {
     private Long id;
     private Long referenceId;
     private Long tagId;
+    private String tagValue;
 }

@@ -1,13 +1,13 @@
 package com.hw.aggregate.product.representation;
 
-import com.hw.aggregate.tag.AppBizTagApplicationService;
-import com.hw.aggregate.tag.representation.AppBizTagCardRep;
 import com.hw.aggregate.product.exception.AttributeNameNotFoundException;
 import com.hw.aggregate.product.model.Product;
 import com.hw.aggregate.product.model.ProductAttrSaleImages;
 import com.hw.aggregate.product.model.ProductOption;
 import com.hw.aggregate.sku.AppBizSkuApplicationService;
 import com.hw.aggregate.sku.representation.AppBizSkuCardRep;
+import com.hw.aggregate.tag.AppBizTagApplicationService;
+import com.hw.aggregate.tag.representation.AppBizTagCardRep;
 import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -61,7 +61,7 @@ public class PublicProductRep {
                 .stream().map(e -> e.split(":")[0]).forEach(el -> attrIdMap.put(el, null));
         String search = "id:" + String.join(".", this.attrIdMap.keySet());
         SumPagedRep<AppBizTagCardRep> bizAttributeSummaryRepresentation;
-        if (this.attrIdMap.keySet().size() > 0) {
+        if (this.attrIdMap.keySet().size() > 0 && !onlyEmptyKeyExist(this.attrIdMap.keySet())) {
             String page = "size:" + this.attrIdMap.keySet().size();
             bizAttributeSummaryRepresentation = appBizAttributeApplicationService.readByQuery(search, page, "0");
             this.attrIdMap.keySet().forEach(e -> {
@@ -71,6 +71,10 @@ public class PublicProductRep {
         if (productDetail.getAttributeSaleImages() != null)
             this.attributeSaleImages = productDetail.getAttributeSaleImages().stream().map(ProductAttrSaleImagesCustomerRepresentation::new).collect(Collectors.toList());
         this.selectedOptions = productDetail.getSelectedOptions();
+    }
+
+    private boolean onlyEmptyKeyExist(Set<String> strings) {
+        return (strings.size() == 1 && strings.contains(""));
     }
 
     @Data
