@@ -1,6 +1,6 @@
 package com.hw.aggregate.product;
 
-import com.hw.aggregate.attribute.AppBizAttributeApplicationService;
+import com.hw.aggregate.tag.AppBizTagApplicationService;
 import com.hw.aggregate.product.model.Product;
 import com.hw.aggregate.product.representation.PublicProductCardRep;
 import com.hw.aggregate.product.representation.PublicProductRep;
@@ -21,7 +21,7 @@ public class PublicProductApplicationService extends DefaultRoleBasedRestfulServ
 
 
     @Autowired
-    private AppBizAttributeApplicationService appBizAttributeApplicationService;
+    private AppBizTagApplicationService appBizAttributeApplicationService;
 
     @Autowired
     private AppBizSkuApplicationService appBizSkuApplicationService;

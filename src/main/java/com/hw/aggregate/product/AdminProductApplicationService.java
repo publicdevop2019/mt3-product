@@ -1,6 +1,6 @@
 package com.hw.aggregate.product;
 
-import com.hw.aggregate.attribute.AppBizAttributeApplicationService;
+import com.hw.aggregate.tag.AppBizTagApplicationService;
 import com.hw.aggregate.catalog.PublicBizCatalogApplicationService;
 import com.hw.aggregate.product.command.AdminCreateProductCommand;
 import com.hw.aggregate.product.command.AdminUpdateProductCommand;
@@ -38,7 +38,7 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
     private AppBizSkuApplicationService appBizSkuApplicationService;
 
     @Autowired
-    private AppBizAttributeApplicationService attributeApplicationService;
+    private AppBizTagApplicationService attributeApplicationService;
 
     @Autowired
     private AppProductApplicationService appProductApplicationService;
