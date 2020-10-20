@@ -1,50 +1,61 @@
 package com.hw.aggregate.product.model;
 
 import com.hw.shared.sql.clause.WhereClause;
-import com.hw.shared.sql.exception.UnsupportedQueryException;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import java.util.*;
-import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import static com.hw.aggregate.product.model.Product.*;
+@Component
+public class SelectFieldAttrLikeClause extends WhereClause<Product> {
+    @Autowired
+    private EntityManager em;
 
-public class SelectFieldAttrLikeClause<T> extends WhereClause<T> {
-    private final String[] attrs = {PRODUCT_ATTR_KEY_LITERAL, PRODUCT_ATTR_PROD_LITERAL, PRODUCT_ATTR_GEN_LITERAL, PRODUCT_ATTR_SALES_TOTAL_LITERAL};
-
-    private Predicate getOrExpression(String input, CriteriaBuilder cb, Root<T> root) {
-        if (input.split("-").length != 2)
-            throw new UnsupportedQueryException();
-        String name = input.split("-")[0];
-        String[] values = input.split("-")[1].split("\\.");
-        if (values.length == 1)
-            throw new UnsupportedQueryException();
-        Set<String> collect = Arrays.stream(values).map(el -> name + ":" + el).collect(Collectors.toSet());
-        Predicate[] predicates = Arrays.stream(attrs)
-                .map(ee -> collect.stream().map(e -> cb.like(root.get(ee).as(String.class), "%" + e + "%")).collect(Collectors.toSet()))
-                .flatMap(Collection::stream).distinct().toArray(Predicate[]::new);
-        return cb.or(predicates);
-    }
-
-    private Predicate getAndExpression(String input, CriteriaBuilder cb, Root<T> root) {
-        if (input.split("-").length != 2)
-            throw new UnsupportedQueryException();
-        String replace = input.replace("-", ":");
-        Predicate[] predicates = Arrays.stream(attrs)
-                .map(ee -> cb.like(root.get(ee).as(String.class), "%" + replace + "%"))
-                .collect(Collectors.toSet()).toArray(Predicate[]::new);
-        return cb.or(predicates);
-    }
-
+    /**
+     * 835716999307264-连衣$835658702675968-裙$835658045743104-下装$835604081303552-服装$835602958278656-女$835604723556352-粉色.白色
+     * SELECT p.*
+     * FROM biz_product p
+     * INNER JOIN biz_product_tag_map ON biz_product_tag_map.product_id = p.id
+     * INNER JOIN biz_tag ON biz_product_tag_map.tag_id = biz_tag.id
+     * WHERE (biz_tag.value IN ('835716999307264:连衣', '835658702675968:裙'))
+     * GROUP BY p.id
+     * HAVING COUNT( p.id )=2;
+     * @param cb
+     * @param root
+     * @return
+     */
     @Override
-    public Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root) {
-        //sort before search
-        Set<String> strings = new TreeSet<>(Arrays.asList(query.split("\\$")));
-        List<Predicate> list1 = strings.stream().filter(e -> !e.contains("+")).map(e -> getAndExpression(e, cb, root)).collect(Collectors.toList());
-        List<Predicate> list2 = strings.stream().filter(e -> e.contains("+")).map(e -> getOrExpression(e, cb, root)).collect(Collectors.toList());
-        list1.addAll(list2);
-        return cb.and(list1.toArray(new Predicate[0]));
+    public Predicate getWhereClause(String userInput, CriteriaBuilder cb, Root<Product> root) {
+        String replace = userInput.replace("-", ":");
+        String[] split = replace.split("\\$");
+
+        CriteriaQuery<Product> query = cb.createQuery(Product.class);
+        Root<Tag> tagRoot = query.from(Tag.class);
+        CriteriaBuilder.In<Object> clause = cb.in(tagRoot.get("value"));
+        for (String str : split) {
+            clause.value(str);
+        }
+        query.where(clause);
+        Join<Tag, Product> tags = tagRoot.join("products");
+        CriteriaQuery<Product> select = query.select(tags);
+        TypedQuery<Product> query1 = em.createQuery(select);
+        List<Product> resultList = query1.getResultList();
+
+
+//        Session unwrap = em.unwrap(Session.class);
+//        Criteria c = unwrap.createCriteria(Product.class, "u");
+//        c.createAlias("u.tags","ut");
+//        c.add(Restrictions.in("ut.value",split));
+//        List list = c.list();
+
+        List<Predicate> predicates = new ArrayList<>();
+        return cb.and(predicates.toArray(new Predicate[0]));
     }
 }

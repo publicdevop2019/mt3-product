@@ -20,7 +20,7 @@ public class AdminProductSelectQueryBuilder extends SelectQueryBuilder<Product> 
         mappedSortBy.put(ADMIN_REP_SALES_LITERAL, PRODUCT_TOTAL_SALES_LITERAL);
         mappedSortBy.put(ADMIN_REP_PRICE_LITERAL, PRODUCT_LOWEST_PRICE_LITERAL);
         mappedSortBy.put(ADMIN_REP_END_AT_LITERAL, PRODUCT_END_AT_LITERAL);
-        supportedWhereField.put("attributes", new SelectFieldAttrLikeClause<>());
+        supportedWhereField.put("attributes", new SelectFieldAttrLikeClause());
         supportedWhereField.put(ADMIN_REP_NAME_LITERAL, new SelectFieldStringLikeClause<>(PRODUCT_NAME_LITERAL));
         supportedWhereField.put(ADMIN_REP_PRICE_LITERAL, new SelectFieldNumberRangeClause<>(PRODUCT_LOWEST_PRICE_LITERAL));
         allowEmptyClause = true;

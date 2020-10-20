@@ -1,8 +1,6 @@
 package com.hw.aggregate.product.representation;
 
-import com.hw.aggregate.product.model.Product;
-import com.hw.aggregate.product.model.ProductAttrSaleImages;
-import com.hw.aggregate.product.model.ProductOption;
+import com.hw.aggregate.product.model.*;
 import com.hw.aggregate.sku.AppBizSkuApplicationService;
 import com.hw.aggregate.sku.representation.AppBizSkuCardRep;
 import com.hw.shared.sql.SumPagedRep;
@@ -57,7 +55,7 @@ public class AdminProductRep {
         this.endAt = productDetail.getEndAt();
         this.selectedOptions = productDetail.getSelectedOptions();
         this.imageUrlLarge = productDetail.getImageUrlLarge();
-        this.attributesKey = productDetail.getAttrKey();
+        this.attributesKey = productDetail.getTags().stream().map(Tag::getValue).collect(Collectors.toSet());
         this.attributesProd = productDetail.getAttrProd();
         this.attributesGen = productDetail.getAttrGen();
 
