@@ -8,12 +8,12 @@ import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 
 public class SelectProductAttrClause<T> extends WhereClause<T> {
     /**
-     * 835716999307264-连衣$835658702675968-裙$835658045743104-下装$835604081303552-服装$835602958278656-女$835604723556352-粉色.白色
+     * 835602958278656-女$835604723556352-粉色
      * SELECT p.*
      * FROM biz_product p
      * INNER JOIN biz_product_tag_map ON biz_product_tag_map.product_id = p.id
      * INNER JOIN biz_tag ON biz_product_tag_map.tag_id = biz_tag.id
-     * WHERE (biz_tag.value IN ('835716999307264:连衣', '835658702675968:裙'))
+     * WHERE (biz_tag.value IN ('835602958278656:女', '835604723556352:粉色'))
      * GROUP BY p.id
      * HAVING COUNT( p.id )=2;
      *

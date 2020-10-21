@@ -17,7 +17,6 @@ import java.util.Set;
 public class Tag {
     @Id
     private Long id;
-    @NaturalId
     private String value;
     @Convert(converter = TagTypeEnum.DBConverter.class)
     private TagTypeEnum type;

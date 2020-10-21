@@ -55,7 +55,7 @@ public class AdminProductRep {
         this.endAt = productDetail.getEndAt();
         this.selectedOptions = productDetail.getSelectedOptions();
         this.imageUrlLarge = productDetail.getImageUrlLarge();
-        this.attributesKey = productDetail.getTags().stream().map(Tag::getValue).collect(Collectors.toSet());
+        this.attributesKey = productDetail.getTags().stream().filter(e->e.getType().equals(TagTypeEnum.KEY)).map(Tag::getValue).collect(Collectors.toSet());
         this.attributesProd = productDetail.getTags().stream().filter(e->e.getType().equals(TagTypeEnum.PROD)).map(Tag::getValue).collect(Collectors.toSet());
         this.attributesGen = productDetail.getTags().stream().filter(e->e.getType().equals(TagTypeEnum.GEN)).map(Tag::getValue).collect(Collectors.toSet());
 

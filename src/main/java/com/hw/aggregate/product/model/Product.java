@@ -256,8 +256,8 @@ public class Product extends Auditable implements IdBasedEntity {
             command.getAttributesProd().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.PROD));
         if (command.getAttributesKey() != null)
             command.getAttributesKey().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.KEY));
-        if (command.getAttributesProd() != null)
-            command.getAttributesProd().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.GEN));
+        if (command.getAttributesGen() != null)
+            command.getAttributesGen().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.GEN));
         this.startAt = (command.getStartAt());
         this.endAt = (command.getEndAt());
         command.getSkus().forEach(e -> {
