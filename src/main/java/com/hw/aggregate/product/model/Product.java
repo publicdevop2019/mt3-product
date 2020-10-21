@@ -114,10 +114,12 @@ public class Product extends Auditable implements IdBasedEntity {
         this.imageUrlLarge = command.getImageUrlLarge();
         this.startAt = command.getStartAt();
         this.endAt = command.getEndAt();
-
-        command.getAttributesProd().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.PROD));
-        command.getAttributesKey().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.KEY));
-        command.getAttributesGen().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.GEN));
+        if (command.getAttributesProd() != null)
+            command.getAttributesProd().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.PROD));
+        if (command.getAttributesKey() != null)
+            command.getAttributesKey().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.KEY));
+        if (command.getAttributesGen() != null)
+            command.getAttributesGen().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.GEN));
         command.getSkus().forEach(e -> {
             if (e.getSales() == null)
                 e.setSales(0);
@@ -250,9 +252,12 @@ public class Product extends Auditable implements IdBasedEntity {
         this.description = command.getDescription();
         this.selectedOptions = command.getSelectedOptions();
         this.imageUrlLarge = command.getImageUrlLarge();
-        command.getAttributesProd().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.PROD));
-        command.getAttributesKey().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.KEY));
-        command.getAttributesGen().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.GEN));
+        if (command.getAttributesProd() != null)
+            command.getAttributesProd().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.PROD));
+        if (command.getAttributesKey() != null)
+            command.getAttributesKey().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.KEY));
+        if (command.getAttributesProd() != null)
+            command.getAttributesProd().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.GEN));
         this.startAt = (command.getStartAt());
         this.endAt = (command.getEndAt());
         command.getSkus().forEach(e -> {
