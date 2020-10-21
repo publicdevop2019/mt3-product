@@ -12,7 +12,7 @@ public class AdminBizFilterSelectQueryBuilder extends SelectQueryBuilder<BizFilt
     AdminBizFilterSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 40;
         MAX_PAGE_SIZE = 400;
-        supportedWhereField.put(ENTITY_CATALOG_LITERAL, new SelectFieldStringLikeClause<>(ENTITY_CATALOG_LITERAL));
+        supportedWhereField.put(ENTITY_CATALOG_LITERAL, new SelectFieldStringLikeClause(ENTITY_CATALOG_LITERAL));
         allowEmptyClause = true;
     }
 

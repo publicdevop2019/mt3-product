@@ -10,7 +10,7 @@ import static com.hw.aggregate.sku.model.BizSku.SKU_REFERENCE_ID_LITERAL;
 public class AppBizSkuSelectQueryBuilder extends SelectQueryBuilder<BizSku> {
     AppBizSkuSelectQueryBuilder() {
         allowEmptyClause = true;
-        supportedWhereField.put(SKU_REFERENCE_ID_LITERAL, new SelectFieldStringEqualClause<>(SKU_REFERENCE_ID_LITERAL));
+        supportedWhereField.put(SKU_REFERENCE_ID_LITERAL, new SelectFieldStringEqualClause(SKU_REFERENCE_ID_LITERAL));
     }
 
 }

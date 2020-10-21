@@ -5,10 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.NaturalId;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,12 +19,15 @@ public class Tag {
     private Long id;
     @NaturalId
     private String value;
+    @Convert(converter = TagTypeEnum.DBConverter.class)
+    private TagTypeEnum type;
     @ManyToMany(mappedBy = "tags")
     private Set<Product> products = new HashSet<>();
 
-    public Tag(Long id, String value) {
+    public Tag(Long id, String value, TagTypeEnum type) {
         this.id = id;
         this.value = value;
+        this.type = type;
     }
 
     @Override
@@ -35,11 +35,20 @@ public class Tag {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Tag tag = (Tag) o;
-        return Objects.equal(value, tag.value) && Objects.equal(id, tag.id);
+        return Objects.equal(value, tag.value) && Objects.equal(id, tag.id) && Objects.equal(type, tag.type);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(value, id);
+        return Objects.hashCode(value, id, type);
+    }
+
+    @Override
+    public String toString() {
+        return "Tag{" +
+                "id=" + id +
+                ", value='" + value + '\'' +
+                ", type=" + type +
+                '}';
     }
 }

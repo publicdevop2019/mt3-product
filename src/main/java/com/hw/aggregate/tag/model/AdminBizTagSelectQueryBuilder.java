@@ -17,8 +17,8 @@ public class AdminBizTagSelectQueryBuilder extends SelectQueryBuilder<BizTag> {
         MAX_PAGE_SIZE = 1000;
         mappedSortBy.put(NAME_LITERAL, NAME_LITERAL);
         mappedSortBy.put(TYPE_LITERAL, TYPE_LITERAL);
-        supportedWhereField.put(NAME_LITERAL, new SelectFieldStringLikeClause<>(NAME_LITERAL));
-        supportedWhereField.put(TYPE_LITERAL, new SelectFieldStringEqualClause<>(TYPE_LITERAL));
+        supportedWhereField.put(NAME_LITERAL, new SelectFieldStringLikeClause(NAME_LITERAL));
+        supportedWhereField.put(TYPE_LITERAL, new SelectFieldStringEqualClause(TYPE_LITERAL));
         allowEmptyClause = true;
     }
 

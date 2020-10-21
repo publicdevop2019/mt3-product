@@ -1,6 +1,7 @@
 package com.hw.shared.sql.clause;
 
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.Arrays;
@@ -22,18 +23,18 @@ public class SelectFieldStringLikeClause<T> extends WhereClause<T> {
     // type:PROD.SALES.GENERAL
     // type:PROD$SALES$GENERAL
     @Override
-    public Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root) {
+    public Predicate getWhereClause(String s, CriteriaBuilder cb, Root<T> root, Object query) {
         //sort before search
-        if (query.contains(".")) {
-            Set<String> strings = new TreeSet<>(Arrays.asList(query.split("\\.")));
+        if (s.contains(".")) {
+            Set<String> strings = new TreeSet<>(Arrays.asList(s.split("\\.")));
             List<Predicate> list1 = strings.stream().map(e -> getExpression(e, cb, root)).collect(Collectors.toList());
             return cb.or(list1.toArray(Predicate[]::new));
-        } else if (query.contains("$")) {
-            Set<String> strings = new TreeSet<>(Arrays.asList(query.split("\\$")));
+        } else if (s.contains("$")) {
+            Set<String> strings = new TreeSet<>(Arrays.asList(s.split("\\$")));
             List<Predicate> list2 = strings.stream().map(e -> getExpression(e, cb, root)).collect(Collectors.toList());
             return cb.and(list2.toArray(Predicate[]::new));
         } else {
-            return getExpression(query, cb, root);
+            return getExpression(s, cb, root);
         }
     }
 }

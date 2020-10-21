@@ -15,8 +15,8 @@ public class AdminBizCatalogSelectQueryBuilder extends SelectQueryBuilder<BizCat
         DEFAULT_PAGE_SIZE = 1000;
         MAX_PAGE_SIZE = 2000;
         mappedSortBy.put(NAME_LITERAL, NAME_LITERAL);
-        supportedWhereField.put(TYPE_LITERAL, new SelectFieldStringEqualClause<>(TYPE_LITERAL));
-        supportedWhereField.put(PARENT_ID_LITERAL, new SelectFieldLongEqualClause<>(PARENT_ID_LITERAL));
+        supportedWhereField.put(TYPE_LITERAL, new SelectFieldStringEqualClause(TYPE_LITERAL));
+        supportedWhereField.put(PARENT_ID_LITERAL, new SelectFieldLongEqualClause(PARENT_ID_LITERAL));
         allowEmptyClause = true;
     }
 }
