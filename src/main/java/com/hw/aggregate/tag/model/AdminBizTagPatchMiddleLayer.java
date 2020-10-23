@@ -1,4 +1,4 @@
-package com.hw.aggregate.attribute.model;
+package com.hw.aggregate.tag.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.hw.shared.rest.TypedClass;
@@ -8,20 +8,20 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Data
-public class AdminBizAttributePatchMiddleLayer extends TypedClass<AdminBizAttributePatchMiddleLayer> {
+public class AdminBizTagPatchMiddleLayer extends TypedClass<AdminBizTagPatchMiddleLayer> {
 
     private String name;
 
     private String description;
 
-    private BizAttribute.AttributeMethod method;
+    private BizTag.AttributeMethod method;
     @JsonDeserialize(as= LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
     private Set<String> selectValues;
 
-    private BizAttribute.BizAttributeType type;
+    private BizTag.BizAttributeType type;
 
-    public AdminBizAttributePatchMiddleLayer(BizAttribute bizAttribute) {
-        super(AdminBizAttributePatchMiddleLayer.class);
+    public AdminBizTagPatchMiddleLayer(BizTag bizAttribute) {
+        super(AdminBizTagPatchMiddleLayer.class);
         this.name = bizAttribute.getName();
         this.description = bizAttribute.getDescription();
         this.method = bizAttribute.getMethod();
@@ -29,7 +29,7 @@ public class AdminBizAttributePatchMiddleLayer extends TypedClass<AdminBizAttrib
         this.type = bizAttribute.getType();
     }
 
-    public AdminBizAttributePatchMiddleLayer() {
-        super(AdminBizAttributePatchMiddleLayer.class);
+    public AdminBizTagPatchMiddleLayer() {
+        super(AdminBizTagPatchMiddleLayer.class);
     }
 }

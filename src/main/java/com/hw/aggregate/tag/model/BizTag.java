@@ -1,7 +1,7 @@
-package com.hw.aggregate.attribute.model;
+package com.hw.aggregate.tag.model;
 
-import com.hw.aggregate.attribute.command.CreateBizAttributeCommand;
-import com.hw.aggregate.attribute.command.UpdateBizAttributeCommand;
+import com.hw.aggregate.tag.command.CreateBizTagCommand;
+import com.hw.aggregate.tag.command.UpdateBizTagCommand;
 import com.hw.shared.Auditable;
 import com.hw.shared.EnumDBConverter;
 import com.hw.shared.LinkedHashSetConverter;
@@ -19,7 +19,7 @@ import java.util.Set;
 @Entity
 @Table(name = "biz_attribute")
 @NoArgsConstructor
-public class BizAttribute extends Auditable implements IdBasedEntity {
+public class BizTag extends Auditable implements IdBasedEntity {
     @Id
     private Long id;
     public transient static final String ID_LITERAL = "id";
@@ -42,11 +42,11 @@ public class BizAttribute extends Auditable implements IdBasedEntity {
     private BizAttributeType type;
     public transient static final String TYPE_LITERAL = "type";
 
-    public static BizAttribute create(Long id, CreateBizAttributeCommand command) {
-        return new BizAttribute(id, command);
+    public static BizTag create(Long id, CreateBizTagCommand command) {
+        return new BizTag(id, command);
     }
 
-    private BizAttribute(Long id, CreateBizAttributeCommand command) {
+    private BizTag(Long id, CreateBizTagCommand command) {
         this.id = id;
         this.name = command.getName();
         this.description = command.getDescription();
@@ -55,7 +55,7 @@ public class BizAttribute extends Auditable implements IdBasedEntity {
         this.type = command.getType();
     }
 
-    public BizAttribute replace(UpdateBizAttributeCommand command) {
+    public BizTag replace(UpdateBizTagCommand command) {
         this.setName(command.getName());
         this.setDescription(command.getDescription());
         this.setMethod(command.getMethod());

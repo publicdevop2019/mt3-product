@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class SumPagedRep<T> {
     protected List<T> data = new ArrayList<>();
-    protected Long totalItemCount;
+    protected Long totalItemCount=0L;
 
     public SumPagedRep(List<T> data, Long aLong) {
         this.data = data;

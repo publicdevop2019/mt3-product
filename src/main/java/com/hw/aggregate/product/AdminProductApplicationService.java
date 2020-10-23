@@ -1,6 +1,5 @@
 package com.hw.aggregate.product;
 
-import com.hw.aggregate.attribute.AppBizAttributeApplicationService;
 import com.hw.aggregate.catalog.PublicBizCatalogApplicationService;
 import com.hw.aggregate.product.command.AdminCreateProductCommand;
 import com.hw.aggregate.product.command.AdminUpdateProductCommand;
@@ -9,6 +8,7 @@ import com.hw.aggregate.product.model.Product;
 import com.hw.aggregate.product.representation.AdminProductCardRep;
 import com.hw.aggregate.product.representation.AdminProductRep;
 import com.hw.aggregate.sku.AppBizSkuApplicationService;
+import com.hw.aggregate.tag.AppBizTagApplicationService;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.RestfulQueryRegistry;
@@ -38,10 +38,12 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
     private AppBizSkuApplicationService appBizSkuApplicationService;
 
     @Autowired
-    private AppBizAttributeApplicationService attributeApplicationService;
+    private AppBizTagApplicationService attributeApplicationService;
 
     @Autowired
     private AppProductApplicationService appProductApplicationService;
+    @Autowired
+    private TagRepo tagRepo;
 
 
     @PostConstruct
@@ -80,7 +82,7 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
 
     @Override
     public Product replaceEntity(Product product, Object command) {
-        product.replace((AdminUpdateProductCommand) command, appBizSkuApplicationService);
+        product.replace((AdminUpdateProductCommand) command, appBizSkuApplicationService,tagRepo,idGenerator);
         return product;
     }
 
@@ -97,7 +99,7 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
 
     @Override
     protected Product createEntity(long id, Object command) {
-        return Product.create(id, (AdminCreateProductCommand) command, appBizSkuApplicationService);
+        return Product.create(id, (AdminCreateProductCommand) command, appBizSkuApplicationService, idGenerator, tagRepo);
     }
 
     @Override

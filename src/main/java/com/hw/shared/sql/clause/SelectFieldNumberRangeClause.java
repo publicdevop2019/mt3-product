@@ -3,6 +3,7 @@ package com.hw.shared.sql.clause;
 import com.hw.shared.sql.exception.UnsupportedQueryException;
 
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
@@ -14,8 +15,8 @@ public class SelectFieldNumberRangeClause<T> extends WhereClause<T> {
     }
 
     @Override
-    public Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root) {
-        String[] split = query.split("\\$");
+    public Predicate getWhereClause(String s, CriteriaBuilder cb, Root<T> root, Object query) {
+        String[] split = s.split("\\$");
         List<Predicate> results = new ArrayList<>();
         for (String str : split) {
             if (str.contains("<=")) {

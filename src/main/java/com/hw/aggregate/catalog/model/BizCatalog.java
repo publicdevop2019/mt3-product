@@ -67,7 +67,7 @@ public class BizCatalog extends Auditable implements IdBasedEntity {
         BACKEND,
         ;
 
-        public static class DBConverter extends EnumDBConverter {
+        public static class DBConverter extends EnumDBConverter<CatalogType> {
             public DBConverter() {
                 super(CatalogType.class);
             }

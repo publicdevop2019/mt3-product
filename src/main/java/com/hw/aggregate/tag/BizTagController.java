@@ -1,8 +1,8 @@
-package com.hw.aggregate.attribute;
+package com.hw.aggregate.tag;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.hw.aggregate.attribute.command.CreateBizAttributeCommand;
-import com.hw.aggregate.attribute.command.UpdateBizAttributeCommand;
+import com.hw.aggregate.tag.command.CreateBizTagCommand;
+import com.hw.aggregate.tag.command.UpdateBizTagCommand;
 import com.hw.shared.sql.PatchCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +15,9 @@ import static com.hw.shared.AppConstant.*;
 
 @RestController
 @RequestMapping(produces = "application/json", path = "attributes")
-public class BizAttributeController {
+public class BizTagController {
     @Autowired
-    private AdminBizAttributeApplicationService attributeApplicationService;
+    private AdminBizTagApplicationService attributeApplicationService;
 
     @GetMapping("admin")
     public ResponseEntity<?> readForAdminByQuery(
@@ -34,13 +34,13 @@ public class BizAttributeController {
     }
 
     @PostMapping("admin")
-    public ResponseEntity<?> createForAdmin(@RequestBody CreateBizAttributeCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<?> createForAdmin(@RequestBody CreateBizTagCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         return ResponseEntity.ok().header("Location", attributeApplicationService.create(command,changeId).getId().toString()).build();
     }
 
 
     @PutMapping("admin/{id}")
-    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody UpdateBizAttributeCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody UpdateBizTagCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         attributeApplicationService.replaceById(id, command,changeId);
         return ResponseEntity.ok().build();
     }

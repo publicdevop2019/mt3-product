@@ -1,6 +1,7 @@
 package com.hw.aggregate.product.model;
 
 import com.hw.aggregate.product.AppProductApplicationService;
+import com.hw.aggregate.product.TagRepo;
 import com.hw.aggregate.product.command.AdminCreateProductCommand;
 import com.hw.aggregate.product.command.AdminUpdateProductCommand;
 import com.hw.aggregate.product.exception.NoLowestPriceFoundException;
@@ -12,6 +13,7 @@ import com.hw.aggregate.sku.command.AppCreateBizSkuCommand;
 import com.hw.aggregate.sku.command.AppUpdateBizSkuCommand;
 import com.hw.aggregate.sku.representation.AppBizSkuRep;
 import com.hw.shared.Auditable;
+import com.hw.shared.IdGenerator;
 import com.hw.shared.StringSetConverter;
 import com.hw.shared.rest.CreatedEntityRep;
 import com.hw.shared.rest.IdBasedEntity;
@@ -27,6 +29,7 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_SKU_LITERAL;
@@ -65,27 +68,32 @@ public class Product extends Auditable implements IdBasedEntity {
     private Set<String> imageUrlLarge;
     public transient static final String PRODUCT_IMAGE_URL_LARGE_LITERAL = "imageUrlLarge";
 
-    @Convert(converter = StringSetConverter.class)
-    private Set<String> attrKey;
-    public transient static final String PRODUCT_ATTR_KEY_LITERAL = "attrKey";
-
-    @Convert(converter = StringSetConverter.class)
-    private Set<String> attrProd;
-    public transient static final String PRODUCT_ATTR_PROD_LITERAL = "attrProd";
-
-    @Convert(converter = StringSetConverter.class)
-    private Set<String> attrGen;
-    public transient static final String PRODUCT_ATTR_GEN_LITERAL = "attrGen";
-
-    @Convert(converter = StringSetConverter.class)
-    private Set<String> attrSalesTotal;
-    public transient static final String PRODUCT_ATTR_SALES_TOTAL_LITERAL = "attrSalesTotal";
-
     @Column(length = 10000)
     private HashMap<String, Long> attrSalesMap;
 
     @Column(length = 10000)
     private ArrayList<ProductAttrSaleImages> attributeSaleImages;
+
+    public void addTag(Tag tag) {
+        tags.add(tag);
+        tag.getProducts().add(this);
+    }
+
+    public void removeTag(Tag tag) {
+        tags.remove(tag);
+        tag.getProducts().remove(this);
+    }
+
+
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
+    @JoinTable(name = "biz_product_tag_map",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags = new HashSet<>();
 
     private BigDecimal lowestPrice;
     public transient static final String PRODUCT_LOWEST_PRICE_LITERAL = "lowestPrice";
@@ -94,28 +102,31 @@ public class Product extends Auditable implements IdBasedEntity {
     private Integer totalSales;
     public transient static final String PRODUCT_TOTAL_SALES_LITERAL = "totalSales";
 
-    public static Product create(Long id, AdminCreateProductCommand command, AppBizSkuApplicationService appBizSkuApplicationService) {
-        return new Product(id, command, appBizSkuApplicationService);
+    public static Product create(Long id, AdminCreateProductCommand command, AppBizSkuApplicationService appBizSkuApplicationService, IdGenerator idGenerator, TagRepo tagRepo) {
+        return new Product(id, command, appBizSkuApplicationService, idGenerator, tagRepo);
     }
 
-    public void replace(AdminUpdateProductCommand command, AppBizSkuApplicationService skuApplicationService) {
+    public void replace(AdminUpdateProductCommand command, AppBizSkuApplicationService skuApplicationService, TagRepo tagRepo, IdGenerator idGenerator) {
         this.imageUrlSmall = command.getImageUrlSmall();
         this.name = command.getName();
         this.description = command.getDescription();
         this.selectedOptions = command.getSelectedOptions();
         this.imageUrlLarge = command.getImageUrlLarge();
-        this.attrKey = command.getAttributesKey();
-        this.attrProd = command.getAttributesProd();
-        this.attrGen = command.getAttributesGen();
         this.startAt = command.getStartAt();
         this.endAt = command.getEndAt();
+        if (command.getAttributesProd() != null)
+            command.getAttributesProd().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.PROD));
+        if (command.getAttributesKey() != null)
+            command.getAttributesKey().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.KEY));
+        if (command.getAttributesGen() != null)
+            command.getAttributesGen().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.GEN));
         command.getSkus().forEach(e -> {
             if (e.getSales() == null)
                 e.setSales(0);
             e.setAttributesSales(new TreeSet<>(e.getAttributesSales()));
         });
         adjustSku(command.getSkus(), skuApplicationService, command.getChangeId());
-        this.attrSalesTotal = command.getSkus().stream().map(AdminUpdateProductCommand.UpdateProductAdminSkuCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
+        command.getSkus().stream().map(AdminUpdateProductCommand.UpdateProductAdminSkuCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet()).forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.SALES));
         if (command.getAttributeSaleImages() != null)
             this.attributeSaleImages = command.getAttributeSaleImages().stream().map(e ->
                     {
@@ -126,6 +137,18 @@ public class Product extends Auditable implements IdBasedEntity {
                     }
             ).collect(Collectors.toCollection(ArrayList::new));
         this.lowestPrice = findLowestPrice(command);
+    }
+
+    private Consumer<String> getStringConsumer(TagRepo tagRepo, IdGenerator idGenerator, TagTypeEnum key) {
+        return e -> {
+            Optional<Tag> byValue = tagRepo.findByValueAndType(e, key);
+            if (byValue.isPresent()) {
+                addTag(byValue.get());
+            } else {
+                Tag tag = new Tag(idGenerator.getId(), e, key);
+                addTag(tag);
+            }
+        };
     }
 
     private void adjustSku(List<AdminUpdateProductCommand.UpdateProductAdminSkuCommand> commands, AppBizSkuApplicationService skuApplicationService, String changeId) {
@@ -222,16 +245,19 @@ public class Product extends Auditable implements IdBasedEntity {
     }
 
 
-    private Product(Long id, AdminCreateProductCommand command, AppBizSkuApplicationService appBizSkuApplicationService) {
+    private Product(Long id, AdminCreateProductCommand command, AppBizSkuApplicationService appBizSkuApplicationService, IdGenerator idGenerator, TagRepo tagRepo) {
         this.id = id;
         this.imageUrlSmall = command.getImageUrlSmall();
         this.name = command.getName();
         this.description = command.getDescription();
         this.selectedOptions = command.getSelectedOptions();
         this.imageUrlLarge = command.getImageUrlLarge();
-        this.attrKey = command.getAttributesKey();
-        this.attrProd = command.getAttributesProd();
-        this.attrGen = command.getAttributesGen();
+        if (command.getAttributesProd() != null)
+            command.getAttributesProd().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.PROD));
+        if (command.getAttributesKey() != null)
+            command.getAttributesKey().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.KEY));
+        if (command.getAttributesGen() != null)
+            command.getAttributesGen().forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.GEN));
         this.startAt = (command.getStartAt());
         this.endAt = (command.getEndAt());
         command.getSkus().forEach(e -> {
@@ -239,7 +265,7 @@ public class Product extends Auditable implements IdBasedEntity {
                 e.setSales(0);
             e.setAttributesSales(e.getAttributesSales());
         });
-        this.attrSalesTotal = command.getSkus().stream().map(AdminCreateProductCommand.CreateProductSkuAdminCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet());
+        command.getSkus().stream().map(AdminCreateProductCommand.CreateProductSkuAdminCommand::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toSet()).forEach(getStringConsumer(tagRepo, idGenerator, TagTypeEnum.SALES));
 
         for (AdminCreateProductCommand.CreateProductSkuAdminCommand skuAdminCommand : command.getSkus()) {
             AppCreateBizSkuCommand command1 = new AppCreateBizSkuCommand();
@@ -320,5 +346,36 @@ public class Product extends Auditable implements IdBasedEntity {
             long l1 = Long.parseLong(b.split(":")[0]);
             return Long.compare(l, l1);
         }).collect(Collectors.joining(","));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Product)) return false;
+        return id != null && id.equals(((Product) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return 31;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", imageUrlSmall='" + imageUrlSmall + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", endAt=" + endAt +
+                ", startAt=" + startAt +
+                ", selectedOptions=" + selectedOptions +
+                ", imageUrlLarge=" + imageUrlLarge +
+                ", tags=" + tags +
+                ", attrSalesMap=" + attrSalesMap +
+                ", attributeSaleImages=" + attributeSaleImages +
+                ", lowestPrice=" + lowestPrice +
+                ", totalSales=" + totalSales +
+                '}';
     }
 }

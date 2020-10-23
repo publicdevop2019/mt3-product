@@ -1,10 +1,10 @@
 package com.hw.aggregate.product;
 
-import com.hw.aggregate.attribute.AppBizAttributeApplicationService;
 import com.hw.aggregate.product.model.Product;
 import com.hw.aggregate.product.representation.PublicProductCardRep;
 import com.hw.aggregate.product.representation.PublicProductRep;
 import com.hw.aggregate.sku.AppBizSkuApplicationService;
+import com.hw.aggregate.tag.AppBizTagApplicationService;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
@@ -20,12 +20,12 @@ import java.util.Map;
 public class PublicProductApplicationService extends DefaultRoleBasedRestfulService<Product, PublicProductCardRep, PublicProductRep, VoidTypedClass> {
 
 
+    public static final String STRING_DEL = ":";
     @Autowired
-    private AppBizAttributeApplicationService appBizAttributeApplicationService;
+    private AppBizTagApplicationService appBizAttributeApplicationService;
 
     @Autowired
     private AppBizSkuApplicationService appBizSkuApplicationService;
-
 
     @PostConstruct
     private void setUp() {
@@ -45,7 +45,7 @@ public class PublicProductApplicationService extends DefaultRoleBasedRestfulServ
 
     @Override
     public PublicProductRep getEntityRepresentation(Product product) {
-        return new PublicProductRep(product, appBizAttributeApplicationService,appBizSkuApplicationService);
+        return new PublicProductRep(product, appBizAttributeApplicationService, appBizSkuApplicationService);
     }
 
     @Override

@@ -13,7 +13,7 @@ public class PublicBizCatalogSelectQueryBuilder extends SelectQueryBuilder<BizCa
     PublicBizCatalogSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 1000;
         MAX_PAGE_SIZE = 1500;
-        defaultWhereField.add(new SelectEqualClause<>(TYPE_LITERAL, BizCatalog.CatalogType.FRONTEND.name()));
+        defaultWhereField.add(new SelectEqualClause(TYPE_LITERAL, BizCatalog.CatalogType.FRONTEND.name()));
     }
 
 }

@@ -1,22 +1,22 @@
-package com.hw.aggregate.attribute.representation;
+package com.hw.aggregate.tag.representation;
 
-import com.hw.aggregate.attribute.model.BizAttribute;
+import com.hw.aggregate.tag.model.BizTag;
 import lombok.Data;
 
 import java.util.Set;
 
 @Data
-public class AdminBizAttributeCardRep {
+public class AdminBizTagCardRep {
     private Long id;
     private String name;
     private String description;
     private Set<String> selectValues;
-    private BizAttribute.AttributeMethod method;
+    private BizTag.AttributeMethod method;
     public transient static final String ADMIN_REP_METHOD_LITERAL = "method";
-    private BizAttribute.BizAttributeType type;
+    private BizTag.BizAttributeType type;
     public transient static final String ADMIN_REP_TYPE_LITERAL = "type";
 
-    public AdminBizAttributeCardRep(BizAttribute attribute) {
+    public AdminBizTagCardRep(BizTag attribute) {
         this.id = attribute.getId();
         this.name = attribute.getName();
         this.description = attribute.getDescription();

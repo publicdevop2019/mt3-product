@@ -1,20 +1,20 @@
-package com.hw.aggregate.attribute.representation;
+package com.hw.aggregate.tag.representation;
 
-import com.hw.aggregate.attribute.model.BizAttribute;
+import com.hw.aggregate.tag.model.BizTag;
 import lombok.Data;
 
 import java.util.Set;
 
 @Data
-public class AdminBizAttributeRep {
+public class AdminBizTagRep {
     private Long id;
     private String name;
     private String description;
-    private BizAttribute.AttributeMethod method;
+    private BizTag.AttributeMethod method;
     private Set<String> selectValues;
-    private BizAttribute.BizAttributeType type;
+    private BizTag.BizAttributeType type;
 
-    public AdminBizAttributeRep(BizAttribute attribute) {
+    public AdminBizTagRep(BizTag attribute) {
         this.id = attribute.getId();
         this.name = attribute.getName();
         this.description = attribute.getDescription();
