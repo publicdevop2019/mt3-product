@@ -50,6 +50,7 @@ public class BizFilter extends Auditable implements IdBasedEntity {
             bizFilterItem.setSelectValues(e.getValues());
             this.filterItems.add(bizFilterItem);
         });
+        this.description = command.getDescription();
     }
 
     private BizFilter(Long id, CreateBizFilterCommand command) {
@@ -63,5 +64,6 @@ public class BizFilter extends Auditable implements IdBasedEntity {
             bizFilterItem.setSelectValues(e.getValues());
             this.filterItems.add(bizFilterItem);
         });
+        this.description = command.getDescription();
     }
 }
