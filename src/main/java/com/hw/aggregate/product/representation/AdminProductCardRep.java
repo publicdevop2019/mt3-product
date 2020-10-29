@@ -15,7 +15,6 @@ class AdminProductCardRep {
     private String name;
     private String coverImage;
     private Integer totalSales;
-    private Set<String> attributesKey;
     private Long startAt;
     private Long endAt;
     private HashMap<String, Long> attrSalesMap;
@@ -24,7 +23,6 @@ class AdminProductCardRep {
         this.id = product.getId();
         this.name = product.getName();
         this.totalSales = product.getTotalSales();
-        this.attributesKey = product.getTags().stream().map(Tag::getValue).collect(Collectors.toSet());
         this.startAt = product.getStartAt();
         this.endAt = product.getEndAt();
         this.coverImage = product.getImageUrlSmall();
