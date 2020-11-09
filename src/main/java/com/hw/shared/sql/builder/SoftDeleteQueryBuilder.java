@@ -9,11 +9,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 import static com.hw.shared.Auditable.*;
@@ -23,15 +20,14 @@ public abstract class SoftDeleteQueryBuilder<T> extends PredicateConfig<T> {
     protected EntityManager em;
 
     protected SoftDeleteQueryBuilder() {
-        supportedWhereField.put(COMMON_ENTITY_ID, new SelectFieldIdWhereClause());
+        supportedWhereField.put(COMMON_ENTITY_ID, new SelectFieldIdWhereClause<>());
     }
 
     public Integer delete(String search, Class<T> clazz) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaUpdate<T> criteriaUpdate = cb.createCriteriaUpdate(clazz);
         Root<T> root = criteriaUpdate.from(clazz);
-        List<String> collect = Arrays.stream(search.split(",")).collect(Collectors.toList());
-        Predicate and = getPredicate(collect, cb, root,null);
+        Predicate and = getPredicate(search, cb, root, null);
         criteriaUpdate.where(and);
         criteriaUpdate.set(ENTITY_DELETED, true);
         Optional<String> currentAuditor = AuditorAwareImpl.getAuditor();

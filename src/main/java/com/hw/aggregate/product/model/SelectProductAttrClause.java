@@ -25,7 +25,7 @@ public class SelectProductAttrClause<T> extends WhereClause<T> {
      * @return
      */
     @Override
-    public Predicate getWhereClause(String userInput, CriteriaBuilder cb, Root<T> root, Object query) {
+    public Predicate getWhereClause(String userInput, CriteriaBuilder cb, Root<T> root, AbstractQuery<?> query) {
         String[] split = userInput.split("\\$");
         Predicate id = null;
         for (String s : split) {
