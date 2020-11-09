@@ -1,7 +1,7 @@
 package com.hw.aggregate.catalog.model;
 
-import com.hw.aggregate.catalog.command.CreateBizCatalogCommand;
-import com.hw.aggregate.catalog.command.UpdateBizCatalogCommand;
+import com.hw.aggregate.catalog.command.AdminCreateBizCatalogCommand;
+import com.hw.aggregate.catalog.command.AdminUpdateBizCatalogCommand;
 import com.hw.shared.Auditable;
 import com.hw.shared.EnumDBConverter;
 import com.hw.shared.StringSetConverter;
@@ -41,12 +41,12 @@ public class BizCatalog extends Auditable implements IdBasedEntity {
     private CatalogType type;
     public transient static final String TYPE_LITERAL = "type";
 
-    public static BizCatalog create(Long id, CreateBizCatalogCommand command) {
+    public static BizCatalog create(Long id, AdminCreateBizCatalogCommand command) {
         return new BizCatalog(id, command);
     }
 
 
-    public void replace(UpdateBizCatalogCommand command) {
+    public void replace(AdminUpdateBizCatalogCommand command) {
         this.setName(command.getName());
         this.setParentId(command.getParentId());
         this.setAttributes(command.getAttributes());
@@ -54,7 +54,7 @@ public class BizCatalog extends Auditable implements IdBasedEntity {
     }
 
 
-    private BizCatalog(Long id, CreateBizCatalogCommand command) {
+    private BizCatalog(Long id, AdminCreateBizCatalogCommand command) {
         this.id = id;
         this.name = command.getName();
         this.parentId = command.getParentId();

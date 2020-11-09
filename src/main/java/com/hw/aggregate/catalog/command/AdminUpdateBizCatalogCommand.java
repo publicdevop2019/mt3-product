@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Set;
 
 @Data
-public class UpdateBizCatalogCommand implements Serializable {
+public class AdminUpdateBizCatalogCommand implements Serializable {
     private static final long serialVersionUID = 1;
     private String name;
     private Long parentId;

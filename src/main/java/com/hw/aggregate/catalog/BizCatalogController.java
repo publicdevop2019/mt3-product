@@ -1,8 +1,8 @@
 package com.hw.aggregate.catalog;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.hw.aggregate.catalog.command.CreateBizCatalogCommand;
-import com.hw.aggregate.catalog.command.UpdateBizCatalogCommand;
+import com.hw.aggregate.catalog.command.AdminCreateBizCatalogCommand;
+import com.hw.aggregate.catalog.command.AdminUpdateBizCatalogCommand;
 import com.hw.shared.sql.PatchCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -42,13 +42,13 @@ public class BizCatalogController {
     }
 
     @PostMapping("admin")
-    public ResponseEntity<?> createForAdmin(@RequestBody CreateBizCatalogCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<?> createForAdmin(@RequestBody AdminCreateBizCatalogCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         return ResponseEntity.ok().header("Location", catalogAdminApplicationService.create(command, changeId).getId().toString()).build();
     }
 
 
     @PutMapping("admin/{id}")
-    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody UpdateBizCatalogCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody AdminUpdateBizCatalogCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         catalogAdminApplicationService.replaceById(id, command, changeId);
         return ResponseEntity.ok().build();
     }

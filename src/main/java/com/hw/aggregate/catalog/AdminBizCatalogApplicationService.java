@@ -1,7 +1,7 @@
 package com.hw.aggregate.catalog;
 
-import com.hw.aggregate.catalog.command.CreateBizCatalogCommand;
-import com.hw.aggregate.catalog.command.UpdateBizCatalogCommand;
+import com.hw.aggregate.catalog.command.AdminCreateBizCatalogCommand;
+import com.hw.aggregate.catalog.command.AdminUpdateBizCatalogCommand;
 import com.hw.aggregate.catalog.model.AdminBizCatalogPatchMiddleLayer;
 import com.hw.aggregate.catalog.model.BizCatalog;
 import com.hw.aggregate.catalog.representation.AdminBizCatalogCardRep;
@@ -28,7 +28,7 @@ public class AdminBizCatalogApplicationService extends DefaultRoleBasedRestfulSe
 
     @Override
     public BizCatalog replaceEntity(BizCatalog catalog, Object command) {
-        catalog.replace((UpdateBizCatalogCommand) command);
+        catalog.replace((AdminUpdateBizCatalogCommand) command);
         return catalog;
     }
 
@@ -44,7 +44,7 @@ public class AdminBizCatalogApplicationService extends DefaultRoleBasedRestfulSe
 
     @Override
     protected BizCatalog createEntity(long id, Object command) {
-        return BizCatalog.create(idGenerator.getId(), (CreateBizCatalogCommand) command);
+        return BizCatalog.create(idGenerator.getId(), (AdminCreateBizCatalogCommand) command);
     }
 
     @Override
