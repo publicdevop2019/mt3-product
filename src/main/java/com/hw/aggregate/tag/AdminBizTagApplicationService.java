@@ -1,7 +1,7 @@
 package com.hw.aggregate.tag;
 
-import com.hw.aggregate.tag.command.CreateBizTagCommand;
-import com.hw.aggregate.tag.command.UpdateBizTagCommand;
+import com.hw.aggregate.tag.command.AdminCreateBizTagCommand;
+import com.hw.aggregate.tag.command.AdminUpdateBizTagCommand;
 import com.hw.aggregate.tag.model.AdminBizTagPatchMiddleLayer;
 import com.hw.aggregate.tag.model.BizTag;
 import com.hw.aggregate.tag.representation.AdminBizTagCardRep;
@@ -25,7 +25,7 @@ public class AdminBizTagApplicationService extends DefaultRoleBasedRestfulServic
 
     @Override
     public BizTag replaceEntity(BizTag bizAttribute, Object command) {
-        return bizAttribute.replace((UpdateBizTagCommand) command);
+        return bizAttribute.replace((AdminUpdateBizTagCommand) command);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class AdminBizTagApplicationService extends DefaultRoleBasedRestfulServic
 
     @Override
     protected BizTag createEntity(long id, Object command) {
-        return BizTag.create(idGenerator.getId(), (CreateBizTagCommand) command);
+        return BizTag.create(idGenerator.getId(), (AdminCreateBizTagCommand) command);
     }
 
     @Override

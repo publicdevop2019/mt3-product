@@ -4,6 +4,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.product.command.AdminCreateProductCommand;
 import com.hw.aggregate.product.command.AdminUpdateProductCommand;
 import com.hw.shared.sql.PatchCommand;
+import com.hw.shared.validation.BizValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,8 @@ public class ProductController {
     private AppProductApplicationService appProductApplicationService;
     @Autowired
     private PublicProductApplicationService publicProductApplicationService;
-
+    @Autowired
+    BizValidator validator;
     @GetMapping("public")
     public ResponseEntity<?> readForPublicByQuery(
             @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
@@ -55,13 +57,15 @@ public class ProductController {
 
 
     @PostMapping("admin")
-    public ResponseEntity<?> createForAdmin(@RequestBody AdminCreateProductCommand productDetail, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        return ResponseEntity.ok().header("Location", adminProductApplicationService.create(productDetail, changeId).getId().toString()).build();
+    public ResponseEntity<?> createForAdmin(@RequestBody AdminCreateProductCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        validator.validate("adminCreateProductCommand",command);
+        return ResponseEntity.ok().header("Location", adminProductApplicationService.create(command, changeId).getId().toString()).build();
     }
 
 
     @PutMapping("admin/{id}")
     public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody AdminUpdateProductCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        validator.validate("adminUpdateProductCommand",command);
         command.setChangeId(changeId);
         adminProductApplicationService.replaceById(id, command, changeId);
         return ResponseEntity.ok().build();

@@ -1,9 +1,10 @@
 package com.hw.aggregate.tag;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.hw.aggregate.tag.command.CreateBizTagCommand;
-import com.hw.aggregate.tag.command.UpdateBizTagCommand;
+import com.hw.aggregate.tag.command.AdminCreateBizTagCommand;
+import com.hw.aggregate.tag.command.AdminUpdateBizTagCommand;
 import com.hw.shared.sql.PatchCommand;
+import com.hw.shared.validation.BizValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,8 @@ import static com.hw.shared.AppConstant.*;
 public class BizTagController {
     @Autowired
     private AdminBizTagApplicationService attributeApplicationService;
-
+    @Autowired
+    BizValidator validator;
     @GetMapping("admin")
     public ResponseEntity<?> readForAdminByQuery(
             @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
@@ -34,13 +36,15 @@ public class BizTagController {
     }
 
     @PostMapping("admin")
-    public ResponseEntity<?> createForAdmin(@RequestBody CreateBizTagCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<?> createForAdmin(@RequestBody AdminCreateBizTagCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        validator.validate("adminCreateTagCommand",command);
         return ResponseEntity.ok().header("Location", attributeApplicationService.create(command,changeId).getId().toString()).build();
     }
 
 
     @PutMapping("admin/{id}")
-    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody UpdateBizTagCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") Long id, @RequestBody AdminUpdateBizTagCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        validator.validate("adminUpdateTagCommand",command);
         attributeApplicationService.replaceById(id, command,changeId);
         return ResponseEntity.ok().build();
     }

@@ -9,7 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Data
-public class UpdateBizTagCommand implements Serializable {
+public class AdminUpdateBizTagCommand implements Serializable {
     private static final long serialVersionUID = 1;
     private String name;
     private String description;

@@ -1,7 +1,7 @@
 package com.hw.aggregate.tag.model;
 
-import com.hw.aggregate.tag.command.CreateBizTagCommand;
-import com.hw.aggregate.tag.command.UpdateBizTagCommand;
+import com.hw.aggregate.tag.command.AdminCreateBizTagCommand;
+import com.hw.aggregate.tag.command.AdminUpdateBizTagCommand;
 import com.hw.shared.Auditable;
 import com.hw.shared.EnumDBConverter;
 import com.hw.shared.LinkedHashSetConverter;
@@ -42,11 +42,11 @@ public class BizTag extends Auditable implements IdBasedEntity {
     private BizAttributeType type;
     public transient static final String TYPE_LITERAL = "type";
 
-    public static BizTag create(Long id, CreateBizTagCommand command) {
+    public static BizTag create(Long id, AdminCreateBizTagCommand command) {
         return new BizTag(id, command);
     }
 
-    private BizTag(Long id, CreateBizTagCommand command) {
+    private BizTag(Long id, AdminCreateBizTagCommand command) {
         this.id = id;
         this.name = command.getName();
         this.description = command.getDescription();
@@ -55,7 +55,7 @@ public class BizTag extends Auditable implements IdBasedEntity {
         this.type = command.getType();
     }
 
-    public BizTag replace(UpdateBizTagCommand command) {
+    public BizTag replace(AdminUpdateBizTagCommand command) {
         this.setName(command.getName());
         this.setDescription(command.getDescription());
         this.setMethod(command.getMethod());
