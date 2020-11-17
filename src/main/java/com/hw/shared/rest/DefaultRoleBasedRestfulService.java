@@ -10,6 +10,7 @@ import com.hw.shared.Auditable;
 import com.hw.shared.AuditorAwareImpl;
 import com.hw.shared.DeepCopyException;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.cache.CacheCriteria;
 import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.idempotent.OperationType;
 import com.hw.shared.idempotent.command.AppCreateChangeRecordCommand;
@@ -25,7 +26,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -45,6 +49,8 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     protected IdGenerator idGenerator;
     @Autowired
     protected RestfulQueryRegistry<T> queryRegistry;
+    @Autowired
+    protected StringRedisTemplate redisTemplate;
 
     protected Class<T> entityClass;
 
@@ -77,6 +83,10 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
             saveChangeRecord(command, changeId, OperationType.POST, "id:" + id, null, null);
             T created = createEntity(id, command);
             T save = repo.save(created);
+            Set<String> keys = redisTemplate.keys(entityClass.getName() + ":*");
+            if (!CollectionUtils.isEmpty(keys)) {
+                redisTemplate.delete(keys);
+            }
             return getCreatedEntityRepresentation(save);
         }
     }

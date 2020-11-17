@@ -1,5 +1,6 @@
 package com.hw.aggregate.product.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,8 @@ public class Tag {
     @Convert(converter = TagTypeEnum.DBConverter.class)
     private TagTypeEnum type;
     @ManyToMany(mappedBy = "tags")
-    private Set<Product> products = new HashSet<>();
+    @JsonIgnore
+    private final Set<Product> products = new HashSet<>();
 
     public Tag(Long id, String value, TagTypeEnum type) {
         this.id = id;
