@@ -10,7 +10,6 @@ import com.hw.shared.Auditable;
 import com.hw.shared.AuditorAwareImpl;
 import com.hw.shared.DeepCopyException;
 import com.hw.shared.IdGenerator;
-import com.hw.shared.cache.CacheCriteria;
 import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.idempotent.OperationType;
 import com.hw.shared.idempotent.command.AppCreateChangeRecordCommand;
@@ -26,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -83,7 +81,24 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
             saveChangeRecord(command, changeId, OperationType.POST, "id:" + id, null, null);
             T created = createEntity(id, command);
             T save = repo.save(created);
-            Set<String> keys = redisTemplate.keys(entityClass.getName() + ":*");
+            String[] split = entityClass.getName().split("\\.");
+            Set<String> keys = redisTemplate.keys(split[split.length - 1] + CACHE_QUERY_PREFIX + ":*");
+            Set<String> keys1 = redisTemplate.keys(split[split.length - 1] + CACHE_ID_PREFIX + ":*");
+            if (keys1 != null) {
+                Set<String> collect = keys1.stream().filter(e -> {
+                    String[] split1 = e.split(":");
+                    String[] split2 = split1[1].split("\\[");
+                    String s = split2[split2.length - 1];
+                    String replace = s.replace("]", "");
+                    String[] split3 = replace.split("-");
+                    long min = Long.parseLong(split3[0]);
+                    long max = Long.parseLong(split3[1]);
+                    return id <= max && id >= min;
+                }).collect(Collectors.toSet());
+                if (!CollectionUtils.isEmpty(collect)) {
+                    redisTemplate.delete(collect);
+                }
+            }
             if (!CollectionUtils.isEmpty(keys)) {
                 redisTemplate.delete(keys);
             }
