@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,7 +16,7 @@ import java.util.Set;
 @Entity
 @Table(name = "biz_tag")
 @NoArgsConstructor
-public class Tag {
+public class Tag implements Serializable {
     @Id
     private Long id;
     private String value;

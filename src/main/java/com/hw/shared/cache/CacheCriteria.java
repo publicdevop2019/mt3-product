@@ -4,11 +4,13 @@ import com.google.common.base.Objects;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import lombok.Data;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
 
 @Data
 public class CacheCriteria implements Serializable {
     RestfulQueryRegistry.RoleEnum role;
+    @Nullable
     String query;
     String page;
     String config;

@@ -33,6 +33,7 @@ public abstract class RestfulQueryRegistry<T extends Auditable> {
     ObjectMapper om = new ObjectMapper();
     @Autowired
     StringRedisTemplate redisTemplate;
+    public Map<RoleEnum, Boolean> cacheable = new HashMap<>();
     protected Map<RoleEnum, SelectQueryBuilder<T>> selectQueryBuilder = new HashMap<>();
     protected Map<RoleEnum, UpdateQueryBuilder<T>> updateQueryBuilder = new HashMap<>();
     protected Map<RoleEnum, SoftDeleteQueryBuilder<T>> deleteQueryBuilder = new HashMap<>();
@@ -92,7 +93,7 @@ public abstract class RestfulQueryRegistry<T extends Auditable> {
     //GET service-name/role-name/object-collection?query={condition-clause}
     public SumPagedRep<T> readByQuery(RoleEnum roleEnum, String query, String page, String config, Class<T> clazz) {
         //skip change aggregate as it is present in all services
-        if (!clazz.equals(ChangeRecord.class)) {
+        if (!clazz.equals(ChangeRecord.class) && Boolean.TRUE.equals(cacheable.get(roleEnum))) {
             CacheCriteria cacheCriteria = new CacheCriteria(roleEnum, query, page, config);
             String cache = redisTemplate.opsForValue().get(getQueryCacheKey(cacheCriteria));
             if (cache == null) {
@@ -157,51 +158,52 @@ public abstract class RestfulQueryRegistry<T extends Auditable> {
 
     private String getQueryCacheKey(CacheCriteria cacheCriteria) {
         //sort query param in fixed order
-        String[] split1 = cacheCriteria.getQuery().split(",");
-        PredicateConfig.validateQuery(cacheCriteria.getQuery());
-        String collect = Arrays.stream(split1).map(e -> {
-            String[] split = e.split(":");
-            String key = split[0];
-            String value = split[1];
-            if (value.contains(".")) {
-                String[] split2 = value.split("\\.");
-                TreeSet<String> strings = new TreeSet<>(Arrays.asList(split2));
-                String join = String.join(".", strings);
-                return key + ":" + join;
-            } else if (value.contains("$")) {
-                String[] split2 = value.split("\\$");
-                TreeSet<String> strings = new TreeSet<>(Arrays.asList(split2));
-                String join = String.join("$", strings);
-                return key + ":" + join;
-            } else {
-                return e;
+        if (cacheCriteria.getQuery() != null) {
+            String[] split1 = cacheCriteria.getQuery().split(",");
+            PredicateConfig.validateQuery(cacheCriteria.getQuery());
+            String collect = Arrays.stream(split1).map(e -> {
+                String[] split = e.split(":");
+                String key = split[0];
+                String value = split[1];
+                if (value.contains(".")) {
+                    String[] split2 = value.split("\\.");
+                    TreeSet<String> strings = new TreeSet<>(Arrays.asList(split2));
+                    String join = String.join(".", strings);
+                    return key + ":" + join;
+                } else if (value.contains("$")) {
+                    String[] split2 = value.split("\\$");
+                    TreeSet<String> strings = new TreeSet<>(Arrays.asList(split2));
+                    String join = String.join("$", strings);
+                    return key + ":" + join;
+                } else {
+                    return e;
+                }
+            }).collect(Collectors.joining(","));
+            cacheCriteria.setQuery(collect);
+            if (Arrays.stream(split1).anyMatch(e -> e.contains("id:"))) {
+                String minId;
+                String maxId;
+                String s = Arrays.stream(split1).filter(e -> e.contains("id:")).findFirst().get().replace("id:", "");
+                if (s.contains(".")) {
+                    String[] split2 = s.split("\\.");
+                    OptionalLong min = Arrays.stream(split2).mapToLong(Long::parseLong).min();
+                    OptionalLong max = Arrays.stream(split2).mapToLong(Long::parseLong).max();
+                    minId = String.valueOf(min.getAsLong());
+                    maxId = String.valueOf(max.getAsLong());
+                } else if (s.contains("$")) {
+                    String[] split2 = s.split("\\$");
+                    OptionalLong min = Arrays.stream(split2).mapToLong(Long::parseLong).min();
+                    OptionalLong max = Arrays.stream(split2).mapToLong(Long::parseLong).max();
+                    minId = String.valueOf(min.getAsLong());
+                    maxId = String.valueOf(max.getAsLong());
+                } else {
+                    minId = s;
+                    maxId = s;
+                }
+                return getEntityName() + CACHE_ID_PREFIX + ":" + cacheCriteria.hashCode() + "[" + minId + "-" + maxId + "]";
             }
-        }).collect(Collectors.joining(","));
-        cacheCriteria.setQuery(collect);
-        String[] split = getEntityClass().getName().split("\\.");
-        if (Arrays.stream(split1).anyMatch(e -> e.contains("id:"))) {
-            String minId;
-            String maxId;
-            String s = Arrays.stream(split1).filter(e -> e.contains("id:")).findFirst().get();
-            if (s.contains(".")) {
-                String[] split2 = s.split("\\.");
-                OptionalLong min = Arrays.stream(split2).mapToLong(Long::parseLong).min();
-                OptionalLong max = Arrays.stream(split2).mapToLong(Long::parseLong).max();
-                minId = String.valueOf(min.toString());
-                maxId = String.valueOf(max.toString());
-            } else if (s.contains("$")) {
-                String[] split2 = s.split("\\$");
-                OptionalLong min = Arrays.stream(split2).mapToLong(Long::parseLong).min();
-                OptionalLong max = Arrays.stream(split2).mapToLong(Long::parseLong).max();
-                minId = String.valueOf(min.toString());
-                maxId = String.valueOf(max.toString());
-            } else {
-                minId = s;
-                maxId = s;
-            }
-            return split[split.length - 1] + CACHE_ID_PREFIX + ":" + cacheCriteria.hashCode() + "[" + minId + "-" + maxId + "]";
         }
-        return split[split.length - 1] + CACHE_QUERY_PREFIX + ":" + cacheCriteria.hashCode();
+        return getEntityName() + CACHE_QUERY_PREFIX + ":" + cacheCriteria.hashCode();
     }
 
     private SumPagedRep<T> getSumPagedRep(RoleEnum roleEnum, String query, String page, String config, Class<T> clazz) {
@@ -214,6 +216,11 @@ public abstract class RestfulQueryRegistry<T extends Auditable> {
             aLong = selectQueryBuilder.selectCount(query, clazz);
         }
         return new SumPagedRep<>(select, aLong);
+    }
+
+    protected String getEntityName() {
+        String[] split = getEntityClass().getName().split("\\.");
+        return split[split.length - 1];
     }
 
 }
