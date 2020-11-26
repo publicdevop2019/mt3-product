@@ -46,6 +46,7 @@ public class AdminUpdateProductCommand implements Serializable, AggregateUpdateC
         private Integer storageOrder;//for new sku
         private Integer storageActual;
         private Integer sales;
+        private Integer version;
     }
 
     @Data

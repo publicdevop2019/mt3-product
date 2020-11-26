@@ -186,6 +186,7 @@ public class Product extends Auditable implements Aggregate {
                 if (appBizSkuRep.getPrice().compareTo(command.getPrice()) != 0) {
                     AppUpdateBizSkuCommand appUpdateBizSkuCommand = new AppUpdateBizSkuCommand();
                     appUpdateBizSkuCommand.setPrice(command.getPrice());
+                    appUpdateBizSkuCommand.setVersion(command.getVersion());
                     //price will be update in a different changeId
                     skuApplicationService.replaceById(aLong, appUpdateBizSkuCommand, UUID.randomUUID().toString());
                 }
