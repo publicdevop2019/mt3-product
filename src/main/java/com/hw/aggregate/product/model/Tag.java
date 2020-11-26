@@ -14,7 +14,7 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "biz_tag")
+@Table(name = "biz_product_tag_ref")
 @NoArgsConstructor
 public class Tag implements Serializable {
     @Id

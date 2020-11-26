@@ -16,7 +16,7 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "biz_attribute")
+@Table(name = "biz_tag")
 @NoArgsConstructor
 public class BizTag extends Auditable implements Aggregate {
     @Id
