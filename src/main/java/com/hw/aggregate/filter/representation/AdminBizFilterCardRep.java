@@ -10,10 +10,12 @@ public class AdminBizFilterCardRep {
     private Long id;
     private Set<String> catalogs;
     private String description;
+    private Integer version;
 
     public AdminBizFilterCardRep(BizFilter e) {
         id = e.getId();
         catalogs = e.getCatalogs();
         description=e.getDescription();
+        version=e.getVersion();
     }
 }

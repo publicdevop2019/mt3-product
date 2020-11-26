@@ -2,6 +2,7 @@ package com.hw.aggregate.tag.representation;
 
 import com.hw.aggregate.tag.model.BizTag;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.util.Set;
 
@@ -15,6 +16,7 @@ public class AdminBizTagCardRep {
     public transient static final String ADMIN_REP_METHOD_LITERAL = "method";
     private BizTag.BizAttributeType type;
     public transient static final String ADMIN_REP_TYPE_LITERAL = "type";
+    private Integer version;
 
     public AdminBizTagCardRep(BizTag attribute) {
         this.id = attribute.getId();
@@ -23,5 +25,6 @@ public class AdminBizTagCardRep {
         this.selectValues = attribute.getSelectValues();
         this.method = attribute.getMethod();
         this.type = attribute.getType();
+        this.version=attribute.getVersion();
     }
 }

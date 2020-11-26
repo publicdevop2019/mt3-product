@@ -5,10 +5,8 @@ import com.hw.aggregate.catalog.command.AdminUpdateBizCatalogCommand;
 import com.hw.shared.Auditable;
 import com.hw.shared.EnumDBConverter;
 import com.hw.shared.StringSetConverter;
-import com.hw.shared.rest.IdBasedEntity;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import com.hw.shared.rest.Aggregate;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -19,7 +17,7 @@ import java.util.Set;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-public class BizCatalog extends Auditable implements IdBasedEntity {
+public class BizCatalog extends Auditable implements Aggregate {
 
     @Id
     private Long id;
@@ -40,6 +38,10 @@ public class BizCatalog extends Auditable implements IdBasedEntity {
     @Convert(converter = CatalogType.DBConverter.class)
     private CatalogType type;
     public transient static final String TYPE_LITERAL = "type";
+
+    @Version
+    @Setter(AccessLevel.NONE)
+    private Integer version;
 
     public static BizCatalog create(Long id, AdminCreateBizCatalogCommand command) {
         return new BizCatalog(id, command);

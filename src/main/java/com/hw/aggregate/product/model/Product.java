@@ -15,14 +15,16 @@ import com.hw.aggregate.sku.representation.AppBizSkuRep;
 import com.hw.shared.Auditable;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.StringSetConverter;
-import com.hw.shared.rest.CreatedEntityRep;
-import com.hw.shared.rest.IdBasedEntity;
-import com.hw.shared.rest.exception.EntityNotExistException;
+import com.hw.shared.rest.Aggregate;
+import com.hw.shared.rest.CreatedAggregateRep;
+import com.hw.shared.rest.exception.AggregateNotExistException;
 import com.hw.shared.rest.exception.NoUpdatableFieldException;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.SumPagedRep;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
@@ -42,7 +44,7 @@ import static com.hw.shared.AppConstant.*;
 @Table(name = "biz_product")
 @NoArgsConstructor
 @Slf4j
-public class Product extends Auditable implements IdBasedEntity {
+public class Product extends Auditable implements Aggregate {
     @Id
     private Long id;
 
@@ -73,6 +75,9 @@ public class Product extends Auditable implements IdBasedEntity {
 
     @Column(length = 10000)
     private ArrayList<ProductAttrSaleImages> attributeSaleImages;
+    @Version
+    @Setter(AccessLevel.NONE)
+    private Integer version;
 
     public void addTag(Tag tag) {
         tags.add(tag);
@@ -166,7 +171,7 @@ public class Product extends Auditable implements IdBasedEntity {
                 command1.setStorageOrder(command.getStorageOrder());
                 command1.setStorageActual(command.getStorageActual());
                 command1.setSales(command.getSales() == null ? 0 : command.getSales());
-                CreatedEntityRep createdEntityRep = skuApplicationService.create(command1, UUID.randomUUID().toString());
+                CreatedAggregateRep createdEntityRep = skuApplicationService.create(command1, UUID.randomUUID().toString());
                 if (attrSalesMap == null)
                     attrSalesMap = new HashMap<>();
                 attrSalesMap.put(getAttrSalesKey(command.getAttributesSales()), createdEntityRep.getId());
@@ -276,7 +281,7 @@ public class Product extends Auditable implements IdBasedEntity {
             command1.setStorageOrder(skuAdminCommand.getStorageOrder());
             command1.setStorageActual(skuAdminCommand.getStorageActual());
             command1.setSales(skuAdminCommand.getSales());
-            CreatedEntityRep createdEntityRep = appBizSkuApplicationService.create(command1, UUID.randomUUID().toString());
+            CreatedAggregateRep createdEntityRep = appBizSkuApplicationService.create(command1, UUID.randomUUID().toString());
             if (attrSalesMap == null)
                 attrSalesMap = new HashMap<>();
             attrSalesMap.put(String.join(",", skuAdminCommand.getAttributesSales()), createdEntityRep.getId());
@@ -322,7 +327,7 @@ public class Product extends Auditable implements IdBasedEntity {
                 Long aLong = first.get().getAttrSalesMap().get(attrSales);
                 e.setPath("/" + aLong + "/" + fieldName);
             } else {
-                throw new EntityNotExistException();
+                throw new AggregateNotExistException();
             }
         });
 

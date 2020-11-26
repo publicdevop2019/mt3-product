@@ -15,6 +15,7 @@ public class AppBizSkuCardRep {
     private Integer storageActual;
 
     private Integer sales;
+    private Integer version;
 
     public AppBizSkuCardRep(BizSku bizSku) {
         this.id = bizSku.getId();
@@ -22,5 +23,6 @@ public class AppBizSkuCardRep {
         this.storageOrder = bizSku.getStorageOrder();
         this.storageActual = bizSku.getStorageActual();
         this.sales = bizSku.getSales();
+        this.version = bizSku.getVersion();
     }
 }

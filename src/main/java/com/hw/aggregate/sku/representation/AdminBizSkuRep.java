@@ -29,6 +29,7 @@ public class AdminBizSkuRep {
     private Date modifiedAt;
 
     private String description;
+    private Integer version;
 
     public AdminBizSkuRep(BizSku bizSku) {
         this.id = bizSku.getId();
@@ -42,5 +43,6 @@ public class AdminBizSkuRep {
         this.modifiedBy = bizSku.getModifiedBy();
         this.modifiedAt = bizSku.getModifiedAt();
         this.description = bizSku.getDescription();
+        this.version = bizSku.getVersion();
     }
 }

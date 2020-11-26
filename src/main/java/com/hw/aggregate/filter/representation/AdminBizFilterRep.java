@@ -13,11 +13,13 @@ public class AdminBizFilterRep {
     private Set<String> catalogs;
     private List<BizFilterItemAdminRepresentation> filters;
     private String description;
+    private Integer version;
     public AdminBizFilterRep(BizFilter read) {
         this.id = read.getId();
         this.catalogs = read.getCatalogs();
         this.filters = read.getFilterItems().stream().map(BizFilterItemAdminRepresentation::new).collect(Collectors.toList());
         this.description=read.getDescription();
+        this.version=read.getVersion();
     }
 
     @Data

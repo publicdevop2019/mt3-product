@@ -5,15 +5,10 @@ import com.hw.aggregate.sku.command.AdminUpdateBizSkuCommand;
 import com.hw.aggregate.sku.command.AppCreateBizSkuCommand;
 import com.hw.aggregate.sku.command.AppUpdateBizSkuCommand;
 import com.hw.shared.Auditable;
-import com.hw.shared.rest.IdBasedEntity;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.hw.shared.rest.Aggregate;
+import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
@@ -22,7 +17,7 @@ import java.math.BigDecimal;
 @Data
 @Entity
 @Table
-public class BizSku extends Auditable implements IdBasedEntity {
+public class BizSku extends Auditable implements Aggregate {
     @Id
     private Long id;
 
@@ -48,6 +43,9 @@ public class BizSku extends Auditable implements IdBasedEntity {
     @Column(updatable = false)
     private Integer sales;
     public transient static final String SKU_SALES_LITERAL = "sales";
+    @Version
+    @Setter(AccessLevel.NONE)
+    private Integer version;
 
     public static BizSku create(Long id, AdminCreateBizSkuCommand command) {
         return new BizSku(id, command);

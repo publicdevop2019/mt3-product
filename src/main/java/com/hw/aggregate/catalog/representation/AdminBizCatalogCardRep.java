@@ -14,6 +14,7 @@ public class AdminBizCatalogCardRep {
     private Set<String> attributes;
     private BizCatalog.CatalogType catalogType;
     public transient static final String ADMIN_REP_CATALOG_TYPE_LITERAL = "catalogType";
+    private Integer version;
 
     public AdminBizCatalogCardRep(BizCatalog catalog) {
         this.id = catalog.getId();
@@ -21,5 +22,6 @@ public class AdminBizCatalogCardRep {
         this.parentId = catalog.getParentId();
         this.attributes = catalog.getAttributes();
         this.catalogType = catalog.getType();
+        this.version = catalog.getVersion();
     }
 }

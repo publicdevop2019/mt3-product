@@ -16,11 +16,14 @@ public class AdminBizCatalogRep {
 
     private BizCatalog.CatalogType catalogType;
 
+    private Integer version;
+
     public AdminBizCatalogRep(BizCatalog catalog) {
         this.id = catalog.getId();
         this.name = catalog.getName();
         this.parentId = catalog.getParentId();
         this.attributes = catalog.getAttributes();
         this.catalogType = catalog.getType();
+        this.version = catalog.getVersion();
     }
 }

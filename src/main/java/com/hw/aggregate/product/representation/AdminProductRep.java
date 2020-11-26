@@ -45,9 +45,10 @@ public class AdminProductRep {
     public transient static final String ADMIN_REP_SALES_LITERAL = "totalSales";
     private BigDecimal lowestPrice;
     public static final String ADMIN_REP_PRICE_LITERAL = "lowestPrice";
-
+    private Integer version;
     public AdminProductRep(Product productDetail, AppBizSkuApplicationService skuApplicationService) {
         this.id = productDetail.getId();
+        this.version = productDetail.getVersion();
         this.name = productDetail.getName();
         this.imageUrlSmall = productDetail.getImageUrlSmall();
         this.description = productDetail.getDescription();

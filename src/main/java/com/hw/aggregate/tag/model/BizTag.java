@@ -5,21 +5,20 @@ import com.hw.aggregate.tag.command.AdminUpdateBizTagCommand;
 import com.hw.shared.Auditable;
 import com.hw.shared.EnumDBConverter;
 import com.hw.shared.LinkedHashSetConverter;
-import com.hw.shared.rest.IdBasedEntity;
+import com.hw.shared.rest.Aggregate;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Set;
 
 @Data
 @Entity
 @Table(name = "biz_attribute")
 @NoArgsConstructor
-public class BizTag extends Auditable implements IdBasedEntity {
+public class BizTag extends Auditable implements Aggregate {
     @Id
     private Long id;
     public transient static final String ID_LITERAL = "id";
@@ -41,6 +40,9 @@ public class BizTag extends Auditable implements IdBasedEntity {
     @Convert(converter = BizAttributeType.DBConverter.class)
     private BizAttributeType type;
     public transient static final String TYPE_LITERAL = "type";
+    @Version
+    @Setter(AccessLevel.NONE)
+    private Integer version;
 
     public static BizTag create(Long id, AdminCreateBizTagCommand command) {
         return new BizTag(id, command);

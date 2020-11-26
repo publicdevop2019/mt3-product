@@ -14,6 +14,7 @@ public class AdminBizSkuCardRep {
     private BigDecimal price;
     private Integer sales;
     private String description;
+    private Integer version;
 
     public AdminBizSkuCardRep(BizSku bizSku) {
         this.id = bizSku.getId();
@@ -23,5 +24,6 @@ public class AdminBizSkuCardRep {
         this.price = bizSku.getPrice();
         this.sales = bizSku.getSales();
         this.description= bizSku.getDescription();
+        this.version= bizSku.getVersion();
     }
 }

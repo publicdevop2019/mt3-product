@@ -18,6 +18,7 @@ class AdminProductCardRep {
     private Long startAt;
     private Long endAt;
     private HashMap<String, Long> attrSalesMap;
+    private Integer version;
 
     public AdminProductCardRep(Product product) {
         this.id = product.getId();
@@ -27,6 +28,7 @@ class AdminProductCardRep {
         this.endAt = product.getEndAt();
         this.coverImage = product.getImageUrlSmall();
         this.attrSalesMap = product.getAttrSalesMap();
+        this.version = product.getVersion();
     }
 
 }

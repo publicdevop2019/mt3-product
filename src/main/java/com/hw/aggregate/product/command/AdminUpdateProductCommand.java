@@ -2,6 +2,7 @@ package com.hw.aggregate.product.command;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.hw.aggregate.product.model.ProductOption;
+import com.hw.shared.rest.AggregateUpdateCommand;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-public class AdminUpdateProductCommand implements Serializable {
+public class AdminUpdateProductCommand implements Serializable, AggregateUpdateCommand {
     private static final long serialVersionUID = 1;
     private String changeId;
     private String name;
@@ -32,7 +33,7 @@ public class AdminUpdateProductCommand implements Serializable {
     private Set<String> attributesGen;
     private List<UpdateProductAdminSkuCommand> skus;
     private List<UpdateProductAttrImageAdminCommand> attributeSaleImages;
-
+    private Integer version;
     @Data
     public static class UpdateProductAdminSkuCommand implements Serializable{
         private static final long serialVersionUID = 1;

@@ -8,8 +8,9 @@ import java.math.BigDecimal;
 @Data
 public class AppBizSkuRep {
     private BigDecimal price;
-
+    private Integer version;
     public AppBizSkuRep(BizSku bizSku) {
         this.price = bizSku.getPrice();
+        this.version = bizSku.getVersion();
     }
 }

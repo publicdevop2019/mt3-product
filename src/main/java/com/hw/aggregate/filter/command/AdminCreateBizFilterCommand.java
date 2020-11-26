@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-public class UpdateBizFilterCommand implements Serializable {
+public class AdminCreateBizFilterCommand implements Serializable {
     private static final long serialVersionUID = 1;
     private List<BizFilterItemCommand> filters;
     @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received

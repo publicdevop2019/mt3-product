@@ -1,8 +1,8 @@
 package com.hw.aggregate.filter;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.hw.aggregate.filter.command.CreateBizFilterCommand;
-import com.hw.aggregate.filter.command.UpdateBizFilterCommand;
+import com.hw.aggregate.filter.command.AdminCreateBizFilterCommand;
+import com.hw.aggregate.filter.command.AdminUpdateBizFilterCommand;
 import com.hw.shared.validation.BizValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -44,14 +44,14 @@ public class BizFilterController {
     }
 
     @PostMapping("admin")
-    public ResponseEntity<?> createForAdmin(@RequestBody CreateBizFilterCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<?> createForAdmin(@RequestBody AdminCreateBizFilterCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         validator.validate("adminCreateFilterCommand",command);
         return ResponseEntity.ok().header("Location", bizFilterApplicationService.create(command, changeId).getId().toString()).build();
     }
 
 
     @PutMapping("admin/{id}")
-    public ResponseEntity<?> replaceForAdmin(@PathVariable(name = "id") Long id, @RequestBody UpdateBizFilterCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<?> replaceForAdmin(@PathVariable(name = "id") Long id, @RequestBody AdminUpdateBizFilterCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         validator.validate("adminUpdateFilterCommand",command);
         bizFilterApplicationService.replaceById(id, command, changeId);
         return ResponseEntity.ok().build();

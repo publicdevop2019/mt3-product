@@ -1,7 +1,7 @@
 package com.hw.aggregate.filter;
 
-import com.hw.aggregate.filter.command.CreateBizFilterCommand;
-import com.hw.aggregate.filter.command.UpdateBizFilterCommand;
+import com.hw.aggregate.filter.command.AdminCreateBizFilterCommand;
+import com.hw.aggregate.filter.command.AdminUpdateBizFilterCommand;
 import com.hw.aggregate.filter.model.AdminBizFilterPatchMiddleLayer;
 import com.hw.aggregate.filter.model.BizFilter;
 import com.hw.aggregate.filter.representation.AdminBizFilterCardRep;
@@ -24,7 +24,7 @@ public class AdminBizFilterApplicationService extends DefaultRoleBasedRestfulSer
 
     @Override
     public BizFilter replaceEntity(BizFilter bizFilter, Object command) {
-        bizFilter.replace((UpdateBizFilterCommand) command);
+        bizFilter.replace((AdminUpdateBizFilterCommand) command);
         return bizFilter;
     }
 
@@ -40,7 +40,7 @@ public class AdminBizFilterApplicationService extends DefaultRoleBasedRestfulSer
 
     @Override
     protected BizFilter createEntity(long id, Object command) {
-        return BizFilter.create(id, (CreateBizFilterCommand) command);
+        return BizFilter.create(id, (AdminCreateBizFilterCommand) command);
     }
 
     @Override
