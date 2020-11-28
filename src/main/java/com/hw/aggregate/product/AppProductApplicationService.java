@@ -14,7 +14,6 @@ import com.hw.shared.sql.RestfulQueryRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -95,15 +94,19 @@ public class AppProductApplicationService extends DefaultRoleBasedRestfulService
 
 
     @Override
-    @Transactional
     public Integer patchBatch(List<PatchCommand> commands, String changeId) {
         List<PatchCommand> skuChange = commands.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         List<PatchCommand> productChange = commands.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
-        if (!skuChange.isEmpty())
-            appBizSkuApplicationService.patchBatch(Product.convertToSkuCommands(skuChange, this), changeId);
-        if (!productChange.isEmpty())
-            return super.patchBatch(productChange, changeId);
-        return 0;
+        Integer execute = transactionTemplate.execute(transactionStatus -> {
+            if (!skuChange.isEmpty())
+                appBizSkuApplicationService.patchBatch(Product.convertToSkuCommands(skuChange, this), changeId);
+            if (!productChange.isEmpty())
+                return super.patchBatch(productChange, changeId);
+            return 0;
+        });
+        cleanUpAllCache();
+        appBizSkuApplicationService.cleanUpAllCache();//need ids to clear cache more accurately
+        return execute;
     }
 
 }

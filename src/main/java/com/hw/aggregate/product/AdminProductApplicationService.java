@@ -15,9 +15,9 @@ import com.hw.shared.sql.RestfulQueryRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,35 +54,48 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
     }
 
     @Override
-    @Transactional
     public Integer patchBatch(List<PatchCommand> commands, String changeId) {
         List<PatchCommand> hasNestedEntity = commands.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
         List<PatchCommand> noNestedEntity = commands.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
-        appBizSkuApplicationService.patchBatch(Product.convertToSkuCommands(hasNestedEntity, appProductApplicationService), changeId);
-        return super.patchBatch(noNestedEntity, changeId);
+        Integer execute = transactionTemplate.execute(transactionStatus -> {
+            appBizSkuApplicationService.patchBatch(Product.convertToSkuCommands(hasNestedEntity, appProductApplicationService), changeId);
+            return super.patchBatch(noNestedEntity, changeId);
+
+        });
+        cleanUpAllCache();
+        appBizSkuApplicationService.cleanUpAllCache();
+        return execute;
     }
 
     @Override
-    @Transactional
     public Integer deleteByQuery(String query, String changeId) {
         List<AdminProductCardRep> data = getAllByQuery(query);
-        Set<String> collect = data.stream().map(e -> e.getId().toString()).collect(Collectors.toSet());
-        String join = SKU_REFERENCE_ID_LITERAL + ":" + String.join(".", collect);
-        appBizSkuApplicationService.deleteByQuery(join, changeId);
-        return queryRegistry.deleteByQuery(role, query, Product.class);
+        Set<Long> collect = data.stream().map(AdminProductCardRep::getId).collect(Collectors.toSet());
+        String join = SKU_REFERENCE_ID_LITERAL + ":" + collect.stream().map(Object::toString).collect(Collectors.joining(","));
+        Integer execute = transactionTemplate.execute(transactionStatus -> {
+            appBizSkuApplicationService.deleteByQuery(join, changeId);
+            return super.deleteByQuery(query, changeId);
+        });
+        cleanUpCache(collect);
+        appBizSkuApplicationService.cleanUpAllCache();//need ids to clear cache more accurately
+        return execute;
     }
 
 
     @Override
-    @Transactional
     public Integer deleteById(Long id, String changeId) {
-        appBizSkuApplicationService.deleteByQuery(SKU_REFERENCE_ID_LITERAL + ":" + id, changeId);
-        return queryRegistry.deleteById(role, id.toString(), Product.class);
+        Integer execute = transactionTemplate.execute(transactionStatus -> {
+            appBizSkuApplicationService.deleteByQuery(SKU_REFERENCE_ID_LITERAL + ":" + id, changeId);
+            return super.deleteById(id, changeId);
+        });
+        cleanUpCache(Collections.singleton(id));
+        appBizSkuApplicationService.cleanUpAllCache();//need ids to clear cache more accurately
+        return execute;
     }
 
     @Override
     public Product replaceEntity(Product product, Object command) {
-        product.replace((AdminUpdateProductCommand) command, appBizSkuApplicationService,tagRepo,idGenerator);
+        product.replace((AdminUpdateProductCommand) command, appBizSkuApplicationService, tagRepo, idGenerator);
         return product;
     }
 
