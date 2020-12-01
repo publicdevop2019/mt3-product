@@ -6,7 +6,7 @@ import com.hw.aggregate.filter.model.AdminBizFilterPatchMiddleLayer;
 import com.hw.aggregate.filter.model.BizFilter;
 import com.hw.aggregate.filter.representation.AdminBizFilterCardRep;
 import com.hw.aggregate.filter.representation.AdminBizFilterRep;
-import com.hw.shared.rest.DefaultRoleBasedRestfulService;
+import com.hw.shared.rest.RoleBasedRestfulService;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +14,8 @@ import javax.annotation.PostConstruct;
 import java.util.Map;
 
 @Service
-public class AdminBizFilterApplicationService extends DefaultRoleBasedRestfulService<BizFilter, AdminBizFilterCardRep, AdminBizFilterRep, AdminBizFilterPatchMiddleLayer> {
-    @PostConstruct
-    private void setUp() {
+public class AdminBizFilterApplicationService extends RoleBasedRestfulService<BizFilter, AdminBizFilterCardRep, AdminBizFilterRep, AdminBizFilterPatchMiddleLayer> {
+    {
         entityClass = BizFilter.class;
         role = RestfulQueryRegistry.RoleEnum.ADMIN;
         entityPatchSupplier= AdminBizFilterPatchMiddleLayer::new;
@@ -43,23 +42,4 @@ public class AdminBizFilterApplicationService extends DefaultRoleBasedRestfulSer
         return BizFilter.create(id, (AdminCreateBizFilterCommand) command);
     }
 
-    @Override
-    public void preDelete(BizFilter bizFilter) {
-
-    }
-
-    @Override
-    public void postDelete(BizFilter bizFilter) {
-
-    }
-
-    @Override
-    protected void prePatch(BizFilter bizFilter, Map<String, Object> params, AdminBizFilterPatchMiddleLayer middleLayer) {
-
-    }
-
-    @Override
-    protected void postPatch(BizFilter bizFilter, Map<String, Object> params, AdminBizFilterPatchMiddleLayer middleLayer) {
-
-    }
 }

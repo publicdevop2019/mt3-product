@@ -18,13 +18,7 @@ import static com.hw.aggregate.product.representation.AdminProductRep.ADMIN_REP_
 
 @Component
 public class AdminProductUpdateQueryBuilder extends UpdateByIdQueryBuilder<Product> {
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
-
-    @PostConstruct
-    private void setUp() {
+    {
         filedMap.put(ADMIN_REP_START_AT_LITERAL, PRODUCT_START_AT_LITERAL);
         filedMap.put(ADMIN_REP_END_AT_LITERAL, PRODUCT_END_AT_LITERAL);
         filedTypeMap.put(ADMIN_REP_START_AT_LITERAL, this::parseLong);

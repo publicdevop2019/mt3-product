@@ -5,19 +5,14 @@ import com.hw.aggregate.sku.command.AppUpdateBizSkuCommand;
 import com.hw.aggregate.sku.model.BizSku;
 import com.hw.aggregate.sku.representation.AppBizSkuCardRep;
 import com.hw.aggregate.sku.representation.AppBizSkuRep;
-import com.hw.shared.rest.DefaultRoleBasedRestfulService;
+import com.hw.shared.rest.RoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.Map;
-
 @Service
-public class AppBizSkuApplicationService extends DefaultRoleBasedRestfulService<BizSku, AppBizSkuCardRep, AppBizSkuRep, VoidTypedClass> {
-
-    @PostConstruct
-    private void setUp() {
+public class AppBizSkuApplicationService extends RoleBasedRestfulService<BizSku, AppBizSkuCardRep, AppBizSkuRep, VoidTypedClass> {
+    {
         entityClass = BizSku.class;
         role = RestfulQueryRegistry.RoleEnum.APP;
     }
@@ -40,25 +35,5 @@ public class AppBizSkuApplicationService extends DefaultRoleBasedRestfulService<
     @Override
     protected BizSku createEntity(long id, Object command) {
         return BizSku.create(id, (AppCreateBizSkuCommand) command);
-    }
-
-    @Override
-    public void preDelete(BizSku bizSku) {
-
-    }
-
-    @Override
-    public void postDelete(BizSku bizSku) {
-
-    }
-
-    @Override
-    protected void prePatch(BizSku bizSku, Map<String, Object> params, VoidTypedClass middleLayer) {
-
-    }
-
-    @Override
-    protected void postPatch(BizSku bizSku, Map<String, Object> params, VoidTypedClass middleLayer) {
-
     }
 }

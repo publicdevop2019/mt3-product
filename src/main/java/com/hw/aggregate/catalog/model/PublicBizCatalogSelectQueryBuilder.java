@@ -8,9 +8,7 @@ import static com.hw.aggregate.catalog.model.BizCatalog.TYPE_LITERAL;
 
 @Component
 public class PublicBizCatalogSelectQueryBuilder extends SelectQueryBuilder<BizCatalog> {
-
-
-    PublicBizCatalogSelectQueryBuilder() {
+    {
         DEFAULT_PAGE_SIZE = 1000;
         MAX_PAGE_SIZE = 1500;
         defaultWhereField.add(new SelectEqualClause(TYPE_LITERAL, BizCatalog.CatalogType.FRONTEND.name()));

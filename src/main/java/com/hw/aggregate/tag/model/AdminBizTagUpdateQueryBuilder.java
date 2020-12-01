@@ -12,9 +12,7 @@ import static com.hw.aggregate.tag.representation.AdminBizTagCardRep.ADMIN_REP_T
 
 @Component
 public class AdminBizTagUpdateQueryBuilder extends UpdateByIdQueryBuilder<BizTag> {
-
-    @PostConstruct
-    private void setUp() {
+    {
         filedMap.put(ADMIN_REP_TYPE_LITERAL, TYPE_LITERAL);
         filedMap.put(ADMIN_REP_METHOD_LITERAL, METHOD_LITERAL);
         filedTypeMap.put(ADMIN_REP_TYPE_LITERAL, this::parseType);

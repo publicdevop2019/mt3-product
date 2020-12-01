@@ -11,8 +11,7 @@ import static com.hw.aggregate.tag.model.BizTag.TYPE_LITERAL;
 
 @Component
 public class AdminBizTagSelectQueryBuilder extends SelectQueryBuilder<BizTag> {
-
-    AdminBizTagSelectQueryBuilder() {
+    {
         DEFAULT_PAGE_SIZE = 200;
         MAX_PAGE_SIZE = 1000;
         mappedSortBy.put(NAME_LITERAL, NAME_LITERAL);
@@ -21,5 +20,4 @@ public class AdminBizTagSelectQueryBuilder extends SelectQueryBuilder<BizTag> {
         supportedWhereField.put(TYPE_LITERAL, new SelectFieldStringEqualClause(TYPE_LITERAL));
         allowEmptyClause = true;
     }
-
 }

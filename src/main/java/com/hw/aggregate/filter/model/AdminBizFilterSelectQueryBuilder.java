@@ -8,8 +8,7 @@ import static com.hw.aggregate.filter.model.BizFilter.ENTITY_CATALOG_LITERAL;
 
 @Component
 public class AdminBizFilterSelectQueryBuilder extends SelectQueryBuilder<BizFilter> {
-
-    AdminBizFilterSelectQueryBuilder() {
+    {
         DEFAULT_PAGE_SIZE = 40;
         MAX_PAGE_SIZE = 400;
         supportedWhereField.put(ENTITY_CATALOG_LITERAL, new SelectFieldStringLikeClause(ENTITY_CATALOG_LITERAL));

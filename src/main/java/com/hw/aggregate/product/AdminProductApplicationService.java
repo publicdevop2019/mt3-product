@@ -9,7 +9,7 @@ import com.hw.aggregate.product.representation.AdminProductCardRep;
 import com.hw.aggregate.product.representation.AdminProductRep;
 import com.hw.aggregate.sku.AppBizSkuApplicationService;
 import com.hw.aggregate.tag.AppBizTagApplicationService;
-import com.hw.shared.rest.DefaultRoleBasedRestfulService;
+import com.hw.shared.rest.RoleBasedRestfulService;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +28,12 @@ import static com.hw.aggregate.sku.model.BizSku.SKU_REFERENCE_ID_LITERAL;
 
 @Slf4j
 @Service
-public class AdminProductApplicationService extends DefaultRoleBasedRestfulService<Product, AdminProductCardRep, AdminProductRep, AdminProductPatchMiddleLayer> {
-
+public class AdminProductApplicationService extends RoleBasedRestfulService<Product, AdminProductCardRep, AdminProductRep, AdminProductPatchMiddleLayer> {
+    {
+        entityClass = Product.class;
+        role = RestfulQueryRegistry.RoleEnum.ADMIN;
+        entityPatchSupplier = (AdminProductPatchMiddleLayer::new);
+    }
 
     @Autowired
     private PublicBizCatalogApplicationService catalogApplicationService;
@@ -44,14 +48,6 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
     private AppProductApplicationService appProductApplicationService;
     @Autowired
     private TagRepo tagRepo;
-
-
-    @PostConstruct
-    private void setUp() {
-        entityClass = Product.class;
-        role = RestfulQueryRegistry.RoleEnum.ADMIN;
-        entityPatchSupplier = (AdminProductPatchMiddleLayer::new);
-    }
 
     @Override
     public Integer patchBatch(List<PatchCommand> commands, String changeId) {
@@ -115,24 +111,5 @@ public class AdminProductApplicationService extends DefaultRoleBasedRestfulServi
         return Product.create(id, (AdminCreateProductCommand) command, appBizSkuApplicationService, idGenerator, tagRepo);
     }
 
-    @Override
-    public void preDelete(Product product) {
-
-    }
-
-    @Override
-    public void postDelete(Product product) {
-
-    }
-
-    @Override
-    protected void prePatch(Product product, Map<String, Object> params, AdminProductPatchMiddleLayer middleLayer) {
-
-    }
-
-    @Override
-    protected void postPatch(Product product, Map<String, Object> params, AdminProductPatchMiddleLayer middleLayer) {
-
-    }
 }
 

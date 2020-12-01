@@ -11,9 +11,7 @@ import static com.hw.aggregate.product.representation.AdminProductRep.*;
 
 @Component
 public class AdminProductSelectQueryBuilder extends SelectQueryBuilder<Product> {
-
-
-    AdminProductSelectQueryBuilder() {
+    {
         DEFAULT_PAGE_SIZE = 40;
         MAX_PAGE_SIZE = 400;
         mappedSortBy.put(ADMIN_REP_NAME_LITERAL, PRODUCT_NAME_LITERAL);
@@ -25,5 +23,4 @@ public class AdminProductSelectQueryBuilder extends SelectQueryBuilder<Product> 
         supportedWhereField.put(ADMIN_REP_PRICE_LITERAL, new SelectFieldNumberRangeClause(PRODUCT_LOWEST_PRICE_LITERAL));
         allowEmptyClause = true;
     }
-
 }

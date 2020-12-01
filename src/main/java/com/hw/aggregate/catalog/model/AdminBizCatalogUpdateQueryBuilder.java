@@ -16,9 +16,7 @@ import static com.hw.aggregate.catalog.representation.AdminBizCatalogCardRep.ADM
 
 @Component
 public class AdminBizCatalogUpdateQueryBuilder extends UpdateByIdQueryBuilder<BizCatalog> {
-
-    @PostConstruct
-    private void setUp() {
+    {
         filedMap.put(ADMIN_REP_PARENT_ID_LITERAL, PARENT_ID_LITERAL);
         filedMap.put(ADMIN_REP_CATALOG_TYPE_LITERAL, TYPE_LITERAL);
         filedTypeMap.put(ADMIN_REP_PARENT_ID_LITERAL, this::parseLong);

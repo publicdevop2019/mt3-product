@@ -11,10 +11,8 @@ import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 
 @Component
 public class PublicProductSelectQueryBuilder extends SelectQueryBuilder<Product> {
-
     public static final String PUBLIC_ATTR = "attr";
-
-    PublicProductSelectQueryBuilder() {
+    {
         DEFAULT_PAGE_SIZE = 20;
         MAX_PAGE_SIZE = 40;
         DEFAULT_SORT_BY = PUBLIC_REP_NAME_LITERAL;

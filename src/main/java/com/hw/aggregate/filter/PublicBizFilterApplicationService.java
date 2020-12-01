@@ -2,7 +2,7 @@ package com.hw.aggregate.filter;
 
 import com.hw.aggregate.filter.model.BizFilter;
 import com.hw.aggregate.filter.representation.PublicBizFilterCardRep;
-import com.hw.shared.rest.DefaultRoleBasedRestfulService;
+import com.hw.shared.rest.RoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import com.hw.shared.sql.SumPagedRep;
@@ -15,10 +15,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class PublicBizFilterApplicationService extends DefaultRoleBasedRestfulService<BizFilter, PublicBizFilterCardRep, Void, VoidTypedClass> {
-
-    @PostConstruct
-    private void setUp() {
+public class PublicBizFilterApplicationService extends RoleBasedRestfulService<BizFilter, PublicBizFilterCardRep, Void, VoidTypedClass> {
+    {
         entityClass = BizFilter.class;
         role = RestfulQueryRegistry.RoleEnum.PUBLIC;
     }
@@ -33,46 +31,5 @@ public class PublicBizFilterApplicationService extends DefaultRoleBasedRestfulSe
             collect = select1.getData().get(0).getFilterItems().stream().map(PublicBizFilterCardRep::new).collect(Collectors.toList());
         }
         return new SumPagedRep<>(collect, null);
-    }
-
-    @Override
-    public BizFilter replaceEntity(BizFilter bizFilter, Object command) {
-        return null;
-    }
-
-    @Override
-    public PublicBizFilterCardRep getEntitySumRepresentation(BizFilter bizFilter) {
-        return null;
-    }
-
-
-    @Override
-    public Void getEntityRepresentation(BizFilter bizFilter) {
-        return null;
-    }
-
-    @Override
-    protected BizFilter createEntity(long id, Object command) {
-        return null;
-    }
-
-    @Override
-    public void preDelete(BizFilter bizFilter) {
-
-    }
-
-    @Override
-    public void postDelete(BizFilter bizFilter) {
-
-    }
-
-    @Override
-    protected void prePatch(BizFilter bizFilter, Map<String, Object> params, VoidTypedClass middleLayer) {
-
-    }
-
-    @Override
-    protected void postPatch(BizFilter bizFilter, Map<String, Object> params, VoidTypedClass middleLayer) {
-
     }
 }
