@@ -2,6 +2,7 @@ package com.hw.aggregate.catalog.representation;
 
 import com.hw.aggregate.catalog.model.BizCatalog;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.util.Set;
 
@@ -13,9 +14,6 @@ public class PublicBizCatalogCardRep {
     private Long parentId;
 
     public PublicBizCatalogCardRep(BizCatalog catalog) {
-        this.id = catalog.getId();
-        this.name = catalog.getName();
-        this.attributes = catalog.getAttributes();
-        this.parentId = catalog.getParentId();
+        BeanUtils.copyProperties(catalog, this);
     }
 }

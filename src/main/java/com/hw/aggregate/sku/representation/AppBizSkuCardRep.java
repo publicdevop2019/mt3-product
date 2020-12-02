@@ -2,6 +2,7 @@ package com.hw.aggregate.sku.representation;
 
 import com.hw.aggregate.sku.model.BizSku;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.math.BigDecimal;
 
@@ -18,11 +19,6 @@ public class AppBizSkuCardRep {
     private Integer version;
 
     public AppBizSkuCardRep(BizSku bizSku) {
-        this.id = bizSku.getId();
-        this.price = bizSku.getPrice();
-        this.storageOrder = bizSku.getStorageOrder();
-        this.storageActual = bizSku.getStorageActual();
-        this.sales = bizSku.getSales();
-        this.version = bizSku.getVersion();
+        BeanUtils.copyProperties(bizSku, this);
     }
 }

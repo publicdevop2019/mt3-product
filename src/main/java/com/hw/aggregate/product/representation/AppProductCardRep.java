@@ -6,6 +6,7 @@ import com.hw.aggregate.sku.AppBizSkuApplicationService;
 import com.hw.aggregate.sku.representation.AppBizSkuCardRep;
 import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -20,9 +21,7 @@ class AppProductCardRep {
     private HashMap<String, Long> attrSalesMap;
 
     public AppProductCardRep(Product productDetail, AppBizSkuApplicationService skuApplicationService) {
-        this.id = productDetail.getId();
-        this.selectedOptions = productDetail.getSelectedOptions();
-        this.attrSalesMap = productDetail.getAttrSalesMap();
+        BeanUtils.copyProperties(productDetail, this);
         HashMap<String, Long> attrSalesMap = productDetail.getAttrSalesMap();
         Set<String> collect = attrSalesMap.values().stream().map(Object::toString).collect(Collectors.toSet());
         SumPagedRep<AppBizSkuCardRep> appBizSkuCardRepSumPagedRep = skuApplicationService.readByQuery("id:" + String.join(".", collect), null, null);

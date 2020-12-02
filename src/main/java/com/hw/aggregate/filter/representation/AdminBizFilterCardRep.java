@@ -2,6 +2,7 @@ package com.hw.aggregate.filter.representation;
 
 import com.hw.aggregate.filter.model.BizFilter;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.util.Set;
 
@@ -13,9 +14,6 @@ public class AdminBizFilterCardRep {
     private Integer version;
 
     public AdminBizFilterCardRep(BizFilter e) {
-        id = e.getId();
-        catalogs = e.getCatalogs();
-        description=e.getDescription();
-        version=e.getVersion();
+        BeanUtils.copyProperties(e, this);
     }
 }

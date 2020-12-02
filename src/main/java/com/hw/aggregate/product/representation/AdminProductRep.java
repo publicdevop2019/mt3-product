@@ -5,6 +5,7 @@ import com.hw.aggregate.sku.AppBizSkuApplicationService;
 import com.hw.aggregate.sku.representation.AppBizSkuCardRep;
 import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -47,15 +48,7 @@ public class AdminProductRep {
     public static final String ADMIN_REP_PRICE_LITERAL = "lowestPrice";
     private Integer version;
     public AdminProductRep(Product productDetail, AppBizSkuApplicationService skuApplicationService) {
-        this.id = productDetail.getId();
-        this.version = productDetail.getVersion();
-        this.name = productDetail.getName();
-        this.imageUrlSmall = productDetail.getImageUrlSmall();
-        this.description = productDetail.getDescription();
-        this.startAt = productDetail.getStartAt();
-        this.endAt = productDetail.getEndAt();
-        this.selectedOptions = productDetail.getSelectedOptions();
-        this.imageUrlLarge = productDetail.getImageUrlLarge();
+        BeanUtils.copyProperties(productDetail, this);
         this.attributesKey = productDetail.getTags().stream().filter(e->e.getType().equals(TagTypeEnum.KEY)).map(Tag::getValue).collect(Collectors.toSet());
         this.attributesProd = productDetail.getTags().stream().filter(e->e.getType().equals(TagTypeEnum.PROD)).map(Tag::getValue).collect(Collectors.toSet());
         this.attributesGen = productDetail.getTags().stream().filter(e->e.getType().equals(TagTypeEnum.GEN)).map(Tag::getValue).collect(Collectors.toSet());
@@ -78,8 +71,6 @@ public class AdminProductRep {
             return appProductSkuRep;
         }).collect(Collectors.toList());
 
-        this.totalSales = productDetail.getTotalSales();
-        this.lowestPrice = productDetail.getLowestPrice();
         if (productDetail.getAttributeSaleImages() != null)
             this.attributeSaleImages = productDetail.getAttributeSaleImages().stream().map(ProductAttrSaleImagesAdminRepresentation::new).collect(Collectors.toList());
     }
@@ -104,8 +95,7 @@ public class AdminProductRep {
         private Set<String> imageUrls;
 
         public ProductAttrSaleImagesAdminRepresentation(ProductAttrSaleImages productAttrSaleImages) {
-            this.attributeSales = productAttrSaleImages.getAttributeSales();
-            this.imageUrls = productAttrSaleImages.getImageUrls();
+            BeanUtils.copyProperties(productAttrSaleImages, this);
         }
     }
 }

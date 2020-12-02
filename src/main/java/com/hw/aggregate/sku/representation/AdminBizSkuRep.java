@@ -2,6 +2,7 @@ package com.hw.aggregate.sku.representation;
 
 import com.hw.aggregate.sku.model.BizSku;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -32,17 +33,6 @@ public class AdminBizSkuRep {
     private Integer version;
 
     public AdminBizSkuRep(BizSku bizSku) {
-        this.id = bizSku.getId();
-        this.referenceId = bizSku.getReferenceId();
-        this.storageOrder = bizSku.getStorageOrder();
-        this.storageActual = bizSku.getStorageActual();
-        this.price = bizSku.getPrice();
-        this.sales = bizSku.getSales();
-        this.createdBy = bizSku.getCreatedBy();
-        this.createdAt = bizSku.getCreatedAt();
-        this.modifiedBy = bizSku.getModifiedBy();
-        this.modifiedAt = bizSku.getModifiedAt();
-        this.description = bizSku.getDescription();
-        this.version = bizSku.getVersion();
+        BeanUtils.copyProperties(bizSku, this);
     }
 }

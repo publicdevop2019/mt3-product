@@ -16,13 +16,7 @@ public class AdminBizTagRep {
     private BizTag.BizAttributeType type;
     private Integer version;
 
-    public AdminBizTagRep(BizTag attribute) {
-        this.id = attribute.getId();
-        this.name = attribute.getName();
-        this.description = attribute.getDescription();
-        this.selectValues = attribute.getSelectValues();
-        this.method = attribute.getMethod();
-        this.type = attribute.getType();
-        this.version=attribute.getVersion();
+    public AdminBizTagRep(BizTag bizTag) {
+        BeanUtils.copyProperties(bizTag, this);
     }
 }

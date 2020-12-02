@@ -2,6 +2,7 @@ package com.hw.aggregate.filter.representation;
 
 import com.hw.aggregate.filter.model.BizFilter;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.util.List;
 import java.util.Set;
@@ -15,11 +16,8 @@ public class AdminBizFilterRep {
     private String description;
     private Integer version;
     public AdminBizFilterRep(BizFilter read) {
-        this.id = read.getId();
-        this.catalogs = read.getCatalogs();
+        BeanUtils.copyProperties(read, this);
         this.filters = read.getFilterItems().stream().map(BizFilterItemAdminRepresentation::new).collect(Collectors.toList());
-        this.description=read.getDescription();
-        this.version=read.getVersion();
     }
 
     @Data
@@ -29,8 +27,7 @@ public class AdminBizFilterRep {
         private Set<String> values;
 
         public BizFilterItemAdminRepresentation(BizFilter.BizFilterItem e) {
-            this.id = e.getId();
-            this.name = e.getName();
+            BeanUtils.copyProperties(e, this);
             this.values = e.getSelectValues();
         }
     }

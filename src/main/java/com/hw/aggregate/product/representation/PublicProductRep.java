@@ -11,6 +11,7 @@ import com.hw.aggregate.tag.representation.AppBizTagCardRep;
 import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.BeanUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -31,11 +32,7 @@ public class PublicProductRep {
     private Map<String, String> attrIdMap;
 
     public PublicProductRep(Product productDetail, AppBizTagApplicationService appBizAttributeApplicationService, AppBizSkuApplicationService skuApplicationService) {
-        this.id = productDetail.getId();
-        this.name = productDetail.getName();
-        this.imageUrlSmall = productDetail.getImageUrlSmall();
-        this.imageUrlLarge = productDetail.getImageUrlLarge();
-        this.description = productDetail.getDescription();
+        BeanUtils.copyProperties(productDetail, this);
 
         HashMap<String, Long> attrSalesMap = productDetail.getAttrSalesMap();
         Set<String> collect = attrSalesMap.values().stream().map(Object::toString).collect(Collectors.toSet());
@@ -53,8 +50,6 @@ public class PublicProductRep {
             return appProductSkuRep;
         }).collect(Collectors.toList());
 
-        this.lowestPrice = productDetail.getLowestPrice();
-        this.totalSales = productDetail.getTotalSales();
         this.attrIdMap = new HashMap<>();
 
         this.skus.stream().map(ProductSkuCustomerRepresentation::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toList())
@@ -70,7 +65,6 @@ public class PublicProductRep {
         }
         if (productDetail.getAttributeSaleImages() != null)
             this.attributeSaleImages = productDetail.getAttributeSaleImages().stream().map(ProductAttrSaleImagesCustomerRepresentation::new).collect(Collectors.toList());
-        this.selectedOptions = productDetail.getSelectedOptions();
     }
 
     private boolean onlyEmptyKeyExist(Set<String> strings) {
@@ -91,8 +85,7 @@ public class PublicProductRep {
         private Set<String> imageUrls;
 
         public ProductAttrSaleImagesCustomerRepresentation(ProductAttrSaleImages productAttrSaleImages) {
-            this.attributeSales = productAttrSaleImages.getAttributeSales();
-            this.imageUrls = productAttrSaleImages.getImageUrls();
+            BeanUtils.copyProperties(productAttrSaleImages, this);
         }
     }
 

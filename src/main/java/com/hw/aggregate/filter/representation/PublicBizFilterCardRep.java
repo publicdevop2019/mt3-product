@@ -2,6 +2,7 @@ package com.hw.aggregate.filter.representation;
 
 import com.hw.aggregate.filter.model.BizFilter;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.util.Set;
 
@@ -12,8 +13,7 @@ public class PublicBizFilterCardRep {
     private Set<String> values;
 
     public PublicBizFilterCardRep(BizFilter.BizFilterItem e) {
-        this.id = e.getId();
-        this.name = e.getName();
+        BeanUtils.copyProperties(e, this);
         this.values = e.getSelectValues();
     }
 }

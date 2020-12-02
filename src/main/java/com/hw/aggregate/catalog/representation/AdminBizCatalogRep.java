@@ -2,6 +2,7 @@ package com.hw.aggregate.catalog.representation;
 
 import com.hw.aggregate.catalog.model.BizCatalog;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.util.Set;
 
@@ -19,11 +20,6 @@ public class AdminBizCatalogRep {
     private Integer version;
 
     public AdminBizCatalogRep(BizCatalog catalog) {
-        this.id = catalog.getId();
-        this.name = catalog.getName();
-        this.parentId = catalog.getParentId();
-        this.attributes = catalog.getAttributes();
-        this.catalogType = catalog.getType();
-        this.version = catalog.getVersion();
+        BeanUtils.copyProperties(catalog, this);
     }
 }

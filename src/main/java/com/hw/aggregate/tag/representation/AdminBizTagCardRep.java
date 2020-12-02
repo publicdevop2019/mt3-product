@@ -18,13 +18,7 @@ public class AdminBizTagCardRep {
     public transient static final String ADMIN_REP_TYPE_LITERAL = "type";
     private Integer version;
 
-    public AdminBizTagCardRep(BizTag attribute) {
-        this.id = attribute.getId();
-        this.name = attribute.getName();
-        this.description = attribute.getDescription();
-        this.selectValues = attribute.getSelectValues();
-        this.method = attribute.getMethod();
-        this.type = attribute.getType();
-        this.version=attribute.getVersion();
+    public AdminBizTagCardRep(BizTag bizTag) {
+        BeanUtils.copyProperties(bizTag, this);
     }
 }
