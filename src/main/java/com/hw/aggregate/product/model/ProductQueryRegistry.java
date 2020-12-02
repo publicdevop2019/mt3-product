@@ -12,12 +12,4 @@ public class ProductQueryRegistry extends RestfulQueryRegistry<Product> {
     public Class<Product> getEntityClass() {
         return Product.class;
     }
-    @PostConstruct
-    private void setUp() {
-        cacheable.put(RoleEnum.USER, true);
-        cacheable.put(RoleEnum.ADMIN, true);
-        cacheable.put(RoleEnum.APP, true);
-        cacheable.put(RoleEnum.PUBLIC, true);
-        cacheable.put(RoleEnum.ROOT, true);
-    }
 }

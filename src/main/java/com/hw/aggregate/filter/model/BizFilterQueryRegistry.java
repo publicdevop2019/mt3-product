@@ -11,12 +11,4 @@ public class BizFilterQueryRegistry extends RestfulQueryRegistry<BizFilter> {
     public Class<BizFilter> getEntityClass() {
         return BizFilter.class;
     }
-    @PostConstruct
-    private void setUp() {
-        cacheable.put(RoleEnum.USER, true);
-        cacheable.put(RoleEnum.ADMIN, true);
-        cacheable.put(RoleEnum.APP, true);
-        cacheable.put(RoleEnum.PUBLIC, true);
-        cacheable.put(RoleEnum.ROOT, true);
-    }
 }

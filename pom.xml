@@ -7,19 +7,12 @@
     <version>0.0.0a</version>
     <packaging>jar</packaging>
 
-    <name>Product</name>
     <parent>
         <groupId>com.hw</groupId>
         <artifactId>config-center</artifactId>
         <version>0.0.0a</version>
         <relativePath>./shared/parent-pom.xml</relativePath>
     </parent>
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-    </dependencies>
     <build>
         <finalName>Product</finalName>
     </build>

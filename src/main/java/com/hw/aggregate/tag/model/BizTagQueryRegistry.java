@@ -12,12 +12,4 @@ public class BizTagQueryRegistry extends RestfulQueryRegistry<BizTag> {
     public Class<BizTag> getEntityClass() {
         return BizTag.class;
     }
-    @PostConstruct
-    private void setUp() {
-        cacheable.put(RoleEnum.USER, true);
-        cacheable.put(RoleEnum.ADMIN, true);
-        cacheable.put(RoleEnum.APP, true);
-        cacheable.put(RoleEnum.PUBLIC, true);
-        cacheable.put(RoleEnum.ROOT, true);
-    }
 }
