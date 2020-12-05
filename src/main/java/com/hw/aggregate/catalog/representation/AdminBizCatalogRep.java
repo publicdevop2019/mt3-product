@@ -21,5 +21,6 @@ public class AdminBizCatalogRep {
 
     public AdminBizCatalogRep(BizCatalog catalog) {
         BeanUtils.copyProperties(catalog, this);
+        this.catalogType = catalog.getType();
     }
 }
