@@ -1,7 +1,7 @@
 package com.mt.mall.application.catalog.command;
 
 import com.mt.common.rest.AggregateUpdateCommand;
-import com.mt.mall.domain.model.catalog.Catalog;
+import com.mt.mall.domain.model.catalog.Type;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -13,6 +13,6 @@ public class UpdateCatalogCommand implements Serializable, AggregateUpdateComman
     private String name;
     private String parentId;
     private Set<String> attributes;
-    private Catalog.CatalogType catalogType;
+    private Type catalogType;
     private Integer version;
 }

@@ -1,6 +1,7 @@
 package com.mt.mall.application.catalog.representation;
 
 import com.mt.mall.domain.model.catalog.Catalog;
+import com.mt.mall.domain.model.catalog.Type;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -13,7 +14,7 @@ public class AdminCatalogCardRepresentation {
     private Long parentId;
     public transient static final String ADMIN_REP_PARENT_ID_LITERAL = "parentId";
     private Set<String> attributes;
-    private Catalog.CatalogType catalogType;
+    private Type catalogType;
     public transient static final String ADMIN_REP_CATALOG_TYPE_LITERAL = "catalogType";
     private Integer version;
 

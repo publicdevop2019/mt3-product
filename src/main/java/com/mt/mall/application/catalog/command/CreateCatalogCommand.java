@@ -1,6 +1,6 @@
 package com.mt.mall.application.catalog.command;
 
-import com.mt.mall.domain.model.catalog.Catalog;
+import com.mt.mall.domain.model.catalog.Type;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -12,5 +12,5 @@ public class CreateCatalogCommand implements Serializable {
     private String name;
     private String parentId;
     private Set<String> attributes;
-    private Catalog.CatalogType catalogType;
+    private Type catalogType;
 }

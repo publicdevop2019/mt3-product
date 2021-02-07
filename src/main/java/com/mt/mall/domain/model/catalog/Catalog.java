@@ -1,7 +1,6 @@
 package com.mt.mall.domain.model.catalog;
 
 import com.mt.common.audit.Auditable;
-import com.mt.common.persistence.EnumConverter;
 import com.mt.common.persistence.StringSetConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -35,15 +34,15 @@ public class Catalog extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     private Set<String> attributes;
 
-    @Convert(converter = CatalogType.DBConverter.class)
+    @Convert(converter = Type.DBConverter.class)
     @Setter(AccessLevel.PRIVATE)
-    private CatalogType type;
+    private Type type;
 
     @Version
     @Setter(AccessLevel.NONE)
     private Integer version;
 
-    public Catalog(CatalogId catalogId, String name, CatalogId parentId, Set<String> attributes, CatalogType catalogType) {
+    public Catalog(CatalogId catalogId, String name, CatalogId parentId, Set<String> attributes, Type catalogType) {
         setCatalogId(catalogId);
         setName(name);
         setParentId(parentId);
@@ -51,7 +50,7 @@ public class Catalog extends Auditable {
         setType(catalogType);
     }
 
-    public void replace(String name, CatalogId parentId, Set<String> attributes, CatalogType catalogType) {
+    public void replace(String name, CatalogId parentId, Set<String> attributes, Type catalogType) {
         this.setName(name);
         this.setParentId(parentId);
         this.setAttributes(attributes);
@@ -59,15 +58,4 @@ public class Catalog extends Auditable {
     }
 
 
-    public enum CatalogType {
-        FRONTEND,
-        BACKEND,
-        ;
-
-        public static class DBConverter extends EnumConverter<CatalogType> {
-            public DBConverter() {
-                super(CatalogType.class);
-            }
-        }
-    }
 }

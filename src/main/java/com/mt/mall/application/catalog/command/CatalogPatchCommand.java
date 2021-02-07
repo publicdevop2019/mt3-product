@@ -3,6 +3,7 @@ package com.mt.mall.application.catalog.command;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mt.common.rest.TypedClass;
 import com.mt.mall.domain.model.catalog.Catalog;
+import com.mt.mall.domain.model.catalog.Type;
 import lombok.Data;
 
 import java.util.LinkedHashSet;
@@ -17,7 +18,7 @@ public class CatalogPatchCommand extends TypedClass<CatalogPatchCommand> {
     @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
     private Set<String> attributes;
 
-    private Catalog.CatalogType type;
+    private Type type;
 
     public CatalogPatchCommand(Catalog catalog) {
         super(CatalogPatchCommand.class);

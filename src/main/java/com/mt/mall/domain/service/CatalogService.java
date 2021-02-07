@@ -7,6 +7,7 @@ import com.mt.mall.application.catalog.CatalogQuery;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.catalog.Catalog;
 import com.mt.mall.domain.model.catalog.CatalogId;
+import com.mt.mall.domain.model.catalog.Type;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -30,7 +31,7 @@ public class CatalogService {
         return data;
     }
 
-    public DomainId create(CatalogId catalogId, String name, CatalogId parentId, Set<String> attributes, Catalog.CatalogType catalogType) {
+    public DomainId create(CatalogId catalogId, String name, CatalogId parentId, Set<String> attributes, Type catalogType) {
         Catalog catalog = new Catalog(catalogId, name, parentId, attributes, catalogType);
         return null;
     }
