@@ -1,4 +1,4 @@
-package com.hw.config;
+package com.mt.mall.port.adapter.http;
 
 import com.hw.aggregate.product.exception.*;
 import com.hw.shared.ErrorMessage;
@@ -19,7 +19,7 @@ import static com.hw.shared.AppConstant.HTTP_HEADER_ERROR_ID;
 @Slf4j
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
+public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {
             SkuAlreadyExistException.class,

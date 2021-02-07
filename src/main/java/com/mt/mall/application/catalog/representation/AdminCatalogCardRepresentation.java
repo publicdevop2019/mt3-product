@@ -1,23 +1,23 @@
-package com.hw.aggregate.catalog.representation;
+package com.mt.mall.application.catalog.representation;
 
-import com.hw.aggregate.catalog.model.BizCatalog;
+import com.mt.mall.domain.model.catalog.Catalog;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
 import java.util.Set;
 
 @Data
-public class AdminBizCatalogCardRep {
+public class AdminCatalogCardRepresentation {
     private Long id;
     private String name;
     private Long parentId;
     public transient static final String ADMIN_REP_PARENT_ID_LITERAL = "parentId";
     private Set<String> attributes;
-    private BizCatalog.CatalogType catalogType;
+    private Catalog.CatalogType catalogType;
     public transient static final String ADMIN_REP_CATALOG_TYPE_LITERAL = "catalogType";
     private Integer version;
 
-    public AdminBizCatalogCardRep(BizCatalog catalog) {
+    public AdminCatalogCardRepresentation(Catalog catalog) {
         BeanUtils.copyProperties(catalog, this);
     }
 }

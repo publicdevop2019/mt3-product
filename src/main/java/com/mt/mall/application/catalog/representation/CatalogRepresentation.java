@@ -1,13 +1,13 @@
-package com.hw.aggregate.catalog.representation;
+package com.mt.mall.application.catalog.representation;
 
-import com.hw.aggregate.catalog.model.BizCatalog;
+import com.mt.mall.domain.model.catalog.Catalog;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
 import java.util.Set;
 
 @Data
-public class AdminBizCatalogRep {
+public class CatalogRepresentation {
     private Long id;
     private String name;
 
@@ -15,11 +15,11 @@ public class AdminBizCatalogRep {
 
     private Set<String> attributes;
 
-    private BizCatalog.CatalogType catalogType;
+    private Catalog.CatalogType catalogType;
 
     private Integer version;
 
-    public AdminBizCatalogRep(BizCatalog catalog) {
+    public CatalogRepresentation(Catalog catalog) {
         BeanUtils.copyProperties(catalog, this);
         this.catalogType = catalog.getType();
     }

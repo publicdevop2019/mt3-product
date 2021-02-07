@@ -1,6 +1,6 @@
 package com.hw.aggregate.product;
 
-import com.hw.aggregate.catalog.PublicBizCatalogApplicationService;
+import com.mt.mall.application.catalog.PublicBizCatalogApplicationService;
 import com.hw.aggregate.product.command.AdminCreateProductCommand;
 import com.hw.aggregate.product.command.AdminUpdateProductCommand;
 import com.hw.aggregate.product.model.AdminProductPatchMiddleLayer;
@@ -16,10 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
