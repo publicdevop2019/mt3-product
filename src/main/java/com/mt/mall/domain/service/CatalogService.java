@@ -1,6 +1,5 @@
 package com.mt.mall.domain.service;
 
-import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.query.DefaultPaging;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.mall.application.catalog.CatalogQuery;
@@ -31,8 +30,9 @@ public class CatalogService {
         return data;
     }
 
-    public DomainId create(CatalogId catalogId, String name, CatalogId parentId, Set<String> attributes, Type catalogType) {
+    public CatalogId create(CatalogId catalogId, String name, CatalogId parentId, Set<String> attributes, Type catalogType) {
         Catalog catalog = new Catalog(catalogId, name, parentId, attributes, catalogType);
-        return null;
+        DomainRegistry.catalogRepository().add(catalog);
+        return catalog.getCatalogId();
     }
 }

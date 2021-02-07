@@ -10,7 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Data
-public class CatalogPatchCommand extends TypedClass<CatalogPatchCommand> {
+public class PatchCatalogCommand extends TypedClass<PatchCatalogCommand> {
 
     private String name;
 
@@ -20,15 +20,15 @@ public class CatalogPatchCommand extends TypedClass<CatalogPatchCommand> {
 
     private Type type;
 
-    public CatalogPatchCommand(Catalog catalog) {
-        super(CatalogPatchCommand.class);
+    public PatchCatalogCommand(Catalog catalog) {
+        super(PatchCatalogCommand.class);
         this.name = catalog.getName();
         this.parentId = catalog.getParentId().getDomainId();
         this.attributes = catalog.getAttributes();
         this.type = catalog.getType();
     }
 
-    public CatalogPatchCommand() {
-        super(CatalogPatchCommand.class);
+    public PatchCatalogCommand() {
+        super(PatchCatalogCommand.class);
     }
 }

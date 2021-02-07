@@ -7,7 +7,7 @@ import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.DefaultPaging;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.mall.application.ApplicationServiceRegistry;
-import com.mt.mall.application.catalog.command.CatalogPatchCommand;
+import com.mt.mall.application.catalog.command.PatchCatalogCommand;
 import com.mt.mall.application.catalog.command.CreateCatalogCommand;
 import com.mt.mall.application.catalog.command.UpdateCatalogCommand;
 import com.mt.mall.domain.DomainRegistry;
@@ -98,8 +98,8 @@ public class CatalogApplicationService {
             Optional<Catalog> optionalCatalog = DomainRegistry.catalogRepository().catalogOfId(catalogId);
             if (optionalCatalog.isPresent()) {
                 Catalog catalog = optionalCatalog.get();
-                CatalogPatchCommand beforePatch = new CatalogPatchCommand(catalog);
-                CatalogPatchCommand afterPatch = CommonDomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, CatalogPatchCommand.class);
+                PatchCatalogCommand beforePatch = new PatchCatalogCommand(catalog);
+                PatchCatalogCommand afterPatch = CommonDomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, PatchCatalogCommand.class);
                 catalog.replace(
                         afterPatch.getName(),
                         new CatalogId(afterPatch.getParentId()),

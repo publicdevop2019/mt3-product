@@ -1,6 +1,7 @@
 package com.mt.mall.domain.model.catalog;
 
 import com.mt.common.audit.Auditable;
+import com.mt.common.domain.model.CommonDomainRegistry;
 import com.mt.common.persistence.StringSetConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,6 +18,7 @@ import java.util.Set;
 public class Catalog extends Auditable {
 
     @Id
+    @Setter(AccessLevel.PRIVATE)
     private Long id;
 
     @Column(nullable = false)
@@ -43,6 +45,7 @@ public class Catalog extends Auditable {
     private Integer version;
 
     public Catalog(CatalogId catalogId, String name, CatalogId parentId, Set<String> attributes, Type catalogType) {
+        setId(CommonDomainRegistry.uniqueIdGeneratorService().id());
         setCatalogId(catalogId);
         setName(name);
         setParentId(parentId);

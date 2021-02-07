@@ -13,7 +13,7 @@ public class PublicCatalogCardRepresentation {
     private Set<String> attributes;
     private Long parentId;
 
-    public PublicCatalogCardRepresentation(Catalog catalog) {
+    public PublicCatalogCardRepresentation(Object catalog) {
         BeanUtils.copyProperties(catalog, this);
     }
 }

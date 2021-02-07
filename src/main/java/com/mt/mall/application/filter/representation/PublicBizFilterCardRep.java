@@ -1,6 +1,6 @@
-package com.hw.aggregate.filter.representation;
+package com.mt.mall.application.filter.representation;
 
-import com.hw.aggregate.filter.model.BizFilter;
+import com.mt.mall.domain.model.filter.FilterItem;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -12,7 +12,7 @@ public class PublicBizFilterCardRep {
     private String name;
     private Set<String> values;
 
-    public PublicBizFilterCardRep(BizFilter.BizFilterItem e) {
+    public PublicBizFilterCardRep(FilterItem e) {
         BeanUtils.copyProperties(e, this);
         this.values = e.getSelectValues();
     }

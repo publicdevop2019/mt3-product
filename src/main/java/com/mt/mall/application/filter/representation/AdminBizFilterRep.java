@@ -1,6 +1,7 @@
-package com.hw.aggregate.filter.representation;
+package com.mt.mall.application.filter.representation;
 
-import com.hw.aggregate.filter.model.BizFilter;
+import com.mt.mall.domain.model.filter.Filter;
+import com.mt.mall.domain.model.filter.FilterItem;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -15,7 +16,7 @@ public class AdminBizFilterRep {
     private List<BizFilterItemAdminRepresentation> filters;
     private String description;
     private Integer version;
-    public AdminBizFilterRep(BizFilter read) {
+    public AdminBizFilterRep(Filter read) {
         BeanUtils.copyProperties(read, this);
         this.filters = read.getFilterItems().stream().map(BizFilterItemAdminRepresentation::new).collect(Collectors.toList());
     }
@@ -26,7 +27,7 @@ public class AdminBizFilterRep {
         private String name;
         private Set<String> values;
 
-        public BizFilterItemAdminRepresentation(BizFilter.BizFilterItem e) {
+        public BizFilterItemAdminRepresentation(FilterItem e) {
             BeanUtils.copyProperties(e, this);
             this.values = e.getSelectValues();
         }
