@@ -1,24 +1,26 @@
-package com.hw.aggregate.tag.representation;
+package com.mt.mall.application.tag.representation;
 
-import com.hw.aggregate.tag.model.BizTag;
+import com.mt.mall.domain.model.tag.Tag;
+import com.mt.mall.domain.model.tag.TagValueType;
+import com.mt.mall.domain.model.tag.Type;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
 import java.util.Set;
 
 @Data
-public class AdminBizTagCardRep {
+public class TagCardRepresentation {
     private Long id;
     private String name;
     private String description;
     private Set<String> selectValues;
-    private BizTag.AttributeMethod method;
+    private TagValueType method;
     public transient static final String ADMIN_REP_METHOD_LITERAL = "method";
-    private BizTag.BizAttributeType type;
+    private Type type;
     public transient static final String ADMIN_REP_TYPE_LITERAL = "type";
     private Integer version;
 
-    public AdminBizTagCardRep(BizTag bizTag) {
+    public TagCardRepresentation(Object bizTag) {
         BeanUtils.copyProperties(bizTag, this);
     }
 }

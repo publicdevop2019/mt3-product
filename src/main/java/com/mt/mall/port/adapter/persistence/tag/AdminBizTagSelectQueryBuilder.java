@@ -1,16 +1,17 @@
-package com.hw.aggregate.tag.model;
+package com.mt.mall.port.adapter.persistence.tag;
 
 import com.hw.shared.sql.builder.SelectQueryBuilder;
 import com.hw.shared.sql.clause.SelectFieldStringEqualClause;
 import com.hw.shared.sql.clause.SelectFieldStringLikeClause;
+import com.mt.mall.domain.model.tag.Tag;
 import org.springframework.stereotype.Component;
 
-import static com.hw.aggregate.tag.model.BizTag.NAME_LITERAL;
-import static com.hw.aggregate.tag.model.BizTag.TYPE_LITERAL;
+import static com.mt.mall.domain.model.tag.Tag.NAME_LITERAL;
+import static com.mt.mall.domain.model.tag.Tag.TYPE_LITERAL;
 
 
 @Component
-public class AdminBizTagSelectQueryBuilder extends SelectQueryBuilder<BizTag> {
+public class AdminBizTagSelectQueryBuilder extends SelectQueryBuilder<Tag> {
     {
         DEFAULT_PAGE_SIZE = 200;
         MAX_PAGE_SIZE = 1000;

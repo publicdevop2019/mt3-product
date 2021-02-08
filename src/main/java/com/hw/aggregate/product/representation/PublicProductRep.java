@@ -6,8 +6,8 @@ import com.hw.aggregate.product.model.ProductAttrSaleImages;
 import com.hw.aggregate.product.model.ProductOption;
 import com.hw.aggregate.sku.AppBizSkuApplicationService;
 import com.hw.aggregate.sku.representation.AppBizSkuCardRep;
-import com.hw.aggregate.tag.AppBizTagApplicationService;
-import com.hw.aggregate.tag.representation.AppBizTagCardRep;
+import com.mt.mall.application.tag.AppBizTagApplicationService;
+import com.mt.mall.application.tag.representation.InternalTagCardRepresentation;
 import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -55,7 +55,7 @@ public class PublicProductRep {
         this.skus.stream().map(ProductSkuCustomerRepresentation::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toList())
                 .stream().map(e -> e.split(":")[0]).forEach(el -> attrIdMap.put(el, null));
         String search = "id:" + String.join(".", this.attrIdMap.keySet());
-        SumPagedRep<AppBizTagCardRep> bizAttributeSummaryRepresentation;
+        SumPagedRep<InternalTagCardRepresentation> bizAttributeSummaryRepresentation;
         if (this.attrIdMap.keySet().size() > 0 && !onlyEmptyKeyExist(this.attrIdMap.keySet())) {
             String page = "size:" + this.attrIdMap.keySet().size();
             bizAttributeSummaryRepresentation = appBizAttributeApplicationService.readByQuery(search, page, "0");
@@ -89,8 +89,8 @@ public class PublicProductRep {
         }
     }
 
-    private String findName(String id, SumPagedRep<AppBizTagCardRep> attributeSummaryRepresentation) {
-        Optional<AppBizTagCardRep> first = attributeSummaryRepresentation.getData().stream().filter(e -> e.getId().toString().equals(id)).findFirst();
+    private String findName(String id, SumPagedRep<InternalTagCardRepresentation> attributeSummaryRepresentation) {
+        Optional<InternalTagCardRepresentation> first = attributeSummaryRepresentation.getData().stream().filter(e -> e.getId().toString().equals(id)).findFirst();
         if (first.isEmpty())
             throw new AttributeNameNotFoundException();
         return first.get().getName();

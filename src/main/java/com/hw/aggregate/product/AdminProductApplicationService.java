@@ -8,7 +8,7 @@ import com.hw.aggregate.product.model.Product;
 import com.hw.aggregate.product.representation.AdminProductCardRep;
 import com.hw.aggregate.product.representation.AdminProductRep;
 import com.hw.aggregate.sku.AppBizSkuApplicationService;
-import com.hw.aggregate.tag.AppBizTagApplicationService;
+import com.mt.mall.application.tag.AppBizTagApplicationService;
 import com.hw.shared.rest.RoleBasedRestfulService;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.RestfulQueryRegistry;

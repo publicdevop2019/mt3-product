@@ -2,8 +2,10 @@ package com.mt.mall.domain;
 
 import com.mt.mall.domain.model.catalog.CatalogRepository;
 import com.mt.mall.domain.model.filter.FilterRepository;
+import com.mt.mall.domain.model.tag.TagRepository;
 import com.mt.mall.domain.service.CatalogService;
 import com.mt.mall.domain.service.FilterService;
+import com.mt.mall.domain.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,16 @@ public class DomainRegistry {
     private static FilterRepository filterRepository;
     private static CatalogService catalogService;
     private static FilterService filterService;
+    private static TagService tagService;
+    private static TagRepository tagRepository;
+
+    public static TagRepository tagRepository() {
+        return tagRepository;
+    }
+
+    public static TagService tagService() {
+        return tagService;
+    }
 
     public static CatalogRepository catalogRepository() {
         return catalogRepository;
@@ -35,6 +47,16 @@ public class DomainRegistry {
     @Autowired
     private void setFilterService(FilterService filterService) {
         DomainRegistry.filterService = filterService;
+    }
+
+    @Autowired
+    private void setTagService(TagService tagService) {
+        DomainRegistry.tagService = tagService;
+    }
+
+    @Autowired
+    private void setTagRepository(TagRepository tagRepository) {
+        DomainRegistry.tagRepository = tagRepository;
     }
 
     @Autowired

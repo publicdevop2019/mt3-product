@@ -32,6 +32,7 @@ public class FilterService {
 
     public FilterId create(FilterId filterId, String des, Set<String> catalogs, Set<FilterItem> filter1) {
         Filter filter = new Filter(filterId, catalogs, filter1, des);
+        DomainRegistry.filterRepository().add(filter);
         return filter.getFilterId();
     }
 }
