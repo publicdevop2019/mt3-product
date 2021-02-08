@@ -3,6 +3,8 @@ package com.mt.mall.application;
 import com.mt.common.idempotent.ApplicationServiceIdempotentWrapper;
 import com.mt.mall.application.catalog.CatalogApplicationService;
 import com.mt.mall.application.filter.FilterApplicationService;
+import com.mt.mall.application.product.ProductApplicationService;
+import com.mt.mall.application.sku.SkuApplicationService;
 import com.mt.mall.application.tag.TagApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,10 +15,21 @@ public class ApplicationServiceRegistry {
     private static ApplicationServiceIdempotentWrapper idempotentWrapper;
     private static FilterApplicationService filterApplicationService;
     private static TagApplicationService tagApplicationService;
+    private static SkuApplicationService skuApplicationService;
+    private static ProductApplicationService productApplicationService;
+
+    public static SkuApplicationService skuApplicationService() {
+        return skuApplicationService;
+    }
+
+    public static ProductApplicationService productApplicationService() {
+        return productApplicationService;
+    }
 
     public static TagApplicationService tagApplicationService() {
         return tagApplicationService;
     }
+
     public static CatalogApplicationService catalogApplicationService() {
         return catalogApplicationService;
     }
@@ -30,9 +43,20 @@ public class ApplicationServiceRegistry {
     }
 
     @Autowired
+    public void setProductApplicationService(ProductApplicationService productApplicationService) {
+        ApplicationServiceRegistry.productApplicationService = productApplicationService;
+    }
+
+    @Autowired
     public void setTagApplicationService(TagApplicationService tagApplicationService) {
         ApplicationServiceRegistry.tagApplicationService = tagApplicationService;
     }
+
+    @Autowired
+    public void setSkuApplicationService(SkuApplicationService skuApplicationService) {
+        ApplicationServiceRegistry.skuApplicationService = skuApplicationService;
+    }
+
     @Autowired
     public void setCatalogApplicationService(CatalogApplicationService catalogApplicationService) {
         ApplicationServiceRegistry.catalogApplicationService = catalogApplicationService;
