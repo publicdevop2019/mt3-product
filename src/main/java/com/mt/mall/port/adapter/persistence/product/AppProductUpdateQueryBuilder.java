@@ -1,12 +1,12 @@
 package com.mt.mall.port.adapter.persistence.product;
 
 
+import com.mt.common.rest.exception.NoUpdatableFieldException;
+import com.mt.common.rest.exception.UnsupportedPatchOperationException;
+import com.mt.common.rest.exception.UpdateFiledValueException;
+import com.mt.common.sql.PatchCommand;
+import com.mt.common.sql.builder.UpdateQueryBuilder;
 import com.mt.mall.domain.model.product.Product;
-import com.hw.shared.rest.exception.NoUpdatableFieldException;
-import com.hw.shared.rest.exception.UnsupportedPatchOperationException;
-import com.hw.shared.rest.exception.UpdateFiledValueException;
-import com.hw.shared.sql.PatchCommand;
-import com.hw.shared.sql.builder.UpdateQueryBuilder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -15,9 +15,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mt.mall.domain.model.product.Product.PRODUCT_TOTAL_SALES_LITERAL;
+import static com.mt.common.CommonConstant.*;
 import static com.mt.mall.application.product.representation.ProductRepresentation.ADMIN_REP_SALES_LITERAL;
-import static com.hw.shared.AppConstant.*;
+import static com.mt.mall.domain.model.product.Product.PRODUCT_TOTAL_SALES_LITERAL;
 
 @Component
 public class AppProductUpdateQueryBuilder extends UpdateQueryBuilder<Product> {

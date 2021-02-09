@@ -1,11 +1,11 @@
 package com.mt.mall.port.adapter.persistence.sku;
 
 
-import com.hw.shared.rest.exception.NoUpdatableFieldException;
-import com.hw.shared.rest.exception.UnsupportedPatchOperationException;
-import com.hw.shared.rest.exception.UpdateFiledValueException;
-import com.hw.shared.sql.PatchCommand;
-import com.hw.shared.sql.builder.UpdateQueryBuilder;
+import com.mt.common.rest.exception.NoUpdatableFieldException;
+import com.mt.common.rest.exception.UnsupportedPatchOperationException;
+import com.mt.common.rest.exception.UpdateFiledValueException;
+import com.mt.common.sql.PatchCommand;
+import com.mt.common.sql.builder.UpdateQueryBuilder;
 import com.mt.mall.domain.model.sku.Sku;
 import org.springframework.stereotype.Component;
 
@@ -15,9 +15,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.mt.common.CommonConstant.*;
 import static com.mt.mall.domain.model.sku.Sku.SKU_STORAGE_ACTUAL_LITERAL;
 import static com.mt.mall.domain.model.sku.Sku.SKU_STORAGE_ORDER_LITERAL;
-import static com.hw.shared.AppConstant.*;
 
 @Component
 public class AdminBizSkuUpdateQueryBuilder extends UpdateQueryBuilder<Sku> {

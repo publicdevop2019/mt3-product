@@ -1,6 +1,6 @@
 package com.mt.mall.port.adapter.persistence.tag;
 
-import com.hw.shared.sql.builder.UpdateByIdQueryBuilder;
+import com.mt.common.sql.builder.UpdateByIdQueryBuilder;
 import com.mt.mall.domain.model.tag.Tag;
 import com.mt.mall.domain.model.tag.TagValueType;
 import com.mt.mall.domain.model.tag.Type;
@@ -12,7 +12,7 @@ import static com.mt.mall.application.tag.representation.TagCardRepresentation.A
 import static com.mt.mall.application.tag.representation.TagCardRepresentation.ADMIN_REP_TYPE_LITERAL;
 
 @Component
-public class AdminBizTagUpdateQueryBuilder extends UpdateByIdQueryBuilder<Tag> {
+public class TagUpdateQueryBuilder extends UpdateByIdQueryBuilder<Tag> {
     {
         filedMap.put(ADMIN_REP_TYPE_LITERAL, TYPE_LITERAL);
         filedMap.put(ADMIN_REP_METHOD_LITERAL, METHOD_LITERAL);

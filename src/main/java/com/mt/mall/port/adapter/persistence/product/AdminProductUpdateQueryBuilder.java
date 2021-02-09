@@ -1,18 +1,18 @@
 package com.mt.mall.port.adapter.persistence.product;
 
 
+import com.mt.common.rest.exception.UpdateFiledValueException;
+import com.mt.common.sql.builder.UpdateByIdQueryBuilder;
 import com.mt.mall.domain.model.product.Product;
-import com.hw.shared.rest.exception.UpdateFiledValueException;
-import com.hw.shared.sql.builder.UpdateByIdQueryBuilder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
 
-import static com.mt.mall.domain.model.product.Product.PRODUCT_END_AT_LITERAL;
-import static com.mt.mall.domain.model.product.Product.PRODUCT_START_AT_LITERAL;
 import static com.mt.mall.application.product.representation.ProductRepresentation.ADMIN_REP_END_AT_LITERAL;
 import static com.mt.mall.application.product.representation.ProductRepresentation.ADMIN_REP_START_AT_LITERAL;
+import static com.mt.mall.domain.model.product.Product.PRODUCT_END_AT_LITERAL;
+import static com.mt.mall.domain.model.product.Product.PRODUCT_START_AT_LITERAL;
 
 @Component
 public class AdminProductUpdateQueryBuilder extends UpdateByIdQueryBuilder<Product> {

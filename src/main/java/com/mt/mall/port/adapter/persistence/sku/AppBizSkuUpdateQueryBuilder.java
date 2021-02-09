@@ -1,9 +1,9 @@
 package com.mt.mall.port.adapter.persistence.sku;
 
 
-import com.hw.shared.rest.exception.NoUpdatableFieldException;
-import com.hw.shared.sql.PatchCommand;
-import com.hw.shared.sql.builder.UpdateQueryBuilder;
+import com.mt.common.rest.exception.NoUpdatableFieldException;
+import com.mt.common.sql.PatchCommand;
+import com.mt.common.sql.builder.UpdateQueryBuilder;
 import com.mt.mall.domain.model.sku.Sku;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

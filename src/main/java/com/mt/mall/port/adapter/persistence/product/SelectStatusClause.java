@@ -1,6 +1,7 @@
 package com.mt.mall.port.adapter.persistence.product;
 
-import com.hw.shared.sql.clause.WhereClause;
+
+import com.mt.common.sql.clause.WhereClause;
 
 import javax.persistence.criteria.*;
 import java.time.Instant;
