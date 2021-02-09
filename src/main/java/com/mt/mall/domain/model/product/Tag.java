@@ -19,13 +19,13 @@ public class Tag implements Serializable {
     @Id
     private Long id;
     private String value;
-    @Convert(converter = TagTypeEnum.DBConverter.class)
-    private TagTypeEnum type;
+    @Convert(converter = TagType.DBConverter.class)
+    private TagType type;
     @ManyToMany(mappedBy = "tags")
     @JsonIgnore
     private final Set<Product> products = new HashSet<>();
 
-    public Tag(Long id, String value, TagTypeEnum type) {
+    public Tag(Long id, String value, TagType type) {
         this.id = id;
         this.value = value;
         this.type = type;

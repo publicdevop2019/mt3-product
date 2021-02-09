@@ -1,6 +1,5 @@
 package com.mt.mall.application.sku.representation;
 
-import com.mt.mall.domain.model.sku.Sku;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -18,6 +17,7 @@ public class InternalSkuCardRepresentation {
     private Integer sales;
 
     private Integer version;
+
     public InternalSkuCardRepresentation(Object bizSku) {
         BeanUtils.copyProperties(bizSku, this);
     }

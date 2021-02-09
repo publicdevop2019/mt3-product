@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.Set;
 
-@Repository
 public interface TagRepository{
     SumPagedRep<Tag> tagsOfQuery(TagQuery queryParam, DefaultPaging queryPagingParam);
 

@@ -11,8 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.Set;
 
-@Repository
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository{
     SumPagedRep<Product> productsOfQuery(ProductQuery queryParam, DefaultPaging queryPagingParam);
 
     void add(Product product);

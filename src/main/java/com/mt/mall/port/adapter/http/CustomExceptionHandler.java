@@ -1,8 +1,10 @@
 package com.mt.mall.port.adapter.http;
 
-import com.mt.mall.application.product.exception.*;
-import com.hw.shared.ErrorMessage;
+import com.mt.common.logging.ErrorMessage;
+import com.mt.mall.application.product.exception.AttributeNameNotFoundException;
 import com.mt.mall.application.product.exception.NoLowestPriceFoundException;
+import com.mt.mall.application.product.exception.SkuAlreadyExistException;
+import com.mt.mall.application.product.exception.SkuNotExistException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -14,7 +16,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import static com.hw.shared.AppConstant.HTTP_HEADER_ERROR_ID;
+import static com.mt.common.CommonConstant.HTTP_HEADER_ERROR_ID;
+
 
 @Slf4j
 @ControllerAdvice

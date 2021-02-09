@@ -133,12 +133,12 @@ public class Product extends Auditable {
         setEndAt(endAt);
         this.tags = new HashSet<>();
         if (attributesProd != null)
-            attributesProd.forEach(getStringConsumer(TagTypeEnum.PROD));
+            attributesProd.forEach(getStringConsumer(TagType.PROD));
         if (attributesKey != null) {
-            attributesKey.forEach(getStringConsumer(TagTypeEnum.KEY));
+            attributesKey.forEach(getStringConsumer(TagType.KEY));
         }
         if (attributesGen != null)
-            attributesGen.forEach(getStringConsumer(TagTypeEnum.GEN));
+            attributesGen.forEach(getStringConsumer(TagType.GEN));
         skus.forEach(e -> {
             if (e.getSales() == null)
                 e.setSales(0);
@@ -147,7 +147,7 @@ public class Product extends Auditable {
         adjustSku(skus, changeId);
         skus.stream().map(UpdateProductCommand.UpdateProductAdminSkuCommand::getAttributesSales)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toSet()).forEach(getStringConsumer(TagTypeEnum.SALES));
+                .collect(Collectors.toSet()).forEach(getStringConsumer(TagType.SALES));
         setAttributeSaleImages2(attributeSaleImages);
         this.lowestPrice = findLowestPrice2(skus);
     }
@@ -164,7 +164,7 @@ public class Product extends Auditable {
             ).collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private Consumer<String> getStringConsumer(TagTypeEnum key) {
+    private Consumer<String> getStringConsumer(TagType key) {
         return e -> {
             Optional<Tag> byValue = DomainRegistry.productTagRepository().findByValueAndType(e, key);
             if (byValue.isPresent()) {
@@ -292,11 +292,11 @@ public class Product extends Auditable {
         setSelectedOptions(selectedOptions);
         setImageUrlLarge(imageUrlLarge);
         if (attributesProd != null)
-            attributesProd.forEach(getStringConsumer(TagTypeEnum.PROD));
+            attributesProd.forEach(getStringConsumer(TagType.PROD));
         if (attributesKey != null)
-            attributesKey.forEach(getStringConsumer(TagTypeEnum.KEY));
+            attributesKey.forEach(getStringConsumer(TagType.KEY));
         if (attributesGen != null)
-            attributesGen.forEach(getStringConsumer(TagTypeEnum.GEN));
+            attributesGen.forEach(getStringConsumer(TagType.GEN));
         setStartAt(startAt);
         setEndAt(endAt);
         skus.forEach(e -> {
@@ -306,7 +306,7 @@ public class Product extends Auditable {
         });
         skus.stream().map(CreateProductCommand.CreateProductSkuAdminCommand::getAttributesSales)
                 .flatMap(Collection::stream).collect(Collectors.toSet())
-                .forEach(getStringConsumer(TagTypeEnum.SALES));
+                .forEach(getStringConsumer(TagType.SALES));
 
         for (CreateProductCommand.CreateProductSkuAdminCommand skuAdminCommand : skus) {
             CreateSkuCommand command1 = new CreateSkuCommand();

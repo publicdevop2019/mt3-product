@@ -1,14 +1,13 @@
 package com.mt.mall.application.product.representation;
 
+import com.mt.common.sql.SumPagedRep;
+import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.product.exception.AttributeNameNotFoundException;
 import com.mt.mall.domain.model.product.Product;
 import com.mt.mall.domain.model.product.ProductAttrSaleImages;
 import com.mt.mall.domain.model.product.ProductOption;
-import com.mt.mall.application.sku.AppBizSkuApplicationService;
-import com.mt.mall.application.sku.representation.InternalSkuCardRepresentation;
-import com.mt.mall.application.tag.AppBizTagApplicationService;
-import com.mt.mall.application.tag.representation.InternalTagCardRepresentation;
-import com.hw.shared.sql.SumPagedRep;
+import com.mt.mall.domain.model.sku.Sku;
+import com.mt.mall.domain.model.tag.Tag;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -31,16 +30,16 @@ public class PublicProductRepresentation {
     private List<ProductOption> selectedOptions;
     private Map<String, String> attrIdMap;
 
-    public PublicProductRepresentation(Product productDetail, AppBizTagApplicationService appBizAttributeApplicationService, AppBizSkuApplicationService skuApplicationService) {
+    public PublicProductRepresentation(Product productDetail) {
         BeanUtils.copyProperties(productDetail, this);
 
-        HashMap<String, Long> attrSalesMap = productDetail.getAttrSalesMap();
+        HashMap<String, String> attrSalesMap = productDetail.getAttrSalesMap();
         Set<String> collect = attrSalesMap.values().stream().map(Object::toString).collect(Collectors.toSet());
-        SumPagedRep<InternalSkuCardRepresentation> appBizSkuCardRepSumPagedRep = skuApplicationService.readByQuery("id:" + String.join(".", collect), null, null);
+        SumPagedRep<Sku> skus = ApplicationServiceRegistry.skuApplicationService().skus("id:" + String.join(".", collect), null, null);
         this.skus = attrSalesMap.keySet().stream().map(e -> {
             ProductSkuCustomerRepresentation appProductSkuRep = new ProductSkuCustomerRepresentation();
-            Long aLong = attrSalesMap.get(e);
-            Optional<InternalSkuCardRepresentation> first = appBizSkuCardRepSumPagedRep.getData().stream().filter(ee -> ee.getId().equals(aLong)).findFirst();
+            String aLong = attrSalesMap.get(e);
+            Optional<Sku> first = skus.getData().stream().filter(ee -> ee.getSkuId().getDomainId().equals(aLong)).findFirst();
             if (first.isPresent()) {
                 HashSet<String> strings = new HashSet<>(Arrays.asList(e.split(",")));
                 appProductSkuRep.setAttributesSales(strings);
@@ -55,12 +54,12 @@ public class PublicProductRepresentation {
         this.skus.stream().map(ProductSkuCustomerRepresentation::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toList())
                 .stream().map(e -> e.split(":")[0]).forEach(el -> attrIdMap.put(el, null));
         String search = "id:" + String.join(".", this.attrIdMap.keySet());
-        SumPagedRep<InternalTagCardRepresentation> bizAttributeSummaryRepresentation;
+        SumPagedRep<Tag> tags;
         if (this.attrIdMap.keySet().size() > 0 && !onlyEmptyKeyExist(this.attrIdMap.keySet())) {
             String page = "size:" + this.attrIdMap.keySet().size();
-            bizAttributeSummaryRepresentation = appBizAttributeApplicationService.readByQuery(search, page, "0");
+            tags = ApplicationServiceRegistry.tagApplicationService().tags(search, page, "0");
             this.attrIdMap.keySet().forEach(e -> {
-                attrIdMap.put(e, findName(e, bizAttributeSummaryRepresentation));
+                attrIdMap.put(e, findName(e, tags));
             });
         }
         if (productDetail.getAttributeSaleImages() != null)
@@ -89,8 +88,8 @@ public class PublicProductRepresentation {
         }
     }
 
-    private String findName(String id, SumPagedRep<InternalTagCardRepresentation> attributeSummaryRepresentation) {
-        Optional<InternalTagCardRepresentation> first = attributeSummaryRepresentation.getData().stream().filter(e -> e.getId().toString().equals(id)).findFirst();
+    private String findName(String id, SumPagedRep<Tag> tags) {
+        Optional<Tag> first = tags.getData().stream().filter(e -> e.getTagId().getDomainId().equals(id)).findFirst();
         if (first.isEmpty())
             throw new AttributeNameNotFoundException();
         return first.get().getName();

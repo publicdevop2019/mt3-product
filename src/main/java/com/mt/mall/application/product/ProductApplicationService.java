@@ -14,6 +14,7 @@ import com.mt.mall.application.product.command.UpdateProductCommand;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.product.Product;
 import com.mt.mall.domain.model.product.ProductId;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 
 import static com.mt.mall.application.product.representation.ProductRepresentation.ADMIN_REP_SKU_LITERAL;
 import static com.mt.mall.domain.model.sku.Sku.SKU_REFERENCE_ID_LITERAL;
-
+@Service
 public class ProductApplicationService {
 
     @SubscribeForEvent

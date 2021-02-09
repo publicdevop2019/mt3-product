@@ -14,13 +14,14 @@ import com.mt.mall.application.sku.command.UpdateSkuCommand;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.sku.Sku;
 import com.mt.mall.domain.model.sku.SkuId;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+@Service
 public class SkuApplicationService {
 
     @SubscribeForEvent

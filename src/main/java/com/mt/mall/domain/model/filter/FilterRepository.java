@@ -10,8 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.Set;
 
-@Repository
-public interface FilterRepository extends JpaRepository<Filter, Long> {
+public interface FilterRepository{
     FilterId nextIdentity();
 
     SumPagedRep<Filter> filtersOfQuery(FilterQuery filterQuery, DefaultPaging defaultPaging, QueryConfig queryConfig);
