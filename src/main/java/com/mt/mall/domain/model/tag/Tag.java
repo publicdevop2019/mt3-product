@@ -43,7 +43,11 @@ public class Tag extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     private Type type;
 
+    @Embedded
     @Setter(AccessLevel.PRIVATE)
+    @AttributeOverrides({
+            @AttributeOverride(name = "domainId", column = @Column(name = "tagId", updatable = false, nullable = false))
+    })
     private TagId tagId;
     public transient static final String TYPE_LITERAL = "type";
     @Version

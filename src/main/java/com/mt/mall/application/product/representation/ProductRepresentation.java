@@ -51,9 +51,9 @@ public class ProductRepresentation {
 
     public ProductRepresentation(Product productDetail) {
         BeanUtils.copyProperties(productDetail, this);
-        this.attributesKey = productDetail.getTags().stream().filter(e -> e.getType().equals(TagType.KEY)).map(Tag::getValue).collect(Collectors.toSet());
-        this.attributesProd = productDetail.getTags().stream().filter(e -> e.getType().equals(TagType.PROD)).map(Tag::getValue).collect(Collectors.toSet());
-        this.attributesGen = productDetail.getTags().stream().filter(e -> e.getType().equals(TagType.GEN)).map(Tag::getValue).collect(Collectors.toSet());
+        this.attributesKey = productDetail.getTags().stream().filter(e -> e.getType().equals(TagType.KEY)).map(ProductTag::getValue).collect(Collectors.toSet());
+        this.attributesProd = productDetail.getTags().stream().filter(e -> e.getType().equals(TagType.PROD)).map(ProductTag::getValue).collect(Collectors.toSet());
+        this.attributesGen = productDetail.getTags().stream().filter(e -> e.getType().equals(TagType.GEN)).map(ProductTag::getValue).collect(Collectors.toSet());
 
         HashMap<String, String> attrSalesMap = productDetail.getAttrSalesMap();
         Set<String> collect = attrSalesMap.values().stream().map(Object::toString).collect(Collectors.toSet());

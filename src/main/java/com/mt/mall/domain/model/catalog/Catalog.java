@@ -28,7 +28,11 @@ public class Catalog extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     private CatalogId parentId;
 
+    @Embedded
     @Setter(AccessLevel.PRIVATE)
+    @AttributeOverrides({
+            @AttributeOverride(name = "domainId", column = @Column(name = "catalogId", updatable = false, nullable = false))
+    })
     private CatalogId catalogId;
 
 

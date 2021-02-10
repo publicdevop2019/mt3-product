@@ -13,9 +13,9 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "biz_product_tag_ref")
+@Table
 @NoArgsConstructor
-public class Tag implements Serializable {
+public class ProductTag implements Serializable {
     @Id
     private Long id;
     private String value;
@@ -25,7 +25,7 @@ public class Tag implements Serializable {
     @JsonIgnore
     private final Set<Product> products = new HashSet<>();
 
-    public Tag(Long id, String value, TagType type) {
+    public ProductTag(Long id, String value, TagType type) {
         this.id = id;
         this.value = value;
         this.type = type;
@@ -35,7 +35,7 @@ public class Tag implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Tag tag = (Tag) o;
+        ProductTag tag = (ProductTag) o;
         return Objects.equal(value, tag.value) && Objects.equal(id, tag.id) && Objects.equal(type, tag.type);
     }
 

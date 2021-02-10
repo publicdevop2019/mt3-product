@@ -70,7 +70,11 @@ public class Product extends Auditable {
     @Convert(converter = StringSetConverter.class)
     @Setter(AccessLevel.PRIVATE)
     private Set<String> imageUrlLarge;
+    @Embedded
     @Setter(AccessLevel.PRIVATE)
+    @AttributeOverrides({
+            @AttributeOverride(name = "domainId", column = @Column(name = "productId", updatable = false, nullable = false))
+    })
     private ProductId productId;
     @Column(length = 10000)
     @Setter(AccessLevel.PRIVATE)
@@ -82,12 +86,12 @@ public class Product extends Auditable {
     @Setter(AccessLevel.NONE)
     private Integer version;
 
-    public void addTag(Tag tag) {
+    public void addTag(ProductTag tag) {
         tags.add(tag);
         tag.getProducts().add(this);
     }
 
-    public void removeTag(Tag tag) {
+    public void removeTag(ProductTag tag) {
         tags.remove(tag);
         tag.getProducts().remove(this);
     }
@@ -97,11 +101,11 @@ public class Product extends Auditable {
             CascadeType.PERSIST,
             CascadeType.MERGE
     })
-    @JoinTable(name = "biz_product_tag_map",
+    @JoinTable(name = "product_tag_map",
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    private Set<Tag> tags = new HashSet<>();
+    private Set<ProductTag> tags = new HashSet<>();
 
     @Setter(AccessLevel.PRIVATE)
     private BigDecimal lowestPrice;
@@ -166,11 +170,11 @@ public class Product extends Auditable {
 
     private Consumer<String> getStringConsumer(TagType key) {
         return e -> {
-            Optional<Tag> byValue = DomainRegistry.productTagRepository().findByValueAndType(e, key);
+            Optional<ProductTag> byValue = DomainRegistry.productTagRepository().findByValueAndType(e, key);
             if (byValue.isPresent()) {
                 addTag(byValue.get());
             } else {
-                Tag tag = new Tag(CommonDomainRegistry.uniqueIdGeneratorService().id(), e, key);
+                ProductTag tag = new ProductTag(CommonDomainRegistry.uniqueIdGeneratorService().id(), e, key);
                 addTag(tag);
             }
         };

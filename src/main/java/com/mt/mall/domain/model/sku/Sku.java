@@ -28,8 +28,11 @@ public class Sku extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     @Column(nullable = false)
     private String referenceId;
+    @Embedded
     @Setter(AccessLevel.PRIVATE)
-    @Column(nullable = false)
+    @AttributeOverrides({
+            @AttributeOverride(name = "domainId", column = @Column(name = "skuId", updatable = false, nullable = false))
+    })
     private SkuId skuId;
 
     @Setter(AccessLevel.PRIVATE)
