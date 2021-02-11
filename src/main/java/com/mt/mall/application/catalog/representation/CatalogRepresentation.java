@@ -9,10 +9,10 @@ import java.util.Set;
 
 @Data
 public class CatalogRepresentation {
-    private Long id;
+    private String id;
     private String name;
 
-    private Long parentId;
+    private String parentId;
 
     private Set<String> attributes;
 
@@ -21,7 +21,12 @@ public class CatalogRepresentation {
     private Integer version;
 
     public CatalogRepresentation(Catalog catalog) {
-        BeanUtils.copyProperties(catalog, this);
+        setId(catalog.getCatalogId().getDomainId());
+        setName(catalog.getName());
+        setParentId(catalog.getParentId().getDomainId());
+        setAttributes(catalog.getAttributes());
+        setCatalogType(catalog.getType());
+        setVersion(catalog.getVersion());
         this.catalogType = catalog.getType();
     }
 }

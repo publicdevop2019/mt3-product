@@ -23,9 +23,6 @@ import static com.mt.common.CommonConstant.*;
 @RequestMapping(produces = "application/json", path = "catalogs")
 public class CatalogResource {
 
-    @Autowired
-    BizValidator validator;
-
     @GetMapping("public")
     public ResponseEntity<?> readForPublicByQuery(
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
@@ -47,14 +44,12 @@ public class CatalogResource {
 
     @PostMapping("admin")
     public ResponseEntity<?> createForAdmin(@RequestBody CreateCatalogCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        validator.validate("adminCreateCatalogCommand", command);
         return ResponseEntity.ok().header("Location", catalogApplicationService().create(command, changeId)).build();
     }
 
 
     @PutMapping("admin/{id}")
     public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") String id, @RequestBody UpdateCatalogCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        validator.validate("adminUpdateCatalogCommand", command);
         catalogApplicationService().replace(id, command, changeId);
         return ResponseEntity.ok().build();
     }

@@ -100,16 +100,17 @@ public class TagApplicationService {
             TagId TagId = new TagId(id);
             Optional<Tag> optionalCatalog = DomainRegistry.tagRepository().tagOfId(TagId);
             if (optionalCatalog.isPresent()) {
-                Tag filter = optionalCatalog.get();
-                PatchTagCommand beforePatch = new PatchTagCommand(filter);
+                Tag tag = optionalCatalog.get();
+                PatchTagCommand beforePatch = new PatchTagCommand(tag);
                 PatchTagCommand afterPatch = CommonDomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, PatchTagCommand.class);
-                filter.replace(
+                tag.replace(
                         afterPatch.getName(),
                         afterPatch.getDescription(),
                         afterPatch.getMethod(),
                         afterPatch.getSelectValues(),
                         afterPatch.getType()
                 );
+                DomainRegistry.tagRepository().add(tag);
             }
         }, Tag.class);
     }

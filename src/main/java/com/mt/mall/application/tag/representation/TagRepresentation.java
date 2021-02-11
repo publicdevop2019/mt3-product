@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Data
 public class TagRepresentation {
-    private Long id;
+    private String id;
     private String name;
     private String description;
     private TagValueType method;
@@ -18,7 +18,13 @@ public class TagRepresentation {
     private Type type;
     private Integer version;
 
-    public TagRepresentation(Tag bizTag) {
-        BeanUtils.copyProperties(bizTag, this);
+    public TagRepresentation(Tag tag) {
+        setId(tag.getTagId().getDomainId());
+        setName(tag.getName());
+        setDescription(tag.getDescription());
+        setSelectValues(tag.getSelectValues());
+        setMethod(tag.getMethod());
+        setType(tag.getType());
+        setVersion(tag.getVersion());
     }
 }
