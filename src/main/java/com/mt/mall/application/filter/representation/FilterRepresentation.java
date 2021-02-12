@@ -10,15 +10,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class AdminBizFilterRep {
-    private Long id;
+public class FilterRepresentation {
+    private String id;
     private Set<String> catalogs;
     private List<BizFilterItemAdminRepresentation> filters;
     private String description;
     private Integer version;
-    public AdminBizFilterRep(Filter read) {
-        BeanUtils.copyProperties(read, this);
-        this.filters = read.getFilterItems().stream().map(BizFilterItemAdminRepresentation::new).collect(Collectors.toList());
+
+    public FilterRepresentation(Filter filter) {
+        setId(filter.getFilterId().getDomainId());
+        setDescription(filter.getDescription());
+        setCatalogs(filter.getCatalogs());
+        setVersion(filter.getVersion());
+        this.filters = filter.getFilterItems().stream().map(BizFilterItemAdminRepresentation::new).collect(Collectors.toList());
     }
 
     @Data

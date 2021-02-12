@@ -5,11 +5,10 @@ import com.mt.common.sql.clause.SelectFieldStringEqualClause;
 import com.mt.common.sql.clause.SelectFieldStringLikeClause;
 import com.mt.mall.domain.model.filter.Filter;
 import org.springframework.stereotype.Component;
-
-import static com.mt.mall.domain.model.filter.Filter.ENTITY_CATALOG_LITERAL;
-
 @Component
 public class FilterSelectQueryBuilder extends SelectQueryBuilder<Filter> {
+    public transient static final String ID_LITERAL = "id";
+    public transient static final String ENTITY_CATALOG_LITERAL = "catalogs";
     {
         DEFAULT_PAGE_SIZE = 40;
         MAX_PAGE_SIZE = 400;

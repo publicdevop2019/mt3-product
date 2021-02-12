@@ -7,8 +7,8 @@ import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.filter.FilterApplicationService;
 import com.mt.mall.application.filter.command.CreateFilterCommand;
 import com.mt.mall.application.filter.command.UpdateFilterCommand;
-import com.mt.mall.application.filter.representation.AdminBizFilterCardRep;
-import com.mt.mall.application.filter.representation.AdminBizFilterRep;
+import com.mt.mall.application.filter.representation.FilterCardRepresentation;
+import com.mt.mall.application.filter.representation.FilterRepresentation;
 import com.mt.mall.application.filter.representation.PublicBizFilterCardRep;
 import com.mt.mall.domain.model.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,13 +48,13 @@ public class FilterResource {
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
         SumPagedRep<Filter> filters = filterApplicationService().filters(queryParam, pageParam, skipCount);
-        return ResponseEntity.ok(new SumPagedRep(filters, AdminBizFilterCardRep::new));
+        return ResponseEntity.ok(new SumPagedRep(filters, FilterCardRepresentation::new));
     }
 
     @GetMapping("admin/{id}")
     public ResponseEntity<?> readForAdminById(@PathVariable(name = "id") String id) {
         Optional<Filter> filter = filterApplicationService().filter(id);
-        return filter.map(value -> ResponseEntity.ok(new AdminBizFilterRep(value))).orElseGet(() -> ResponseEntity.ok().build());
+        return filter.map(value -> ResponseEntity.ok(new FilterRepresentation(value))).orElseGet(() -> ResponseEntity.ok().build());
     }
 
     @PostMapping("admin")

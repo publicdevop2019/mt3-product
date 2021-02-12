@@ -10,14 +10,14 @@ import java.util.Set;
 @Data
 public class FilterItem implements Serializable {
     private static final long serialVersionUID = 1;
-    private Long id;
+    private String id;
     private String name;
     private Set<String> selectValues;
 
-    public FilterItem(Long id, String name, Set<String> selectValues) {
-        this.id = id;
-        this.name = name;
-        this.selectValues = selectValues;
+    public FilterItem(String id, String name, Set<String> selectValues) {
+        setId(id);
+        setName(name);
+        setSelectValues(selectValues);
     }
 
     public static class FilterItemConverter implements AttributeConverter<Set<FilterItem>, byte[]> {

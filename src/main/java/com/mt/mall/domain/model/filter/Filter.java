@@ -16,8 +16,6 @@ import java.util.Set;
 @Table(name = "filter_")
 @NoArgsConstructor
 public class Filter extends Auditable {
-    public transient static final String ID_LITERAL = "id";
-    public transient static final String ENTITY_CATALOG_LITERAL = "catalogs";
     @Id
     @Setter(AccessLevel.PRIVATE)
     private Long id;
