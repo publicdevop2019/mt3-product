@@ -16,7 +16,6 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 public class Catalog extends Auditable {
-    public transient static final String CATALOG_ID_LITERAL = "catalogId";
     @Id
     @Setter(AccessLevel.PRIVATE)
     private Long id;

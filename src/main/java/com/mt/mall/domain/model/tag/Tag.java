@@ -16,11 +16,6 @@ import java.util.Set;
 @Table(name = "tag_")
 @NoArgsConstructor
 public class Tag extends Auditable {
-    public transient static final String ID_LITERAL = "id";
-    public transient static final String NAME_LITERAL = "name";
-    public transient static final String DESCRIPTION_LITERAL = "description";
-    public transient static final String METHOD_LITERAL = "method";
-    public transient static final String SELECTED_VALUES_LITERAL = "selectValues";
     @Id
     @Setter(AccessLevel.PRIVATE)
     private Long id;
@@ -49,7 +44,7 @@ public class Tag extends Auditable {
             @AttributeOverride(name = "domainId", column = @Column(name = "tagId", updatable = false, nullable = false))
     })
     private TagId tagId;
-    public transient static final String TYPE_LITERAL = "type";
+
     @Version
     @Setter(AccessLevel.NONE)
     private Integer version;

@@ -9,7 +9,7 @@ import com.mt.mall.application.filter.command.CreateFilterCommand;
 import com.mt.mall.application.filter.command.UpdateFilterCommand;
 import com.mt.mall.application.filter.representation.FilterCardRepresentation;
 import com.mt.mall.application.filter.representation.FilterRepresentation;
-import com.mt.mall.application.filter.representation.PublicBizFilterCardRep;
+import com.mt.mall.application.filter.representation.PublicFilterCardRepresentation;
 import com.mt.mall.domain.model.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,9 +34,9 @@ public class FilterResource {
                                                   @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
         SumPagedRep<Filter> filterSumPagedRep = filterApplicationService().publicFilters(queryParam, pageParam, skipCount);
         List<Filter> data = filterSumPagedRep.getData();
-        List<PublicBizFilterCardRep> collect = null;
+        List<PublicFilterCardRepresentation> collect = null;
         if (data.size() != 0) {
-            collect = filterSumPagedRep.getData().get(0).getFilterItems().stream().map(PublicBizFilterCardRep::new).collect(Collectors.toList());
+            collect = filterSumPagedRep.getData().get(0).getFilterItems().stream().map(PublicFilterCardRepresentation::new).collect(Collectors.toList());
         }
         return ResponseEntity.ok(new SumPagedRep<>(collect, null));
     }

@@ -7,7 +7,6 @@ import com.mt.mall.domain.model.filter.Filter;
 import org.springframework.stereotype.Component;
 @Component
 public class FilterSelectQueryBuilder extends SelectQueryBuilder<Filter> {
-    public transient static final String ID_LITERAL = "id";
     public transient static final String ENTITY_CATALOG_LITERAL = "catalogs";
     {
         DEFAULT_PAGE_SIZE = 40;
