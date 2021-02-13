@@ -4,26 +4,26 @@ import com.mt.common.sql.SumPagedRep;
 import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.domain.model.product.Product;
 import com.mt.mall.domain.model.product.ProductOption;
-import com.mt.mall.application.sku.representation.InternalSkuCardRepresentation;
 import com.mt.mall.domain.model.sku.Sku;
 import lombok.Data;
-import org.springframework.beans.BeanUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
-public
-class AppProductCardRepresentation {
-    private Long id;
+public class InternalProductRepresentation {
+    private String id;
     private List<ProductOption> selectedOptions;
     private List<AppProductSkuRep> productSkuList;
-    private HashMap<String, Long> attrSalesMap;
+    private HashMap<String, String> attrSalesMap;
 
-    public AppProductCardRepresentation(Product productDetail) {
-        BeanUtils.copyProperties(productDetail, this);
-        HashMap<String, String> attrSalesMap = productDetail.getAttrSalesMap();
+    public InternalProductRepresentation(Object obj) {
+        Product product = (Product) obj;
+        setId(product.getProductId().getDomainId());
+        setSelectedOptions(product.getSelectedOptions());
+        setAttrSalesMap(product.getAttrSalesMap());
+        HashMap<String, String> attrSalesMap = product.getAttrSalesMap();
         Set<String> collect = attrSalesMap.values().stream().map(Object::toString).collect(Collectors.toSet());
         SumPagedRep<Sku> skus = ApplicationServiceRegistry.skuApplicationService().skus("id:" + String.join(".", collect), null, null);
         this.productSkuList = attrSalesMap.keySet().stream().map(e -> {

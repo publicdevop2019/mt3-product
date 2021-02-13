@@ -2,6 +2,7 @@ package com.mt.mall.port.adapter.persistence.product;
 
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.DefaultPaging;
+import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.mall.application.product.ProductQuery;
@@ -20,7 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public interface SpringDataJpaProductRepository extends ProductRepository, JpaRepository<Product,Long> {
+public interface SpringDataJpaProductRepository extends ProductRepository, JpaRepository<Product, Long> {
     @QueryHints(@QueryHint(name = org.hibernate.annotations.QueryHints.CACHEABLE, value = "true"))
     Optional<Product> findByProductIdAndDeletedFalse(ProductId productId);
 
@@ -42,6 +43,10 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
 
     default void add(Product client) {
         save(client);
+    }
+
+    default void patchBatch(List<PatchCommand> commands) {
+        QueryBuilderRegistry.productUpdateQueryBuilder().update(commands, Product.class);
     }
 
     default void remove(Product client) {

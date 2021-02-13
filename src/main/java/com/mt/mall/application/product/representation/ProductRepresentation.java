@@ -20,7 +20,7 @@ public class ProductRepresentation {
     public transient static final String ADMIN_REP_SALES_LITERAL = "totalSales";
     public static final String ADMIN_REP_PRICE_LITERAL = "lowestPrice";
 
-    private Long id;
+    private String id;
 
     private String name;
 
@@ -49,13 +49,23 @@ public class ProductRepresentation {
     private BigDecimal lowestPrice;
     private Integer version;
 
-    public ProductRepresentation(Product productDetail) {
-        BeanUtils.copyProperties(productDetail, this);
-        this.attributesKey = productDetail.getTags().stream().filter(e -> e.getType().equals(TagType.KEY)).map(ProductTag::getValue).collect(Collectors.toSet());
-        this.attributesProd = productDetail.getTags().stream().filter(e -> e.getType().equals(TagType.PROD)).map(ProductTag::getValue).collect(Collectors.toSet());
-        this.attributesGen = productDetail.getTags().stream().filter(e -> e.getType().equals(TagType.GEN)).map(ProductTag::getValue).collect(Collectors.toSet());
+    public ProductRepresentation(Product product) {
+        setId(product.getProductId().getDomainId());
+        setName(product.getName());
+        setImageUrlSmall(product.getImageUrlSmall());
+        setImageUrlLarge(product.getImageUrlLarge());
+        setDescription(product.getDescription());
+        setStartAt(product.getStartAt());
+        setEndAt(product.getEndAt());
+        setSelectedOptions(product.getSelectedOptions());
+        setTotalSales(product.getTotalSales());
+        setLowestPrice(product.getLowestPrice());
+        setVersion(product.getVersion());
+        this.attributesKey = product.getTags().stream().filter(e -> e.getType().equals(TagType.KEY)).map(ProductTag::getValue).collect(Collectors.toSet());
+        this.attributesProd = product.getTags().stream().filter(e -> e.getType().equals(TagType.PROD)).map(ProductTag::getValue).collect(Collectors.toSet());
+        this.attributesGen = product.getTags().stream().filter(e -> e.getType().equals(TagType.GEN)).map(ProductTag::getValue).collect(Collectors.toSet());
 
-        HashMap<String, String> attrSalesMap = productDetail.getAttrSalesMap();
+        HashMap<String, String> attrSalesMap = product.getAttrSalesMap();
         Set<String> collect = attrSalesMap.values().stream().map(Object::toString).collect(Collectors.toSet());
         SumPagedRep<Sku> skus = ApplicationServiceRegistry.skuApplicationService().skus("id:" + String.join(".", collect), null, null);
         this.skus = attrSalesMap.keySet().stream().map(e -> {
@@ -73,8 +83,8 @@ public class ProductRepresentation {
             return appProductSkuRep;
         }).collect(Collectors.toList());
 
-        if (productDetail.getAttributeSaleImages() != null)
-            this.attributeSaleImages = productDetail.getAttributeSaleImages().stream().map(ProductAttrSaleImagesAdminRepresentation::new).collect(Collectors.toList());
+        if (product.getAttributeSaleImages() != null)
+            this.attributeSaleImages = product.getAttributeSaleImages().stream().map(ProductAttrSaleImagesAdminRepresentation::new).collect(Collectors.toList());
     }
 
     @Data

@@ -2,17 +2,21 @@ package com.mt.mall.resource;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.sql.PatchCommand;
+import com.mt.common.sql.SumPagedRep;
 import com.mt.common.validate.BizValidator;
 import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.product.ProductApplicationService;
 import com.mt.mall.application.product.command.CreateProductCommand;
 import com.mt.mall.application.product.command.UpdateProductCommand;
+import com.mt.mall.application.product.representation.*;
+import com.mt.mall.domain.model.product.Product;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.mt.common.CommonConstant.*;
 
@@ -30,12 +34,14 @@ public class ProductResource {
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        return ResponseEntity.ok(productApplicationService().products(queryParam, pageParam, skipCount));
+        SumPagedRep<Product> products = productApplicationService().products(queryParam, pageParam, skipCount);
+        return ResponseEntity.ok(new SumPagedRep(products, PublicProductCardRepresentation::new));
     }
 
     @GetMapping("public/{id}")
     public ResponseEntity<?> readForPublicById(@PathVariable(name = "id") String id) {
-        return ResponseEntity.ok(productApplicationService().product(id));
+        Optional<Product> product = productApplicationService().product(id);
+        return product.map(value -> ResponseEntity.ok(new PublicProductRepresentation(value))).orElseGet(() -> ResponseEntity.ok().build());
     }
 
     @GetMapping("admin")
@@ -43,12 +49,14 @@ public class ProductResource {
             @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipFlag) {
-        return ResponseEntity.ok(productApplicationService().products(queryParam, pageParam, skipFlag));
+        SumPagedRep<Product> products = productApplicationService().products(queryParam, pageParam, skipFlag);
+        return ResponseEntity.ok(new SumPagedRep(products, ProductCardRepresentation::new));
     }
 
     @GetMapping("admin/{id}")
     public ResponseEntity<?> readForAdminById(@PathVariable(name = "id") String id) {
-        return ResponseEntity.ok(productApplicationService().product(id));
+        Optional<Product> product = productApplicationService().product(id);
+        return product.map(value -> ResponseEntity.ok(new ProductRepresentation(value))).orElseGet(() -> ResponseEntity.ok().build());
     }
 
 
@@ -93,7 +101,7 @@ public class ProductResource {
 
     @PatchMapping("app")
     public ResponseEntity<?> patchForApp(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        productApplicationService().internalPatchBatch(patch, changeId);
+        productApplicationService().patchBatch(patch, changeId);
         return ResponseEntity.ok().build();
     }
 
@@ -103,7 +111,8 @@ public class ProductResource {
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        return ResponseEntity.ok(productApplicationService().products(queryParam, pageParam, skipCount));
+        SumPagedRep<Product> products = productApplicationService().products(queryParam, pageParam, skipCount);
+        return ResponseEntity.ok(new SumPagedRep(products, InternalProductRepresentation::new));
     }
 
 

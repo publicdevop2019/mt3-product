@@ -2,16 +2,15 @@ package com.mt.mall.domain.model.product;
 
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.DefaultPaging;
+import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.mall.application.product.ProductQuery;
-import com.mt.mall.domain.model.product.Product;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public interface ProductRepository{
+public interface ProductRepository {
     SumPagedRep<Product> productsOfQuery(ProductQuery queryParam, DefaultPaging queryPagingParam);
 
     void add(Product product);
@@ -25,4 +24,6 @@ public interface ProductRepository{
     void remove(Product product);
 
     void remove(Set<Product> products);
+
+    void patchBatch(List<PatchCommand> commandList);
 }

@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Data
 public class PublicProductRepresentation {
-    private Long id;
+    private String id;
     private String name;
     private String imageUrlSmall;
     private Set<String> imageUrlLarge;
@@ -30,10 +30,17 @@ public class PublicProductRepresentation {
     private List<ProductOption> selectedOptions;
     private Map<String, String> attrIdMap;
 
-    public PublicProductRepresentation(Product productDetail) {
-        BeanUtils.copyProperties(productDetail, this);
+    public PublicProductRepresentation(Product product) {
+        setId(product.getProductId().getDomainId());
+        setName(product.getName());
+        setImageUrlSmall(product.getImageUrlSmall());
+        setImageUrlLarge(product.getImageUrlLarge());
+        setDescription(product.getDescription());
+        setSelectedOptions(product.getSelectedOptions());
+        setTotalSales(product.getTotalSales());
+        setLowestPrice(product.getLowestPrice());
 
-        HashMap<String, String> attrSalesMap = productDetail.getAttrSalesMap();
+        HashMap<String, String> attrSalesMap = product.getAttrSalesMap();
         Set<String> collect = attrSalesMap.values().stream().map(Object::toString).collect(Collectors.toSet());
         SumPagedRep<Sku> skus = ApplicationServiceRegistry.skuApplicationService().skus("id:" + String.join(".", collect), null, null);
         this.skus = attrSalesMap.keySet().stream().map(e -> {
@@ -62,8 +69,8 @@ public class PublicProductRepresentation {
                 attrIdMap.put(e, findName(e, tags));
             });
         }
-        if (productDetail.getAttributeSaleImages() != null)
-            this.attributeSaleImages = productDetail.getAttributeSaleImages().stream().map(ProductAttrSaleImagesCustomerRepresentation::new).collect(Collectors.toList());
+        if (product.getAttributeSaleImages() != null)
+            this.attributeSaleImages = product.getAttributeSaleImages().stream().map(ProductAttrSaleImagesCustomerRepresentation::new).collect(Collectors.toList());
     }
 
     private boolean onlyEmptyKeyExist(Set<String> strings) {

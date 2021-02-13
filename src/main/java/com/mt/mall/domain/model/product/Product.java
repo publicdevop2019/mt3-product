@@ -48,6 +48,7 @@ public class Product extends Auditable {
     public transient static final String PRODUCT_IMAGE_URL_LARGE_LITERAL = "imageUrlLarge";
     public transient static final String PRODUCT_LOWEST_PRICE_LITERAL = "lowestPrice";
     public transient static final String PRODUCT_TOTAL_SALES_LITERAL = "totalSales";
+    public transient static final String PRODUCT_PRODUCT_ID = "productId";
     @Id
     @Setter(AccessLevel.PRIVATE)
     private Long id;
@@ -266,7 +267,7 @@ public class Product extends Auditable {
             patchCommands.add(patchCommand);
         }
         if (patchCommands.size() > 0)
-            ApplicationServiceRegistry.productApplicationService().internalPatchBatch(patchCommands, changeId);
+            ApplicationServiceRegistry.productApplicationService().patchBatch(patchCommands, changeId);
     }
 
     private String toSkuQueryPath(UpdateProductCommand.UpdateProductAdminSkuCommand command, String storageType) {

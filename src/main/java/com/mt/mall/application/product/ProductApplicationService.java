@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import static com.mt.mall.application.product.representation.ProductRepresentation.ADMIN_REP_SKU_LITERAL;
 import static com.mt.mall.domain.model.sku.Sku.SKU_REFERENCE_ID_LITERAL;
+
 @Service
 public class ProductApplicationService {
 
@@ -137,19 +138,16 @@ public class ProductApplicationService {
         }, Product.class);
     }
 
-    public void patchBatch(List<PatchCommand> commands, String changeId) {
-        List<PatchCommand> hasNestedEntity = commands.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
-        List<PatchCommand> noNestedEntity = commands.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
-//        patchBatch(Product.convertToSkuCommands(hasNestedEntity), changeId);
-    }
 
-    public void internalPatchBatch(List<PatchCommand> commands, String changeId) {
-        List<PatchCommand> skuChange = commands.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
-        List<PatchCommand> productChange = commands.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
-        if (!skuChange.isEmpty())
-            ApplicationServiceRegistry.skuApplicationService().patchBatch(Product.convertToSkuCommands(skuChange), changeId);
-        if (!productChange.isEmpty())
-            patchBatch(productChange, changeId);
+    public void patchBatch(List<PatchCommand> commands, String changeId) {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(commands, changeId, (ignored) -> {
+            List<PatchCommand> skuChange = commands.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
+            List<PatchCommand> productChange = commands.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
+            if (!skuChange.isEmpty())
+                ApplicationServiceRegistry.skuApplicationService().patchBatch(Product.convertToSkuCommands(skuChange), changeId);
+            if (!productChange.isEmpty())
+                DomainRegistry.productRepository().patchBatch(productChange);
+        }, Product.class);
     }
 
     public void rollback(String id) {
