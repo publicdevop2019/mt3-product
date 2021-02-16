@@ -19,7 +19,11 @@ public interface ProductRepository {
 
     SumPagedRep<Product> productsOfQuery(ProductQuery productQuery, DefaultPaging defaultPaging, QueryConfig queryConfig);
 
+    SumPagedRep<Product> publicProductsOfQuery(ProductQuery productQuery, DefaultPaging defaultPaging, QueryConfig queryConfig);
+
     Optional<Product> productOfId(ProductId productId);
+
+    Optional<Product> publicProductOfId(ProductId productId);
 
     void remove(Product product);
 

@@ -59,6 +59,14 @@ public class ProductApplicationService {
         return DomainRegistry.productRepository().productOfId(new ProductId(id));
     }
 
+    public SumPagedRep<Product> publicProducts(String queryParam, String pageParam, String skipCount) {
+        return DomainRegistry.productRepository().publicProductsOfQuery(new ProductQuery(queryParam), new DefaultPaging(pageParam), new QueryConfig(skipCount));
+    }
+
+    public Optional<Product> publicProduct(String id) {
+        return DomainRegistry.productRepository().publicProductOfId(new ProductId(id));
+    }
+
     @SubscribeForEvent
     @Transactional
     public void replace(String id, UpdateProductCommand command, String changeId) {

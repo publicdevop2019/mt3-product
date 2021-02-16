@@ -34,13 +34,13 @@ public class ProductResource {
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        SumPagedRep<Product> products = productApplicationService().products(queryParam, pageParam, skipCount);
+        SumPagedRep<Product> products = productApplicationService().publicProducts(queryParam, pageParam, skipCount);
         return ResponseEntity.ok(new SumPagedRep(products, PublicProductCardRepresentation::new));
     }
 
     @GetMapping("public/{id}")
     public ResponseEntity<?> readForPublicById(@PathVariable(name = "id") String id) {
-        Optional<Product> product = productApplicationService().product(id);
+        Optional<Product> product = productApplicationService().publicProduct(id);
         return product.map(value -> ResponseEntity.ok(new PublicProductRepresentation(value))).orElseGet(() -> ResponseEntity.ok().build());
     }
 

@@ -6,6 +6,7 @@ import com.mt.mall.port.adapter.persistence.catalog.CatalogSelectQueryBuilder;
 import com.mt.mall.port.adapter.persistence.filter.FilterSelectQueryBuilder;
 import com.mt.mall.port.adapter.persistence.product.ProductSelectQueryBuilder;
 import com.mt.mall.port.adapter.persistence.product.ProductUpdateQueryBuilder;
+import com.mt.mall.port.adapter.persistence.product.PublicProductSelectQueryBuilder;
 import com.mt.mall.port.adapter.persistence.sku.SkuSelectQueryBuilder;
 import com.mt.mall.port.adapter.persistence.tag.TagSelectQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +20,16 @@ public class QueryBuilderRegistry {
     private static TagSelectQueryBuilder tagSelectQueryBuilder;
     private static ProductSelectQueryBuilder productSelectQueryBuilder;
     private static ProductUpdateQueryBuilder productUpdateQueryBuilder;
+    private static PublicProductSelectQueryBuilder publicProductSelectQueryBuilder;
 
     public static TagSelectQueryBuilder tagSelectQueryBuilder() {
         return tagSelectQueryBuilder;
     }
+
+    public static PublicProductSelectQueryBuilder publicProductSelectQueryBuilder() {
+        return publicProductSelectQueryBuilder;
+    }
+
     public static ProductUpdateQueryBuilder productUpdateQueryBuilder() {
         return productUpdateQueryBuilder;
     }
@@ -47,6 +54,12 @@ public class QueryBuilderRegistry {
     public void setProductUpdateQueryBuilder(ProductUpdateQueryBuilder productUpdateQueryBuilder) {
         QueryBuilderRegistry.productUpdateQueryBuilder = productUpdateQueryBuilder;
     }
+
+    @Autowired
+    public void setPublicProductSelectQueryBuilder(PublicProductSelectQueryBuilder publicProductSelectQueryBuilder) {
+        QueryBuilderRegistry.publicProductSelectQueryBuilder = publicProductSelectQueryBuilder;
+    }
+
     @Autowired
     public void setProductSelectQueryBuilder(ProductSelectQueryBuilder productSelectQueryBuilder) {
         QueryBuilderRegistry.productSelectQueryBuilder = productSelectQueryBuilder;

@@ -57,8 +57,7 @@ public class PublicProductRepresentation {
         }).collect(Collectors.toList());
 
         this.attrIdMap = new HashMap<>();
-
-        this.skus.stream().map(ProductSkuCustomerRepresentation::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toList())
+        this.skus.stream().filter(e -> e.attributesSales != null && !e.attributesSales.isEmpty()).map(ProductSkuCustomerRepresentation::getAttributesSales).flatMap(Collection::stream).collect(Collectors.toList())
                 .stream().map(e -> e.split(":")[0]).forEach(el -> attrIdMap.put(el, null));
         String search = "id:" + String.join(".", this.attrIdMap.keySet());
         SumPagedRep<Tag> tags;
@@ -69,6 +68,7 @@ public class PublicProductRepresentation {
                 attrIdMap.put(e, findName(e, tags));
             });
         }
+
         if (product.getAttributeSaleImages() != null)
             this.attributeSaleImages = product.getAttributeSaleImages().stream().map(ProductAttrSaleImagesCustomerRepresentation::new).collect(Collectors.toList());
     }

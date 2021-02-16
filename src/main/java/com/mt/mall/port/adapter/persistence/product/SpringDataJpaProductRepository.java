@@ -41,6 +41,15 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
         return findByProductIdAndDeletedFalse(productId);
     }
 
+    default Optional<Product> publicProductOfId(ProductId productId) {
+        String s = "id:" + productId.getDomainId();
+        PublicProductSelectQueryBuilder publicProductSelectQueryBuilder = QueryBuilderRegistry.publicProductSelectQueryBuilder();
+        List<Product> select = publicProductSelectQueryBuilder.select(s, null, Product.class);
+        if (select.isEmpty())
+            return Optional.empty();
+        return Optional.of(select.get(0));
+    }
+
     default void add(Product client) {
         save(client);
     }
@@ -58,15 +67,24 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
     }
 
     default SumPagedRep<Product> productsOfQuery(ProductQuery clientQuery, DefaultPaging clientPaging, QueryConfig queryConfig) {
-        return getSumPagedRep(clientQuery.value(), clientPaging.value(), queryConfig.value());
+        return getSumPagedRep(clientQuery.value(), clientPaging.value(), queryConfig.value(), false);
+    }
+
+    default SumPagedRep<Product> publicProductsOfQuery(ProductQuery clientQuery, DefaultPaging clientPaging, QueryConfig queryConfig) {
+        return getSumPagedRep(clientQuery.value(), clientPaging.value(), queryConfig.value(), true);
     }
 
     default SumPagedRep<Product> productsOfQuery(ProductQuery clientQuery, DefaultPaging clientPaging) {
-        return getSumPagedRep(clientQuery.value(), clientPaging.value(), null);
+        return getSumPagedRep(clientQuery.value(), clientPaging.value(), null, false);
     }
 
-    private SumPagedRep<Product> getSumPagedRep(String query, String page, String config) {
-        SelectQueryBuilder<Product> selectQueryBuilder = QueryBuilderRegistry.productSelectQueryBuilder();
+    private SumPagedRep<Product> getSumPagedRep(String query, String page, String config, boolean isPublic) {
+        SelectQueryBuilder<Product> selectQueryBuilder;
+        if (isPublic) {
+            selectQueryBuilder = QueryBuilderRegistry.publicProductSelectQueryBuilder();
+        } else {
+            selectQueryBuilder = QueryBuilderRegistry.productSelectQueryBuilder();
+        }
         List<Product> select = selectQueryBuilder.select(query, page, Product.class);
         Long aLong = null;
         if (!skipCount(config)) {

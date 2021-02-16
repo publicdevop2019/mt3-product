@@ -219,7 +219,7 @@ public class Product extends Auditable {
         });
         // find skus not in update command & remove
         List<String> collect = attrSalesMap.keySet().stream().filter(e -> commands.stream().noneMatch(command -> getAttrSalesKey(command.getAttributesSales()).equals(e))).collect(Collectors.toList());
-        Set<String> collect1 = collect.stream().map(e -> attrSalesMap.get(e).toString()).collect(Collectors.toSet());
+        Set<String> collect1 = collect.stream().map(e -> attrSalesMap.get(e)).collect(Collectors.toSet());
         if (collect1.size() > 0)
             ApplicationServiceRegistry.skuApplicationService().removeByQuery(String.join(".", collect1), UUID.randomUUID().toString());
     }
