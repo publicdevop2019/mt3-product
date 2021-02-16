@@ -7,7 +7,7 @@ import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.sku.SkuApplicationService;
 import com.mt.mall.application.sku.command.CreateSkuCommand;
 import com.mt.mall.application.sku.command.UpdateSkuCommand;
-import com.mt.mall.application.sku.representation.AdminSkuCardRepresentation;
+import com.mt.mall.application.sku.representation.SkuCardRepresentation;
 import com.mt.mall.application.sku.representation.AdminSkuRepresentation;
 import com.mt.mall.application.sku.representation.InternalSkuCardRepresentation;
 import com.mt.mall.domain.model.sku.Sku;
@@ -32,7 +32,7 @@ public class SkuResource {
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
         SumPagedRep<Sku> skus = skuApplicationService().skus(queryParam, pageParam, skipCount);
-        return ResponseEntity.ok(new SumPagedRep(skus, AdminSkuCardRepresentation::new));
+        return ResponseEntity.ok(new SumPagedRep(skus, SkuCardRepresentation::new));
     }
 
     @GetMapping("admin/{id}")

@@ -2,16 +2,14 @@ package com.mt.mall.resource;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.sql.SumPagedRep;
-import com.mt.common.validate.BizValidator;
 import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.catalog.CatalogApplicationService;
 import com.mt.mall.application.catalog.command.CreateCatalogCommand;
 import com.mt.mall.application.catalog.command.UpdateCatalogCommand;
-import com.mt.mall.application.catalog.representation.AdminCatalogCardRepresentation;
+import com.mt.mall.application.catalog.representation.CatalogCardRepresentation;
 import com.mt.mall.application.catalog.representation.CatalogRepresentation;
 import com.mt.mall.application.catalog.representation.PublicCatalogCardRepresentation;
 import com.mt.mall.domain.model.catalog.Catalog;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,7 +37,7 @@ public class CatalogResource {
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
         SumPagedRep<Catalog> catalogs = catalogApplicationService().catalogs(queryParam, pageParam, skipCount);
-        return ResponseEntity.ok(new SumPagedRep(catalogs, AdminCatalogCardRepresentation::new));
+        return ResponseEntity.ok(new SumPagedRep(catalogs, CatalogCardRepresentation::new));
     }
 
     @PostMapping("admin")

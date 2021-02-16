@@ -7,10 +7,11 @@ import org.springframework.beans.BeanUtils;
 import java.math.BigDecimal;
 
 @Data
-public class AppBizSkuRepresentation {
+public class SkuRepresentation {
     private BigDecimal price;
     private Integer version;
-    public AppBizSkuRepresentation(Sku bizSku) {
-        BeanUtils.copyProperties(bizSku, this);
+    public SkuRepresentation(Sku sku) {
+        setPrice(sku.getPrice());
+        setVersion(sku.getVersion());
     }
 }

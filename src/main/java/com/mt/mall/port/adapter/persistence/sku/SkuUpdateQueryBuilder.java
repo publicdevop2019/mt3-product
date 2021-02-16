@@ -16,17 +16,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.mt.common.CommonConstant.*;
-import static com.mt.mall.domain.model.sku.Sku.SKU_STORAGE_ACTUAL_LITERAL;
-import static com.mt.mall.domain.model.sku.Sku.SKU_STORAGE_ORDER_LITERAL;
+import static com.mt.mall.domain.model.sku.Sku.*;
+import static com.mt.mall.port.adapter.persistence.sku.SkuSelectQueryBuilder.SKU_ID_LITERAL;
 
 @Component
-public class AdminBizSkuUpdateQueryBuilder extends UpdateQueryBuilder<Sku> {
+public class SkuUpdateQueryBuilder extends UpdateQueryBuilder<Sku> {
 
     @Override
     protected void setUpdateValue(Root<Sku> root, CriteriaUpdate<Sku> criteriaUpdate, PatchCommand e) {
         ArrayList<Boolean> booleans = new ArrayList<>();
         booleans.add(setUpdateStorageValueFor("/" + SKU_STORAGE_ORDER_LITERAL, SKU_STORAGE_ORDER_LITERAL, root, criteriaUpdate, e));
         booleans.add(setUpdateStorageValueFor("/" + SKU_STORAGE_ACTUAL_LITERAL, SKU_STORAGE_ACTUAL_LITERAL, root, criteriaUpdate, e));
+        booleans.add(setUpdateStorageValueFor("/" + SKU_SALES_LITERAL, SKU_SALES_LITERAL, root, criteriaUpdate, e));
         Boolean hasFieldChange = booleans.stream().reduce(false, (a, b) -> a || b);
         if (!hasFieldChange) {
             throw new NoUpdatableFieldException();
@@ -38,7 +39,7 @@ public class AdminBizSkuUpdateQueryBuilder extends UpdateQueryBuilder<Sku> {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         List<Predicate> results = new ArrayList<>();
         for (String id : ids) {
-            Predicate idClause = cb.equal(root.get(COMMON_ENTITY_ID), Long.parseLong(id));
+            Predicate idClause = cb.equal(root.get(SKU_ID_LITERAL).get(DOMAIN_ID), id);
             if (storagePatchOpSub(command)) {
                 //make sure if storage change, value is not negative
                 Predicate negativeClause = getStorageMustNotNegativeClause(cb, root, command);

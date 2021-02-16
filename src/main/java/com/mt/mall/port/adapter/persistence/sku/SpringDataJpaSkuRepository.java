@@ -2,6 +2,7 @@ package com.mt.mall.port.adapter.persistence.sku;
 
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.DefaultPaging;
+import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.mall.application.sku.SkuQuery;
@@ -54,6 +55,10 @@ public interface SpringDataJpaSkuRepository extends SkuRepository, JpaRepository
 
     default SumPagedRep<Sku> skusOfQuery(SkuQuery clientQuery, DefaultPaging clientPaging, QueryConfig queryConfig) {
         return getSumPagedRep(clientQuery.value(), clientPaging.value(), queryConfig.value());
+    }
+
+    default void patchBatch(List<PatchCommand> commands) {
+        QueryBuilderRegistry.skuUpdateQueryBuilder().update(commands, Sku.class);
     }
 
     default SumPagedRep<Sku> skusOfQuery(SkuQuery clientQuery, DefaultPaging clientPaging) {

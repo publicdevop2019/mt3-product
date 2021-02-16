@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 @Service
 public class SkuApplicationService {
 
@@ -110,7 +111,11 @@ public class SkuApplicationService {
         }, Sku.class);
     }
 
-    public void patchBatch(List<PatchCommand> patch, String changeId) {
-
+    @SubscribeForEvent
+    @Transactional
+    public void patchBatch(List<PatchCommand> commands, String changeId) {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(commands, changeId, (ignored) -> {
+            DomainRegistry.skuRepository().patchBatch(commands);
+        }, Sku.class);
     }
 }

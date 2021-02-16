@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.Set;
 
 @Data
-public class AdminCatalogCardRepresentation {
+public class CatalogCardRepresentation {
     public transient static final String ADMIN_REP_PARENT_ID_LITERAL = "parentId";
     public transient static final String ADMIN_REP_CATALOG_TYPE_LITERAL = "catalogType";
     private String id;
@@ -17,7 +17,7 @@ public class AdminCatalogCardRepresentation {
     private Type catalogType;
     private Integer version;
 
-    public AdminCatalogCardRepresentation(Object obj) {
+    public CatalogCardRepresentation(Object obj) {
         Catalog catalog = (Catalog) obj;
         setId(catalog.getCatalogId().getDomainId());
         setName(catalog.getName());

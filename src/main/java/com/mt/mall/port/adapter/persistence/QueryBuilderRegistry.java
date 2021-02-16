@@ -8,6 +8,7 @@ import com.mt.mall.port.adapter.persistence.product.ProductSelectQueryBuilder;
 import com.mt.mall.port.adapter.persistence.product.ProductUpdateQueryBuilder;
 import com.mt.mall.port.adapter.persistence.product.PublicProductSelectQueryBuilder;
 import com.mt.mall.port.adapter.persistence.sku.SkuSelectQueryBuilder;
+import com.mt.mall.port.adapter.persistence.sku.SkuUpdateQueryBuilder;
 import com.mt.mall.port.adapter.persistence.tag.TagSelectQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,9 +22,14 @@ public class QueryBuilderRegistry {
     private static ProductSelectQueryBuilder productSelectQueryBuilder;
     private static ProductUpdateQueryBuilder productUpdateQueryBuilder;
     private static PublicProductSelectQueryBuilder publicProductSelectQueryBuilder;
+    private static SkuUpdateQueryBuilder skuUpdateQueryBuilder;
 
     public static TagSelectQueryBuilder tagSelectQueryBuilder() {
         return tagSelectQueryBuilder;
+    }
+
+    public static SkuUpdateQueryBuilder skuUpdateQueryBuilder() {
+        return skuUpdateQueryBuilder;
     }
 
     public static PublicProductSelectQueryBuilder publicProductSelectQueryBuilder() {
@@ -48,6 +54,11 @@ public class QueryBuilderRegistry {
 
     public static SelectQueryBuilder<Filter> filterSelectQueryBuilder() {
         return filterSelectQueryBuilder;
+    }
+
+    @Autowired
+    public void setSkuUpdateQueryBuilder(SkuUpdateQueryBuilder skuUpdateQueryBuilder) {
+        QueryBuilderRegistry.skuUpdateQueryBuilder = skuUpdateQueryBuilder;
     }
 
     @Autowired
