@@ -60,7 +60,8 @@ public class SkuApplicationService {
                 Sku sku = optionalSku.get();
                 sku.replace(
                         command.getPrice(),
-                        command.getDescription()
+                        command.getDescription(),
+                        command.getVersion()
                 );
                 DomainRegistry.skuRepository().add(sku);
             }
@@ -105,7 +106,8 @@ public class SkuApplicationService {
                 PatchSkuCommand afterPatch = CommonDomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, PatchSkuCommand.class);
                 filter.replace(
                         afterPatch.getPrice(),
-                        afterPatch.getDescription()
+                        afterPatch.getDescription(),
+                        filter.getVersion()
                 );
             }
         }, Sku.class);

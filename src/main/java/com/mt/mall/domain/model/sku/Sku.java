@@ -2,6 +2,7 @@ package com.mt.mall.domain.model.sku;
 
 import com.mt.common.audit.Auditable;
 import com.mt.common.domain.model.CommonDomainRegistry;
+import com.mt.common.rest.exception.AggregateOutdatedException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -69,7 +70,10 @@ public class Sku extends Auditable {
         setSales(sales);
     }
 
-    public void replace(BigDecimal price, String description) {
+    public void replace(BigDecimal price, String description,Integer version) {
+        if(!getVersion().equals(version)){
+            throw new AggregateOutdatedException();
+        }
         setPrice(price);
         setDescription(description);
     }
