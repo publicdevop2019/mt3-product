@@ -88,7 +88,8 @@ public class ProductApplicationService {
                         command.getAttributesGen(),
                         command.getSkus(),
                         command.getAttributeSaleImages(),
-                        command.getChangeId()
+                        command.getChangeId(),
+                        command.getVersion()
                 );
                 DomainRegistry.productRepository().add(product);
             }

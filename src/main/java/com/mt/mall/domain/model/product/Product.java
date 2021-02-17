@@ -4,6 +4,7 @@ import com.mt.common.audit.Auditable;
 import com.mt.common.domain.model.CommonDomainRegistry;
 import com.mt.common.persistence.StringSetConverter;
 import com.mt.common.rest.exception.AggregateNotExistException;
+import com.mt.common.rest.exception.AggregateOutdatedException;
 import com.mt.common.rest.exception.NoUpdatableFieldException;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
@@ -127,8 +128,11 @@ public class Product extends Auditable {
                         Set<String> attributesGen,
                         List<UpdateProductCommand.UpdateProductAdminSkuCommand> skus,
                         List<UpdateProductCommand.UpdateProductAttrImageAdminCommand> attributeSaleImages,
-                        String changeId
+                        String changeId,
+                        Integer version
     ) {
+        if (!getVersion().equals(version))
+            throw new AggregateOutdatedException();
         setImageUrlSmall(imageUrlSmall);
         setName(name);
         setDescription(description);
@@ -136,25 +140,78 @@ public class Product extends Auditable {
         setImageUrlLarge(imageUrlLarge);
         setStartAt(startAt);
         setEndAt(endAt);
-        this.tags = new HashSet<>();
-        if (attributesProd != null)
-            attributesProd.forEach(getStringConsumer(TagType.PROD));
-        if (attributesKey != null) {
-            attributesKey.forEach(getStringConsumer(TagType.KEY));
-        }
-        if (attributesGen != null)
-            attributesGen.forEach(getStringConsumer(TagType.GEN));
+
         skus.forEach(e -> {
             if (e.getSales() == null)
                 e.setSales(0);
             e.setAttributesSales(new TreeSet<>(e.getAttributesSales()));
         });
         adjustSku(skus, changeId);
-        skus.stream().map(UpdateProductCommand.UpdateProductAdminSkuCommand::getAttributesSales)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet()).forEach(getStringConsumer(TagType.SALES));
         setAttributeSaleImages2(attributeSaleImages);
         this.lowestPrice = findLowestPrice2(skus);
+        Set<String> sales = skus.stream().map(UpdateProductCommand.UpdateProductAdminSkuCommand::getAttributesSales)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+        if(!getTags().equals(getProductTags(sales,attributesKey,attributesGen,attributesProd))){
+            this.tags=new HashSet<>();
+            sales.forEach(getStringConsumer(TagType.SALES));
+            if (attributesProd != null)
+                attributesProd.forEach(getStringConsumer(TagType.PROD));
+            if (attributesKey != null) {
+                attributesKey.forEach(getStringConsumer(TagType.KEY));
+            }
+            if (attributesGen != null)
+                attributesGen.forEach(getStringConsumer(TagType.GEN));
+        }
+    }
+
+    private Set<ProductTag> getProductTags(Set<String> sales, Set<String> attributesKey, Set<String> attributesGen, Set<String> attributesProd) {
+        Set<ProductTag> productTags = new HashSet<>();
+        if(sales!=null){
+            sales.forEach(e->{
+                Optional<ProductTag> byValue = DomainRegistry.productTagRepository().findByValueAndType(e, TagType.SALES);
+                if (byValue.isPresent()) {
+                    productTags.add(byValue.get());
+                } else {
+                    ProductTag tag = new ProductTag(CommonDomainRegistry.uniqueIdGeneratorService().id(), e, TagType.SALES);
+                    productTags.add(tag);
+                }
+            });
+        }
+        if(attributesKey!=null){
+            attributesKey.forEach(e->{
+                Optional<ProductTag> byValue = DomainRegistry.productTagRepository().findByValueAndType(e, TagType.KEY);
+                if (byValue.isPresent()) {
+                    productTags.add(byValue.get());
+                } else {
+                    ProductTag tag = new ProductTag(CommonDomainRegistry.uniqueIdGeneratorService().id(), e, TagType.KEY);
+                    productTags.add(tag);
+                }
+            });
+        }
+        if(attributesGen!=null){
+            attributesGen.forEach(e->{
+                Optional<ProductTag> byValue = DomainRegistry.productTagRepository().findByValueAndType(e, TagType.GEN);
+                if (byValue.isPresent()) {
+                    productTags.add(byValue.get());
+                } else {
+                    ProductTag tag = new ProductTag(CommonDomainRegistry.uniqueIdGeneratorService().id(), e, TagType.GEN);
+                    productTags.add(tag);
+                }
+            });
+        }
+        if(attributesProd!=null){
+            attributesProd.forEach(e->{
+                Optional<ProductTag> byValue = DomainRegistry.productTagRepository().findByValueAndType(e, TagType.PROD);
+                if (byValue.isPresent()) {
+                    productTags.add(byValue.get());
+                } else {
+                    ProductTag tag = new ProductTag(CommonDomainRegistry.uniqueIdGeneratorService().id(), e, TagType.PROD);
+                    productTags.add(tag);
+                }
+            });
+        }
+        return productTags;
     }
 
     private void setAttributeSaleImages2(List<UpdateProductCommand.UpdateProductAttrImageAdminCommand> attributeSaleImages) {
@@ -180,6 +237,7 @@ public class Product extends Auditable {
             }
         };
     }
+
 
     private void adjustSku(List<UpdateProductCommand.UpdateProductAdminSkuCommand> commands, String changeId) {
         commands.forEach(command -> {
