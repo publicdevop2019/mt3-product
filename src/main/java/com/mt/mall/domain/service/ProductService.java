@@ -1,8 +1,5 @@
 package com.mt.mall.domain.service;
 
-import com.mt.common.query.DefaultPaging;
-import com.mt.common.sql.SumPagedRep;
-import com.mt.mall.application.product.ProductQuery;
 import com.mt.mall.application.product.command.CreateProductCommand;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.product.Product;
@@ -10,8 +7,6 @@ import com.mt.mall.domain.model.product.ProductId;
 import com.mt.mall.domain.model.product.ProductOption;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 

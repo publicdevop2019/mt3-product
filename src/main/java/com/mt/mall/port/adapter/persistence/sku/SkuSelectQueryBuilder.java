@@ -14,8 +14,8 @@ public class SkuSelectQueryBuilder extends SelectQueryBuilder<Sku> {
     public static final String SKU_ID_LITERAL = "skuId";
 
     {
-        allowEmptyClause = true;
-        supportedWhereField.put(COMMON_ENTITY_ID, new DomainIdQueryClause<>(SKU_ID_LITERAL));
-        supportedWhereField.put(SKU_REFERENCE_ID_LITERAL, new SelectFieldStringEqualClause<>(SKU_REFERENCE_ID_LITERAL));
+//        allowEmptyClause = true;
+        supportedWhere.put(COMMON_ENTITY_ID, new DomainIdQueryClause<>(SKU_ID_LITERAL));
+        supportedWhere.put(SKU_REFERENCE_ID_LITERAL, new SelectFieldStringEqualClause<>(SKU_REFERENCE_ID_LITERAL));
     }
 }

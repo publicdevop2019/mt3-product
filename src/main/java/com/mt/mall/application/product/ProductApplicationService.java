@@ -4,7 +4,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain.model.CommonDomainRegistry;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.query.QueryUtility;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
@@ -53,7 +53,7 @@ public class ProductApplicationService {
     }
 
     public SumPagedRep<Product> products(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.productRepository().productsOfQuery(new ProductQuery(queryParam), new DefaultPaging(pageParam), new QueryConfig(skipCount));
+        return DomainRegistry.productRepository().productsOfQuery(new ProductQuery(queryParam), new PageConfig(pageParam,400), new QueryConfig(skipCount));
     }
 
     public Optional<Product> product(String id) {
@@ -61,7 +61,7 @@ public class ProductApplicationService {
     }
 
     public SumPagedRep<Product> publicProducts(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.productRepository().publicProductsOfQuery(new ProductQuery(queryParam), new DefaultPaging(pageParam), new QueryConfig(skipCount));
+        return DomainRegistry.productRepository().publicProductsOfQuery(new ProductQuery(queryParam), new PageConfig(pageParam,200), new QueryConfig(skipCount));
     }
 
     public Optional<Product> publicProduct(String id) {

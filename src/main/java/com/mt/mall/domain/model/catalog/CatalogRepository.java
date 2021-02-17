@@ -1,21 +1,20 @@
 package com.mt.mall.domain.model.catalog;
 
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.sql.SumPagedRep;
-import com.mt.mall.application.catalog.CatalogQuery;
 
 import java.util.Optional;
 import java.util.Set;
 
 public interface CatalogRepository {
-    SumPagedRep<Catalog> catalogsOfQuery(CatalogQuery catalogQuery, DefaultPaging defaultPaging, QueryConfig queryConfig);
+    SumPagedRep<Catalog> catalogsOfQuery(CatalogQuery catalogQuery, PageConfig defaultPaging, QueryConfig queryConfig);
 
     Optional<Catalog> catalogOfId(CatalogId catalogId);
 
     void add(Catalog catalog);
 
-    SumPagedRep<Catalog> catalogsOfQuery(CatalogQuery queryParam, DefaultPaging queryPagingParam);
+    SumPagedRep<Catalog> catalogsOfQuery(CatalogQuery queryParam, PageConfig queryPagingParam);
 
     void remove(Set<Catalog> allClientsOfQuery);
 

@@ -4,7 +4,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain.model.CommonDomainRegistry;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.query.QueryUtility;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.mall.application.ApplicationServiceRegistry;
@@ -14,6 +14,7 @@ import com.mt.mall.application.catalog.command.UpdateCatalogCommand;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.catalog.Catalog;
 import com.mt.mall.domain.model.catalog.CatalogId;
+import com.mt.mall.domain.model.catalog.CatalogQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,11 +40,11 @@ public class CatalogApplicationService {
     }
 
     public SumPagedRep<Catalog> catalogs(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.catalogRepository().catalogsOfQuery(new CatalogQuery(queryParam), new DefaultPaging(pageParam), new QueryConfig(skipCount));
+        return DomainRegistry.catalogRepository().catalogsOfQuery(new CatalogQuery(queryParam), new PageConfig(pageParam,2000), new QueryConfig(skipCount));
     }
 
     public SumPagedRep<Catalog> publicCatalogs(String pageParam, String skipCount) {
-        return DomainRegistry.catalogRepository().catalogsOfQuery(CatalogQuery.publicQuery(), new DefaultPaging(pageParam, 1500), new QueryConfig(skipCount));
+        return DomainRegistry.catalogRepository().catalogsOfQuery(CatalogQuery.publicQuery(), new PageConfig(pageParam, 1500), new QueryConfig(skipCount));
     }
 
     public Optional<Catalog> catalog(String id) {

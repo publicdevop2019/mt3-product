@@ -1,23 +1,21 @@
 package com.mt.mall.domain.model.tag;
 
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.mall.application.tag.TagQuery;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.Set;
 
 public interface TagRepository{
-    SumPagedRep<Tag> tagsOfQuery(TagQuery queryParam, DefaultPaging queryPagingParam);
+    SumPagedRep<Tag> tagsOfQuery(TagQuery queryParam, PageConfig queryPagingParam);
 
     TagId nextIdentity();
 
     void add(Tag tag);
 
-    SumPagedRep<Tag> tagsOfQuery(TagQuery tagQuery, DefaultPaging defaultPaging, QueryConfig queryConfig);
+    SumPagedRep<Tag> tagsOfQuery(TagQuery tagQuery, PageConfig defaultPaging, QueryConfig queryConfig);
 
     Optional<Tag> tagOfId(TagId tagId);
 

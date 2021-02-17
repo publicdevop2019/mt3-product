@@ -1,7 +1,7 @@
 package com.mt.mall.port.adapter.persistence.filter;
 
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.mall.application.filter.FilterQuery;
@@ -54,25 +54,21 @@ public interface SpringDataJpaFilterRepository extends FilterRepository, JpaRepo
         softDeleteAll(filters.stream().map(Filter::getId).collect(Collectors.toSet()));
     }
 
-    default SumPagedRep<Filter> filtersOfQuery(FilterQuery clientQuery, DefaultPaging clientPaging, QueryConfig queryConfig) {
-        return getSumPagedRep(clientQuery.value(), clientPaging.value(), queryConfig.value());
+    default SumPagedRep<Filter> filtersOfQuery(FilterQuery clientQuery, PageConfig clientPaging, QueryConfig queryConfig) {
+        return getSumPagedRep(clientQuery.value(), clientPaging, queryConfig);
     }
 
-    default SumPagedRep<Filter> filtersOfQuery(FilterQuery clientQuery, DefaultPaging clientPaging) {
-        return getSumPagedRep(clientQuery.value(), clientPaging.value(), null);
+    default SumPagedRep<Filter> filtersOfQuery(FilterQuery clientQuery, PageConfig clientPaging) {
+        return getSumPagedRep(clientQuery.value(), clientPaging, new QueryConfig());
     }
 
-    private SumPagedRep<Filter> getSumPagedRep(String query, String page, String config) {
+    private SumPagedRep<Filter> getSumPagedRep(String query, PageConfig page, QueryConfig config) {
         SelectQueryBuilder<Filter> selectQueryBuilder = QueryBuilderRegistry.filterSelectQueryBuilder();
         List<Filter> select = selectQueryBuilder.select(query, page, Filter.class);
         Long aLong = null;
-        if (!skipCount(config)) {
-            aLong = selectQueryBuilder.selectCount(query, Filter.class);
+        if (!config.isSkipCount()) {
+            aLong = selectQueryBuilder.count(query, Filter.class);
         }
         return new SumPagedRep<>(select, aLong);
-    }
-
-    private boolean skipCount(String config) {
-        return config != null && config.contains("sc:1");
     }
 }

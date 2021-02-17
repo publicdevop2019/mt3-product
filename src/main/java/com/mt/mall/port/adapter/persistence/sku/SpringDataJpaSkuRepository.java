@@ -1,7 +1,7 @@
 package com.mt.mall.port.adapter.persistence.sku;
 
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
@@ -53,29 +53,25 @@ public interface SpringDataJpaSkuRepository extends SkuRepository, JpaRepository
         softDeleteAll(client.stream().map(Sku::getId).collect(Collectors.toSet()));
     }
 
-    default SumPagedRep<Sku> skusOfQuery(SkuQuery clientQuery, DefaultPaging clientPaging, QueryConfig queryConfig) {
-        return getSumPagedRep(clientQuery.value(), clientPaging.value(), queryConfig.value());
+    default SumPagedRep<Sku> skusOfQuery(SkuQuery clientQuery, PageConfig clientPaging, QueryConfig queryConfig) {
+        return getSumPagedRep(clientQuery.value(), clientPaging, queryConfig);
     }
 
     default void patchBatch(List<PatchCommand> commands) {
         QueryBuilderRegistry.skuUpdateQueryBuilder().update(commands, Sku.class);
     }
 
-    default SumPagedRep<Sku> skusOfQuery(SkuQuery clientQuery, DefaultPaging clientPaging) {
-        return getSumPagedRep(clientQuery.value(), clientPaging.value(), null);
+    default SumPagedRep<Sku> skusOfQuery(SkuQuery clientQuery, PageConfig clientPaging) {
+        return getSumPagedRep(clientQuery.value(), clientPaging, new QueryConfig());
     }
 
-    private SumPagedRep<Sku> getSumPagedRep(String query, String page, String config) {
+    private SumPagedRep<Sku> getSumPagedRep(String query, PageConfig page, QueryConfig config) {
         SelectQueryBuilder<Sku> selectQueryBuilder = QueryBuilderRegistry.skuSelectQueryBuilder();
         List<Sku> select = selectQueryBuilder.select(query, page, Sku.class);
         Long aLong = null;
-        if (!skipCount(config)) {
-            aLong = selectQueryBuilder.selectCount(query, Sku.class);
+        if (!config.isSkipCount()) {
+            aLong = selectQueryBuilder.count(query, Sku.class);
         }
         return new SumPagedRep<>(select, aLong);
-    }
-
-    private boolean skipCount(String config) {
-        return config != null && config.contains("sc:1");
     }
 }

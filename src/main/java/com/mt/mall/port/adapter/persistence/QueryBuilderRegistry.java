@@ -2,7 +2,7 @@ package com.mt.mall.port.adapter.persistence;
 
 import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.mall.domain.model.filter.Filter;
-import com.mt.mall.port.adapter.persistence.catalog.CatalogSelectQueryBuilder;
+import com.mt.mall.port.adapter.persistence.catalog.CatalogQueryBuilder;
 import com.mt.mall.port.adapter.persistence.filter.FilterSelectQueryBuilder;
 import com.mt.mall.port.adapter.persistence.product.ProductSelectQueryBuilder;
 import com.mt.mall.port.adapter.persistence.product.ProductUpdateQueryBuilder;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class QueryBuilderRegistry {
-    private static CatalogSelectQueryBuilder catalogSelectQueryBuilder;
+    private static CatalogQueryBuilder catalogSelectQueryBuilder;
     private static FilterSelectQueryBuilder filterSelectQueryBuilder;
     private static SkuSelectQueryBuilder skuSelectQueryBuilder;
     private static TagSelectQueryBuilder tagSelectQueryBuilder;
@@ -44,7 +44,7 @@ public class QueryBuilderRegistry {
         return productSelectQueryBuilder;
     }
 
-    public static CatalogSelectQueryBuilder catalogSelectQueryBuilder() {
+    public static CatalogQueryBuilder catalogSelectQueryBuilder() {
         return catalogSelectQueryBuilder;
     }
 
@@ -87,7 +87,7 @@ public class QueryBuilderRegistry {
     }
 
     @Autowired
-    public void setCatalogSelectQueryBuilder(CatalogSelectQueryBuilder catalogSelectQueryBuilder) {
+    public void setCatalogSelectQueryBuilder(CatalogQueryBuilder catalogSelectQueryBuilder) {
         QueryBuilderRegistry.catalogSelectQueryBuilder = catalogSelectQueryBuilder;
     }
 

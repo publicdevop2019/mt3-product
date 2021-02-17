@@ -1,7 +1,7 @@
 package com.mt.mall.port.adapter.persistence.tag;
 
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.mall.application.tag.TagQuery;
@@ -52,25 +52,21 @@ public interface SpringDataJpaTagRepository extends TagRepository, JpaRepository
         softDeleteAll(client.stream().map(Tag::getId).collect(Collectors.toSet()));
     }
 
-    default SumPagedRep<Tag> tagsOfQuery(TagQuery clientQuery, DefaultPaging clientPaging, QueryConfig queryConfig) {
-        return getSumPagedRep(clientQuery.value(), clientPaging.value(), queryConfig.value());
+    default SumPagedRep<Tag> tagsOfQuery(TagQuery clientQuery, PageConfig clientPaging, QueryConfig queryConfig) {
+        return getSumPagedRep(clientQuery.value(), clientPaging, queryConfig);
     }
 
-    default SumPagedRep<Tag> tagsOfQuery(TagQuery clientQuery, DefaultPaging clientPaging) {
-        return getSumPagedRep(clientQuery.value(), clientPaging.value(), null);
+    default SumPagedRep<Tag> tagsOfQuery(TagQuery clientQuery, PageConfig clientPaging) {
+        return getSumPagedRep(clientQuery.value(), clientPaging, new QueryConfig());
     }
 
-    private SumPagedRep<Tag> getSumPagedRep(String query, String page, String config) {
+    private SumPagedRep<Tag> getSumPagedRep(String query, PageConfig page, QueryConfig config) {
         SelectQueryBuilder<Tag> selectQueryBuilder = QueryBuilderRegistry.tagSelectQueryBuilder();
         List<Tag> select = selectQueryBuilder.select(query, page, Tag.class);
         Long aLong = null;
-        if (!skipCount(config)) {
-            aLong = selectQueryBuilder.selectCount(query, Tag.class);
+        if (config.isSkipCount()) {
+            aLong = selectQueryBuilder.count(query, Tag.class);
         }
         return new SumPagedRep<>(select, aLong);
-    }
-
-    private boolean skipCount(String config) {
-        return config != null && config.contains("sc:1");
     }
 }

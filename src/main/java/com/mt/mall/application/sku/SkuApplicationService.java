@@ -4,7 +4,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain.model.CommonDomainRegistry;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.query.QueryUtility;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
@@ -44,7 +44,7 @@ public class SkuApplicationService {
     }
 
     public SumPagedRep<Sku> skus(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.skuRepository().skusOfQuery(new SkuQuery(queryParam), new DefaultPaging(pageParam), new QueryConfig(skipCount));
+        return DomainRegistry.skuRepository().skusOfQuery(new SkuQuery(queryParam), new PageConfig(pageParam, 1000), new QueryConfig(skipCount));
     }
 
     public Optional<Sku> sku(String id) {

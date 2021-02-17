@@ -17,13 +17,10 @@ public class TagSelectQueryBuilder extends SelectQueryBuilder<Tag> {
     public transient static final String TYPE_LITERAL = "type";
 
     {
-        DEFAULT_PAGE_SIZE = 200;
-        MAX_PAGE_SIZE = 1000;
-        mappedSortBy.put(NAME_LITERAL, NAME_LITERAL);
-        mappedSortBy.put(TYPE_LITERAL, TYPE_LITERAL);
-        supportedWhereField.put(NAME_LITERAL, new SelectFieldStringLikeClause(NAME_LITERAL));
-        supportedWhereField.put(COMMON_ENTITY_ID, new DomainIdQueryClause<>(TAG_ID_LITERAL));
-        supportedWhereField.put(TYPE_LITERAL, new SelectFieldStringEqualClause(TYPE_LITERAL));
-        allowEmptyClause = true;
+        supportedSort.put(NAME_LITERAL, NAME_LITERAL);
+        supportedSort.put(TYPE_LITERAL, TYPE_LITERAL);
+        supportedWhere.put(COMMON_ENTITY_ID, new DomainIdQueryClause<>(TAG_ID_LITERAL));
+        supportedWhere.put(NAME_LITERAL, new SelectFieldStringLikeClause(NAME_LITERAL));
+        supportedWhere.put(TYPE_LITERAL, new SelectFieldStringEqualClause(TYPE_LITERAL));
     }
 }

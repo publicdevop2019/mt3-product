@@ -4,7 +4,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain.model.CommonDomainRegistry;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.query.QueryUtility;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.mall.application.ApplicationServiceRegistry;
@@ -41,7 +41,7 @@ public class TagApplicationService {
     }
 
     public SumPagedRep<Tag> tags(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.tagRepository().tagsOfQuery(new TagQuery(queryParam), new DefaultPaging(pageParam), new QueryConfig(skipCount));
+        return DomainRegistry.tagRepository().tagsOfQuery(new TagQuery(queryParam), new PageConfig(pageParam, 1000), new QueryConfig(skipCount));
     }
 
     public Optional<Tag> tag(String id) {

@@ -1,7 +1,7 @@
 package com.mt.mall.port.adapter.persistence.product;
 
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
@@ -44,7 +44,7 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
     default Optional<Product> publicProductOfId(ProductId productId) {
         String s = "id:" + productId.getDomainId();
         PublicProductSelectQueryBuilder publicProductSelectQueryBuilder = QueryBuilderRegistry.publicProductSelectQueryBuilder();
-        List<Product> select = publicProductSelectQueryBuilder.select(s, null, Product.class);
+        List<Product> select = publicProductSelectQueryBuilder.select(s, new PageConfig(), Product.class);
         if (select.isEmpty())
             return Optional.empty();
         return Optional.of(select.get(0));
@@ -66,19 +66,19 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
         softDeleteAll(products.stream().map(Product::getId).collect(Collectors.toSet()));
     }
 
-    default SumPagedRep<Product> productsOfQuery(ProductQuery clientQuery, DefaultPaging clientPaging, QueryConfig queryConfig) {
-        return getSumPagedRep(clientQuery.value(), clientPaging.value(), queryConfig.value(), false);
+    default SumPagedRep<Product> productsOfQuery(ProductQuery clientQuery, PageConfig clientPaging, QueryConfig queryConfig) {
+        return getSumPagedRep(clientQuery.value(), clientPaging, queryConfig, false);
     }
 
-    default SumPagedRep<Product> publicProductsOfQuery(ProductQuery clientQuery, DefaultPaging clientPaging, QueryConfig queryConfig) {
-        return getSumPagedRep(clientQuery.value(), clientPaging.value(), queryConfig.value(), true);
+    default SumPagedRep<Product> publicProductsOfQuery(ProductQuery clientQuery, PageConfig clientPaging, QueryConfig queryConfig) {
+        return getSumPagedRep(clientQuery.value(), clientPaging, queryConfig, true);
     }
 
-    default SumPagedRep<Product> productsOfQuery(ProductQuery clientQuery, DefaultPaging clientPaging) {
-        return getSumPagedRep(clientQuery.value(), clientPaging.value(), null, false);
+    default SumPagedRep<Product> productsOfQuery(ProductQuery clientQuery, PageConfig clientPaging) {
+        return getSumPagedRep(clientQuery.value(), clientPaging, new QueryConfig(), false);
     }
 
-    private SumPagedRep<Product> getSumPagedRep(String query, String page, String config, boolean isPublic) {
+    private SumPagedRep<Product> getSumPagedRep(String query, PageConfig page, QueryConfig config, boolean isPublic) {
         SelectQueryBuilder<Product> selectQueryBuilder;
         if (isPublic) {
             selectQueryBuilder = QueryBuilderRegistry.publicProductSelectQueryBuilder();
@@ -87,13 +87,9 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
         }
         List<Product> select = selectQueryBuilder.select(query, page, Product.class);
         Long aLong = null;
-        if (!skipCount(config)) {
-            aLong = selectQueryBuilder.selectCount(query, Product.class);
+        if (!config.isSkipCount()) {
+            aLong = selectQueryBuilder.count(query, Product.class);
         }
         return new SumPagedRep<>(select, aLong);
-    }
-
-    private boolean skipCount(String config) {
-        return config != null && config.contains("sc:1");
     }
 }

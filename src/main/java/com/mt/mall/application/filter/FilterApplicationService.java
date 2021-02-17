@@ -4,7 +4,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain.model.CommonDomainRegistry;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.query.QueryUtility;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.mall.application.ApplicationServiceRegistry;
@@ -40,11 +40,11 @@ public class FilterApplicationService {
     }
 
     public SumPagedRep<Filter> filters(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.filterRepository().filtersOfQuery(new FilterQuery(queryParam), new DefaultPaging(pageParam), new QueryConfig(skipCount));
+        return DomainRegistry.filterRepository().filtersOfQuery(new FilterQuery(queryParam), new PageConfig(pageParam, 400), new QueryConfig(skipCount));
     }
 
-    public SumPagedRep<Filter> publicFilters(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.filterRepository().filtersOfQuery(FilterQuery.publicQuery(), new DefaultPaging(pageParam), new QueryConfig(skipCount));
+    public SumPagedRep<Filter> publicFilters(String pageParam, String skipCount) {
+        return DomainRegistry.filterRepository().filtersOfQuery(FilterQuery.publicQuery(), new PageConfig(pageParam, 5), new QueryConfig(skipCount));
     }
 
     public Optional<Filter> filter(String id) {
