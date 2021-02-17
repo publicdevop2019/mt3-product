@@ -5,10 +5,11 @@ import com.mt.common.domain.model.CommonDomainRegistry;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.QueryUtility;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.mall.application.ApplicationServiceRegistry;
-import com.mt.mall.application.catalog.command.PatchCatalogCommand;
 import com.mt.mall.application.catalog.command.CreateCatalogCommand;
+import com.mt.mall.application.catalog.command.PatchCatalogCommand;
 import com.mt.mall.application.catalog.command.UpdateCatalogCommand;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.catalog.Catalog;
@@ -22,7 +23,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class CatalogApplicationService {
-
     @SubscribeForEvent
     @Transactional
     public String create(CreateCatalogCommand command, String operationId) {
@@ -81,7 +81,7 @@ public class CatalogApplicationService {
     @Transactional
     public Set<String> removeCatalogs(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(null, changeId, (change) -> {
-            Set<Catalog> allClientsOfQuery = DomainRegistry.catalogService().getCatalogsOfQuery(new CatalogQuery(queryParam));
+            Set<Catalog> allClientsOfQuery = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.catalogRepository().catalogsOfQuery(query, page), new CatalogQuery(queryParam));
             DomainRegistry.catalogRepository().remove(allClientsOfQuery);
             change.setRequestBody(allClientsOfQuery);
             change.setDeletedIds(allClientsOfQuery.stream().map(e -> e.getCatalogId().getDomainId()).collect(Collectors.toSet()));

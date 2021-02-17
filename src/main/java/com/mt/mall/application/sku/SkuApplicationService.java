@@ -5,6 +5,7 @@ import com.mt.common.domain.model.CommonDomainRegistry;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.QueryUtility;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.mall.application.ApplicationServiceRegistry;
@@ -85,7 +86,7 @@ public class SkuApplicationService {
     @Transactional
     public Set<String> removeByQuery(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(null, changeId, (change) -> {
-            Set<Sku> skus = DomainRegistry.skuService().getSkusOfQuery(new SkuQuery(queryParam));
+            Set<Sku> skus = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.skuRepository().skusOfQuery(query, page), new SkuQuery(queryParam));
             DomainRegistry.skuRepository().remove(skus);
             change.setRequestBody(skus);
             change.setDeletedIds(skus.stream().map(e -> e.getSkuId().getDomainId()).collect(Collectors.toSet()));

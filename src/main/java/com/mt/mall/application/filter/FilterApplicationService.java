@@ -5,6 +5,7 @@ import com.mt.common.domain.model.CommonDomainRegistry;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.QueryUtility;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.filter.command.CreateFilterCommand;
@@ -84,7 +85,7 @@ public class FilterApplicationService {
     @Transactional
     public Set<String> removeFilters(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(null, changeId, (change) -> {
-            Set<Filter> filters = DomainRegistry.filterService().getFiltersOfQuery(new FilterQuery(queryParam));
+            Set<Filter> filters = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.filterRepository().filtersOfQuery(query, page), new FilterQuery(queryParam));
             DomainRegistry.filterRepository().remove(filters);
             change.setRequestBody(filters);
             change.setDeletedIds(filters.stream().map(e -> e.getFilterId().getDomainId()).collect(Collectors.toSet()));

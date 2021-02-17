@@ -5,6 +5,7 @@ import com.mt.common.domain.model.CommonDomainRegistry;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.QueryUtility;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.mall.application.ApplicationServiceRegistry;
@@ -115,10 +116,9 @@ public class ProductApplicationService {
     @Transactional
     public Set<String> removeByQuery(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(null, changeId, (change) -> {
-            Set<Product> products = DomainRegistry.productService().getProductsOfQuery(new ProductQuery(queryParam));
+            Set<Product> products = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.productRepository().productsOfQuery(query, page), new ProductQuery(queryParam));
             DomainRegistry.productRepository().remove(products);
-            Set<Product> productsOfQuery = DomainRegistry.productService().getProductsOfQuery(new ProductQuery(queryParam));
-            Set<ProductId> collect = productsOfQuery.stream().map(Product::getProductId).collect(Collectors.toSet());
+            Set<ProductId> collect = products.stream().map(Product::getProductId).collect(Collectors.toSet());
             String join = SKU_REFERENCE_ID_LITERAL + ":" + collect.stream().map(Object::toString).collect(Collectors.joining(","));
             ApplicationServiceRegistry.skuApplicationService().removeByQuery(join, changeId);
             change.setRequestBody(products);

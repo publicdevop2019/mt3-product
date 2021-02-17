@@ -16,20 +16,6 @@ import java.util.Set;
 
 @Service
 public class TagService {
-    public Set<Tag> getTagsOfQuery(TagQuery queryParam) {
-        DefaultPaging queryPagingParam = new DefaultPaging();
-        SumPagedRep<Tag> tSumPagedRep = DomainRegistry.tagRepository().tagsOfQuery(queryParam, queryPagingParam);
-        if (tSumPagedRep.getData().size() == 0)
-            return new HashSet<>();
-        double l = (double) tSumPagedRep.getTotalItemCount() / tSumPagedRep.getData().size();//for accuracy
-        double ceil = Math.ceil(l);
-        int i = BigDecimal.valueOf(ceil).intValue();
-        Set<Tag> data = new HashSet<>(tSumPagedRep.getData());
-        for (int a = 1; a < i; a++) {
-            data.addAll(DomainRegistry.tagRepository().tagsOfQuery(queryParam, queryPagingParam.pageOf(a)).getData());
-        }
-        return data;
-    }
 
     public TagId create(TagId tagId, String name, String description, TagValueType method, Set<String> catalogs, Type type) {
         Tag tag = new Tag(tagId, name, description, method, catalogs, type);
