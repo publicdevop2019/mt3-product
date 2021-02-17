@@ -146,7 +146,8 @@ public class ProductApplicationService {
         }, Product.class);
     }
 
-
+    @SubscribeForEvent
+    @Transactional
     public void patchBatch(List<PatchCommand> commands, String changeId) {
         ApplicationServiceRegistry.idempotentWrapper().idempotent(commands, changeId, (ignored) -> {
             List<PatchCommand> skuChange = commands.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());

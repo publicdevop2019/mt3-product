@@ -364,7 +364,7 @@ public class Product extends Auditable {
             String id = split[1];
             String fieldName = split[split.length - 1];
             String attrSales = parseAttrSales(e);
-            Optional<Product> first = products.getData().stream().filter(ee -> ee.getId().toString().equals(id)).findFirst();
+            Optional<Product> first = products.getData().stream().filter(ee -> ee.getProductId().getDomainId().equals(id)).findFirst();
             if (first.isPresent()) {
                 String domainId = first.get().getAttrSalesMap().get(attrSales);
                 e.setPath("/" + domainId + "/" + fieldName);
