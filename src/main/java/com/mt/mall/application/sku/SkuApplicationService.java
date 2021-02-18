@@ -15,6 +15,7 @@ import com.mt.mall.application.sku.command.UpdateSkuCommand;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.sku.Sku;
 import com.mt.mall.domain.model.sku.SkuId;
+import com.mt.mall.domain.model.sku.SkuQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

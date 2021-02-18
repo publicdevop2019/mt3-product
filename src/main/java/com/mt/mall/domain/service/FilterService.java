@@ -1,7 +1,5 @@
 package com.mt.mall.domain.service;
 
-import com.mt.common.query.QueryUtility;
-import com.mt.mall.application.filter.FilterQuery;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.filter.Filter;
 import com.mt.mall.domain.model.filter.FilterId;

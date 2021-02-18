@@ -3,7 +3,6 @@ package com.mt.mall.domain.model.tag;
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.PageConfig;
 import com.mt.common.sql.SumPagedRep;
-import com.mt.mall.application.tag.TagQuery;
 
 import java.util.Optional;
 import java.util.Set;

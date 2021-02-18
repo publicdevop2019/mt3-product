@@ -15,6 +15,7 @@ import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.filter.Filter;
 import com.mt.mall.domain.model.filter.FilterId;
 import com.mt.mall.domain.model.filter.FilterItem;
+import com.mt.mall.domain.model.filter.FilterQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,11 +41,11 @@ public class FilterApplicationService {
     }
 
     public SumPagedRep<Filter> filters(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.filterRepository().filtersOfQuery(new FilterQuery(queryParam), new PageConfig(pageParam, 400), new QueryConfig(skipCount));
+        return DomainRegistry.filterRepository().filtersOfQuery(new FilterQuery(queryParam, false), new PageConfig(pageParam, 400), new QueryConfig(skipCount));
     }
 
-    public SumPagedRep<Filter> publicFilters(String pageParam, String skipCount) {
-        return DomainRegistry.filterRepository().filtersOfQuery(FilterQuery.publicQuery(), new PageConfig(pageParam, 5), new QueryConfig(skipCount));
+    public SumPagedRep<Filter> publicFilters(String queryParam, String pageParam, String skipCount) {
+        return DomainRegistry.filterRepository().filtersOfQuery(new FilterQuery(queryParam, true), new PageConfig(pageParam, 5), new QueryConfig(skipCount));
     }
 
     public Optional<Filter> filter(String id) {
@@ -85,7 +86,7 @@ public class FilterApplicationService {
     @Transactional
     public Set<String> removeFilters(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(null, changeId, (change) -> {
-            Set<Filter> filters = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.filterRepository().filtersOfQuery(query, page), new FilterQuery(queryParam));
+            Set<Filter> filters = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.filterRepository().filtersOfQuery(query, page), new FilterQuery(queryParam, false));
             DomainRegistry.filterRepository().remove(filters);
             change.setRequestBody(filters);
             change.setDeletedIds(filters.stream().map(e -> e.getFilterId().getDomainId()).collect(Collectors.toSet()));

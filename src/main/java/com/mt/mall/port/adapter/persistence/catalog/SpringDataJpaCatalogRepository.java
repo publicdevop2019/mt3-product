@@ -12,10 +12,8 @@ import com.mt.mall.port.adapter.persistence.QueryBuilderRegistry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.QueryHint;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -23,8 +21,6 @@ import java.util.stream.Collectors;
 
 @Repository
 public interface SpringDataJpaCatalogRepository extends CatalogRepository, JpaRepository<Catalog, Long> {
-    @QueryHints(@QueryHint(name = org.hibernate.annotations.QueryHints.CACHEABLE, value = "true"))
-    Optional<Catalog> findByCatalogIdAndDeletedFalse(CatalogId clientId);
 
     @Modifying
     @Query("update #{#entityName} e set e.deleted=true where e.id = ?1")
@@ -38,8 +34,16 @@ public interface SpringDataJpaCatalogRepository extends CatalogRepository, JpaRe
         return new CatalogId();
     }
 
-    default Optional<Catalog> catalogOfId(CatalogId clientId) {
-        return findByCatalogIdAndDeletedFalse(clientId);
+    default Optional<Catalog> catalogOfId(CatalogId catalogOfId) {
+        return getCatalogOfId(catalogOfId);
+    }
+
+    private Optional<Catalog> getCatalogOfId(CatalogId catalogId) {
+        SelectQueryBuilder<Catalog> catalogs = QueryBuilderRegistry.catalogSelectQueryBuilder();
+        List<Catalog> select = catalogs.select(new CatalogQuery(catalogId), new PageConfig(), Catalog.class);
+        if (select.isEmpty())
+            return Optional.empty();
+        return Optional.of(select.get(0));
     }
 
     default void add(Catalog client) {
@@ -54,15 +58,15 @@ public interface SpringDataJpaCatalogRepository extends CatalogRepository, JpaRe
         softDeleteAll(client.stream().map(Catalog::getId).collect(Collectors.toSet()));
     }
 
-    default SumPagedRep<Catalog> catalogsOfQuery(CatalogQuery clientQuery, PageConfig clientPaging, QueryConfig queryConfig) {
-        return getSumPagedRep(clientQuery.value(), clientPaging, queryConfig);
+    default SumPagedRep<Catalog> catalogsOfQuery(CatalogQuery query, PageConfig pageConfig, QueryConfig queryConfig) {
+        return getSumPagedRep(query, pageConfig, queryConfig);
     }
 
-    default SumPagedRep<Catalog> catalogsOfQuery(CatalogQuery clientQuery, PageConfig clientPaging) {
-        return getSumPagedRep(clientQuery.value(), clientPaging, new QueryConfig());
+    default SumPagedRep<Catalog> catalogsOfQuery(CatalogQuery query, PageConfig pageConfig) {
+        return getSumPagedRep(query, pageConfig, new QueryConfig());
     }
 
-    private SumPagedRep<Catalog> getSumPagedRep(String query, PageConfig page, QueryConfig config) {
+    private SumPagedRep<Catalog> getSumPagedRep(CatalogQuery query, PageConfig page, QueryConfig config) {
         SelectQueryBuilder<Catalog> selectQueryBuilder = QueryBuilderRegistry.catalogSelectQueryBuilder();
         List<Catalog> select = selectQueryBuilder.select(query, page, Catalog.class);
         Long aLong = null;

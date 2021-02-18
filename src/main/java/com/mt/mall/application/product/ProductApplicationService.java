@@ -15,6 +15,7 @@ import com.mt.mall.application.product.command.UpdateProductCommand;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.product.Product;
 import com.mt.mall.domain.model.product.ProductId;
+import com.mt.mall.domain.model.product.ProductQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +54,7 @@ public class ProductApplicationService {
     }
 
     public SumPagedRep<Product> products(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.productRepository().productsOfQuery(new ProductQuery(queryParam), new PageConfig(pageParam,400), new QueryConfig(skipCount));
+        return DomainRegistry.productRepository().productsOfQuery(new ProductQuery(queryParam, false), new PageConfig(pageParam, 400), new QueryConfig(skipCount));
     }
 
     public Optional<Product> product(String id) {
@@ -61,7 +62,7 @@ public class ProductApplicationService {
     }
 
     public SumPagedRep<Product> publicProducts(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.productRepository().publicProductsOfQuery(new ProductQuery(queryParam), new PageConfig(pageParam,200), new QueryConfig(skipCount));
+        return DomainRegistry.productRepository().productsOfQuery(new ProductQuery(queryParam, true), new PageConfig(pageParam, 200), new QueryConfig(skipCount));
     }
 
     public Optional<Product> publicProduct(String id) {
@@ -116,7 +117,7 @@ public class ProductApplicationService {
     @Transactional
     public Set<String> removeByQuery(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(null, changeId, (change) -> {
-            Set<Product> products = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.productRepository().productsOfQuery(query, page), new ProductQuery(queryParam));
+            Set<Product> products = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.productRepository().productsOfQuery(query, page), new ProductQuery(queryParam, false));
             DomainRegistry.productRepository().remove(products);
             Set<ProductId> collect = products.stream().map(Product::getProductId).collect(Collectors.toSet());
             String join = SKU_REFERENCE_ID_LITERAL + ":" + collect.stream().map(Object::toString).collect(Collectors.joining(","));

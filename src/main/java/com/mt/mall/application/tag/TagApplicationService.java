@@ -14,6 +14,7 @@ import com.mt.mall.application.tag.command.UpdateTagCommand;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.tag.Tag;
 import com.mt.mall.domain.model.tag.TagId;
+import com.mt.mall.domain.model.tag.TagQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

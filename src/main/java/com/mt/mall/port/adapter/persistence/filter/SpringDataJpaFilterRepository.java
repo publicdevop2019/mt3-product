@@ -4,18 +4,16 @@ import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.PageConfig;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
-import com.mt.mall.application.filter.FilterQuery;
 import com.mt.mall.domain.model.filter.Filter;
 import com.mt.mall.domain.model.filter.FilterId;
+import com.mt.mall.domain.model.filter.FilterQuery;
 import com.mt.mall.domain.model.filter.FilterRepository;
 import com.mt.mall.port.adapter.persistence.QueryBuilderRegistry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.QueryHint;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -23,8 +21,6 @@ import java.util.stream.Collectors;
 
 @Repository
 public interface SpringDataJpaFilterRepository extends FilterRepository, JpaRepository<Filter, Long> {
-    @QueryHints(@QueryHint(name = org.hibernate.annotations.QueryHints.CACHEABLE, value = "true"))
-    Optional<Filter> findByFilterIdAndDeletedFalse(FilterId filterId);
 
     @Modifying
     @Query("update #{#entityName} e set e.deleted=true where e.id = ?1")
@@ -39,7 +35,15 @@ public interface SpringDataJpaFilterRepository extends FilterRepository, JpaRepo
     }
 
     default Optional<Filter> filterOfId(FilterId filterId) {
-        return findByFilterIdAndDeletedFalse(filterId);
+        return getFilterOfId(filterId);
+    }
+
+    private Optional<Filter> getFilterOfId(FilterId filterId) {
+        SelectQueryBuilder<Filter> filterSelectQueryBuilder = QueryBuilderRegistry.filterSelectQueryBuilder();
+        List<Filter> select = filterSelectQueryBuilder.select(new FilterQuery(filterId), new PageConfig(), Filter.class);
+        if (select.isEmpty())
+            return Optional.empty();
+        return Optional.of(select.get(0));
     }
 
     default void add(Filter client) {
@@ -54,15 +58,15 @@ public interface SpringDataJpaFilterRepository extends FilterRepository, JpaRepo
         softDeleteAll(filters.stream().map(Filter::getId).collect(Collectors.toSet()));
     }
 
-    default SumPagedRep<Filter> filtersOfQuery(FilterQuery clientQuery, PageConfig clientPaging, QueryConfig queryConfig) {
-        return getSumPagedRep(clientQuery.value(), clientPaging, queryConfig);
+    default SumPagedRep<Filter> filtersOfQuery(FilterQuery query, PageConfig clientPaging, QueryConfig queryConfig) {
+        return getSumPagedRep(query, clientPaging, queryConfig);
     }
 
-    default SumPagedRep<Filter> filtersOfQuery(FilterQuery clientQuery, PageConfig clientPaging) {
-        return getSumPagedRep(clientQuery.value(), clientPaging, new QueryConfig());
+    default SumPagedRep<Filter> filtersOfQuery(FilterQuery query, PageConfig clientPaging) {
+        return getSumPagedRep(query, clientPaging, new QueryConfig());
     }
 
-    private SumPagedRep<Filter> getSumPagedRep(String query, PageConfig page, QueryConfig config) {
+    private SumPagedRep<Filter> getSumPagedRep(FilterQuery query, PageConfig page, QueryConfig config) {
         SelectQueryBuilder<Filter> selectQueryBuilder = QueryBuilderRegistry.filterSelectQueryBuilder();
         List<Filter> select = selectQueryBuilder.select(query, page, Filter.class);
         Long aLong = null;

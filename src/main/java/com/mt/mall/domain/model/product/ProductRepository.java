@@ -4,7 +4,6 @@ import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.PageConfig;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
-import com.mt.mall.application.product.ProductQuery;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,8 +17,6 @@ public interface ProductRepository {
     ProductId nextIdentity();
 
     SumPagedRep<Product> productsOfQuery(ProductQuery productQuery, PageConfig defaultPaging, QueryConfig queryConfig);
-
-    SumPagedRep<Product> publicProductsOfQuery(ProductQuery productQuery, PageConfig defaultPaging, QueryConfig queryConfig);
 
     Optional<Product> productOfId(ProductId productId);
 

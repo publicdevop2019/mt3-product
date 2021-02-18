@@ -30,9 +30,10 @@ public class FilterResource {
 
     @GetMapping("public")
     public ResponseEntity<?> readForPublicByQuery(
+            @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
-        SumPagedRep<Filter> filterSumPagedRep = filterApplicationService().publicFilters(pageParam, skipCount);
+        SumPagedRep<Filter> filterSumPagedRep = filterApplicationService().publicFilters(queryParam,pageParam, skipCount);
         List<Filter> data = filterSumPagedRep.getData();
         List<PublicFilterCardRepresentation> collect = null;
         if (data.size() != 0) {

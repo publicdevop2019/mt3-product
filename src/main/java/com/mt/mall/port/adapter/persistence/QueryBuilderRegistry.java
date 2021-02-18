@@ -6,7 +6,6 @@ import com.mt.mall.port.adapter.persistence.catalog.CatalogQueryBuilder;
 import com.mt.mall.port.adapter.persistence.filter.FilterSelectQueryBuilder;
 import com.mt.mall.port.adapter.persistence.product.ProductSelectQueryBuilder;
 import com.mt.mall.port.adapter.persistence.product.ProductUpdateQueryBuilder;
-import com.mt.mall.port.adapter.persistence.product.PublicProductSelectQueryBuilder;
 import com.mt.mall.port.adapter.persistence.sku.SkuSelectQueryBuilder;
 import com.mt.mall.port.adapter.persistence.sku.SkuUpdateQueryBuilder;
 import com.mt.mall.port.adapter.persistence.tag.TagSelectQueryBuilder;
@@ -21,7 +20,6 @@ public class QueryBuilderRegistry {
     private static TagSelectQueryBuilder tagSelectQueryBuilder;
     private static ProductSelectQueryBuilder productSelectQueryBuilder;
     private static ProductUpdateQueryBuilder productUpdateQueryBuilder;
-    private static PublicProductSelectQueryBuilder publicProductSelectQueryBuilder;
     private static SkuUpdateQueryBuilder skuUpdateQueryBuilder;
 
     public static TagSelectQueryBuilder tagSelectQueryBuilder() {
@@ -30,10 +28,6 @@ public class QueryBuilderRegistry {
 
     public static SkuUpdateQueryBuilder skuUpdateQueryBuilder() {
         return skuUpdateQueryBuilder;
-    }
-
-    public static PublicProductSelectQueryBuilder publicProductSelectQueryBuilder() {
-        return publicProductSelectQueryBuilder;
     }
 
     public static ProductUpdateQueryBuilder productUpdateQueryBuilder() {
@@ -64,11 +58,6 @@ public class QueryBuilderRegistry {
     @Autowired
     public void setProductUpdateQueryBuilder(ProductUpdateQueryBuilder productUpdateQueryBuilder) {
         QueryBuilderRegistry.productUpdateQueryBuilder = productUpdateQueryBuilder;
-    }
-
-    @Autowired
-    public void setPublicProductSelectQueryBuilder(PublicProductSelectQueryBuilder publicProductSelectQueryBuilder) {
-        QueryBuilderRegistry.publicProductSelectQueryBuilder = publicProductSelectQueryBuilder;
     }
 
     @Autowired

@@ -4,7 +4,6 @@ import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.PageConfig;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
-import com.mt.mall.application.sku.SkuQuery;
 
 import java.util.List;
 import java.util.Optional;

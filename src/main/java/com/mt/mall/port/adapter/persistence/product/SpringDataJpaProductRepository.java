@@ -5,25 +5,21 @@ import com.mt.common.query.PageConfig;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
-import com.mt.mall.application.product.ProductQuery;
 import com.mt.mall.domain.model.product.Product;
 import com.mt.mall.domain.model.product.ProductId;
+import com.mt.mall.domain.model.product.ProductQuery;
 import com.mt.mall.domain.model.product.ProductRepository;
 import com.mt.mall.port.adapter.persistence.QueryBuilderRegistry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryHints;
 
-import javax.persistence.QueryHint;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface SpringDataJpaProductRepository extends ProductRepository, JpaRepository<Product, Long> {
-    @QueryHints(@QueryHint(name = org.hibernate.annotations.QueryHints.CACHEABLE, value = "true"))
-    Optional<Product> findByProductIdAndDeletedFalse(ProductId productId);
 
     @Modifying
     @Query("update #{#entityName} e set e.deleted=true where e.id = ?1")
@@ -38,13 +34,16 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
     }
 
     default Optional<Product> productOfId(ProductId productId) {
-        return findByProductIdAndDeletedFalse(productId);
+        return getProductOfId(productId, false);
     }
 
     default Optional<Product> publicProductOfId(ProductId productId) {
-        String s = "id:" + productId.getDomainId();
-        PublicProductSelectQueryBuilder publicProductSelectQueryBuilder = QueryBuilderRegistry.publicProductSelectQueryBuilder();
-        List<Product> select = publicProductSelectQueryBuilder.select(s, new PageConfig(), Product.class);
+        return getProductOfId(productId, true);
+    }
+
+    private Optional<Product> getProductOfId(ProductId productId, boolean isPublic) {
+        ProductSelectQueryBuilder publicProductSelectQueryBuilder = QueryBuilderRegistry.productSelectQueryBuilder();
+        List<Product> select = publicProductSelectQueryBuilder.select(new ProductQuery(productId, isPublic), new PageConfig(), Product.class);
         if (select.isEmpty())
             return Optional.empty();
         return Optional.of(select.get(0));
@@ -66,25 +65,16 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
         softDeleteAll(products.stream().map(Product::getId).collect(Collectors.toSet()));
     }
 
-    default SumPagedRep<Product> productsOfQuery(ProductQuery clientQuery, PageConfig clientPaging, QueryConfig queryConfig) {
-        return getSumPagedRep(clientQuery.value(), clientPaging, queryConfig, false);
+    default SumPagedRep<Product> productsOfQuery(ProductQuery query, PageConfig clientPaging, QueryConfig queryConfig) {
+        return getSumPagedRep(query, clientPaging, queryConfig);
     }
 
-    default SumPagedRep<Product> publicProductsOfQuery(ProductQuery clientQuery, PageConfig clientPaging, QueryConfig queryConfig) {
-        return getSumPagedRep(clientQuery.value(), clientPaging, queryConfig, true);
+    default SumPagedRep<Product> productsOfQuery(ProductQuery query, PageConfig clientPaging) {
+        return getSumPagedRep(query, clientPaging, new QueryConfig());
     }
 
-    default SumPagedRep<Product> productsOfQuery(ProductQuery clientQuery, PageConfig clientPaging) {
-        return getSumPagedRep(clientQuery.value(), clientPaging, new QueryConfig(), false);
-    }
-
-    private SumPagedRep<Product> getSumPagedRep(String query, PageConfig page, QueryConfig config, boolean isPublic) {
-        SelectQueryBuilder<Product> selectQueryBuilder;
-        if (isPublic) {
-            selectQueryBuilder = QueryBuilderRegistry.publicProductSelectQueryBuilder();
-        } else {
-            selectQueryBuilder = QueryBuilderRegistry.productSelectQueryBuilder();
-        }
+    private SumPagedRep<Product> getSumPagedRep(ProductQuery query, PageConfig page, QueryConfig config) {
+        SelectQueryBuilder<Product> selectQueryBuilder = QueryBuilderRegistry.productSelectQueryBuilder();
         List<Product> select = selectQueryBuilder.select(query, page, Product.class);
         Long aLong = null;
         if (!config.isSkipCount()) {
