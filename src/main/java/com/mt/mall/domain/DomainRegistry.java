@@ -23,6 +23,11 @@ public class DomainRegistry {
     private static ProductRepository productRepository;
     private static ProductService productService;
     private static ProductTagRepository productTagRepository;
+    private static TagValidationService tagValidationService;
+
+    public static TagValidationService tagValidationService() {
+        return tagValidationService;
+    }
 
     public static ProductRepository productRepository() {
         return productRepository;
@@ -68,6 +73,11 @@ public class DomainRegistry {
     @Autowired
     private void setProductRepository(ProductRepository productRepository) {
         DomainRegistry.productRepository = productRepository;
+    }
+
+    @Autowired
+    private void setTagValidationService(TagValidationService tagValidationService) {
+        DomainRegistry.tagValidationService = tagValidationService;
     }
 
     @Autowired

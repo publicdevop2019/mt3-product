@@ -3,12 +3,17 @@ package com.mt.mall.domain.model.catalog;
 import com.mt.common.audit.Auditable;
 import com.mt.common.domain.model.CommonDomainRegistry;
 import com.mt.common.persistence.StringSetConverter;
+import com.mt.common.validate.HttpValidationNotificationHandler;
+import com.mt.common.validate.ValidationNotificationHandler;
+import com.mt.common.validate.Validator;
+import com.mt.mall.domain.DomainRegistry;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Entity
@@ -21,7 +26,6 @@ public class Catalog extends Auditable {
     private Long id;
 
     @Column(nullable = false)
-    @Setter(AccessLevel.PRIVATE)
     private String name;
 
     @Embedded
@@ -40,7 +44,6 @@ public class Catalog extends Auditable {
 
 
     @Convert(converter = StringSetConverter.class)
-    @Setter(AccessLevel.PRIVATE)
     private Set<String> attributes;
 
     @Convert(converter = Type.DBConverter.class)
@@ -58,14 +61,35 @@ public class Catalog extends Auditable {
         setParentId(parentId);
         setAttributes(attributes);
         setType(catalogType);
+        HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();
+        validate(handler);
+        DomainRegistry.tagValidationService().validate(attributes, handler);
     }
 
     public void replace(String name, CatalogId parentId, Set<String> attributes, Type catalogType) {
-        this.setName(name);
-        this.setParentId(parentId);
-        this.setAttributes(attributes);
-        this.setType(catalogType);
+        setName(name);
+        setParentId(parentId);
+        setAttributes(attributes);
+        setType(catalogType);
+        HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();
+        validate(handler);
+        DomainRegistry.tagValidationService().validate(attributes, handler);
     }
 
+    @Override
+    public void validate(@NotNull ValidationNotificationHandler handler) {
+        (new CatalogValidator(this, handler)).validate();
+    }
 
+    public void setAttributes(Set<String> attributes) {
+        Validator.notEmpty(attributes);
+        this.attributes = attributes;
+    }
+
+    public void setName(String name) {
+        Validator.whitelistOnly(name);
+        Validator.lengthLessThanOrEqualTo(name, 50);
+        Validator.notBlank(name);
+        this.name = name;
+    }
 }
