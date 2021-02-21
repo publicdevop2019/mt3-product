@@ -3,6 +3,7 @@ package com.mt.mall.domain.model.sku;
 import com.mt.common.audit.Auditable;
 import com.mt.common.domain.model.CommonDomainRegistry;
 import com.mt.common.rest.exception.AggregateOutdatedException;
+import com.mt.common.validate.Validator;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,24 +37,19 @@ public class Sku extends Auditable {
     })
     private SkuId skuId;
 
-    @Setter(AccessLevel.PRIVATE)
     private String description;
     @NotNull
     @Column(updatable = false)
-    @Setter(AccessLevel.PRIVATE)
     private Integer storageOrder;
 
     @NotNull
     @Column(updatable = false)
-    @Setter(AccessLevel.PRIVATE)
     private Integer storageActual;
 
     @NotNull
-    @Setter(AccessLevel.PRIVATE)
     private BigDecimal price;
 
     @Column(updatable = false)
-    @Setter(AccessLevel.PRIVATE)
     private Integer sales;
     @Version
     @Setter(AccessLevel.NONE)
@@ -70,8 +66,8 @@ public class Sku extends Auditable {
         setSales(sales);
     }
 
-    public void replace(BigDecimal price, String description,Integer version) {
-        if(!getVersion().equals(version)){
+    public void replace(BigDecimal price, String description, Integer version) {
+        if (!getVersion().equals(version)) {
             throw new AggregateOutdatedException();
         }
         setPrice(price);
@@ -80,5 +76,32 @@ public class Sku extends Auditable {
 
     public void replace(BigDecimal price) {
         setPrice(price);
+    }
+
+    public void setDescription(String description) {
+        Validator.whitelistOnly(description);
+        Validator.lengthLessThanOrEqualTo(description, 50);
+        Validator.notBlank(description);
+        this.description = description;
+    }
+
+    public void setStorageOrder(Integer storageOrder) {
+        Validator.greaterThanOrEqualTo(storageOrder, 0);
+        this.storageOrder = storageOrder;
+    }
+
+    public void setStorageActual(Integer storageActual) {
+        Validator.greaterThanOrEqualTo(storageActual, 0);
+        this.storageActual = storageActual;
+    }
+
+    public void setPrice(BigDecimal price) {
+        Validator.greaterThan(price, BigDecimal.ZERO);
+        this.price = price;
+    }
+
+    public void setSales(Integer sales) {
+        Validator.greaterThanOrEqualTo(sales, 0);
+        this.sales = sales;
     }
 }

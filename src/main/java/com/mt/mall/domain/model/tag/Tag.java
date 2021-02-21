@@ -3,6 +3,8 @@ package com.mt.mall.domain.model.tag;
 import com.mt.common.audit.Auditable;
 import com.mt.common.domain.model.CommonDomainRegistry;
 import com.mt.common.persistence.StringSetConverter;
+import com.mt.common.validate.HttpValidationNotificationHandler;
+import com.mt.common.validate.Validator;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,10 +22,8 @@ public class Tag extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     private Long id;
 
-    @Setter(AccessLevel.PRIVATE)
     private String name;
 
-    @Setter(AccessLevel.PRIVATE)
     private String description;
 
     @Convert(converter = TagValueType.DBConverter.class)
@@ -31,7 +31,6 @@ public class Tag extends Auditable {
     private TagValueType method;
 
     @Convert(converter = StringSetConverter.class)
-    @Setter(AccessLevel.PRIVATE)
     private Set<String> selectValues;
 
     @Convert(converter = Type.DBConverter.class)
@@ -49,6 +48,25 @@ public class Tag extends Auditable {
     @Setter(AccessLevel.NONE)
     private Integer version;
 
+    private void setName(String name) {
+        Validator.whitelistOnly(name);
+        Validator.lengthLessThanOrEqualTo(name, 50);
+        Validator.notBlank(name);
+        this.name = name;
+    }
+
+    private void setDescription(String description) {
+        Validator.whitelistOnly(description);
+        Validator.lengthLessThanOrEqualTo(description, 50);
+        Validator.notBlank(description);
+        this.description = description;
+    }
+
+    private void setSelectValues(Set<String> selectValues) {
+        Validator.notEmpty(selectValues);
+        this.selectValues = selectValues;
+    }
+
     public Tag(TagId tagId, String name, String description, TagValueType valueType, Set<String> selectValues, Type type) {
         setId(CommonDomainRegistry.uniqueIdGeneratorService().id());
         setTagId(tagId);
@@ -57,6 +75,7 @@ public class Tag extends Auditable {
         setType(type);
         setMethod(valueType);
         setSelectValues(selectValues);
+        new TagValidator(this, new HttpValidationNotificationHandler()).validate();
     }
 
     public void replace(String name, String description, TagValueType valueType, Set<String> selectValues, Type type) {
@@ -65,6 +84,7 @@ public class Tag extends Auditable {
         setMethod(valueType);
         setSelectValues(selectValues);
         setType(type);
+        new TagValidator(this, new HttpValidationNotificationHandler()).validate();
     }
 
 }

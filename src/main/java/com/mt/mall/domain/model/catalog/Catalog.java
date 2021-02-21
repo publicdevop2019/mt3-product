@@ -81,12 +81,12 @@ public class Catalog extends Auditable {
         (new CatalogValidator(this, handler)).validate();
     }
 
-    public void setAttributes(Set<String> attributes) {
+    private void setAttributes(Set<String> attributes) {
         Validator.notEmpty(attributes);
         this.attributes = attributes;
     }
 
-    public void setName(String name) {
+    private void setName(String name) {
         Validator.whitelistOnly(name);
         Validator.lengthLessThanOrEqualTo(name, 50);
         Validator.notBlank(name);

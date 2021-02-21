@@ -42,20 +42,20 @@ public class Filter extends Auditable {
     private Integer version;
 
 
-    public void setCatalogs(Set<String> catalogs) {
+    private void setCatalogs(Set<String> catalogs) {
         Validator.notEmpty(catalogs);
         DomainRegistry.getFilterValidationService().validateCatalogs(catalogs, new HttpValidationNotificationHandler());
         this.catalogs = catalogs;
     }
 
-    public void setDescription(String description) {
+    private void setDescription(String description) {
         Validator.whitelistOnly(description);
         Validator.notBlank(description);
         Validator.lengthLessThanOrEqualTo(description, 50);
         this.description = description;
     }
 
-    public void setFilterItems(Set<FilterItem> filterItems) {
+    private void setFilterItems(Set<FilterItem> filterItems) {
         Validator.notEmpty(filterItems);
         DomainRegistry.getFilterValidationService().validateTags(filterItems, new HttpValidationNotificationHandler());
         this.filterItems = filterItems;
