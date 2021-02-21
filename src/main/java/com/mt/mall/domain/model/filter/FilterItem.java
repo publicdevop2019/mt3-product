@@ -1,23 +1,36 @@
 package com.mt.mall.domain.model.filter;
 
 import com.mt.common.domain.model.CommonDomainRegistry;
-import lombok.Data;
+import com.mt.common.validate.Validator;
+import lombok.*;
 
 import javax.persistence.AttributeConverter;
 import java.io.Serializable;
 import java.util.Set;
 
-@Data
+@Getter
+@NoArgsConstructor
 public class FilterItem implements Serializable {
     private static final long serialVersionUID = 1;
-    private String id;
+    @Setter(AccessLevel.PRIVATE)
+    private String tagId;
     private String name;
-    private Set<String> selectValues;
+    private Set<String> values;
 
     public FilterItem(String id, String name, Set<String> selectValues) {
-        setId(id);
+        setTagId(id);
         setName(name);
-        setSelectValues(selectValues);
+        setValues(selectValues);
+    }
+
+    public void setName(String name) {
+        Validator.whitelistOnly(name);
+        this.name = name;
+    }
+
+    public void setValues(Set<String> values) {
+        Validator.notEmpty(values);
+        this.values = values;
     }
 
     public static class FilterItemConverter implements AttributeConverter<Set<FilterItem>, byte[]> {

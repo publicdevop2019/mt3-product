@@ -1,6 +1,9 @@
 package com.mt.mall.domain.model.catalog;
 
+import com.mt.common.CommonConstant;
 import com.mt.common.query.QueryCriteria;
+
+import java.util.Set;
 
 import static com.mt.mall.port.adapter.persistence.catalog.CatalogQueryBuilder.TYPE_LITERAL;
 
@@ -14,7 +17,11 @@ public class CatalogQuery extends QueryCriteria {
         super(catalogId);
     }
 
+    public CatalogQuery(Set<String> catalogs) {
+        super(CommonConstant.COMMON_ENTITY_ID + CommonConstant.QUERY_DELIMITER + String.join(CommonConstant.QUERY_OR_DELIMITER, catalogs));
+    }
+
     public static CatalogQuery publicQuery() {
-        return new CatalogQuery(TYPE_LITERAL + ":" + Type.FRONTEND.name());
+        return new CatalogQuery(TYPE_LITERAL + CommonConstant.QUERY_DELIMITER + Type.FRONTEND.name());
     }
 }

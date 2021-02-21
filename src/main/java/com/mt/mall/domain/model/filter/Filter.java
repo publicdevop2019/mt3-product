@@ -3,6 +3,9 @@ package com.mt.mall.domain.model.filter;
 import com.mt.common.audit.Auditable;
 import com.mt.common.domain.model.CommonDomainRegistry;
 import com.mt.common.persistence.StringSetConverter;
+import com.mt.common.validate.HttpValidationNotificationHandler;
+import com.mt.common.validate.Validator;
+import com.mt.mall.domain.DomainRegistry;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +23,6 @@ public class Filter extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     private Long id;
     @Convert(converter = StringSetConverter.class)
-    @Setter(AccessLevel.PRIVATE)
     private Set<String> catalogs;
 
     @Embedded
@@ -30,16 +32,34 @@ public class Filter extends Auditable {
     })
     private FilterId filterId;
 
-    @Setter(AccessLevel.PRIVATE)
     private String description;
 
-    @Setter(AccessLevel.PRIVATE)
     @Convert(converter = FilterItem.FilterItemConverter.class)
     private Set<FilterItem> filterItems;
 
     @Version
     @Setter(AccessLevel.NONE)
     private Integer version;
+
+
+    public void setCatalogs(Set<String> catalogs) {
+        Validator.notEmpty(catalogs);
+        DomainRegistry.getFilterValidationService().validateCatalogs(catalogs, new HttpValidationNotificationHandler());
+        this.catalogs = catalogs;
+    }
+
+    public void setDescription(String description) {
+        Validator.whitelistOnly(description);
+        Validator.notBlank(description);
+        Validator.lengthLessThanOrEqualTo(description, 50);
+        this.description = description;
+    }
+
+    public void setFilterItems(Set<FilterItem> filterItems) {
+        Validator.notEmpty(filterItems);
+        DomainRegistry.getFilterValidationService().validateTags(filterItems, new HttpValidationNotificationHandler());
+        this.filterItems = filterItems;
+    }
 
     public void replace(Set<String> catalogs, Set<FilterItem> filterItems, String description) {
         setCatalogs(catalogs);

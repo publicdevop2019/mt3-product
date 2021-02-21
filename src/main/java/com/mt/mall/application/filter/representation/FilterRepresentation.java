@@ -31,9 +31,9 @@ public class FilterRepresentation {
         private Set<String> values;
 
         public FilterItemRepresentation(FilterItem e) {
-            setId(e.getId());
+            setId(e.getTagId());
             setName(e.getName());
-            setValues(e.getSelectValues());
+            setValues(e.getValues());
         }
     }
 }

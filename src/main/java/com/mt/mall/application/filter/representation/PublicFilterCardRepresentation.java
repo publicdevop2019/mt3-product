@@ -12,8 +12,8 @@ public class PublicFilterCardRepresentation {
     private Set<String> values;
 
     public PublicFilterCardRepresentation(FilterItem e) {
-        setId(e.getId());
+        setId(e.getTagId());
         setName(e.getName());
-        setValues(e.getSelectValues());
+        setValues(e.getValues());
     }
 }

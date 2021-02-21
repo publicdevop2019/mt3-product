@@ -7,6 +7,7 @@ import com.mt.mall.domain.model.product.ProductTagRepository;
 import com.mt.mall.domain.model.sku.SkuRepository;
 import com.mt.mall.domain.model.tag.TagRepository;
 import com.mt.mall.domain.service.*;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,11 +24,10 @@ public class DomainRegistry {
     private static ProductRepository productRepository;
     private static ProductService productService;
     private static ProductTagRepository productTagRepository;
-    private static TagValidationService tagValidationService;
-
-    public static TagValidationService tagValidationService() {
-        return tagValidationService;
-    }
+    @Getter
+    private static CatalogValidationService catalogValidationService;
+    @Getter
+    private static FilterValidationService filterValidationService;
 
     public static ProductRepository productRepository() {
         return productRepository;
@@ -71,13 +71,18 @@ public class DomainRegistry {
 
 
     @Autowired
+    private void setCatalogValidationService(FilterValidationService catalogValidationService) {
+        DomainRegistry.filterValidationService = catalogValidationService;
+    }
+
+    @Autowired
     private void setProductRepository(ProductRepository productRepository) {
         DomainRegistry.productRepository = productRepository;
     }
 
     @Autowired
-    private void setTagValidationService(TagValidationService tagValidationService) {
-        DomainRegistry.tagValidationService = tagValidationService;
+    private void setTagValidationService(CatalogValidationService tagValidationService) {
+        DomainRegistry.catalogValidationService = tagValidationService;
     }
 
     @Autowired

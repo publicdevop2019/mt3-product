@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-public class TagValidationService {
+public class CatalogValidationService {
     public void validate(Set<String> tags, ValidationNotificationHandler handler) {
         Map<String, String> stringStringHashMap = new HashMap<>();
         tags.forEach(e -> {

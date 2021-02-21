@@ -25,9 +25,6 @@ import static com.mt.common.CommonConstant.*;
 @RestController
 @RequestMapping(produces = "application/json", path = "filters")
 public class FilterResource {
-    @Autowired
-    BizValidator validator;
-
     @GetMapping("public")
     public ResponseEntity<?> readForPublicByQuery(
             @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
@@ -60,14 +57,12 @@ public class FilterResource {
 
     @PostMapping("admin")
     public ResponseEntity<?> createForAdmin(@RequestBody CreateFilterCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        validator.validate("adminCreateFilterCommand", command);
         return ResponseEntity.ok().header("Location", filterApplicationService().create(command, changeId)).build();
     }
 
 
     @PutMapping("admin/{id}")
     public ResponseEntity<?> replaceForAdmin(@PathVariable(name = "id") String id, @RequestBody UpdateFilterCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        validator.validate("adminUpdateFilterCommand", command);
         filterApplicationService().replace(id, command, changeId);
         return ResponseEntity.ok().build();
     }

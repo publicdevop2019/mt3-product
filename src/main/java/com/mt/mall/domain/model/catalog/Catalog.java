@@ -63,7 +63,7 @@ public class Catalog extends Auditable {
         setType(catalogType);
         HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();
         validate(handler);
-        DomainRegistry.tagValidationService().validate(attributes, handler);
+        DomainRegistry.getCatalogValidationService().validate(attributes, handler);
     }
 
     public void replace(String name, CatalogId parentId, Set<String> attributes, Type catalogType) {
@@ -73,7 +73,7 @@ public class Catalog extends Auditable {
         setType(catalogType);
         HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();
         validate(handler);
-        DomainRegistry.tagValidationService().validate(attributes, handler);
+        DomainRegistry.getCatalogValidationService().validate(attributes, handler);
     }
 
     @Override
