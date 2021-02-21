@@ -2,6 +2,7 @@ package com.mt.mall.port.adapter.persistence.catalog;
 
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.PageConfig;
+import com.mt.common.query.QueryUtility;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.mall.domain.model.catalog.Catalog;
@@ -59,20 +60,11 @@ public interface SpringDataJpaCatalogRepository extends CatalogRepository, JpaRe
     }
 
     default SumPagedRep<Catalog> catalogsOfQuery(CatalogQuery query, PageConfig pageConfig, QueryConfig queryConfig) {
-        return getSumPagedRep(query, pageConfig, queryConfig);
+        return QueryUtility.pagedQuery(QueryBuilderRegistry.catalogSelectQueryBuilder(), query, pageConfig, queryConfig, Catalog.class);
     }
 
     default SumPagedRep<Catalog> catalogsOfQuery(CatalogQuery query, PageConfig pageConfig) {
-        return getSumPagedRep(query, pageConfig, new QueryConfig());
+        return QueryUtility.pagedQuery(QueryBuilderRegistry.catalogSelectQueryBuilder(), query, pageConfig, new QueryConfig(), Catalog.class);
     }
 
-    private SumPagedRep<Catalog> getSumPagedRep(CatalogQuery query, PageConfig page, QueryConfig config) {
-        SelectQueryBuilder<Catalog> selectQueryBuilder = QueryBuilderRegistry.catalogSelectQueryBuilder();
-        List<Catalog> select = selectQueryBuilder.select(query, page, Catalog.class);
-        Long aLong = null;
-        if (!config.isSkipCount()) {
-            aLong = selectQueryBuilder.count(query, Catalog.class);
-        }
-        return new SumPagedRep<>(select, aLong);
-    }
 }

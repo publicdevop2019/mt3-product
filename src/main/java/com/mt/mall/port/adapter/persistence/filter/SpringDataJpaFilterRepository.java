@@ -2,8 +2,10 @@ package com.mt.mall.port.adapter.persistence.filter;
 
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.PageConfig;
+import com.mt.common.query.QueryUtility;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
+import com.mt.mall.domain.model.catalog.Catalog;
 import com.mt.mall.domain.model.filter.Filter;
 import com.mt.mall.domain.model.filter.FilterId;
 import com.mt.mall.domain.model.filter.FilterQuery;
@@ -59,20 +61,11 @@ public interface SpringDataJpaFilterRepository extends FilterRepository, JpaRepo
     }
 
     default SumPagedRep<Filter> filtersOfQuery(FilterQuery query, PageConfig clientPaging, QueryConfig queryConfig) {
-        return getSumPagedRep(query, clientPaging, queryConfig);
+        return QueryUtility.pagedQuery(QueryBuilderRegistry.filterSelectQueryBuilder(), query, clientPaging, queryConfig, Filter.class);
     }
 
     default SumPagedRep<Filter> filtersOfQuery(FilterQuery query, PageConfig clientPaging) {
-        return getSumPagedRep(query, clientPaging, new QueryConfig());
+        return QueryUtility.pagedQuery(QueryBuilderRegistry.filterSelectQueryBuilder(), query, clientPaging, new QueryConfig(), Filter.class);
     }
 
-    private SumPagedRep<Filter> getSumPagedRep(FilterQuery query, PageConfig page, QueryConfig config) {
-        SelectQueryBuilder<Filter> selectQueryBuilder = QueryBuilderRegistry.filterSelectQueryBuilder();
-        List<Filter> select = selectQueryBuilder.select(query, page, Filter.class);
-        Long aLong = null;
-        if (!config.isSkipCount()) {
-            aLong = selectQueryBuilder.count(query, Filter.class);
-        }
-        return new SumPagedRep<>(select, aLong);
-    }
 }

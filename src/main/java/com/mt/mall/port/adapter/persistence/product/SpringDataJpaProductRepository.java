@@ -2,6 +2,7 @@ package com.mt.mall.port.adapter.persistence.product;
 
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.PageConfig;
+import com.mt.common.query.QueryUtility;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
@@ -66,20 +67,10 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
     }
 
     default SumPagedRep<Product> productsOfQuery(ProductQuery query, PageConfig clientPaging, QueryConfig queryConfig) {
-        return getSumPagedRep(query, clientPaging, queryConfig);
+        return QueryUtility.pagedQuery(QueryBuilderRegistry.productSelectQueryBuilder(), query, clientPaging, queryConfig, Product.class);
     }
 
     default SumPagedRep<Product> productsOfQuery(ProductQuery query, PageConfig clientPaging) {
-        return getSumPagedRep(query, clientPaging, new QueryConfig());
-    }
-
-    private SumPagedRep<Product> getSumPagedRep(ProductQuery query, PageConfig page, QueryConfig config) {
-        SelectQueryBuilder<Product> selectQueryBuilder = QueryBuilderRegistry.productSelectQueryBuilder();
-        List<Product> select = selectQueryBuilder.select(query, page, Product.class);
-        Long aLong = null;
-        if (!config.isSkipCount()) {
-            aLong = selectQueryBuilder.count(query, Product.class);
-        }
-        return new SumPagedRep<>(select, aLong);
+        return QueryUtility.pagedQuery(QueryBuilderRegistry.productSelectQueryBuilder(), query, clientPaging, new QueryConfig(), Product.class);
     }
 }

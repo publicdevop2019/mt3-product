@@ -17,8 +17,8 @@ public class CatalogQuery extends QueryCriteria {
         super(catalogId);
     }
 
-    public CatalogQuery(Set<String> catalogs) {
-        super(CommonConstant.COMMON_ENTITY_ID + CommonConstant.QUERY_DELIMITER + String.join(CommonConstant.QUERY_OR_DELIMITER, catalogs));
+    public CatalogQuery(Set<String> domainIds) {
+        super(domainIds);
     }
 
     public static CatalogQuery publicQuery() {

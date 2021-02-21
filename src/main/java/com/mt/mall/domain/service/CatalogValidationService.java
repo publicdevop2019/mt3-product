@@ -21,8 +21,7 @@ public class CatalogValidationService {
             String[] split = e.split(":");
             stringStringHashMap.put(split[0], split[1]);
         });
-        String queryParam = String.join(".", stringStringHashMap.keySet());
-        Set<Tag> tagSet = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.tagRepository().tagsOfQuery(query, page), new TagQuery(queryParam));
+        Set<Tag> tagSet = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.tagRepository().tagsOfQuery(query, page), new TagQuery(stringStringHashMap.keySet()));
         stringStringHashMap.forEach((k, v) -> {
             Optional<Tag> first = tagSet.stream().filter(e -> e.getTagId().getDomainId().equals(k)).findFirst();
             if (first.isEmpty()) {

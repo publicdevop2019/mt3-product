@@ -2,6 +2,7 @@ package com.mt.mall.port.adapter.persistence.tag;
 
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.PageConfig;
+import com.mt.common.query.QueryUtility;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.mall.domain.model.tag.Tag;
@@ -57,20 +58,10 @@ public interface SpringDataJpaTagRepository extends TagRepository, JpaRepository
     }
 
     default SumPagedRep<Tag> tagsOfQuery(TagQuery query, PageConfig pageConfig, QueryConfig queryConfig) {
-        return getSumPagedRep(query, pageConfig, queryConfig);
+        return QueryUtility.pagedQuery(QueryBuilderRegistry.tagSelectQueryBuilder(), query, pageConfig, queryConfig, Tag.class);
     }
 
     default SumPagedRep<Tag> tagsOfQuery(TagQuery query, PageConfig pageConfig) {
-        return getSumPagedRep(query, pageConfig, new QueryConfig());
-    }
-
-    private SumPagedRep<Tag> getSumPagedRep(TagQuery query, PageConfig page, QueryConfig config) {
-        SelectQueryBuilder<Tag> selectQueryBuilder = QueryBuilderRegistry.tagSelectQueryBuilder();
-        List<Tag> select = selectQueryBuilder.select(query, page, Tag.class);
-        Long aLong = null;
-        if (config.isSkipCount()) {
-            aLong = selectQueryBuilder.count(query, Tag.class);
-        }
-        return new SumPagedRep<>(select, aLong);
+        return QueryUtility.pagedQuery(QueryBuilderRegistry.tagSelectQueryBuilder(), query, pageConfig, new QueryConfig(), Tag.class);
     }
 }

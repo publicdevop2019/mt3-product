@@ -29,7 +29,6 @@ public class Catalog extends Auditable {
     private String name;
 
     @Embedded
-    @Setter(AccessLevel.PRIVATE)
     @AttributeOverrides({
             @AttributeOverride(name = "domainId", column = @Column(name = "parentId"))
     })
@@ -53,6 +52,11 @@ public class Catalog extends Auditable {
     @Version
     @Setter(AccessLevel.NONE)
     private Integer version;
+
+    private void setParentId(CatalogId parentId) {
+        if (parentId.getDomainId() != null)
+            this.parentId = parentId;
+    }
 
     public Catalog(CatalogId catalogId, String name, CatalogId parentId, Set<String> attributes, Type catalogType) {
         setId(CommonDomainRegistry.uniqueIdGeneratorService().id());

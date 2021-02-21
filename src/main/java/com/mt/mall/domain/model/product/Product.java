@@ -116,7 +116,8 @@ public class Product extends Auditable {
     }
 
     private void setSelectedOptions(List<ProductOptionCommand> selectedOptions) {
-        this.selectedOptions = selectedOptions.stream().map(ProductOption::new).collect(Collectors.toList());
+        if(selectedOptions!=null)
+            this.selectedOptions = selectedOptions.stream().map(ProductOption::new).collect(Collectors.toList());
     }
 
     private void setStartAt(Long startAt) {

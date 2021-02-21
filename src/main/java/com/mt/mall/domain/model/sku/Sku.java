@@ -81,7 +81,6 @@ public class Sku extends Auditable {
     public void setDescription(String description) {
         Validator.whitelistOnly(description);
         Validator.lengthLessThanOrEqualTo(description, 50);
-        Validator.notBlank(description);
         this.description = description;
     }
 
