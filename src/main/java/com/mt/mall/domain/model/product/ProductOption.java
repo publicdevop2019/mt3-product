@@ -1,7 +1,9 @@
 package com.mt.mall.domain.model.product;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import com.mt.common.validate.Validator;
+import com.mt.mall.application.product.command.ProductOptionCommand;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.AttributeConverter;
 import java.util.ArrayList;
@@ -9,16 +11,53 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Data
+@Getter
+@NoArgsConstructor
 public class ProductOption {
     public String title;
     public List<OptionItem> options;
 
-    @Data
-    @AllArgsConstructor
+    private void setTitle(String title) {
+        Validator.notBlank(title);
+        Validator.lengthLessThanOrEqualTo(title, 25);
+        this.title = title;
+    }
+
+    private void setOptions(List<OptionItem> options) {
+        Validator.notEmpty(options);
+        this.options = options;
+    }
+
+    public ProductOption(ProductOptionCommand e) {
+        setTitle(e.getTitle());
+        setOptions(e.getOptions().stream().map(OptionItem::new).collect(Collectors.toList()));
+    }
+
+    @Getter
+    @NoArgsConstructor
     public static class OptionItem {
         public String optionValue;
         public String priceVar;
+
+        private void setOptionValue(String optionValue) {
+            Validator.notBlank(optionValue);
+            this.optionValue = optionValue;
+        }
+
+        private void setPriceVar(String priceVar) {
+            Validator.notBlank(priceVar);
+            this.priceVar = priceVar;
+        }
+
+        public OptionItem(ProductOptionCommand.OptionItemCommand ee) {
+            setOptionValue(ee.getOptionValue());
+            setPriceVar(ee.getPriceVar());
+        }
+
+        private OptionItem(String optionValue, String priceVar) {
+            setOptionValue(optionValue);
+            setPriceVar(priceVar);
+        }
     }
 
     public static class ProductOptionConverter implements AttributeConverter<List<ProductOption>, String> {

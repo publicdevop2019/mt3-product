@@ -8,8 +8,12 @@ import com.mt.common.rest.exception.AggregateOutdatedException;
 import com.mt.common.rest.exception.NoUpdatableFieldException;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
+import com.mt.common.validate.HttpValidationNotificationHandler;
+import com.mt.common.validate.Validator;
 import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.product.command.CreateProductCommand;
+import com.mt.mall.application.product.command.ProductOptionCommand;
+import com.mt.mall.application.product.command.ProductSalesImageCommand;
 import com.mt.mall.application.product.command.UpdateProductCommand;
 import com.mt.mall.application.product.exception.NoLowestPriceFoundException;
 import com.mt.mall.application.product.exception.SkuAlreadyExistException;
@@ -24,6 +28,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.Nullable;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.*;
@@ -53,24 +58,17 @@ public class Product extends Auditable {
     @Id
     @Setter(AccessLevel.PRIVATE)
     private Long id;
-    @Setter(AccessLevel.PRIVATE)
     private String imageUrlSmall;
-    @Setter(AccessLevel.PRIVATE)
     private String name;
-    @Setter(AccessLevel.PRIVATE)
     private String description;
-    @Setter(AccessLevel.PRIVATE)
     private Long endAt;
-    @Setter(AccessLevel.PRIVATE)
     private Long startAt;
 
     @Column(length = 10000)
     @Convert(converter = ProductOption.ProductOptionConverter.class)
-    @Setter(AccessLevel.PRIVATE)
     private List<ProductOption> selectedOptions;
 
     @Convert(converter = StringSetConverter.class)
-    @Setter(AccessLevel.PRIVATE)
     private Set<String> imageUrlLarge;
     @Embedded
     @Setter(AccessLevel.PRIVATE)
@@ -88,17 +86,6 @@ public class Product extends Auditable {
     @Setter(AccessLevel.NONE)
     private Integer version;
 
-    public void addTag(ProductTag tag) {
-        tags.add(tag);
-        tag.getProducts().add(this);
-    }
-
-    public void removeTag(ProductTag tag) {
-        tags.remove(tag);
-        tag.getProducts().remove(this);
-    }
-
-
     @ManyToMany(cascade = {
             CascadeType.PERSIST,
             CascadeType.MERGE
@@ -109,12 +96,72 @@ public class Product extends Auditable {
     )
     private Set<ProductTag> tags = new HashSet<>();
 
-    @Setter(AccessLevel.PRIVATE)
     private BigDecimal lowestPrice;
 
-    @Column(updatable = false)
-    @Setter(AccessLevel.PRIVATE)
+    @Column
     private Integer totalSales;
+
+    public void setLowestPrice(BigDecimal lowestPrice) {
+        Validator.greaterThanOrEqualTo(lowestPrice, BigDecimal.ZERO);
+        this.lowestPrice = lowestPrice;
+    }
+
+    public void setTotalSales(Integer totalSales) {
+        Validator.greaterThanOrEqualTo(totalSales, 0);
+        this.totalSales = totalSales;
+    }
+
+    private void setEndAt(Long endAt) {
+        this.endAt = endAt;
+    }
+
+    private void setSelectedOptions(List<ProductOptionCommand> selectedOptions) {
+        this.selectedOptions = selectedOptions.stream().map(ProductOption::new).collect(Collectors.toList());
+    }
+
+    private void setStartAt(Long startAt) {
+        this.startAt = startAt;
+    }
+
+    private void setImageUrlSmall(String imageUrlSmall) {
+        Validator.isHttpUrl(imageUrlSmall);
+        this.imageUrlSmall = imageUrlSmall;
+    }
+
+    private void setDescription(String description) {
+        Validator.lengthLessThanOrEqualTo(description, 50);
+        Validator.whitelistOnly(description);
+        this.description = description;
+    }
+
+    private void setName(String name) {
+        Validator.notBlank(name);
+        Validator.lengthLessThanOrEqualTo(name, 75);
+        Validator.whitelistOnly(name);
+        this.name = name;
+    }
+
+    private void setImageUrlLarge(@Nullable Set<String> imageUrlLarge) {
+        if (imageUrlLarge != null)
+            imageUrlLarge.forEach(Validator::isHttpUrl);
+        this.imageUrlLarge = imageUrlLarge;
+    }
+
+    private void setAttributeSaleImages(ArrayList<ProductAttrSaleImages> attributeSaleImages) {
+        DomainRegistry.getProductValidationService().validate(attributeSaleImages, new HttpValidationNotificationHandler());
+        Validator.notEmpty(attributeSaleImages);
+        this.attributeSaleImages = attributeSaleImages;
+    }
+
+    private void addTag(ProductTag tag) {
+        tags.add(tag);
+        tag.getProducts().add(this);
+    }
+
+    private void removeTag(ProductTag tag) {
+        tags.remove(tag);
+        tag.getProducts().remove(this);
+    }
 
     public void replace(String name,
                         String imageUrlSmall,
@@ -122,12 +169,12 @@ public class Product extends Auditable {
                         String description,
                         Long startAt,
                         Long endAt,
-                        List<ProductOption> selectedOptions,
+                        List<ProductOptionCommand> selectedOptions,
                         Set<String> attributesKey,
                         Set<String> attributesProd,
                         Set<String> attributesGen,
                         List<UpdateProductCommand.UpdateProductAdminSkuCommand> skus,
-                        List<UpdateProductCommand.UpdateProductAttrImageAdminCommand> attributeSaleImages,
+                        List<ProductSalesImageCommand> attributeSaleImages,
                         String changeId,
                         Integer version
     ) {
@@ -147,13 +194,13 @@ public class Product extends Auditable {
             e.setAttributesSales(new TreeSet<>(e.getAttributesSales()));
         });
         adjustSku(skus, changeId);
-        setAttributeSaleImages2(attributeSaleImages);
+        updateAttributeSaleImages(attributeSaleImages);
         this.lowestPrice = findLowestPrice2(skus);
         Set<String> sales = skus.stream().map(UpdateProductCommand.UpdateProductAdminSkuCommand::getAttributesSales)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
-        if(!getTags().equals(getProductTags(sales,attributesKey,attributesGen,attributesProd))){
-            this.tags=new HashSet<>();
+        if (!getTags().equals(getProductTags(sales, attributesKey, attributesGen, attributesProd))) {
+            this.tags = new HashSet<>();
             sales.forEach(getStringConsumer(TagType.SALES));
             if (attributesProd != null)
                 attributesProd.forEach(getStringConsumer(TagType.PROD));
@@ -167,8 +214,8 @@ public class Product extends Auditable {
 
     private Set<ProductTag> getProductTags(Set<String> sales, Set<String> attributesKey, Set<String> attributesGen, Set<String> attributesProd) {
         Set<ProductTag> productTags = new HashSet<>();
-        if(sales!=null){
-            sales.forEach(e->{
+        if (sales != null) {
+            sales.forEach(e -> {
                 Optional<ProductTag> byValue = DomainRegistry.productTagRepository().findByValueAndType(e, TagType.SALES);
                 if (byValue.isPresent()) {
                     productTags.add(byValue.get());
@@ -178,8 +225,8 @@ public class Product extends Auditable {
                 }
             });
         }
-        if(attributesKey!=null){
-            attributesKey.forEach(e->{
+        if (attributesKey != null) {
+            attributesKey.forEach(e -> {
                 Optional<ProductTag> byValue = DomainRegistry.productTagRepository().findByValueAndType(e, TagType.KEY);
                 if (byValue.isPresent()) {
                     productTags.add(byValue.get());
@@ -189,8 +236,8 @@ public class Product extends Auditable {
                 }
             });
         }
-        if(attributesGen!=null){
-            attributesGen.forEach(e->{
+        if (attributesGen != null) {
+            attributesGen.forEach(e -> {
                 Optional<ProductTag> byValue = DomainRegistry.productTagRepository().findByValueAndType(e, TagType.GEN);
                 if (byValue.isPresent()) {
                     productTags.add(byValue.get());
@@ -200,8 +247,8 @@ public class Product extends Auditable {
                 }
             });
         }
-        if(attributesProd!=null){
-            attributesProd.forEach(e->{
+        if (attributesProd != null) {
+            attributesProd.forEach(e -> {
                 Optional<ProductTag> byValue = DomainRegistry.productTagRepository().findByValueAndType(e, TagType.PROD);
                 if (byValue.isPresent()) {
                     productTags.add(byValue.get());
@@ -214,16 +261,13 @@ public class Product extends Auditable {
         return productTags;
     }
 
-    private void setAttributeSaleImages2(List<UpdateProductCommand.UpdateProductAttrImageAdminCommand> attributeSaleImages) {
-        if (attributeSaleImages != null)
-            this.attributeSaleImages = attributeSaleImages.stream().map(e ->
-                    {
-                        ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
-                        productAttrSaleImages.setAttributeSales(e.getAttributeSales());
-                        productAttrSaleImages.setImageUrls((LinkedHashSet<String>) e.getImageUrls());
-                        return productAttrSaleImages;
-                    }
+    private void updateAttributeSaleImages(List<ProductSalesImageCommand> attributeSaleImages) {
+        if (attributeSaleImages != null) {
+            ArrayList<ProductAttrSaleImages> collect = attributeSaleImages.stream().map(e ->
+                    new ProductAttrSaleImages(e.getAttributeSales(), (LinkedHashSet<String>) e.getImageUrls())
             ).collect(Collectors.toCollection(ArrayList::new));
+            setAttributeSaleImages(collect);
+        }
     }
 
     private Consumer<String> getStringConsumer(TagType key) {
@@ -340,12 +384,12 @@ public class Product extends Auditable {
                    String description,
                    Long startAt,
                    Long endAt,
-                   List<ProductOption> selectedOptions,
+                   List<ProductOptionCommand> selectedOptions,
                    Set<String> attributesKey,
                    Set<String> attributesProd,
                    Set<String> attributesGen,
                    List<CreateProductCommand.CreateProductSkuAdminCommand> skus,
-                   List<CreateProductCommand.CreateProductAttrImageAdminCommand> attributeSaleImages
+                   List<ProductSalesImageCommand> attributeSaleImages
     ) {
         setId(CommonDomainRegistry.uniqueIdGeneratorService().id());
         setImageUrlSmall(imageUrlSmall);
@@ -378,25 +422,22 @@ public class Product extends Auditable {
             command1.setStorageOrder(skuAdminCommand.getStorageOrder());
             command1.setStorageActual(skuAdminCommand.getStorageActual());
             command1.setSales(skuAdminCommand.getSales());
-            String domainId = ApplicationServiceRegistry.skuApplicationService().create(command1, UUID.randomUUID().toString());
+            String skuId = ApplicationServiceRegistry.skuApplicationService().create(command1, UUID.randomUUID().toString());
             if (attrSalesMap == null)
                 attrSalesMap = new HashMap<>();
-            attrSalesMap.put(String.join(",", skuAdminCommand.getAttributesSales()), domainId);
+            attrSalesMap.put(String.join(",", skuAdminCommand.getAttributesSales()), skuId);
         }
         setAttributeSaleImages(attributeSaleImages);
         setLowestPrice(findLowestPrice(skus));
         setTotalSales(calcTotalSales(skus));
     }
 
-    public void setAttributeSaleImages(List<CreateProductCommand.CreateProductAttrImageAdminCommand> attributeSaleImages) {
-        if (attributeSaleImages != null)
-            this.attributeSaleImages = attributeSaleImages.stream().map(e -> {
-                        ProductAttrSaleImages productAttrSaleImages = new ProductAttrSaleImages();
-                        productAttrSaleImages.setAttributeSales(e.getAttributeSales());
-                        productAttrSaleImages.setImageUrls((LinkedHashSet<String>) e.getImageUrls());
-                        return productAttrSaleImages;
-                    }
+    public void setAttributeSaleImages(List<ProductSalesImageCommand> attributeSaleImages) {
+        if (attributeSaleImages != null) {
+            ArrayList<ProductAttrSaleImages> collect = attributeSaleImages.stream().map(e -> new ProductAttrSaleImages(e.getAttributeSales(), (LinkedHashSet<String>) e.getImageUrls())
             ).collect(Collectors.toCollection(ArrayList::new));
+            setAttributeSaleImages(collect);
+        }
     }
 
     private Integer calcTotalSales(List<CreateProductCommand.CreateProductSkuAdminCommand> skus) {

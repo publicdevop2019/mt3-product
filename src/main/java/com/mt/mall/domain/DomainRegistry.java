@@ -28,6 +28,8 @@ public class DomainRegistry {
     private static CatalogValidationService catalogValidationService;
     @Getter
     private static FilterValidationService filterValidationService;
+    @Getter
+    private static ProductValidationService productValidationService;
 
     public static ProductRepository productRepository() {
         return productRepository;
@@ -73,6 +75,11 @@ public class DomainRegistry {
     @Autowired
     private void setCatalogValidationService(FilterValidationService catalogValidationService) {
         DomainRegistry.filterValidationService = catalogValidationService;
+    }
+
+    @Autowired
+    private void setProductValidationService(ProductValidationService productValidationService) {
+        DomainRegistry.productValidationService = productValidationService;
     }
 
     @Autowired

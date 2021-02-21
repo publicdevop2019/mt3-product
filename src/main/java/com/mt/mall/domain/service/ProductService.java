@@ -1,6 +1,8 @@
 package com.mt.mall.domain.service;
 
 import com.mt.mall.application.product.command.CreateProductCommand;
+import com.mt.mall.application.product.command.ProductOptionCommand;
+import com.mt.mall.application.product.command.ProductSalesImageCommand;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.product.Product;
 import com.mt.mall.domain.model.product.ProductId;
@@ -20,12 +22,12 @@ public class ProductService {
                             String description,
                             Long startAt,
                             Long endAt,
-                            List<ProductOption> selectedOptions,
+                            List<ProductOptionCommand> selectedOptions,
                             Set<String> attributesKey,
                             Set<String> attributesProd,
                             Set<String> attributesGen,
                             List<CreateProductCommand.CreateProductSkuAdminCommand> skus,
-                            List<CreateProductCommand.CreateProductAttrImageAdminCommand> attributeSaleImages
+                            List<ProductSalesImageCommand> attributeSaleImages
                             ) {
         Product product = new Product(productId, name, imageUrlSmall, imageUrlLarge,
                 description, startAt, endAt, selectedOptions, attributesKey, attributesProd, attributesGen, skus, attributeSaleImages);

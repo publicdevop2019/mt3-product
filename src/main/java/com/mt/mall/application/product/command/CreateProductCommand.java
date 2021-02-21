@@ -1,7 +1,6 @@
 package com.mt.mall.application.product.command;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mt.mall.domain.model.product.ProductOption;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -20,7 +19,7 @@ public class CreateProductCommand implements Serializable {
     private String description;
     private Long startAt;
     private Long endAt;
-    private List<ProductOption> selectedOptions;
+    private List<ProductOptionCommand> selectedOptions;
     @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
     private Set<String> specification;
     @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
@@ -30,7 +29,7 @@ public class CreateProductCommand implements Serializable {
     @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
     private Set<String> attributesGen;
     private List<CreateProductSkuAdminCommand> skus;
-    private List<CreateProductAttrImageAdminCommand> attributeSaleImages;
+    private List<ProductSalesImageCommand> attributeSaleImages;
 
     private BigDecimal lowestPrice;
     private Integer totalSales;
@@ -45,11 +44,4 @@ public class CreateProductCommand implements Serializable {
         private Integer sales;
     }
 
-    @Data
-    public static class CreateProductAttrImageAdminCommand implements Serializable{
-        private static final long serialVersionUID = 1;
-        private String attributeSales;
-        @JsonDeserialize(as= LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
-        private Set<String> imageUrls;
-    }
 }

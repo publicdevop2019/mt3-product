@@ -21,8 +21,6 @@ import static com.mt.common.CommonConstant.*;
 @RestController
 @RequestMapping(produces = "application/json", path = "attributes")
 public class TagResource {
-    @Autowired
-    BizValidator validator;
 
     @GetMapping("admin")
     public ResponseEntity<?> readForAdminByQuery(
@@ -42,14 +40,12 @@ public class TagResource {
 
     @PostMapping("admin")
     public ResponseEntity<?> createForAdmin(@RequestBody CreateTagCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        validator.validate("adminCreateTagCommand", command);
         return ResponseEntity.ok().header("Location", tagApplicationService().create(command, changeId)).build();
     }
 
 
     @PutMapping("admin/{id}")
     public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") String id, @RequestBody UpdateTagCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        validator.validate("adminUpdateTagCommand", command);
         tagApplicationService().replace(id, command, changeId);
         return ResponseEntity.ok().build();
     }

@@ -3,7 +3,6 @@ package com.mt.mall.resource;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
-import com.mt.common.validate.BizValidator;
 import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.product.ProductApplicationService;
 import com.mt.mall.application.product.command.CreateProductCommand;
@@ -11,7 +10,6 @@ import com.mt.mall.application.product.command.UpdateProductCommand;
 import com.mt.mall.application.product.representation.*;
 import com.mt.mall.domain.model.product.Product;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,9 +22,6 @@ import static com.mt.common.CommonConstant.*;
 @RestController
 @RequestMapping(produces = "application/json", path = "products")
 public class ProductResource {
-
-    @Autowired
-    BizValidator validator;
 
     @GetMapping("public")
     public ResponseEntity<?> readForPublicByQuery(
@@ -62,14 +57,12 @@ public class ProductResource {
 
     @PostMapping("admin")
     public ResponseEntity<?> createForAdmin(@RequestBody CreateProductCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        validator.validate("adminCreateProductCommand", command);
         return ResponseEntity.ok().header("Location", productApplicationService().create(command, changeId)).build();
     }
 
 
     @PutMapping("admin/{id}")
     public ResponseEntity<?> replaceForAdminById(@PathVariable(name = "id") String id, @RequestBody UpdateProductCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        validator.validate("adminUpdateProductCommand", command);
         command.setChangeId(changeId);
         productApplicationService().replace(id, command, changeId);
         return ResponseEntity.ok().build();

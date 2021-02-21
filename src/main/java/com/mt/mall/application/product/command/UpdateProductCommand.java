@@ -2,7 +2,6 @@ package com.mt.mall.application.product.command;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mt.common.rest.AggregateUpdateCommand;
-import com.mt.mall.domain.model.product.ProductOption;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -22,7 +21,7 @@ public class UpdateProductCommand implements Serializable, AggregateUpdateComman
     private String description;
     private Long endAt;
     private Long startAt;
-    private List<ProductOption> selectedOptions;
+    private List<ProductOptionCommand> selectedOptions;
     @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
     private Set<String> specification;
     @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
@@ -32,7 +31,7 @@ public class UpdateProductCommand implements Serializable, AggregateUpdateComman
     @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
     private Set<String> attributesGen;
     private List<UpdateProductAdminSkuCommand> skus;
-    private List<UpdateProductAttrImageAdminCommand> attributeSaleImages;
+    private List<ProductSalesImageCommand> attributeSaleImages;
     private Integer version;
 
     @Data
@@ -50,11 +49,4 @@ public class UpdateProductCommand implements Serializable, AggregateUpdateComman
         private Integer version;
     }
 
-    @Data
-    public static class UpdateProductAttrImageAdminCommand implements Serializable {
-        private static final long serialVersionUID = 1;
-        private String attributeSales;
-        @JsonDeserialize(as = LinkedHashSet.class)//use linkedHashSet to keep order of elements as it is received
-        private Set<String> imageUrls;
-    }
 }
