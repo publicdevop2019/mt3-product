@@ -52,9 +52,9 @@ public class TagApplicationService {
     @SubscribeForEvent
     @Transactional
     public void replace(String id, UpdateTagCommand command, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
-            TagId TagId = new TagId(id);
-            Optional<Tag> optionalTag = DomainRegistry.tagRepository().tagOfId(TagId);
+        TagId tagId = new TagId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(tagId, command, changeId, (ignored) -> {
+            Optional<Tag> optionalTag = DomainRegistry.tagRepository().tagOfId(tagId);
             if (optionalTag.isPresent()) {
                 Tag tag = optionalTag.get();
                 tag.replace(
@@ -72,9 +72,9 @@ public class TagApplicationService {
     @SubscribeForEvent
     @Transactional
     public void removeById(String id, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(id, changeId, (change) -> {
-            TagId TagId = new TagId(id);
-            Optional<Tag> optionalTag = DomainRegistry.tagRepository().tagOfId(TagId);
+        TagId tagId = new TagId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(tagId, null, changeId, (change) -> {
+            Optional<Tag> optionalTag = DomainRegistry.tagRepository().tagOfId(tagId);
             if (optionalTag.isPresent()) {
                 Tag tag = optionalTag.get();
                 DomainRegistry.tagRepository().remove(tag);
@@ -85,7 +85,7 @@ public class TagApplicationService {
     @SubscribeForEvent
     @Transactional
     public Set<String> removeByQuery(String queryParam, String changeId) {
-        return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(null, changeId, (change) -> {
+        return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
             Set<Tag> tags = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.tagRepository().tagsOfQuery(query, page), new TagQuery(queryParam));
             DomainRegistry.tagRepository().remove(tags);
             change.setRequestBody(tags);
@@ -98,9 +98,9 @@ public class TagApplicationService {
     @SubscribeForEvent
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
-            TagId TagId = new TagId(id);
-            Optional<Tag> optionalCatalog = DomainRegistry.tagRepository().tagOfId(TagId);
+        TagId tagId = new TagId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(tagId, command, changeId, (ignored) -> {
+            Optional<Tag> optionalCatalog = DomainRegistry.tagRepository().tagOfId(tagId);
             if (optionalCatalog.isPresent()) {
                 Tag tag = optionalCatalog.get();
                 PatchTagCommand beforePatch = new PatchTagCommand(tag);

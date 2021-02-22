@@ -55,8 +55,8 @@ public class FilterApplicationService {
     @SubscribeForEvent
     @Transactional
     public void replace(String id, UpdateFilterCommand command, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
-            FilterId filterId = new FilterId(id);
+        FilterId filterId = new FilterId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(filterId, command, changeId, (ignored) -> {
             Optional<Filter> optionalFilter = DomainRegistry.filterRepository().filterOfId(filterId);
             if (optionalFilter.isPresent()) {
                 Filter filter = optionalFilter.get();
@@ -72,8 +72,8 @@ public class FilterApplicationService {
     @SubscribeForEvent
     @Transactional
     public void removeFilter(String id, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(id, changeId, (change) -> {
-            FilterId filterId = new FilterId(id);
+        FilterId filterId = new FilterId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(filterId, null, changeId, (change) -> {
             Optional<Filter> optionalFilter = DomainRegistry.filterRepository().filterOfId(filterId);
             if (optionalFilter.isPresent()) {
                 Filter filter = optionalFilter.get();
@@ -85,7 +85,7 @@ public class FilterApplicationService {
     @SubscribeForEvent
     @Transactional
     public Set<String> removeFilters(String queryParam, String changeId) {
-        return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(null, changeId, (change) -> {
+        return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
             Set<Filter> filters = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.filterRepository().filtersOfQuery(query, page), new FilterQuery(queryParam, false));
             DomainRegistry.filterRepository().remove(filters);
             change.setRequestBody(filters);
@@ -98,8 +98,8 @@ public class FilterApplicationService {
     @SubscribeForEvent
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
-            FilterId filterId = new FilterId(id);
+        FilterId filterId = new FilterId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(filterId, command, changeId, (ignored) -> {
             Optional<Filter> optionalCatalog = DomainRegistry.filterRepository().filterOfId(filterId);
             if (optionalCatalog.isPresent()) {
                 Filter filter = optionalCatalog.get();

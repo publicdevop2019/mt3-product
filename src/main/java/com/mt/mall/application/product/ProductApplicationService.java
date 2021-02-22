@@ -75,9 +75,9 @@ public class ProductApplicationService {
     @SubscribeForEvent
     @Transactional
     public void replace(String id, UpdateProductCommand command, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
-            ProductId ProductId = new ProductId(id);
-            Optional<Product> optionalProduct = DomainRegistry.productRepository().productOfId(ProductId);
+        ProductId productId = new ProductId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(productId, command, changeId, (change) -> {
+            Optional<Product> optionalProduct = DomainRegistry.productRepository().productOfId(productId);
             if (optionalProduct.isPresent()) {
                 Product product = optionalProduct.get();
                 product.replace(
@@ -104,22 +104,23 @@ public class ProductApplicationService {
     @SubscribeForEvent
     @Transactional
     public void removeById(String id, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(id, changeId, (change) -> {
-            ProductId ProductId = new ProductId(id);
-            Optional<Product> optionalProduct = DomainRegistry.productRepository().productOfId(ProductId);
+        ProductId productId = new ProductId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(productId, null, changeId, (change) -> {
+            Optional<Product> optionalProduct = DomainRegistry.productRepository().productOfId(productId);
             if (optionalProduct.isPresent()) {
                 Product product = optionalProduct.get();
                 DomainRegistry.productRepository().remove(product);
                 String skuQuery = SKU_REFERENCE_ID_LITERAL + ":" + id;
                 ApplicationServiceRegistry.skuApplicationService().removeByQuery(skuQuery, changeId);
             }
+            change.setQuery(productId);
         }, Product.class);
     }
 
     @SubscribeForEvent
     @Transactional
     public Set<String> removeByQuery(String queryParam, String changeId) {
-        return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(null, changeId, (change) -> {
+        return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
             Set<Product> products = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.productRepository().productsOfQuery(query, page), new ProductQuery(queryParam, false));
             DomainRegistry.productRepository().remove(products);
             Set<ProductId> collect = products.stream().map(Product::getProductId).collect(Collectors.toSet());
@@ -135,9 +136,9 @@ public class ProductApplicationService {
     @SubscribeForEvent
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
-            ProductId ProductId = new ProductId(id);
-            Optional<Product> optionalCatalog = DomainRegistry.productRepository().productOfId(ProductId);
+        ProductId productId = new ProductId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(productId, command, changeId, (change) -> {
+            Optional<Product> optionalCatalog = DomainRegistry.productRepository().productOfId(productId);
             if (optionalCatalog.isPresent()) {
                 Product filter = optionalCatalog.get();
                 PatchProductCommand beforePatch = new PatchProductCommand(filter);
@@ -147,6 +148,7 @@ public class ProductApplicationService {
                         afterPatch.getStartAt(),
                         afterPatch.getEndAt()
                 );
+                change.setQuery(productId);
             }
         }, Product.class);
     }
@@ -154,7 +156,7 @@ public class ProductApplicationService {
     @SubscribeForEvent
     @Transactional
     public void patchBatch(List<PatchCommand> commands, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(commands, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, commands, changeId, (ignored) -> {
             List<PatchCommand> skuChange = commands.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
             List<PatchCommand> productChange = commands.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
             if (!skuChange.isEmpty())
@@ -177,7 +179,7 @@ public class ProductApplicationService {
             }
             ParameterizedType integerListType = (ParameterizedType) genericType.getGenericType();
             Class<?> typeArgument = (Class<?>) integerListType.getActualTypeArguments()[0];
-            if(PatchCommand.class.getName().equals(typeArgument.getName())){
+            if (PatchCommand.class.getName().equals(typeArgument.getName())) {
                 List<PatchCommand> patchCommands = PatchCommand.buildRollbackCommand((List<PatchCommand>) change.getRequestBody());
                 patchBatch(patchCommands, changeId + CommonConstant.CHANGE_REVOKED);
             }

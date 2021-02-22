@@ -40,7 +40,7 @@ public class CatalogApplicationService {
     }
 
     public SumPagedRep<Catalog> catalogs(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.catalogRepository().catalogsOfQuery(new CatalogQuery(queryParam), new PageConfig(pageParam,2000), new QueryConfig(skipCount));
+        return DomainRegistry.catalogRepository().catalogsOfQuery(new CatalogQuery(queryParam), new PageConfig(pageParam, 2000), new QueryConfig(skipCount));
     }
 
     public SumPagedRep<Catalog> publicCatalogs(String pageParam, String skipCount) {
@@ -54,8 +54,8 @@ public class CatalogApplicationService {
     @SubscribeForEvent
     @Transactional
     public void replace(String id, UpdateCatalogCommand command, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
-            CatalogId catalogId = new CatalogId(id);
+        CatalogId catalogId = new CatalogId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(catalogId, command, changeId, (change) -> {
             Optional<Catalog> optionalCatalog = DomainRegistry.catalogRepository().catalogOfId(catalogId);
             if (optionalCatalog.isPresent()) {
                 Catalog catalog = optionalCatalog.get();
@@ -68,8 +68,8 @@ public class CatalogApplicationService {
     @SubscribeForEvent
     @Transactional
     public void removeCatalog(String id, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(id, changeId, (change) -> {
-            CatalogId catalogId = new CatalogId(id);
+        CatalogId catalogId = new CatalogId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(catalogId, null, changeId, (change) -> {
             Optional<Catalog> optionalCatalog = DomainRegistry.catalogRepository().catalogOfId(catalogId);
             if (optionalCatalog.isPresent()) {
                 Catalog catalog = optionalCatalog.get();
@@ -81,7 +81,7 @@ public class CatalogApplicationService {
     @SubscribeForEvent
     @Transactional
     public Set<String> removeCatalogs(String queryParam, String changeId) {
-        return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(null, changeId, (change) -> {
+        return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
             Set<Catalog> allClientsOfQuery = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.catalogRepository().catalogsOfQuery(query, page), new CatalogQuery(queryParam));
             DomainRegistry.catalogRepository().remove(allClientsOfQuery);
             change.setRequestBody(allClientsOfQuery);
@@ -94,8 +94,8 @@ public class CatalogApplicationService {
     @SubscribeForEvent
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
-            CatalogId catalogId = new CatalogId(id);
+        CatalogId catalogId = new CatalogId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(catalogId, command, changeId, (ignored) -> {
             Optional<Catalog> optionalCatalog = DomainRegistry.catalogRepository().catalogOfId(catalogId);
             if (optionalCatalog.isPresent()) {
                 Catalog catalog = optionalCatalog.get();
