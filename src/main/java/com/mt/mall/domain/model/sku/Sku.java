@@ -51,9 +51,6 @@ public class Sku extends Auditable {
 
     @Column(updatable = false)
     private Integer sales;
-    @Version
-    @Setter(AccessLevel.NONE)
-    private Integer version;
 
     public Sku(SkuId skuId, String referenceId, String description, Integer storageOrder, Integer storageActual, BigDecimal price, Integer sales) {
         setId(CommonDomainRegistry.uniqueIdGeneratorService().id());
@@ -67,9 +64,7 @@ public class Sku extends Auditable {
     }
 
     public void replace(BigDecimal price, String description, Integer version) {
-        if (!getVersion().equals(version)) {
-            throw new AggregateOutdatedException();
-        }
+        checkVersion(version);
         setPrice(price);
         setDescription(description);
     }

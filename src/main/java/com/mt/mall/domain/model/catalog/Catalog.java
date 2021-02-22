@@ -49,10 +49,6 @@ public class Catalog extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     private Type type;
 
-    @Version
-    @Setter(AccessLevel.NONE)
-    private Integer version;
-
     private void setParentId(CatalogId parentId) {
         if (parentId.getDomainId() != null)
             this.parentId = parentId;

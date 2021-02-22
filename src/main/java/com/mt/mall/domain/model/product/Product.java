@@ -4,7 +4,6 @@ import com.mt.common.audit.Auditable;
 import com.mt.common.domain.model.CommonDomainRegistry;
 import com.mt.common.persistence.StringSetConverter;
 import com.mt.common.rest.exception.AggregateNotExistException;
-import com.mt.common.rest.exception.AggregateOutdatedException;
 import com.mt.common.rest.exception.NoUpdatableFieldException;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
@@ -82,9 +81,6 @@ public class Product extends Auditable {
 
     @Column(length = 10000)
     private ArrayList<ProductAttrSaleImages> attributeSaleImages;
-    @Version
-    @Setter(AccessLevel.NONE)
-    private Integer version;
 
     @ManyToMany(cascade = {
             CascadeType.PERSIST,
@@ -179,8 +175,7 @@ public class Product extends Auditable {
                         String changeId,
                         Integer version
     ) {
-        if (!getVersion().equals(version))
-            throw new AggregateOutdatedException();
+        checkVersion(version);
         setImageUrlSmall(imageUrlSmall);
         setName(name);
         setDescription(description);

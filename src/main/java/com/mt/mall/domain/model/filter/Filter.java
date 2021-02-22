@@ -37,11 +37,6 @@ public class Filter extends Auditable {
     @Convert(converter = FilterItem.FilterItemConverter.class)
     private Set<FilterItem> filterItems;
 
-    @Version
-    @Setter(AccessLevel.NONE)
-    private Integer version;
-
-
     private void setCatalogs(Set<String> catalogs) {
         Validator.notEmpty(catalogs);
         DomainRegistry.getFilterValidationService().validateCatalogs(catalogs, new HttpValidationNotificationHandler());

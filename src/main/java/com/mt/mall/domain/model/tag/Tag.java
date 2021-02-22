@@ -44,10 +44,6 @@ public class Tag extends Auditable {
     })
     private TagId tagId;
 
-    @Version
-    @Setter(AccessLevel.NONE)
-    private Integer version;
-
     private void setName(String name) {
         Validator.whitelistOnly(name);
         Validator.lengthLessThanOrEqualTo(name, 50);
