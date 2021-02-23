@@ -146,7 +146,6 @@ public class Product extends Auditable {
 
     private void setAttributeSaleImages(ArrayList<ProductAttrSaleImages> attributeSaleImages) {
         DomainRegistry.getProductValidationService().validate(attributeSaleImages, new HttpValidationNotificationHandler());
-        Validator.notEmpty(attributeSaleImages);
         this.attributeSaleImages = attributeSaleImages;
     }
 

@@ -17,11 +17,13 @@ import java.util.stream.Collectors;
 @Service
 public class ProductValidationService {
     public void validate(List<ProductAttrSaleImages> saleImages, ValidationNotificationHandler handler) {
-        Set<String> collect = saleImages.stream().map(e -> e.getAttributeSales().split(CommonConstant.QUERY_DELIMITER)[0]).collect(Collectors.toSet());
-        Set<Tag> allByQuery = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.tagRepository().tagsOfQuery(query, page), new TagQuery(collect));
-        if (allByQuery.size() != collect.size())
-            handler.handleError("unable find all sales tags");
-        if (allByQuery.stream().anyMatch(e -> !e.getType().equals(Type.SALES_ATTR)))
-            handler.handleError("should not have non sales tags");
+        if (saleImages != null && !saleImages.isEmpty()) {
+            Set<String> collect = saleImages.stream().map(e -> e.getAttributeSales().split(CommonConstant.QUERY_DELIMITER)[0]).collect(Collectors.toSet());
+            Set<Tag> allByQuery = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.tagRepository().tagsOfQuery(query, page), new TagQuery(collect));
+            if (allByQuery.size() != collect.size())
+                handler.handleError("unable find all sales tags");
+            if (allByQuery.stream().anyMatch(e -> !e.getType().equals(Type.SALES_ATTR)))
+                handler.handleError("should not have non sales tags");
+        }
     }
 }
