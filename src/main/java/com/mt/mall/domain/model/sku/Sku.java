@@ -63,8 +63,7 @@ public class Sku extends Auditable {
         setSales(sales);
     }
 
-    public void replace(BigDecimal price, String description, Integer version) {
-        checkVersion(version);
+    public void replace(BigDecimal price, String description) {
         setPrice(price);
         setDescription(description);
     }

@@ -80,6 +80,7 @@ public class ProductApplicationService {
             Optional<Product> optionalProduct = DomainRegistry.productRepository().productOfId(productId);
             if (optionalProduct.isPresent()) {
                 Product product = optionalProduct.get();
+                product.checkVersion(command.getVersion());
                 product.replace(
                         command.getName(),
                         command.getImageUrlSmall(),
@@ -93,8 +94,7 @@ public class ProductApplicationService {
                         command.getAttributesGen(),
                         command.getSkus(),
                         command.getAttributeSaleImages(),
-                        command.getChangeId(),
-                        command.getVersion()
+                        command.getChangeId()
                 );
                 DomainRegistry.productRepository().add(product);
             }

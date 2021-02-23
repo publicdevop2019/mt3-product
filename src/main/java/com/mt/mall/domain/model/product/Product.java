@@ -171,10 +171,8 @@ public class Product extends Auditable {
                         Set<String> attributesGen,
                         List<UpdateProductCommand.UpdateProductAdminSkuCommand> skus,
                         List<ProductSalesImageCommand> attributeSaleImages,
-                        String changeId,
-                        Integer version
+                        String changeId
     ) {
-        checkVersion(version);
         setImageUrlSmall(imageUrlSmall);
         setName(name);
         setDescription(description);

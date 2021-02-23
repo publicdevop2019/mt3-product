@@ -60,10 +60,10 @@ public class SkuApplicationService {
             Optional<Sku> optionalSku = DomainRegistry.skuRepository().skuOfId(skuId);
             if (optionalSku.isPresent()) {
                 Sku sku = optionalSku.get();
+                sku.checkVersion(command.getVersion());
                 sku.replace(
                         command.getPrice(),
-                        command.getDescription(),
-                        command.getVersion()
+                        command.getDescription()
                 );
                 DomainRegistry.skuRepository().add(sku);
             }
@@ -99,17 +99,17 @@ public class SkuApplicationService {
     @SubscribeForEvent
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
-            SkuId skuId = new SkuId(id);
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(skuId,command, changeId, (ignored) -> {
+        SkuId skuId = new SkuId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(skuId, command, changeId, (ignored) -> {
             Optional<Sku> optionalCatalog = DomainRegistry.skuRepository().skuOfId(skuId);
             if (optionalCatalog.isPresent()) {
-                Sku filter = optionalCatalog.get();
-                PatchSkuCommand beforePatch = new PatchSkuCommand(filter);
+                Sku sku = optionalCatalog.get();
+                PatchSkuCommand beforePatch = new PatchSkuCommand(sku);
                 PatchSkuCommand afterPatch = CommonDomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, PatchSkuCommand.class);
-                filter.replace(
+                sku.checkVersion(sku.getVersion());
+                sku.replace(
                         afterPatch.getPrice(),
-                        afterPatch.getDescription(),
-                        filter.getVersion()
+                        afterPatch.getDescription()
                 );
             }
         }, Sku.class);
@@ -118,7 +118,7 @@ public class SkuApplicationService {
     @SubscribeForEvent
     @Transactional
     public void patchBatch(List<PatchCommand> commands, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null,commands, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, commands, changeId, (ignored) -> {
             DomainRegistry.skuRepository().patchBatch(commands);
         }, Sku.class);
     }
