@@ -13,8 +13,12 @@ public class TagValidator {
 
     public void validate() {
         if (TagValueType.MANUAL.equals(tag.getMethod())) {
-            if (!(tag.getSelectValues() == null || tag.getSelectValues().size() == 0))
+            if (tag.getSelectValues() != null && tag.getSelectValues().size() != 0)
                 handler.handleError("manual tag can not have values");
+        }
+        if (TagValueType.SELECT.equals(tag.getMethod())) {
+            if (tag.getSelectValues() == null || tag.getSelectValues().size() == 0)
+                handler.handleError("select tag must have values");
         }
     }
 }

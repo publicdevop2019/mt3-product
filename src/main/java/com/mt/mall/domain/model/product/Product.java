@@ -1,5 +1,6 @@
 package com.mt.mall.domain.model.product;
 
+import com.mt.common.CommonConstant;
 import com.mt.common.audit.Auditable;
 import com.mt.common.domain.model.CommonDomainRegistry;
 import com.mt.common.persistence.StringSetConverter;
@@ -180,7 +181,7 @@ public class Product extends Auditable {
         setImageUrlLarge(imageUrlLarge);
         setStartAt(startAt);
         setEndAt(endAt);
-
+        Validator.notEmpty(skus);
         skus.forEach(e -> {
             if (e.getSales() == null)
                 e.setSales(0);
@@ -316,7 +317,7 @@ public class Product extends Auditable {
         List<String> collect = attrSalesMap.keySet().stream().filter(e -> commands.stream().noneMatch(command -> getAttrSalesKey(command.getAttributesSales()).equals(e))).collect(Collectors.toList());
         Set<String> collect1 = collect.stream().map(e -> attrSalesMap.get(e)).collect(Collectors.toSet());
         if (collect1.size() > 0)
-            ApplicationServiceRegistry.skuApplicationService().removeByQuery(String.join(".", collect1), UUID.randomUUID().toString());
+            ApplicationServiceRegistry.skuApplicationService().removeByQuery(COMMON_ENTITY_ID+ QUERY_DELIMITER+String.join(QUERY_OR_DELIMITER, collect1), UUID.randomUUID().toString());
     }
 
     private String getAttrSalesKey(Set<String> attributesSales) {

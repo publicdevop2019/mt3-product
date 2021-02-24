@@ -54,12 +54,10 @@ public class Tag extends Auditable {
     private void setDescription(String description) {
         Validator.whitelistOnly(description);
         Validator.lengthLessThanOrEqualTo(description, 50);
-        Validator.notBlank(description);
         this.description = description;
     }
 
     private void setSelectValues(Set<String> selectValues) {
-        Validator.notEmpty(selectValues);
         this.selectValues = selectValues;
     }
 

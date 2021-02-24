@@ -21,8 +21,6 @@ import com.mt.mall.domain.model.product.ProductQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -172,18 +170,9 @@ public class ProductApplicationService {
     @Transactional
     public void rollback(String changeId) {
         ApplicationServiceRegistry.idempotentWrapper().idempotentRollback(changeId, (change) -> {
-            Field genericType = null;
-            try {
-                genericType = change.getClass().getDeclaredField("requestBody");
-            } catch (NoSuchFieldException e) {
-                e.printStackTrace();
-            }
-            ParameterizedType integerListType = (ParameterizedType) genericType.getGenericType();
-            Class<?> typeArgument = (Class<?>) integerListType.getActualTypeArguments()[0];
-            if (PatchCommand.class.getName().equals(typeArgument.getName())) {
-                List<PatchCommand> patchCommands = PatchCommand.buildRollbackCommand((List<PatchCommand>) change.getRequestBody());
-                patchBatch(patchCommands, changeId + CommonConstant.CHANGE_REVOKED);
-            }
+            List<PatchCommand> command = (List<PatchCommand>) change.getRequestBody();
+            List<PatchCommand> patchCommands = PatchCommand.buildRollbackCommand(command);
+            patchBatch(patchCommands, changeId + CommonConstant.CHANGE_REVOKED);
         }, Product.class);
     }
 }

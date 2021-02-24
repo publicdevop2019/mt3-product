@@ -79,6 +79,8 @@ public class ProductRepresentation {
                 appProductSkuRep.setAttributesSales(strings);
                 appProductSkuRep.setStorageActual(first.get().getStorageActual());
                 appProductSkuRep.setStorageOrder(first.get().getStorageOrder());
+                appProductSkuRep.setVersion(first.get().getVersion());
+
             }
             return appProductSkuRep;
         }).collect(Collectors.toList());
@@ -98,6 +100,7 @@ public class ProductRepresentation {
         private Integer storageActual;
         private BigDecimal price;
         private Integer sales;
+        private Integer version;
 
     }
 
