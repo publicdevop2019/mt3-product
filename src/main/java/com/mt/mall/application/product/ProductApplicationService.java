@@ -3,6 +3,7 @@ package com.mt.mall.application.product;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.CommonConstant;
 import com.mt.common.domain.model.CommonDomainRegistry;
+import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.PageConfig;
@@ -110,7 +111,7 @@ public class ProductApplicationService {
             if (optionalProduct.isPresent()) {
                 Product product = optionalProduct.get();
                 DomainRegistry.productRepository().remove(product);
-                String skuQuery = SKU_REFERENCE_ID_LITERAL + ":" + id;
+                String skuQuery = SKU_REFERENCE_ID_LITERAL + CommonConstant.QUERY_DELIMITER + id;
                 ApplicationServiceRegistry.skuApplicationService().removeByQuery(skuQuery, changeId);
             }
             change.setQuery(productId);
@@ -124,7 +125,7 @@ public class ProductApplicationService {
             Set<Product> products = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.productRepository().productsOfQuery(query, page), new ProductQuery(queryParam, false));
             DomainRegistry.productRepository().remove(products);
             Set<ProductId> collect = products.stream().map(Product::getProductId).collect(Collectors.toSet());
-            String join = SKU_REFERENCE_ID_LITERAL + ":" + collect.stream().map(Object::toString).collect(Collectors.joining(","));
+            String join = SKU_REFERENCE_ID_LITERAL + CommonConstant.QUERY_DELIMITER + collect.stream().map(DomainId::getDomainId).collect(Collectors.joining(CommonConstant.QUERY_OR_DELIMITER));
             ApplicationServiceRegistry.skuApplicationService().removeByQuery(join, changeId);
             change.setRequestBody(products);
             change.setDeletedIds(products.stream().map(e -> e.getProductId().getDomainId()).collect(Collectors.toSet()));

@@ -109,7 +109,7 @@ public class ProductResource {
     }
 
 
-    @DeleteMapping("change/app/{id}")
+    @DeleteMapping("changes/app/{id}")
     public ResponseEntity<?> rollbackChange(@PathVariable(name = "id") String id) {
         productApplicationService().rollback(id);
         return ResponseEntity.ok().build();
