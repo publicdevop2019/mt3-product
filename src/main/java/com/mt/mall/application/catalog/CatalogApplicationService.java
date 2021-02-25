@@ -1,7 +1,7 @@
 package com.mt.mall.application.catalog;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.domain.model.CommonDomainRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.PageConfig;
@@ -100,7 +100,7 @@ public class CatalogApplicationService {
             if (optionalCatalog.isPresent()) {
                 Catalog catalog = optionalCatalog.get();
                 PatchCatalogCommand beforePatch = new PatchCatalogCommand(catalog);
-                PatchCatalogCommand afterPatch = CommonDomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, PatchCatalogCommand.class);
+                PatchCatalogCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer().applyJsonPatch(command, beforePatch, PatchCatalogCommand.class);
                 catalog.replace(
                         afterPatch.getName(),
                         new CatalogId(afterPatch.getParentId()),

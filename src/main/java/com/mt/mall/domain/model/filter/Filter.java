@@ -1,7 +1,7 @@
 package com.mt.mall.domain.model.filter;
 
 import com.mt.common.audit.Auditable;
-import com.mt.common.domain.model.CommonDomainRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.persistence.StringSetConverter;
 import com.mt.common.validate.HttpValidationNotificationHandler;
 import com.mt.common.validate.Validator;
@@ -63,7 +63,7 @@ public class Filter extends Auditable {
     }
 
     public Filter(FilterId filterId, Set<String> catalogs, Set<FilterItem> filterItems, String description) {
-        setId(CommonDomainRegistry.uniqueIdGeneratorService().id());
+        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setCatalogs(catalogs);
         setFilterItems(filterItems);
         setDescription(description);

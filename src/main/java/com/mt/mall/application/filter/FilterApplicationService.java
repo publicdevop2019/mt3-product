@@ -1,7 +1,7 @@
 package com.mt.mall.application.filter;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.domain.model.CommonDomainRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.PageConfig;
@@ -104,7 +104,7 @@ public class FilterApplicationService {
             if (optionalCatalog.isPresent()) {
                 Filter filter = optionalCatalog.get();
                 PatchFilterCommand beforePatch = new PatchFilterCommand(filter);
-                PatchFilterCommand afterPatch = CommonDomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, PatchFilterCommand.class);
+                PatchFilterCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer().applyJsonPatch(command, beforePatch, PatchFilterCommand.class);
                 filter.replace(
                         afterPatch.getCatalogs(),
                         afterPatch.getDescription()

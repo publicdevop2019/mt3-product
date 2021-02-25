@@ -1,6 +1,6 @@
 package com.mt.mall.application;
 
-import com.mt.common.idempotent.ApplicationServiceIdempotentWrapper;
+import com.mt.common.domain.model.idempotent.IdempotentService;
 import com.mt.mall.application.catalog.CatalogApplicationService;
 import com.mt.mall.application.filter.FilterApplicationService;
 import com.mt.mall.application.product.ProductApplicationService;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ApplicationServiceRegistry {
     private static CatalogApplicationService catalogApplicationService;
-    private static ApplicationServiceIdempotentWrapper idempotentWrapper;
+    private static IdempotentService idempotentWrapper;
     private static FilterApplicationService filterApplicationService;
     private static TagApplicationService tagApplicationService;
     private static SkuApplicationService skuApplicationService;
@@ -38,7 +38,7 @@ public class ApplicationServiceRegistry {
         return filterApplicationService;
     }
 
-    public static ApplicationServiceIdempotentWrapper idempotentWrapper() {
+    public static IdempotentService idempotentWrapper() {
         return idempotentWrapper;
     }
 
@@ -68,7 +68,7 @@ public class ApplicationServiceRegistry {
     }
 
     @Autowired
-    public void setApplicationServiceIdempotentWrapper(ApplicationServiceIdempotentWrapper idempotentWrapper) {
+    public void setApplicationServiceIdempotentWrapper(IdempotentService idempotentWrapper) {
         ApplicationServiceRegistry.idempotentWrapper = idempotentWrapper;
     }
 }

@@ -1,6 +1,6 @@
 package com.mt.mall.domain.model.catalog;
 
-import com.mt.common.domain.model.CommonDomainRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
 
 import java.io.Serializable;
@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class CatalogId extends DomainId implements Serializable {
     public CatalogId() {
         super();
-        Long id = CommonDomainRegistry.uniqueIdGeneratorService().id();
+        Long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         String s = Long.toString(id, 36);
         setDomainId("3C" + s.toUpperCase());
     }

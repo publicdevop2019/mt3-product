@@ -1,7 +1,7 @@
 package com.mt.mall.domain.model.tag;
 
 import com.mt.common.audit.Auditable;
-import com.mt.common.domain.model.CommonDomainRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.persistence.StringSetConverter;
 import com.mt.common.validate.HttpValidationNotificationHandler;
 import com.mt.common.validate.Validator;
@@ -62,7 +62,7 @@ public class Tag extends Auditable {
     }
 
     public Tag(TagId tagId, String name, String description, TagValueType valueType, Set<String> selectValues, Type type) {
-        setId(CommonDomainRegistry.uniqueIdGeneratorService().id());
+        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setTagId(tagId);
         setDescription(description);
         setName(name);

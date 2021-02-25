@@ -1,8 +1,7 @@
 package com.mt.mall.domain.model.sku;
 
 import com.mt.common.audit.Auditable;
-import com.mt.common.domain.model.CommonDomainRegistry;
-import com.mt.common.rest.exception.AggregateOutdatedException;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.validate.Validator;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -53,7 +52,7 @@ public class Sku extends Auditable {
     private Integer sales;
 
     public Sku(SkuId skuId, String referenceId, String description, Integer storageOrder, Integer storageActual, BigDecimal price, Integer sales) {
-        setId(CommonDomainRegistry.uniqueIdGeneratorService().id());
+        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setSkuId(skuId);
         setReferenceId(referenceId);
         setDescription(description);

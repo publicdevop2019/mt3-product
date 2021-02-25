@@ -1,7 +1,7 @@
 package com.mt.mall.application.tag;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.domain.model.CommonDomainRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.PageConfig;
@@ -104,7 +104,7 @@ public class TagApplicationService {
             if (optionalCatalog.isPresent()) {
                 Tag tag = optionalCatalog.get();
                 PatchTagCommand beforePatch = new PatchTagCommand(tag);
-                PatchTagCommand afterPatch = CommonDomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, PatchTagCommand.class);
+                PatchTagCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer().applyJsonPatch(command, beforePatch, PatchTagCommand.class);
                 tag.replace(
                         afterPatch.getName(),
                         afterPatch.getDescription(),

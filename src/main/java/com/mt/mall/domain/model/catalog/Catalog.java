@@ -1,7 +1,7 @@
 package com.mt.mall.domain.model.catalog;
 
 import com.mt.common.audit.Auditable;
-import com.mt.common.domain.model.CommonDomainRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.persistence.StringSetConverter;
 import com.mt.common.validate.HttpValidationNotificationHandler;
 import com.mt.common.validate.ValidationNotificationHandler;
@@ -55,7 +55,7 @@ public class Catalog extends Auditable {
     }
 
     public Catalog(CatalogId catalogId, String name, CatalogId parentId, Set<String> attributes, Type catalogType) {
-        setId(CommonDomainRegistry.uniqueIdGeneratorService().id());
+        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setCatalogId(catalogId);
         setName(name);
         setParentId(parentId);

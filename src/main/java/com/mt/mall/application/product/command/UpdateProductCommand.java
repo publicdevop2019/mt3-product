@@ -1,7 +1,6 @@
 package com.mt.mall.application.product.command;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mt.common.rest.AggregateUpdateCommand;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-public class UpdateProductCommand implements Serializable, AggregateUpdateCommand {
+public class UpdateProductCommand implements Serializable{
     private static final long serialVersionUID = 1;
     private String changeId;
     private String name;

@@ -1,7 +1,7 @@
 package com.mt.mall.application.sku;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.domain.model.CommonDomainRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.PageConfig;
@@ -105,7 +105,7 @@ public class SkuApplicationService {
             if (optionalCatalog.isPresent()) {
                 Sku sku = optionalCatalog.get();
                 PatchSkuCommand beforePatch = new PatchSkuCommand(sku);
-                PatchSkuCommand afterPatch = CommonDomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, PatchSkuCommand.class);
+                PatchSkuCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer().applyJsonPatch(command, beforePatch, PatchSkuCommand.class);
                 sku.checkVersion(sku.getVersion());
                 sku.replace(
                         afterPatch.getPrice(),

@@ -2,7 +2,7 @@ package com.mt.mall.application.product;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.CommonConstant;
-import com.mt.common.domain.model.CommonDomainRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
@@ -141,7 +141,7 @@ public class ProductApplicationService {
             if (optionalCatalog.isPresent()) {
                 Product filter = optionalCatalog.get();
                 PatchProductCommand beforePatch = new PatchProductCommand(filter);
-                PatchProductCommand afterPatch = CommonDomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, PatchProductCommand.class);
+                PatchProductCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer().applyJsonPatch(command, beforePatch, PatchProductCommand.class);
                 filter.replace(
                         afterPatch.getName(),
                         afterPatch.getStartAt(),
@@ -170,7 +170,7 @@ public class ProductApplicationService {
     @Transactional
     public void rollback(String changeId) {
         ApplicationServiceRegistry.idempotentWrapper().idempotentRollback(changeId, (change) -> {
-            List<PatchCommand> command = (List<PatchCommand>) change.getRequestBody();
+            List<PatchCommand> command = (List<PatchCommand>) CommonDomainRegistry.getCustomObjectSerializer().nativeDeserialize(change.getRequestBody());
             List<PatchCommand> patchCommands = PatchCommand.buildRollbackCommand(command);
             patchBatch(patchCommands, changeId + CommonConstant.CHANGE_REVOKED);
         }, Product.class);

@@ -1,6 +1,6 @@
 package com.mt.mall.domain.model.filter;
 
-import com.mt.common.domain.model.CommonDomainRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.validate.Validator;
 import lombok.*;
 
@@ -36,12 +36,12 @@ public class FilterItem implements Serializable {
     public static class FilterItemConverter implements AttributeConverter<Set<FilterItem>, byte[]> {
         @Override
         public byte[] convertToDatabaseColumn(Set<FilterItem> redirectURLS) {
-            return CommonDomainRegistry.customObjectSerializer().nativeSerialize(redirectURLS);
+            return CommonDomainRegistry.getCustomObjectSerializer().nativeSerialize(redirectURLS);
         }
 
         @Override
         public Set<FilterItem> convertToEntityAttribute(byte[] bytes) {
-            return (Set<FilterItem>) CommonDomainRegistry.customObjectSerializer().nativeDeserialize(bytes);
+            return (Set<FilterItem>) CommonDomainRegistry.getCustomObjectSerializer().nativeDeserialize(bytes);
         }
     }
 }

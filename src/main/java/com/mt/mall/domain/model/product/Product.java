@@ -1,8 +1,7 @@
 package com.mt.mall.domain.model.product;
 
-import com.mt.common.CommonConstant;
 import com.mt.common.audit.Auditable;
-import com.mt.common.domain.model.CommonDomainRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.persistence.StringSetConverter;
 import com.mt.common.rest.exception.AggregateNotExistException;
 import com.mt.common.rest.exception.NoUpdatableFieldException;
@@ -214,7 +213,7 @@ public class Product extends Auditable {
                 if (byValue.isPresent()) {
                     productTags.add(byValue.get());
                 } else {
-                    ProductTag tag = new ProductTag(CommonDomainRegistry.uniqueIdGeneratorService().id(), e, TagType.SALES);
+                    ProductTag tag = new ProductTag(CommonDomainRegistry.getUniqueIdGeneratorService().id(), e, TagType.SALES);
                     productTags.add(tag);
                 }
             });
@@ -225,7 +224,7 @@ public class Product extends Auditable {
                 if (byValue.isPresent()) {
                     productTags.add(byValue.get());
                 } else {
-                    ProductTag tag = new ProductTag(CommonDomainRegistry.uniqueIdGeneratorService().id(), e, TagType.KEY);
+                    ProductTag tag = new ProductTag(CommonDomainRegistry.getUniqueIdGeneratorService().id(), e, TagType.KEY);
                     productTags.add(tag);
                 }
             });
@@ -236,7 +235,7 @@ public class Product extends Auditable {
                 if (byValue.isPresent()) {
                     productTags.add(byValue.get());
                 } else {
-                    ProductTag tag = new ProductTag(CommonDomainRegistry.uniqueIdGeneratorService().id(), e, TagType.GEN);
+                    ProductTag tag = new ProductTag(CommonDomainRegistry.getUniqueIdGeneratorService().id(), e, TagType.GEN);
                     productTags.add(tag);
                 }
             });
@@ -247,7 +246,7 @@ public class Product extends Auditable {
                 if (byValue.isPresent()) {
                     productTags.add(byValue.get());
                 } else {
-                    ProductTag tag = new ProductTag(CommonDomainRegistry.uniqueIdGeneratorService().id(), e, TagType.PROD);
+                    ProductTag tag = new ProductTag(CommonDomainRegistry.getUniqueIdGeneratorService().id(), e, TagType.PROD);
                     productTags.add(tag);
                 }
             });
@@ -270,7 +269,7 @@ public class Product extends Auditable {
             if (byValue.isPresent()) {
                 addTag(byValue.get());
             } else {
-                ProductTag tag = new ProductTag(CommonDomainRegistry.uniqueIdGeneratorService().id(), e, key);
+                ProductTag tag = new ProductTag(CommonDomainRegistry.getUniqueIdGeneratorService().id(), e, key);
                 addTag(tag);
             }
         };
@@ -385,7 +384,7 @@ public class Product extends Auditable {
                    List<CreateProductCommand.CreateProductSkuAdminCommand> skus,
                    List<ProductSalesImageCommand> attributeSaleImages
     ) {
-        setId(CommonDomainRegistry.uniqueIdGeneratorService().id());
+        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setImageUrlSmall(imageUrlSmall);
         setName(name);
         setProductId(productId);
