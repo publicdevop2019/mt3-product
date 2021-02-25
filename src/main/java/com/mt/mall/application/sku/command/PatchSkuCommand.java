@@ -1,6 +1,6 @@
 package com.mt.mall.application.sku.command;
 
-import com.mt.common.rest.TypedClass;
+import com.mt.common.domain.model.restful.TypedClass;
 import com.mt.mall.domain.model.sku.Sku;
 import lombok.Data;
 

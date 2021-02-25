@@ -2,11 +2,11 @@ package com.mt.mall.application.filter;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain_event.SubscribeForEvent;
-import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.PageConfig;
-import com.mt.common.query.QueryUtility;
-import com.mt.common.sql.SumPagedRep;
+import com.mt.common.domain.model.domain_event.SubscribeForEvent;
+import com.mt.common.domain.model.restful.query.QueryConfig;
+import com.mt.common.domain.model.restful.query.PageConfig;
+import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.filter.command.CreateFilterCommand;
 import com.mt.mall.application.filter.command.PatchFilterCommand;

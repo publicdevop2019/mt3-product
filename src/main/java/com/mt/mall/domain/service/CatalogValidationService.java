@@ -1,7 +1,7 @@
 package com.mt.mall.domain.service;
 
-import com.mt.common.query.QueryUtility;
-import com.mt.common.validate.ValidationNotificationHandler;
+import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.tag.Tag;
 import com.mt.mall.domain.model.tag.TagQuery;

@@ -1,9 +1,9 @@
 package com.mt.mall.port.adapter.persistence.filter;
 
-import com.mt.common.sql.builder.SelectQueryBuilder;
-import com.mt.common.sql.clause.DomainIdQueryClause;
-import com.mt.common.sql.clause.SelectFieldStringEqualClause;
-import com.mt.common.sql.clause.SelectFieldStringLikeClause;
+import com.mt.common.domain.model.sql.builder.SelectQueryBuilder;
+import com.mt.common.domain.model.sql.clause.DomainIdQueryClause;
+import com.mt.common.domain.model.sql.clause.FieldStringEqualClause;
+import com.mt.common.domain.model.sql.clause.FieldStringLikeClause;
 import com.mt.mall.domain.model.filter.Filter;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +16,8 @@ public class FilterSelectQueryBuilder extends SelectQueryBuilder<Filter> {
 
     {
         supportedWhere.put(COMMON_ENTITY_ID, new DomainIdQueryClause<>(FILTER_ID_LITERAL));
-        supportedWhere.put(ENTITY_CATALOG_LITERAL, new SelectFieldStringLikeClause(ENTITY_CATALOG_LITERAL));
-        supportedWhere.put("catalog", new SelectFieldStringEqualClause<>(ENTITY_CATALOG_LITERAL));
+        supportedWhere.put(ENTITY_CATALOG_LITERAL, new FieldStringLikeClause(ENTITY_CATALOG_LITERAL));
+        supportedWhere.put("catalog", new FieldStringEqualClause<>(ENTITY_CATALOG_LITERAL));
     }
 
 }

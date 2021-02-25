@@ -1,8 +1,8 @@
 package com.mt.mall.port.adapter.persistence.catalog;
 
-import com.mt.common.sql.builder.SelectQueryBuilder;
-import com.mt.common.sql.clause.DomainIdQueryClause;
-import com.mt.common.sql.clause.SelectFieldStringEqualClause;
+import com.mt.common.domain.model.sql.builder.SelectQueryBuilder;
+import com.mt.common.domain.model.sql.clause.DomainIdQueryClause;
+import com.mt.common.domain.model.sql.clause.FieldStringEqualClause;
 import com.mt.mall.domain.model.catalog.Catalog;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +19,7 @@ class CatalogQueryBuilder extends SelectQueryBuilder<Catalog> {
     {
         supportedSort.put(NAME_LITERAL, NAME_LITERAL);
         supportedWhere.put(COMMON_ENTITY_ID, new DomainIdQueryClause<>(CATALOG_ID_LITERAL));
-        supportedWhere.put(TYPE_LITERAL, new SelectFieldStringEqualClause<>(TYPE_LITERAL));
-        supportedWhere.put(PARENT_ID_LITERAL, new SelectFieldStringEqualClause<>(PARENT_ID_LITERAL));
+        supportedWhere.put(TYPE_LITERAL, new FieldStringEqualClause<>(TYPE_LITERAL));
+        supportedWhere.put(PARENT_ID_LITERAL, new FieldStringEqualClause<>(PARENT_ID_LITERAL));
     }
 }

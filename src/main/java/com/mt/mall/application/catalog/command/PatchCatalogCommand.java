@@ -1,7 +1,7 @@
 package com.mt.mall.application.catalog.command;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mt.common.rest.TypedClass;
+import com.mt.common.domain.model.restful.TypedClass;
 import com.mt.mall.domain.model.catalog.Catalog;
 import com.mt.mall.domain.model.catalog.Type;
 import lombok.Data;

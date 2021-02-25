@@ -1,7 +1,7 @@
 package com.mt.mall.domain.model.filter;
 
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.validate.Validator;
+import com.mt.common.domain.model.validate.Validator;
 import lombok.*;
 
 import javax.persistence.AttributeConverter;

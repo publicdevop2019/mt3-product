@@ -1,10 +1,10 @@
 package com.mt.mall.domain.model.filter;
 
-import com.mt.common.audit.Auditable;
+import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.persistence.StringSetConverter;
-import com.mt.common.validate.HttpValidationNotificationHandler;
-import com.mt.common.validate.Validator;
+import com.mt.common.domain.model.sql.converter.StringSetConverter;
+import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import com.mt.common.domain.model.validate.Validator;
 import com.mt.mall.domain.DomainRegistry;
 import lombok.AccessLevel;
 import lombok.Getter;

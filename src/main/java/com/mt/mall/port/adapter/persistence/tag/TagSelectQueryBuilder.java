@@ -1,9 +1,9 @@
 package com.mt.mall.port.adapter.persistence.tag;
 
-import com.mt.common.sql.builder.SelectQueryBuilder;
-import com.mt.common.sql.clause.DomainIdQueryClause;
-import com.mt.common.sql.clause.SelectFieldStringEqualClause;
-import com.mt.common.sql.clause.SelectFieldStringLikeClause;
+import com.mt.common.domain.model.sql.builder.SelectQueryBuilder;
+import com.mt.common.domain.model.sql.clause.DomainIdQueryClause;
+import com.mt.common.domain.model.sql.clause.FieldStringEqualClause;
+import com.mt.common.domain.model.sql.clause.FieldStringLikeClause;
 import com.mt.mall.domain.model.tag.Tag;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +20,7 @@ public class TagSelectQueryBuilder extends SelectQueryBuilder<Tag> {
         supportedSort.put(NAME_LITERAL, NAME_LITERAL);
         supportedSort.put(TYPE_LITERAL, TYPE_LITERAL);
         supportedWhere.put(COMMON_ENTITY_ID, new DomainIdQueryClause<>(TAG_ID_LITERAL));
-        supportedWhere.put(NAME_LITERAL, new SelectFieldStringLikeClause(NAME_LITERAL));
-        supportedWhere.put(TYPE_LITERAL, new SelectFieldStringEqualClause(TYPE_LITERAL));
+        supportedWhere.put(NAME_LITERAL, new FieldStringLikeClause(NAME_LITERAL));
+        supportedWhere.put(TYPE_LITERAL, new FieldStringEqualClause(TYPE_LITERAL));
     }
 }

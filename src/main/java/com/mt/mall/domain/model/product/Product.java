@@ -1,14 +1,14 @@
 package com.mt.mall.domain.model.product;
 
-import com.mt.common.audit.Auditable;
+import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.persistence.StringSetConverter;
-import com.mt.common.rest.exception.AggregateNotExistException;
-import com.mt.common.rest.exception.NoUpdatableFieldException;
-import com.mt.common.sql.PatchCommand;
-import com.mt.common.sql.SumPagedRep;
-import com.mt.common.validate.HttpValidationNotificationHandler;
-import com.mt.common.validate.Validator;
+import com.mt.common.domain.model.sql.converter.StringSetConverter;
+import com.mt.common.domain.model.restful.exception.AggregateNotExistException;
+import com.mt.common.domain.model.restful.exception.NoUpdatableFieldException;
+import com.mt.common.domain.model.restful.PatchCommand;
+import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import com.mt.common.domain.model.validate.Validator;
 import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.product.command.CreateProductCommand;
 import com.mt.mall.application.product.command.ProductOptionCommand;

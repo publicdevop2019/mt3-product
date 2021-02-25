@@ -1,6 +1,6 @@
 package com.mt.mall.port.adapter.http;
 
-import com.mt.common.logging.ErrorMessage;
+import com.mt.common.domain.model.logging.ErrorMessage;
 import com.mt.mall.application.product.exception.AttributeNameNotFoundException;
 import com.mt.mall.application.product.exception.NoLowestPriceFoundException;
 import com.mt.mall.application.product.exception.SkuAlreadyExistException;

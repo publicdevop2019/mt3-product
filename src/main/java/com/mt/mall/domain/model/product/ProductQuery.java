@@ -1,7 +1,7 @@
 package com.mt.mall.domain.model.product;
 
-import com.mt.common.query.QueryCriteria;
-import com.mt.common.validate.Validator;
+import com.mt.common.domain.model.restful.query.QueryCriteria;
+import com.mt.common.domain.model.validate.Validator;
 
 public class ProductQuery extends QueryCriteria {
 

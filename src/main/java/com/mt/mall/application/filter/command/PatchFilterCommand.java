@@ -1,6 +1,6 @@
 package com.mt.mall.application.filter.command;
 
-import com.mt.common.rest.TypedClass;
+import com.mt.common.domain.model.restful.TypedClass;
 import com.mt.mall.domain.model.filter.Filter;
 import lombok.Data;
 

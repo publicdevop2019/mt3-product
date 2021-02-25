@@ -1,6 +1,6 @@
 package com.mt.mall.application.product.representation;
 
-import com.mt.common.sql.SumPagedRep;
+import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.domain.model.product.Product;
 import com.mt.mall.domain.model.product.ProductOption;

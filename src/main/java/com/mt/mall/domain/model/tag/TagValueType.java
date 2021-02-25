@@ -1,6 +1,6 @@
 package com.mt.mall.domain.model.tag;
 
-import com.mt.common.persistence.EnumConverter;
+import com.mt.common.domain.model.sql.converter.EnumConverter;
 
 public enum TagValueType {
     MANUAL,

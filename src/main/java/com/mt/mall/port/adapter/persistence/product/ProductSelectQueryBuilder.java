@@ -1,9 +1,9 @@
 package com.mt.mall.port.adapter.persistence.product;
 
-import com.mt.common.sql.builder.SelectQueryBuilder;
-import com.mt.common.sql.clause.DomainIdQueryClause;
-import com.mt.common.sql.clause.SelectFieldNumberRangeClause;
-import com.mt.common.sql.clause.SelectFieldStringLikeClause;
+import com.mt.common.domain.model.sql.builder.SelectQueryBuilder;
+import com.mt.common.domain.model.sql.clause.DomainIdQueryClause;
+import com.mt.common.domain.model.sql.clause.FieldNumberRangeClause;
+import com.mt.common.domain.model.sql.clause.FieldStringLikeClause;
 import com.mt.mall.domain.model.product.Product;
 import org.springframework.stereotype.Component;
 
@@ -26,8 +26,8 @@ public class ProductSelectQueryBuilder extends SelectQueryBuilder<Product> {
         supportedWhere.put(COMMON_ENTITY_ID, new DomainIdQueryClause<>(PRODUCT_ID_LITERAL));
         supportedWhere.put(PUBLIC_ATTR, new SelectProductAttrClause<>());
         supportedWhere.put("attributes", new SelectProductAttrClause<>());
-        supportedWhere.put(ADMIN_REP_NAME_LITERAL, new SelectFieldStringLikeClause<>(PRODUCT_NAME_LITERAL));
-        supportedWhere.put(ADMIN_REP_PRICE_LITERAL, new SelectFieldNumberRangeClause<>(PRODUCT_LOWEST_PRICE_LITERAL));
+        supportedWhere.put(ADMIN_REP_NAME_LITERAL, new FieldStringLikeClause<>(PRODUCT_NAME_LITERAL));
+        supportedWhere.put(ADMIN_REP_PRICE_LITERAL, new FieldNumberRangeClause<>(PRODUCT_LOWEST_PRICE_LITERAL));
         supportedWhere.put(AVAILABLE, new SelectStatusClause<>());
     }
 }

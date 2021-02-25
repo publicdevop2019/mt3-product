@@ -1,7 +1,7 @@
 package com.mt.mall.application.tag.command;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mt.common.rest.TypedClass;
+import com.mt.common.domain.model.restful.TypedClass;
 import com.mt.mall.domain.model.tag.Tag;
 import com.mt.mall.domain.model.tag.TagValueType;
 import com.mt.mall.domain.model.tag.Type;

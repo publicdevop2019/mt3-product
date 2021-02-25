@@ -1,8 +1,7 @@
 package com.mt.mall.domain.service;
 
-import com.mt.common.CommonConstant;
-import com.mt.common.query.QueryUtility;
-import com.mt.common.validate.HttpValidationNotificationHandler;
+import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.catalog.Catalog;
 import com.mt.mall.domain.model.catalog.CatalogQuery;

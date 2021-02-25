@@ -1,6 +1,6 @@
 package com.mt.mall.application.product.command;
 
-import com.mt.common.rest.TypedClass;
+import com.mt.common.domain.model.restful.TypedClass;
 import com.mt.mall.domain.model.product.Product;
 import lombok.Data;
 

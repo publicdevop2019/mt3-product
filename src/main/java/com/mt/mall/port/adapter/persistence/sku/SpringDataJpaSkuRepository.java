@@ -1,12 +1,11 @@
 package com.mt.mall.port.adapter.persistence.sku;
 
-import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.PageConfig;
-import com.mt.common.query.QueryUtility;
-import com.mt.common.sql.PatchCommand;
-import com.mt.common.sql.SumPagedRep;
-import com.mt.common.sql.builder.SelectQueryBuilder;
-import com.mt.mall.domain.model.product.Product;
+import com.mt.common.domain.model.restful.query.QueryConfig;
+import com.mt.common.domain.model.restful.query.PageConfig;
+import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.restful.PatchCommand;
+import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.sql.builder.SelectQueryBuilder;
 import com.mt.mall.domain.model.sku.Sku;
 import com.mt.mall.domain.model.sku.SkuId;
 import com.mt.mall.domain.model.sku.SkuQuery;

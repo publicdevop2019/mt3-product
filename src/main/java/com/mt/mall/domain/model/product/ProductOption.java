@@ -1,6 +1,6 @@
 package com.mt.mall.domain.model.product;
 
-import com.mt.common.validate.Validator;
+import com.mt.common.domain.model.validate.Validator;
 import com.mt.mall.application.product.command.ProductOptionCommand;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

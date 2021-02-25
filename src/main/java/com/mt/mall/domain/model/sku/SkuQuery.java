@@ -1,6 +1,6 @@
 package com.mt.mall.domain.model.sku;
 
-import com.mt.common.query.QueryCriteria;
+import com.mt.common.domain.model.restful.query.QueryCriteria;
 
 public class SkuQuery extends QueryCriteria {
 

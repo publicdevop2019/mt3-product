@@ -1,11 +1,11 @@
 package com.mt.mall.port.adapter.persistence.sku;
 
 
-import com.mt.common.rest.exception.NoUpdatableFieldException;
-import com.mt.common.rest.exception.UnsupportedPatchOperationException;
-import com.mt.common.rest.exception.UpdateFiledValueException;
-import com.mt.common.sql.PatchCommand;
-import com.mt.common.sql.builder.UpdateQueryBuilder;
+import com.mt.common.domain.model.restful.exception.NoUpdatableFieldException;
+import com.mt.common.domain.model.restful.exception.UnsupportedPatchOperationException;
+import com.mt.common.domain.model.restful.exception.UpdateFiledValueException;
+import com.mt.common.domain.model.restful.PatchCommand;
+import com.mt.common.domain.model.sql.builder.UpdateQueryBuilder;
 import com.mt.mall.domain.model.sku.Sku;
 import org.springframework.stereotype.Component;
 

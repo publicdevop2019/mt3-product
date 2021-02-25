@@ -1,8 +1,8 @@
 package com.mt.mall.port.adapter.persistence.sku;
 
-import com.mt.common.sql.builder.SelectQueryBuilder;
-import com.mt.common.sql.clause.DomainIdQueryClause;
-import com.mt.common.sql.clause.SelectFieldStringEqualClause;
+import com.mt.common.domain.model.sql.builder.SelectQueryBuilder;
+import com.mt.common.domain.model.sql.clause.DomainIdQueryClause;
+import com.mt.common.domain.model.sql.clause.FieldStringEqualClause;
 import com.mt.mall.domain.model.sku.Sku;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +16,6 @@ public class SkuSelectQueryBuilder extends SelectQueryBuilder<Sku> {
     {
 //        allowEmptyClause = true;
         supportedWhere.put(COMMON_ENTITY_ID, new DomainIdQueryClause<>(SKU_ID_LITERAL));
-        supportedWhere.put(SKU_REFERENCE_ID_LITERAL, new SelectFieldStringEqualClause<>(SKU_REFERENCE_ID_LITERAL));
+        supportedWhere.put(SKU_REFERENCE_ID_LITERAL, new FieldStringEqualClause<>(SKU_REFERENCE_ID_LITERAL));
     }
 }

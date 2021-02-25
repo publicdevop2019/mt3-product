@@ -1,6 +1,6 @@
 package com.mt.mall.domain.model.catalog;
 
-import com.mt.common.validate.ValidationNotificationHandler;
+import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.mall.domain.DomainRegistry;
 
 import java.util.Optional;

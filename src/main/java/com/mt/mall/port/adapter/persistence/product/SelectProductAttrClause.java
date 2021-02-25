@@ -1,6 +1,6 @@
 package com.mt.mall.port.adapter.persistence.product;
 
-import com.mt.common.sql.clause.WhereClause;
+import com.mt.common.domain.model.sql.clause.WhereClause;
 import com.mt.mall.domain.model.product.Product;
 
 import javax.persistence.criteria.*;

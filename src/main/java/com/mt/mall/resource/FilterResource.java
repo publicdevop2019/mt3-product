@@ -1,8 +1,7 @@
 package com.mt.mall.resource;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.sql.SumPagedRep;
-import com.mt.common.validate.BizValidator;
+import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.filter.FilterApplicationService;
 import com.mt.mall.application.filter.command.CreateFilterCommand;
@@ -11,7 +10,6 @@ import com.mt.mall.application.filter.representation.FilterCardRepresentation;
 import com.mt.mall.application.filter.representation.FilterRepresentation;
 import com.mt.mall.application.filter.representation.PublicFilterCardRepresentation;
 import com.mt.mall.domain.model.filter.Filter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

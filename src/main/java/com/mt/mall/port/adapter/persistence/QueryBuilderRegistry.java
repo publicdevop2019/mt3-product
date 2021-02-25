@@ -1,6 +1,6 @@
 package com.mt.mall.port.adapter.persistence;
 
-import com.mt.common.sql.builder.SelectQueryBuilder;
+import com.mt.common.domain.model.sql.builder.SelectQueryBuilder;
 import com.mt.mall.domain.model.filter.Filter;
 import com.mt.mall.port.adapter.persistence.catalog.CatalogQueryBuilder;
 import com.mt.mall.port.adapter.persistence.filter.FilterSelectQueryBuilder;

@@ -1,7 +1,7 @@
 package com.mt.mall.resource;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.sql.SumPagedRep;
+import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.catalog.CatalogApplicationService;
 import com.mt.mall.application.catalog.command.CreateCatalogCommand;

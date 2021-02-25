@@ -1,7 +1,7 @@
 package com.mt.mall.domain.model.product;
 
 
-import com.mt.common.persistence.EnumConverter;
+import com.mt.common.domain.model.sql.converter.EnumConverter;
 
 public enum TagType {
     KEY,

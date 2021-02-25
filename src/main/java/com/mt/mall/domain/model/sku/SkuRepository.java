@@ -1,9 +1,9 @@
 package com.mt.mall.domain.model.sku;
 
-import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.PageConfig;
-import com.mt.common.sql.PatchCommand;
-import com.mt.common.sql.SumPagedRep;
+import com.mt.common.domain.model.restful.query.QueryConfig;
+import com.mt.common.domain.model.restful.query.PageConfig;
+import com.mt.common.domain.model.restful.PatchCommand;
+import com.mt.common.domain.model.restful.SumPagedRep;
 
 import java.util.List;
 import java.util.Optional;
