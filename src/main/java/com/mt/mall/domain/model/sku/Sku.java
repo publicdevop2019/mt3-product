@@ -11,6 +11,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Getter
 @Entity
@@ -32,7 +33,7 @@ public class Sku extends Auditable {
     @Embedded
     @Setter(AccessLevel.PRIVATE)
     @AttributeOverrides({
-            @AttributeOverride(name = "domainId", column = @Column(name = "skuId", updatable = false, nullable = false))
+            @AttributeOverride(name = "domainId", column = @Column(name = "skuId", unique = true,updatable = false, nullable = false))
     })
     private SkuId skuId;
 
@@ -71,28 +72,36 @@ public class Sku extends Auditable {
         setPrice(price);
     }
 
-    public void setDescription(String description) {
+    private void setDescription(String description) {
         Validator.whitelistOnly(description);
         Validator.lengthLessThanOrEqualTo(description, 50);
         this.description = description;
     }
 
-    public void setStorageOrder(Integer storageOrder) {
+    private void setStorageOrder(Integer storageOrder) {
         Validator.greaterThanOrEqualTo(storageOrder, 0);
         this.storageOrder = storageOrder;
     }
 
-    public void setStorageActual(Integer storageActual) {
+    private void setStorageActual(Integer storageActual) {
         Validator.greaterThanOrEqualTo(storageActual, 0);
         this.storageActual = storageActual;
     }
 
-    public void setPrice(BigDecimal price) {
+    private void setPrice(BigDecimal price) {
         Validator.greaterThan(price, BigDecimal.ZERO);
+        price = price.setScale(2, RoundingMode.CEILING);
+        if (this.price == null) {
+            this.price = price;
+            return;
+        }
+        BigDecimal bigDecimal = this.price.setScale(2, RoundingMode.CEILING);
+        if (bigDecimal.compareTo(price) != 0)
+            this.price = price;
         this.price = price;
     }
 
-    public void setSales(Integer sales) {
+    private void setSales(Integer sales) {
         Validator.greaterThanOrEqualTo(sales, 0);
         this.sales = sales;
     }

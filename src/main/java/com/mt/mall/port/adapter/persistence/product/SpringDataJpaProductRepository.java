@@ -42,7 +42,7 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
     }
 
     private Optional<Product> getProductOfId(ProductId productId, boolean isPublic) {
-        ProductSelectQueryBuilder publicProductSelectQueryBuilder = QueryBuilderRegistry.productSelectQueryBuilder();
+        ProductQueryBuilder publicProductSelectQueryBuilder = QueryBuilderRegistry.productSelectQueryBuilder();
         List<Product> select = publicProductSelectQueryBuilder.select(new ProductQuery(productId, isPublic), new PageConfig(), Product.class);
         if (select.isEmpty())
             return Optional.empty();

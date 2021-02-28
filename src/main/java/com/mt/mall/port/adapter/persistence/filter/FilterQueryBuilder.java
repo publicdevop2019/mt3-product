@@ -10,11 +10,12 @@ import org.springframework.stereotype.Component;
 import static com.mt.common.CommonConstant.COMMON_ENTITY_ID;
 
 @Component
-public class FilterSelectQueryBuilder extends SelectQueryBuilder<Filter> {
+public class FilterQueryBuilder extends SelectQueryBuilder<Filter> {
     public transient static final String ENTITY_CATALOG_LITERAL = "catalogs";
     private static final String FILTER_ID_LITERAL = "filterId";
 
     {
+        supportedSort.put("id",FILTER_ID_LITERAL);
         supportedWhere.put(COMMON_ENTITY_ID, new DomainIdQueryClause<>(FILTER_ID_LITERAL));
         supportedWhere.put(ENTITY_CATALOG_LITERAL, new FieldStringLikeClause(ENTITY_CATALOG_LITERAL));
         supportedWhere.put("catalog", new FieldStringEqualClause<>(ENTITY_CATALOG_LITERAL));

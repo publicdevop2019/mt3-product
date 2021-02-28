@@ -10,11 +10,11 @@ import static com.mt.common.CommonConstant.COMMON_ENTITY_ID;
 import static com.mt.mall.domain.model.sku.Sku.SKU_REFERENCE_ID_LITERAL;
 
 @Component
-public class SkuSelectQueryBuilder extends SelectQueryBuilder<Sku> {
+public class SkuQueryBuilder extends SelectQueryBuilder<Sku> {
     public static final String SKU_ID_LITERAL = "skuId";
 
     {
-//        allowEmptyClause = true;
+        supportedSort.put("id",SKU_ID_LITERAL);
         supportedWhere.put(COMMON_ENTITY_ID, new DomainIdQueryClause<>(SKU_ID_LITERAL));
         supportedWhere.put(SKU_REFERENCE_ID_LITERAL, new FieldStringEqualClause<>(SKU_REFERENCE_ID_LITERAL));
     }

@@ -28,7 +28,7 @@ public class Filter extends Auditable {
     @Embedded
     @Setter(AccessLevel.PRIVATE)
     @AttributeOverrides({
-            @AttributeOverride(name = "domainId", column = @Column(name = "filterId", updatable = false, nullable = false))
+            @AttributeOverride(name = "domainId", column = @Column(name = "filterId",unique = true, updatable = false, nullable = false))
     })
     private FilterId filterId;
 

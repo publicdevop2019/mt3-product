@@ -17,7 +17,7 @@ import java.util.List;
 
 import static com.mt.common.CommonConstant.*;
 import static com.mt.mall.domain.model.sku.Sku.*;
-import static com.mt.mall.port.adapter.persistence.sku.SkuSelectQueryBuilder.SKU_ID_LITERAL;
+import static com.mt.mall.port.adapter.persistence.sku.SkuQueryBuilder.SKU_ID_LITERAL;
 
 @Component
 public class SkuUpdateQueryBuilder extends UpdateQueryBuilder<Sku> {

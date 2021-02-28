@@ -25,12 +25,12 @@ public class CatalogValidationService {
         stringStringHashMap.forEach((k, v) -> {
             Optional<Tag> first = tagSet.stream().filter(e -> e.getTagId().getDomainId().equals(k)).findFirst();
             if (first.isEmpty()) {
-                handler.handleError("specified tag not found");
+                handler.handleError("specified tag not found: " + k);
             }
             Tag tag = first.get();
             if (!TagValueType.MANUAL.equals(tag.getMethod())) {
                 if (!tag.getSelectValues().contains(v))
-                    handler.handleError("specified tag value not found");
+                    handler.handleError("specified tag value not found: " + k + " value: " + v);
             }
         });
     }

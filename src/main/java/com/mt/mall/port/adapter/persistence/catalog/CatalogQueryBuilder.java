@@ -18,6 +18,7 @@ class CatalogQueryBuilder extends SelectQueryBuilder<Catalog> {
 
     {
         supportedSort.put(NAME_LITERAL, NAME_LITERAL);
+        supportedSort.put("id", CATALOG_ID_LITERAL);
         supportedWhere.put(COMMON_ENTITY_ID, new DomainIdQueryClause<>(CATALOG_ID_LITERAL));
         supportedWhere.put(TYPE_LITERAL, new FieldStringEqualClause<>(TYPE_LITERAL));
         supportedWhere.put(PARENT_ID_LITERAL, new FieldStringEqualClause<>(PARENT_ID_LITERAL));

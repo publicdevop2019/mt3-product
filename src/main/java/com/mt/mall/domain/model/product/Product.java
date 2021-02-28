@@ -1,14 +1,14 @@
 package com.mt.mall.domain.model.product;
 
-import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.sql.converter.StringSetConverter;
-import com.mt.common.domain.model.restful.exception.AggregateNotExistException;
-import com.mt.common.domain.model.restful.exception.NoUpdatableFieldException;
+import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import com.mt.common.domain.model.restful.exception.AggregateNotExistException;
+import com.mt.common.domain.model.restful.exception.NoUpdatableFieldException;
+import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.product.command.CreateProductCommand;
 import com.mt.mall.application.product.command.ProductOptionCommand;
@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import javax.annotation.Nullable;
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -72,7 +73,7 @@ public class Product extends Auditable {
     @Embedded
     @Setter(AccessLevel.PRIVATE)
     @AttributeOverrides({
-            @AttributeOverride(name = "domainId", column = @Column(name = "productId", updatable = false, nullable = false))
+            @AttributeOverride(name = "domainId", column = @Column(name = "productId", unique = true,updatable = false, nullable = false))
     })
     private ProductId productId;
     @Column(length = 10000)
@@ -97,12 +98,19 @@ public class Product extends Auditable {
     @Column
     private Integer totalSales;
 
-    public void setLowestPrice(BigDecimal lowestPrice) {
+    private void setLowestPrice(BigDecimal lowestPrice) {
         Validator.greaterThanOrEqualTo(lowestPrice, BigDecimal.ZERO);
-        this.lowestPrice = lowestPrice;
+        lowestPrice = lowestPrice.setScale(2, RoundingMode.CEILING);
+        if (this.lowestPrice == null) {
+            this.lowestPrice = lowestPrice;
+            return;
+        }
+        BigDecimal bigDecimal = this.lowestPrice.setScale(2, RoundingMode.CEILING);
+        if (bigDecimal.compareTo(lowestPrice) != 0)
+            this.lowestPrice = lowestPrice;
     }
 
-    public void setTotalSales(Integer totalSales) {
+    private void setTotalSales(Integer totalSales) {
         Validator.greaterThanOrEqualTo(totalSales, 0);
         this.totalSales = totalSales;
     }
@@ -112,7 +120,7 @@ public class Product extends Auditable {
     }
 
     private void setSelectedOptions(List<ProductOptionCommand> selectedOptions) {
-        if(selectedOptions!=null)
+        if (selectedOptions != null)
             this.selectedOptions = selectedOptions.stream().map(ProductOption::new).collect(Collectors.toList());
     }
 
@@ -141,6 +149,8 @@ public class Product extends Auditable {
     private void setImageUrlLarge(@Nullable Set<String> imageUrlLarge) {
         if (imageUrlLarge != null)
             imageUrlLarge.forEach(Validator::isHttpUrl);
+        if (imageUrlLarge == null && this.imageUrlLarge != null && this.imageUrlLarge.isEmpty())
+            return;
         this.imageUrlLarge = imageUrlLarge;
     }
 
@@ -184,11 +194,11 @@ public class Product extends Auditable {
         skus.forEach(e -> {
             if (e.getSales() == null)
                 e.setSales(0);
-            e.setAttributesSales(new TreeSet<>(e.getAttributesSales()));
+            Validator.notNull(e.getAttributesSales());
         });
         adjustSku(skus, changeId);
         updateAttributeSaleImages(attributeSaleImages);
-        this.lowestPrice = findLowestPrice2(skus);
+        setLowestPrice(findLowestPrice2(skus));
         Set<String> sales = skus.stream().map(UpdateProductCommand.UpdateProductAdminSkuCommand::getAttributesSales)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
@@ -316,7 +326,7 @@ public class Product extends Auditable {
         List<String> collect = attrSalesMap.keySet().stream().filter(e -> commands.stream().noneMatch(command -> getAttrSalesKey(command.getAttributesSales()).equals(e))).collect(Collectors.toList());
         Set<String> collect1 = collect.stream().map(e -> attrSalesMap.get(e)).collect(Collectors.toSet());
         if (collect1.size() > 0)
-            ApplicationServiceRegistry.skuApplicationService().removeByQuery(COMMON_ENTITY_ID+ QUERY_DELIMITER+String.join(QUERY_OR_DELIMITER, collect1), UUID.randomUUID().toString());
+            ApplicationServiceRegistry.skuApplicationService().removeByQuery(COMMON_ENTITY_ID + QUERY_DELIMITER + String.join(QUERY_OR_DELIMITER, collect1), UUID.randomUUID().toString());
     }
 
     private String getAttrSalesKey(Set<String> attributesSales) {

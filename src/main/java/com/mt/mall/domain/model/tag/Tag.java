@@ -40,7 +40,7 @@ public class Tag extends Auditable {
     @Embedded
     @Setter(AccessLevel.PRIVATE)
     @AttributeOverrides({
-            @AttributeOverride(name = "domainId", column = @Column(name = "tagId", updatable = false, nullable = false))
+            @AttributeOverride(name = "domainId", column = @Column(name = "tagId",unique = true, updatable = false, nullable = false))
     })
     private TagId tagId;
 

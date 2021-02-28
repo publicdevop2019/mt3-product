@@ -14,11 +14,12 @@ import static com.mt.mall.domain.model.product.ProductQuery.AVAILABLE;
 
 
 @Component
-public class ProductSelectQueryBuilder extends SelectQueryBuilder<Product> {
+public class ProductQueryBuilder extends SelectQueryBuilder<Product> {
     public static final String PUBLIC_ATTR = "attr";
     private static final String PRODUCT_ID_LITERAL = "productId";
 
     {
+        supportedSort.put("id", PRODUCT_ID_LITERAL);
         supportedSort.put(ADMIN_REP_NAME_LITERAL, PRODUCT_NAME_LITERAL);
         supportedSort.put(ADMIN_REP_SALES_LITERAL, PRODUCT_TOTAL_SALES_LITERAL);
         supportedSort.put(ADMIN_REP_PRICE_LITERAL, PRODUCT_LOWEST_PRICE_LITERAL);

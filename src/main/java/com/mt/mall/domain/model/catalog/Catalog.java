@@ -1,11 +1,11 @@
 package com.mt.mall.domain.model.catalog;
 
-import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
-import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import com.mt.mall.domain.DomainRegistry;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -37,7 +37,7 @@ public class Catalog extends Auditable {
     @Embedded
     @Setter(AccessLevel.PRIVATE)
     @AttributeOverrides({
-            @AttributeOverride(name = "domainId", column = @Column(name = "catalogId", updatable = false, nullable = false))
+            @AttributeOverride(name = "domainId", column = @Column(name = "catalogId", unique = true, updatable = false, nullable = false))
     })
     private CatalogId catalogId;
 
