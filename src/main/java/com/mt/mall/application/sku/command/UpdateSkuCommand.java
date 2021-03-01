@@ -1,5 +1,6 @@
 package com.mt.mall.application.sku.command;
 
+import com.mt.mall.domain.model.sku.SkuId;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -10,4 +11,5 @@ public class UpdateSkuCommand implements Serializable{
     private Integer version;
     private BigDecimal price;
     private String description;
+    private SkuId skuId;
 }

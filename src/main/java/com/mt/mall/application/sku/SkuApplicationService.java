@@ -2,17 +2,22 @@ package com.mt.mall.application.sku;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
-import com.mt.common.domain.model.restful.query.QueryConfig;
-import com.mt.common.domain.model.restful.query.PageConfig;
-import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.restful.query.PageConfig;
+import com.mt.common.domain.model.restful.query.QueryConfig;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.sku.command.CreateSkuCommand;
 import com.mt.mall.application.sku.command.PatchSkuCommand;
 import com.mt.mall.application.sku.command.UpdateSkuCommand;
 import com.mt.mall.domain.DomainRegistry;
+import com.mt.mall.domain.model.product.event.ProductCreated;
+import com.mt.mall.domain.model.product.event.ProductDeleted;
+import com.mt.mall.domain.model.product.event.ProductPatchBatched;
+import com.mt.mall.domain.model.product.event.ProductUpdated;
 import com.mt.mall.domain.model.sku.Sku;
 import com.mt.mall.domain.model.sku.SkuId;
 import com.mt.mall.domain.model.sku.SkuQuery;
@@ -31,6 +36,10 @@ public class SkuApplicationService {
     @Transactional
     public String create(CreateSkuCommand command, String operationId) {
         SkuId skuId = DomainRegistry.skuRepository().nextIdentity();
+        return doCreate(command, operationId, skuId);
+    }
+
+    private String doCreate(CreateSkuCommand command, String operationId, SkuId skuId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, skuId,
                 () -> DomainRegistry.skuService().create(
                         skuId,
@@ -56,6 +65,10 @@ public class SkuApplicationService {
     @Transactional
     public void replace(String id, UpdateSkuCommand command, String changeId) {
         SkuId skuId = new SkuId(id);
+        doReplace(command, changeId, skuId);
+    }
+
+    private void doReplace(UpdateSkuCommand command, String changeId, SkuId skuId) {
         ApplicationServiceRegistry.idempotentWrapper().idempotent(skuId, command, changeId, (ignored) -> {
             Optional<Sku> optionalSku = DomainRegistry.skuRepository().skuOfId(skuId);
             if (optionalSku.isPresent()) {
@@ -74,6 +87,10 @@ public class SkuApplicationService {
     @Transactional
     public void removeById(String id, String changeId) {
         SkuId skuId = new SkuId(id);
+        doRemoveById(changeId, skuId);
+    }
+
+    private void doRemoveById(String changeId, SkuId skuId) {
         ApplicationServiceRegistry.idempotentWrapper().idempotent(skuId, null, changeId, (change) -> {
             Optional<Sku> optionalSku = DomainRegistry.skuRepository().skuOfId(skuId);
             if (optionalSku.isPresent()) {
@@ -121,5 +138,42 @@ public class SkuApplicationService {
         ApplicationServiceRegistry.idempotentWrapper().idempotent(null, commands, changeId, (ignored) -> {
             DomainRegistry.skuRepository().patchBatch(commands);
         }, Sku.class);
+    }
+
+    @SubscribeForEvent
+    @Transactional
+    public void handleChange(StoredEvent event) {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, null, event.getId().toString(), (ignored) -> {
+            if (ProductCreated.class.getName().equals(event.getName())) {
+                ProductCreated deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProductCreated.class);
+                create(deserialize.getCreateSkuCommands(), deserialize.getChangeId());
+            }
+            if (ProductUpdated.class.getName().equals(event.getName())) {
+                ProductUpdated deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProductUpdated.class);
+                create(deserialize.getCreateSkuCommands(), deserialize.getChangeId());
+                update(deserialize.getUpdateSkuCommands(), deserialize.getChangeId());
+                remove(deserialize.getRemoveSkuCommands(), deserialize.getChangeId());
+            }
+            if (ProductDeleted.class.getName().equals(event.getName())) {
+                ProductDeleted deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProductDeleted.class);
+                remove(deserialize.getRemoveSkuCommands(), deserialize.getChangeId());
+            }
+            if (ProductPatchBatched.class.getName().equals(event.getName())) {
+                ProductPatchBatched deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProductPatchBatched.class);
+                patchBatch(deserialize.getPatchCommands(), deserialize.getChangeId());
+            }
+        }, Sku.class);
+    }
+
+    private void remove(Set<SkuId> removeSkuCommands, String changeId) {
+        removeSkuCommands.forEach(e -> doRemoveById(changeId, e));
+    }
+
+    private void update(List<UpdateSkuCommand> updateSkuCommands, String changeId) {
+        updateSkuCommands.forEach(e -> doReplace(e, changeId, e.getSkuId()));
+    }
+
+    private void create(List<CreateSkuCommand> createSkuCommands, String changId) {
+        createSkuCommands.forEach(command -> doCreate(command, changId, command.getSkuId()));
     }
 }

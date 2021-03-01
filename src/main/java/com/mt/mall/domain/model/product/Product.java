@@ -2,6 +2,7 @@ package com.mt.mall.domain.model.product;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.exception.AggregateNotExistException;
@@ -20,7 +21,10 @@ import com.mt.mall.application.product.exception.SkuNotExistException;
 import com.mt.mall.application.sku.command.CreateSkuCommand;
 import com.mt.mall.application.sku.command.UpdateSkuCommand;
 import com.mt.mall.domain.DomainRegistry;
+import com.mt.mall.domain.model.product.event.ProductCreated;
+import com.mt.mall.domain.model.product.event.ProductUpdated;
 import com.mt.mall.domain.model.sku.Sku;
+import com.mt.mall.domain.model.sku.SkuId;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -73,7 +77,7 @@ public class Product extends Auditable {
     @Embedded
     @Setter(AccessLevel.PRIVATE)
     @AttributeOverrides({
-            @AttributeOverride(name = "domainId", column = @Column(name = "productId", unique = true,updatable = false, nullable = false))
+            @AttributeOverride(name = "domainId", column = @Column(name = "productId", unique = true, updatable = false, nullable = false))
     })
     private ProductId productId;
     @Column(length = 10000)
@@ -285,48 +289,62 @@ public class Product extends Auditable {
         };
     }
 
+    public HashMap<String, String> getAttrSalesMap() {
+        if (attrSalesMap == null) {
+            attrSalesMap = new HashMap<>();
+        }
+        return attrSalesMap;
+    }
 
     private void adjustSku(List<UpdateProductCommand.UpdateProductAdminSkuCommand> commands, String changeId) {
+        List<CreateSkuCommand> createSkuCommands = new ArrayList<>();
+        List<UpdateSkuCommand> updateSkuCommands = new ArrayList<>();
+        Set<SkuId> removeSkuCommands = new HashSet<>();
         commands.forEach(command -> {
             if (command.getStorageActual() != null && command.getStorageOrder() != null) {
                 // new sku
-                if (this.attrSalesMap.containsKey(getAttrSalesKey(command.getAttributesSales()))) {
+                if (getAttrSalesMap().containsKey(getAttrSalesKey(command.getAttributesSales()))) {
                     throw new SkuAlreadyExistException();
                 }
+
                 CreateSkuCommand command1 = new CreateSkuCommand();
+                SkuId skuId = DomainRegistry.skuRepository().nextIdentity();
+                command1.setSkuId(skuId);
                 command1.setPrice(command.getPrice());
                 command1.setReferenceId(this.id.toString());
                 command1.setStorageOrder(command.getStorageOrder());
                 command1.setStorageActual(command.getStorageActual());
                 command1.setSales(command.getSales() == null ? 0 : command.getSales());
-                String s = ApplicationServiceRegistry.skuApplicationService().create(command1, UUID.randomUUID().toString());
-                if (attrSalesMap == null)
-                    attrSalesMap = new HashMap<>();
-                attrSalesMap.put(getAttrSalesKey(command.getAttributesSales()), s);
+                createSkuCommands.add(command1);
+                getAttrSalesMap().put(String.join(",", command.getAttributesSales()), skuId.getDomainId());
             } else {
                 //existing sku
-                if (!this.attrSalesMap.containsKey(getAttrSalesKey(command.getAttributesSales()))) {
+                if (!getAttrSalesMap().containsKey(getAttrSalesKey(command.getAttributesSales()))) {
                     throw new SkuNotExistException();
                 }
                 //update price
-                String s = this.attrSalesMap.get(getAttrSalesKey(command.getAttributesSales()));
+                String s = getAttrSalesMap().get(getAttrSalesKey(command.getAttributesSales()));
                 Optional<Sku> sku = ApplicationServiceRegistry.skuApplicationService().sku(s);
                 if (sku.isPresent() && sku.get().getPrice().compareTo(command.getPrice()) != 0) {
-                    UpdateSkuCommand appUpdateBizSkuCommand = new UpdateSkuCommand();
-                    appUpdateBizSkuCommand.setPrice(command.getPrice());
-                    appUpdateBizSkuCommand.setVersion(command.getVersion());
+                    UpdateSkuCommand updateSkuCommand = new UpdateSkuCommand();
+                    updateSkuCommand.setPrice(command.getPrice());
+                    updateSkuCommand.setVersion(command.getVersion());
+                    updateSkuCommand.setSkuId(sku.get().getSkuId());
                     //price will be update in a different changeId
-                    ApplicationServiceRegistry.skuApplicationService().replace(s, appUpdateBizSkuCommand, UUID.randomUUID().toString());
+                    updateSkuCommands.add(updateSkuCommand);
+
                 }
                 updateStorage(command, changeId);
 
             }
         });
         // find skus not in update command & remove
-        List<String> collect = attrSalesMap.keySet().stream().filter(e -> commands.stream().noneMatch(command -> getAttrSalesKey(command.getAttributesSales()).equals(e))).collect(Collectors.toList());
-        Set<String> collect1 = collect.stream().map(e -> attrSalesMap.get(e)).collect(Collectors.toSet());
-        if (collect1.size() > 0)
-            ApplicationServiceRegistry.skuApplicationService().removeByQuery(COMMON_ENTITY_ID + QUERY_DELIMITER + String.join(QUERY_OR_DELIMITER, collect1), UUID.randomUUID().toString());
+        List<String> collect = getAttrSalesMap().keySet().stream().filter(e -> commands.stream().noneMatch(command -> getAttrSalesKey(command.getAttributesSales()).equals(e))).collect(Collectors.toList());
+        Set<String> collect1 = collect.stream().map(e -> getAttrSalesMap().get(e)).collect(Collectors.toSet());
+        if (collect1.size() > 0) {
+            removeSkuCommands.addAll(collect1.stream().map(SkuId::new).collect(Collectors.toSet()));
+        }
+        DomainEventPublisher.instance().publish(new ProductUpdated(productId, createSkuCommands, updateSkuCommands, removeSkuCommands, UUID.randomUUID().toString()));
     }
 
     private String getAttrSalesKey(Set<String> attributesSales) {
@@ -376,7 +394,7 @@ public class Product extends Auditable {
     }
 
     private String toSkuQueryPath(UpdateProductCommand.UpdateProductAdminSkuCommand command, String storageType) {
-        String s = attrSalesMap.get(getAttrSalesKey(command.getAttributesSales()));
+        String s = getAttrSalesMap().get(getAttrSalesKey(command.getAttributesSales()));
         return "/" + s + "/" + storageType;
     }
 
@@ -417,7 +435,7 @@ public class Product extends Auditable {
         skus.stream().map(CreateProductCommand.CreateProductSkuAdminCommand::getAttributesSales)
                 .flatMap(Collection::stream).collect(Collectors.toSet())
                 .forEach(getStringConsumer(TagType.SALES));
-
+        List<CreateSkuCommand> createSkuCommands = new ArrayList<>();
         for (CreateProductCommand.CreateProductSkuAdminCommand skuAdminCommand : skus) {
             CreateSkuCommand command1 = new CreateSkuCommand();
             command1.setPrice(skuAdminCommand.getPrice());
@@ -425,17 +443,18 @@ public class Product extends Auditable {
             command1.setStorageOrder(skuAdminCommand.getStorageOrder());
             command1.setStorageActual(skuAdminCommand.getStorageActual());
             command1.setSales(skuAdminCommand.getSales());
-            String skuId = ApplicationServiceRegistry.skuApplicationService().create(command1, UUID.randomUUID().toString());
-            if (attrSalesMap == null)
-                attrSalesMap = new HashMap<>();
-            attrSalesMap.put(String.join(",", skuAdminCommand.getAttributesSales()), skuId);
+            SkuId skuId = DomainRegistry.skuRepository().nextIdentity();
+            command1.setSkuId(skuId);
+            createSkuCommands.add(command1);
+            getAttrSalesMap().put(String.join(",", skuAdminCommand.getAttributesSales()), skuId.getDomainId());
         }
         setAttributeSaleImages(attributeSaleImages);
         setLowestPrice(findLowestPrice(skus));
         setTotalSales(calcTotalSales(skus));
+        DomainEventPublisher.instance().publish(new ProductCreated(productId, createSkuCommands, UUID.randomUUID().toString()));
     }
 
-    public void setAttributeSaleImages(List<ProductSalesImageCommand> attributeSaleImages) {
+    private void setAttributeSaleImages(List<ProductSalesImageCommand> attributeSaleImages) {
         if (attributeSaleImages != null) {
             ArrayList<ProductAttrSaleImages> collect = attributeSaleImages.stream().map(e -> new ProductAttrSaleImages(e.getAttributeSales(), (LinkedHashSet<String>) e.getImageUrls())
             ).collect(Collectors.toCollection(ArrayList::new));
