@@ -4,11 +4,13 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
+import com.mt.common.domain.model.idempotent.event.SkuChangeFailed;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.sql.builder.UpdateQueryBuilder;
 import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.sku.command.CreateSkuCommand;
 import com.mt.mall.application.sku.command.PatchSkuCommand;
@@ -21,8 +23,14 @@ import com.mt.mall.domain.model.product.event.ProductUpdated;
 import com.mt.mall.domain.model.sku.Sku;
 import com.mt.mall.domain.model.sku.SkuId;
 import com.mt.mall.domain.model.sku.SkuQuery;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +39,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class SkuApplicationService {
+    @Value("${spring.application.name}")
+    private String appName;
+    @Autowired
+    private PlatformTransactionManager transactionManager;
+
 
     @SubscribeForEvent
     @Transactional
@@ -133,11 +146,24 @@ public class SkuApplicationService {
     }
 
     @SubscribeForEvent
-    @Transactional
     public void patchBatch(List<PatchCommand> commands, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, commands, changeId, (ignored) -> {
-            DomainRegistry.skuRepository().patchBatch(commands);
-        }, Sku.class);
+        List<PatchCommand> patchCommands = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(commands);
+        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+        try {
+            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    ApplicationServiceRegistry.idempotentWrapper().idempotent(null, commands, changeId, (ignored) -> {
+                        DomainRegistry.skuRepository().patchBatch(commands);
+                    }, Sku.class);
+                }
+            });
+        } catch (UpdateQueryBuilder.PatchCommandExpectNotMatchException ex) {
+            //directly publish msg to stream
+            SkuChangeFailed skuChangeFailed = new SkuChangeFailed(null, patchCommands);
+            CommonDomainRegistry.getEventStreamService().next(appName, skuChangeFailed.isInternal(), skuChangeFailed.getTopic(), new StoredEvent(skuChangeFailed));
+            throw ex;
+        }
     }
 
     @SubscribeForEvent
