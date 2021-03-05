@@ -1,87 +1,85 @@
 package com.mt.mall.port.adapter.persistence;
 
-import com.mt.common.domain.model.sql.builder.SelectQueryBuilder;
+import com.mt.common.domain.model.sql.builder.SqlSelectQueryConverter;
 import com.mt.mall.domain.model.filter.Filter;
-import com.mt.mall.port.adapter.persistence.catalog.CatalogQueryBuilder;
-import com.mt.mall.port.adapter.persistence.filter.FilterQueryBuilder;
-import com.mt.mall.port.adapter.persistence.product.ProductQueryBuilder;
-import com.mt.mall.port.adapter.persistence.product.ProductUpdateQueryBuilder;
-import com.mt.mall.port.adapter.persistence.sku.SkuQueryBuilder;
-import com.mt.mall.port.adapter.persistence.sku.SkuUpdateQueryBuilder;
-import com.mt.mall.port.adapter.persistence.tag.TagQueryBuilder;
+import com.mt.mall.port.adapter.persistence.catalog.SpringDataJpaCatalogRepository;
+import com.mt.mall.port.adapter.persistence.filter.SpringDataJpaFilterRepository;
+import com.mt.mall.port.adapter.persistence.product.SpringDataJpaProductRepository;
+import com.mt.mall.port.adapter.persistence.sku.SpringDataJpaSkuRepository;
+import com.mt.mall.port.adapter.persistence.tag.SpringDataJpaTagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class QueryBuilderRegistry {
-    private static CatalogQueryBuilder catalogSelectQueryBuilder;
-    private static FilterQueryBuilder filterSelectQueryBuilder;
-    private static SkuQueryBuilder skuSelectQueryBuilder;
-    private static TagQueryBuilder tagSelectQueryBuilder;
-    private static ProductQueryBuilder productSelectQueryBuilder;
-    private static ProductUpdateQueryBuilder productUpdateQueryBuilder;
-    private static SkuUpdateQueryBuilder skuUpdateQueryBuilder;
+    private static SpringDataJpaCatalogRepository.JpaCriteriaApiCatalogExecutor catalogSelectQueryBuilder;
+    private static SpringDataJpaFilterRepository.FilterQueryBuilder filterSelectQueryBuilder;
+    private static SpringDataJpaSkuRepository.SkuQueryBuilder skuSelectQueryBuilder;
+    private static SpringDataJpaTagRepository.TagQueryBuilder tagSelectQueryBuilder;
+    private static SpringDataJpaProductRepository.ProductQueryBuilder productSelectQueryBuilder;
+    private static SpringDataJpaProductRepository.ProductUpdateQueryBuilder productUpdateQueryBuilder;
+    private static SpringDataJpaSkuRepository.SkuUpdateQueryBuilder skuUpdateQueryBuilder;
 
-    public static TagQueryBuilder tagSelectQueryBuilder() {
+    public static SpringDataJpaTagRepository.TagQueryBuilder tagSelectQueryBuilder() {
         return tagSelectQueryBuilder;
     }
 
-    public static SkuUpdateQueryBuilder skuUpdateQueryBuilder() {
+    public static SpringDataJpaSkuRepository.SkuUpdateQueryBuilder skuUpdateQueryBuilder() {
         return skuUpdateQueryBuilder;
     }
 
-    public static ProductUpdateQueryBuilder productUpdateQueryBuilder() {
+    public static SpringDataJpaProductRepository.ProductUpdateQueryBuilder productUpdateQueryBuilder() {
         return productUpdateQueryBuilder;
     }
 
-    public static ProductQueryBuilder productSelectQueryBuilder() {
+    public static SpringDataJpaProductRepository.ProductQueryBuilder productSelectQueryBuilder() {
         return productSelectQueryBuilder;
     }
 
-    public static CatalogQueryBuilder catalogSelectQueryBuilder() {
+    public static SpringDataJpaCatalogRepository.JpaCriteriaApiCatalogExecutor catalogSelectQueryBuilder() {
         return catalogSelectQueryBuilder;
     }
 
-    public static SkuQueryBuilder skuSelectQueryBuilder() {
+    public static SpringDataJpaSkuRepository.SkuQueryBuilder skuSelectQueryBuilder() {
         return skuSelectQueryBuilder;
     }
 
-    public static SelectQueryBuilder<Filter> filterSelectQueryBuilder() {
+    public static SqlSelectQueryConverter<Filter> filterSelectQueryBuilder() {
         return filterSelectQueryBuilder;
     }
 
     @Autowired
-    public void setSkuUpdateQueryBuilder(SkuUpdateQueryBuilder skuUpdateQueryBuilder) {
+    public void setSkuUpdateQueryBuilder(SpringDataJpaSkuRepository.SkuUpdateQueryBuilder skuUpdateQueryBuilder) {
         QueryBuilderRegistry.skuUpdateQueryBuilder = skuUpdateQueryBuilder;
     }
 
     @Autowired
-    public void setProductUpdateQueryBuilder(ProductUpdateQueryBuilder productUpdateQueryBuilder) {
+    public void setProductUpdateQueryBuilder(SpringDataJpaProductRepository.ProductUpdateQueryBuilder productUpdateQueryBuilder) {
         QueryBuilderRegistry.productUpdateQueryBuilder = productUpdateQueryBuilder;
     }
 
     @Autowired
-    public void setProductSelectQueryBuilder(ProductQueryBuilder productSelectQueryBuilder) {
+    public void setProductSelectQueryBuilder(SpringDataJpaProductRepository.ProductQueryBuilder productSelectQueryBuilder) {
         QueryBuilderRegistry.productSelectQueryBuilder = productSelectQueryBuilder;
     }
 
     @Autowired
-    public void setTagSelectQueryBuilder(TagQueryBuilder tagSelectQueryBuilder) {
+    public void setTagSelectQueryBuilder(SpringDataJpaTagRepository.TagQueryBuilder tagSelectQueryBuilder) {
         QueryBuilderRegistry.tagSelectQueryBuilder = tagSelectQueryBuilder;
     }
 
     @Autowired
-    public void setSkuSelectQueryBuilder(SkuQueryBuilder skuSelectQueryBuilder) {
+    public void setSkuSelectQueryBuilder(SpringDataJpaSkuRepository.SkuQueryBuilder skuSelectQueryBuilder) {
         QueryBuilderRegistry.skuSelectQueryBuilder = skuSelectQueryBuilder;
     }
 
     @Autowired
-    public void setCatalogSelectQueryBuilder(CatalogQueryBuilder catalogSelectQueryBuilder) {
+    public void setCatalogSelectQueryBuilder(SpringDataJpaCatalogRepository.JpaCriteriaApiCatalogExecutor catalogSelectQueryBuilder) {
         QueryBuilderRegistry.catalogSelectQueryBuilder = catalogSelectQueryBuilder;
     }
 
     @Autowired
-    public void setFilterSelectQueryBuilder(FilterQueryBuilder filterSelectQueryBuilder) {
+    public void setFilterSelectQueryBuilder(SpringDataJpaFilterRepository.FilterQueryBuilder filterSelectQueryBuilder) {
         QueryBuilderRegistry.filterSelectQueryBuilder = filterSelectQueryBuilder;
     }
 }

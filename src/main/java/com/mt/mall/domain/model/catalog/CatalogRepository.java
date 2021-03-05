@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface CatalogRepository {
-    SumPagedRep<Catalog> catalogsOfQuery(CatalogQuery catalogQuery, PageConfig defaultPaging, QueryConfig queryConfig);
+    SumPagedRep<Catalog> catalogsOfQuery(CatalogQuery catalogQuery);
 
     Optional<Catalog> catalogOfId(CatalogId catalogId);
 

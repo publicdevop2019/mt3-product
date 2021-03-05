@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class CatalogId extends DomainId implements Serializable {
     public CatalogId() {
         super();
-        Long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
+        long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         String s = Long.toString(id, 36);
         setDomainId("3C" + s.toUpperCase());
     }

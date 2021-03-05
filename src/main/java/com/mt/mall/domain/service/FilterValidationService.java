@@ -4,6 +4,7 @@ import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.catalog.Catalog;
+import com.mt.mall.domain.model.catalog.CatalogId;
 import com.mt.mall.domain.model.catalog.CatalogQuery;
 import com.mt.mall.domain.model.catalog.Type;
 import com.mt.mall.domain.model.filter.FilterItem;
@@ -19,7 +20,8 @@ import java.util.stream.Collectors;
 public class FilterValidationService {
     public void validateCatalogs(Set<String> catalogs, HttpValidationNotificationHandler handler) {
         // filter can only be attached to frontend catalog
-        Set<Catalog> allByQuery = QueryUtility.getAllByQuery((query, pageConfig) -> DomainRegistry.catalogRepository().catalogsOfQuery(query, pageConfig), new CatalogQuery(catalogs));
+        Set<CatalogId> collect = catalogs.stream().map(CatalogId::new).collect(Collectors.toSet());
+        Set<Catalog> allByQuery = QueryUtility.getAllByQuery((query, pageConfig) -> DomainRegistry.catalogRepository().catalogsOfQuery(query, pageConfig), new CatalogQuery(collect));
         if (allByQuery.size() != catalogs.size())
             handler.handleError("can not find all catalogs");
         Optional<Catalog> any = allByQuery.stream().filter(e -> Type.FRONTEND.equals(e.getType())).findAny();

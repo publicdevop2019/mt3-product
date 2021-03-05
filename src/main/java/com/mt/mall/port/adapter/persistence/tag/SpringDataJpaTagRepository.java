@@ -4,7 +4,10 @@ import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.sql.builder.SelectQueryBuilder;
+import com.mt.common.domain.model.sql.builder.SqlSelectQueryConverter;
+import com.mt.common.domain.model.sql.clause.DomainIdQueryClause;
+import com.mt.common.domain.model.sql.clause.FieldStringEqualClause;
+import com.mt.common.domain.model.sql.clause.FieldStringLikeClause;
 import com.mt.mall.domain.model.tag.Tag;
 import com.mt.mall.domain.model.tag.TagId;
 import com.mt.mall.domain.model.tag.TagQuery;
@@ -13,11 +16,14 @@ import com.mt.mall.port.adapter.persistence.QueryBuilderRegistry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.mt.common.CommonConstant.COMMON_ENTITY_ID;
 
 public interface SpringDataJpaTagRepository extends TagRepository, JpaRepository<Tag, Long> {
 
@@ -38,7 +44,7 @@ public interface SpringDataJpaTagRepository extends TagRepository, JpaRepository
     }
 
     private Optional<Tag> getTagOfId(TagId tagId) {
-        SelectQueryBuilder<Tag> tagSelectQueryBuilder = QueryBuilderRegistry.tagSelectQueryBuilder();
+        SqlSelectQueryConverter<Tag> tagSelectQueryBuilder = QueryBuilderRegistry.tagSelectQueryBuilder();
         List<Tag> select = tagSelectQueryBuilder.select(new TagQuery(tagId), new PageConfig(), Tag.class);
         if (select.isEmpty())
             return Optional.empty();
@@ -63,5 +69,21 @@ public interface SpringDataJpaTagRepository extends TagRepository, JpaRepository
 
     default SumPagedRep<Tag> tagsOfQuery(TagQuery query, PageConfig pageConfig) {
         return QueryUtility.pagedQuery(QueryBuilderRegistry.tagSelectQueryBuilder(), query, pageConfig, new QueryConfig(), Tag.class);
+    }
+
+    @Component
+    class TagQueryBuilder extends SqlSelectQueryConverter<Tag> {
+        public transient static final String NAME_LITERAL = "name";
+        public transient static final String TAG_ID_LITERAL = "tagId";
+        public transient static final String TYPE_LITERAL = "type";
+
+        {
+            supportedSort.put("id", TAG_ID_LITERAL);
+            supportedSort.put(NAME_LITERAL, NAME_LITERAL);
+            supportedSort.put(TYPE_LITERAL, TYPE_LITERAL);
+            supportedWhere.put(COMMON_ENTITY_ID, new DomainIdQueryClause<>(TAG_ID_LITERAL));
+            supportedWhere.put(NAME_LITERAL, new FieldStringLikeClause<>(NAME_LITERAL));
+            supportedWhere.put(TYPE_LITERAL, new FieldStringEqualClause<>(TYPE_LITERAL));
+        }
     }
 }
