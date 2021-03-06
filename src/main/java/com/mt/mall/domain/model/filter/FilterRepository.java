@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface FilterRepository{
-    FilterId nextIdentity();
 
     SumPagedRep<Filter> filtersOfQuery(FilterQuery filterQuery, PageConfig defaultPaging, QueryConfig queryConfig);
 

@@ -25,7 +25,7 @@ public class CatalogApplicationService {
     @SubscribeForEvent
     @Transactional
     public String create(CreateCatalogCommand command, String operationId) {
-        CatalogId catalogId = DomainRegistry.catalogRepository().nextIdentity();
+        CatalogId catalogId = new CatalogId();
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, catalogId,
                 () -> DomainRegistry.catalogService().create(
                         catalogId,

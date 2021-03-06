@@ -14,8 +14,6 @@ public interface SkuRepository {
 
     void add(Sku sku);
 
-    SkuId nextIdentity();
-
     SumPagedRep<Sku> skusOfQuery(SkuQuery skuQuery, PageConfig defaultPaging, QueryConfig queryConfig);
 
     Optional<Sku> skuOfId(SkuId skuId);

@@ -1,19 +1,14 @@
 package com.mt.mall.port.adapter.persistence.product;
 
+import com.mt.common.domain.model.domainId.DomainId;
+import com.mt.common.domain.model.restful.PatchCommand;
+import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.exception.NoUpdatableFieldException;
 import com.mt.common.domain.model.restful.exception.UnsupportedPatchOperationException;
 import com.mt.common.domain.model.restful.exception.UpdateFiledValueException;
-import com.mt.common.domain.model.restful.query.QueryConfig;
-import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.restful.PatchCommand;
-import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.builder.SqlSelectQueryConverter;
 import com.mt.common.domain.model.sql.builder.UpdateQueryBuilder;
-import com.mt.common.domain.model.sql.clause.DomainIdQueryClause;
-import com.mt.common.domain.model.sql.clause.FieldNumberRangeClause;
-import com.mt.common.domain.model.sql.clause.FieldStringLikeClause;
-import com.mt.common.domain.model.sql.clause.WhereClause;
 import com.mt.mall.domain.model.product.Product;
 import com.mt.mall.domain.model.product.ProductId;
 import com.mt.mall.domain.model.product.ProductQuery;
@@ -35,7 +30,6 @@ import java.util.stream.Collectors;
 import static com.mt.common.CommonConstant.*;
 import static com.mt.mall.application.product.representation.ProductRepresentation.*;
 import static com.mt.mall.domain.model.product.Product.*;
-import static com.mt.mall.domain.model.product.ProductQuery.AVAILABLE;
 
 public interface SpringDataJpaProductRepository extends ProductRepository, JpaRepository<Product, Long> {
 
@@ -47,10 +41,6 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
     @Query("update #{#entityName} e set e.deleted=true where e.id in ?1")
     void softDeleteAll(Set<Long> id);
 
-    default ProductId nextIdentity() {
-        return new ProductId();
-    }
-
     default Optional<Product> productOfId(ProductId productId) {
         return getProductOfId(productId, false);
     }
@@ -60,11 +50,7 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
     }
 
     private Optional<Product> getProductOfId(ProductId productId, boolean isPublic) {
-        ProductQueryBuilder publicProductSelectQueryBuilder = QueryBuilderRegistry.productSelectQueryBuilder();
-        List<Product> select = publicProductSelectQueryBuilder.select(new ProductQuery(productId, isPublic), new PageConfig(), Product.class);
-        if (select.isEmpty())
-            return Optional.empty();
-        return Optional.of(select.get(0));
+        return productsOfQuery(new ProductQuery(productId, isPublic)).findFirst();
     }
 
     default void add(Product client) {
@@ -72,7 +58,7 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
     }
 
     default void patchBatch(List<PatchCommand> commands) {
-        QueryBuilderRegistry.productUpdateQueryBuilder().update(commands, Product.class);
+        QueryBuilderRegistry.getProductUpdateQueryBuilder().update(commands, Product.class);
     }
 
     default void remove(Product client) {
@@ -83,34 +69,53 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
         softDeleteAll(products.stream().map(Product::getId).collect(Collectors.toSet()));
     }
 
-    default SumPagedRep<Product> productsOfQuery(ProductQuery query, PageConfig clientPaging, QueryConfig queryConfig) {
-        return QueryUtility.pagedQuery(QueryBuilderRegistry.productSelectQueryBuilder(), query, clientPaging, queryConfig, Product.class);
-    }
-
-    default SumPagedRep<Product> productsOfQuery(ProductQuery query, PageConfig clientPaging) {
-        return QueryUtility.pagedQuery(QueryBuilderRegistry.productSelectQueryBuilder(), query, clientPaging, new QueryConfig(), Product.class);
+    default SumPagedRep<Product> productsOfQuery(ProductQuery query) {
+        return QueryBuilderRegistry.getProductSelectQueryBuilder().execute(query);
     }
 
     @Component
-    class ProductQueryBuilder extends SqlSelectQueryConverter<Product> {
-        public static final String PUBLIC_ATTR = "attr";
+    class JpaCriteriaApiProductAdaptor extends SqlSelectQueryConverter<Product> {
         private static final String PRODUCT_ID_LITERAL = "productId";
 
-        {
-            supportedSort.put("id", PRODUCT_ID_LITERAL);
-            supportedSort.put(ADMIN_REP_NAME_LITERAL, PRODUCT_NAME_LITERAL);
-            supportedSort.put(ADMIN_REP_SALES_LITERAL, PRODUCT_TOTAL_SALES_LITERAL);
-            supportedSort.put(ADMIN_REP_PRICE_LITERAL, PRODUCT_LOWEST_PRICE_LITERAL);
-            supportedSort.put(ADMIN_REP_END_AT_LITERAL, PRODUCT_END_AT_LITERAL);
-            supportedWhere.put(COMMON_ENTITY_ID, new DomainIdQueryClause<>(PRODUCT_ID_LITERAL));
-            supportedWhere.put(PUBLIC_ATTR, new SelectProductAttrClause<>());
-            supportedWhere.put("attributes", new SelectProductAttrClause<>());
-            supportedWhere.put(ADMIN_REP_NAME_LITERAL, new FieldStringLikeClause<>(PRODUCT_NAME_LITERAL));
-            supportedWhere.put(ADMIN_REP_PRICE_LITERAL, new FieldNumberRangeClause<>(PRODUCT_LOWEST_PRICE_LITERAL));
-            supportedWhere.put(AVAILABLE, new SelectStatusClause<>());
+        public SumPagedRep<Product> execute(ProductQuery productQuery) {
+            List<Predicate> selectPredicates = new ArrayList<>();
+            List<Predicate> countPredicates = new ArrayList<>();
+            QueryUtility.QueryContext<Product> queryContext = QueryUtility.prepareContext(Product.class);
+            Predicate predicate1 = QueryUtility.getStringLikePredicate(productQuery.getName(), PRODUCT_NAME_LITERAL, queryContext);
+            Predicate predicate2 = QueryUtility.getStringInPredicate(productQuery.getProductIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), PRODUCT_ID_LITERAL, queryContext);
+            Predicate predicate3 = ProductTagPredicateConverter.getPredicate(productQuery.getTagSearch(), queryContext, queryContext.getQuery());
+            Predicate predicate4 = ProductTagPredicateConverter.getPredicate(productQuery.getTagSearch(), queryContext, queryContext.getCountQuery());
+            Predicate predicate5 = QueryUtility.getNumberRagePredicate(productQuery.getPriceSearch(), PRODUCT_LOWEST_PRICE_LITERAL, queryContext);
+            selectPredicates.add(predicate1);
+            selectPredicates.add(predicate2);
+            selectPredicates.add(predicate3);
+            selectPredicates.add(predicate5);
+            countPredicates.add(predicate1);
+            countPredicates.add(predicate2);
+            countPredicates.add(predicate4);
+            countPredicates.add(predicate5);
+            if (productQuery.isAvailable()) {
+                Predicate predicate = ProductStatusPredicateConverter.getPredicate(queryContext);
+                selectPredicates.add(predicate);
+                countPredicates.add(predicate);
+            }
+            Predicate selectPredicate = QueryUtility.combinePredicate(queryContext, selectPredicates);
+            Predicate countPredicate = QueryUtility.combinePredicate(queryContext, countPredicates);
+            Order order = null;
+            if (productQuery.getProductSort().isById())
+                order = QueryUtility.getOrder(PRODUCT_ID_LITERAL, queryContext, productQuery.getProductSort().isAsc());
+            if (productQuery.getProductSort().isByName())
+                order = QueryUtility.getOrder(PRODUCT_NAME_LITERAL, queryContext, productQuery.getProductSort().isAsc());
+            if (productQuery.getProductSort().isByTotalSale())
+                order = QueryUtility.getOrder(PRODUCT_TOTAL_SALES_LITERAL, queryContext, productQuery.getProductSort().isAsc());
+            if (productQuery.getProductSort().isByLowestPrice())
+                order = QueryUtility.getOrder(PRODUCT_LOWEST_PRICE_LITERAL, queryContext, productQuery.getProductSort().isAsc());
+            if (productQuery.getProductSort().isByEndAt())
+                order = QueryUtility.getOrder(PRODUCT_END_AT_LITERAL, queryContext, productQuery.getProductSort().isAsc());
+            return QueryUtility.pagedQuery(selectPredicate, countPredicate, order, productQuery, queryContext);
         }
 
-        public static class SelectProductAttrClause<T> extends WhereClause<T> {
+        public static class ProductTagPredicateConverter {
             /**
              * SELECT  * from biz_product bp where bp.id in
              * (
@@ -125,12 +130,11 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
              * where tag2_.value in ('835602958278656:women','835602958278656:man')
              * ) ORDER BY bp.id DESC
              *
-             * @param cb
-             * @param root
              * @return
              */
-            @Override
-            public Predicate getWhereClause(String userInput, CriteriaBuilder cb, Root<T> root, AbstractQuery<?> query) {
+            public static Predicate getPredicate(String userInput, QueryUtility.QueryContext<Product> queryContext, AbstractQuery<?> query) {
+                CriteriaBuilder cb = queryContext.getCriteriaBuilder();
+                Root<Product> root = queryContext.getRoot();
                 String[] split = userInput.split("\\$");
                 Predicate id = null;
                 for (String s : split) {
@@ -167,9 +171,10 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
             }
         }
 
-        public static class SelectStatusClause<T> extends WhereClause<T> {
-            @Override
-            public Predicate getWhereClause(String str, CriteriaBuilder cb, Root<T> root, AbstractQuery<?> query) {
+        public static class ProductStatusPredicateConverter {
+            public static Predicate getPredicate(QueryUtility.QueryContext<Product> queryContext) {
+                CriteriaBuilder cb = queryContext.getCriteriaBuilder();
+                Root<Product> root = queryContext.getRoot();
                 Predicate startAtLessThanOrEqualToCurrentEpochMilli = cb.lessThanOrEqualTo(root.get(PRODUCT_START_AT_LITERAL).as(Long.class), Instant.now().toEpochMilli());
                 Predicate startAtNotNull = cb.isNotNull(root.get(PRODUCT_START_AT_LITERAL).as(Long.class));
                 Predicate and = cb.and(startAtNotNull, startAtLessThanOrEqualToCurrentEpochMilli);

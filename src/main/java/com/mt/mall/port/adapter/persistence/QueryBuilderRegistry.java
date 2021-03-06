@@ -1,52 +1,30 @@
 package com.mt.mall.port.adapter.persistence;
 
-import com.mt.common.domain.model.sql.builder.SqlSelectQueryConverter;
-import com.mt.mall.domain.model.filter.Filter;
 import com.mt.mall.port.adapter.persistence.catalog.SpringDataJpaCatalogRepository;
 import com.mt.mall.port.adapter.persistence.filter.SpringDataJpaFilterRepository;
 import com.mt.mall.port.adapter.persistence.product.SpringDataJpaProductRepository;
 import com.mt.mall.port.adapter.persistence.sku.SpringDataJpaSkuRepository;
 import com.mt.mall.port.adapter.persistence.tag.SpringDataJpaTagRepository;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class QueryBuilderRegistry {
-    private static SpringDataJpaCatalogRepository.JpaCriteriaApiCatalogExecutor catalogSelectQueryBuilder;
-    private static SpringDataJpaFilterRepository.FilterQueryBuilder filterSelectQueryBuilder;
-    private static SpringDataJpaSkuRepository.SkuQueryBuilder skuSelectQueryBuilder;
-    private static SpringDataJpaTagRepository.TagQueryBuilder tagSelectQueryBuilder;
-    private static SpringDataJpaProductRepository.ProductQueryBuilder productSelectQueryBuilder;
+    @Getter
+    private static SpringDataJpaCatalogRepository.JpaCriteriaApiCatalogAdaptor catalogSelectQueryBuilder;
+    @Getter
+    private static SpringDataJpaFilterRepository.JpaCriteriaApiFilterAdaptor filterSelectQueryBuilder;
+    @Getter
+    private static SpringDataJpaSkuRepository.JpaCriteriaApiSkuAdapter skuSelectQueryBuilder;
+    @Getter
+    private static SpringDataJpaTagRepository.JpaCriteriaApiTagAdaptor tagSelectQueryBuilder;
+    @Getter
+    private static SpringDataJpaProductRepository.JpaCriteriaApiProductAdaptor productSelectQueryBuilder;
+    @Getter
     private static SpringDataJpaProductRepository.ProductUpdateQueryBuilder productUpdateQueryBuilder;
+    @Getter
     private static SpringDataJpaSkuRepository.SkuUpdateQueryBuilder skuUpdateQueryBuilder;
-
-    public static SpringDataJpaTagRepository.TagQueryBuilder tagSelectQueryBuilder() {
-        return tagSelectQueryBuilder;
-    }
-
-    public static SpringDataJpaSkuRepository.SkuUpdateQueryBuilder skuUpdateQueryBuilder() {
-        return skuUpdateQueryBuilder;
-    }
-
-    public static SpringDataJpaProductRepository.ProductUpdateQueryBuilder productUpdateQueryBuilder() {
-        return productUpdateQueryBuilder;
-    }
-
-    public static SpringDataJpaProductRepository.ProductQueryBuilder productSelectQueryBuilder() {
-        return productSelectQueryBuilder;
-    }
-
-    public static SpringDataJpaCatalogRepository.JpaCriteriaApiCatalogExecutor catalogSelectQueryBuilder() {
-        return catalogSelectQueryBuilder;
-    }
-
-    public static SpringDataJpaSkuRepository.SkuQueryBuilder skuSelectQueryBuilder() {
-        return skuSelectQueryBuilder;
-    }
-
-    public static SqlSelectQueryConverter<Filter> filterSelectQueryBuilder() {
-        return filterSelectQueryBuilder;
-    }
 
     @Autowired
     public void setSkuUpdateQueryBuilder(SpringDataJpaSkuRepository.SkuUpdateQueryBuilder skuUpdateQueryBuilder) {
@@ -59,27 +37,27 @@ public class QueryBuilderRegistry {
     }
 
     @Autowired
-    public void setProductSelectQueryBuilder(SpringDataJpaProductRepository.ProductQueryBuilder productSelectQueryBuilder) {
+    public void setProductSelectQueryBuilder(SpringDataJpaProductRepository.JpaCriteriaApiProductAdaptor productSelectQueryBuilder) {
         QueryBuilderRegistry.productSelectQueryBuilder = productSelectQueryBuilder;
     }
 
     @Autowired
-    public void setTagSelectQueryBuilder(SpringDataJpaTagRepository.TagQueryBuilder tagSelectQueryBuilder) {
+    public void setTagSelectQueryBuilder(SpringDataJpaTagRepository.JpaCriteriaApiTagAdaptor tagSelectQueryBuilder) {
         QueryBuilderRegistry.tagSelectQueryBuilder = tagSelectQueryBuilder;
     }
 
     @Autowired
-    public void setSkuSelectQueryBuilder(SpringDataJpaSkuRepository.SkuQueryBuilder skuSelectQueryBuilder) {
+    public void setSkuSelectQueryBuilder(SpringDataJpaSkuRepository.JpaCriteriaApiSkuAdapter skuSelectQueryBuilder) {
         QueryBuilderRegistry.skuSelectQueryBuilder = skuSelectQueryBuilder;
     }
 
     @Autowired
-    public void setCatalogSelectQueryBuilder(SpringDataJpaCatalogRepository.JpaCriteriaApiCatalogExecutor catalogSelectQueryBuilder) {
+    public void setCatalogSelectQueryBuilder(SpringDataJpaCatalogRepository.JpaCriteriaApiCatalogAdaptor catalogSelectQueryBuilder) {
         QueryBuilderRegistry.catalogSelectQueryBuilder = catalogSelectQueryBuilder;
     }
 
     @Autowired
-    public void setFilterSelectQueryBuilder(SpringDataJpaFilterRepository.FilterQueryBuilder filterSelectQueryBuilder) {
+    public void setFilterSelectQueryBuilder(SpringDataJpaFilterRepository.JpaCriteriaApiFilterAdaptor filterSelectQueryBuilder) {
         QueryBuilderRegistry.filterSelectQueryBuilder = filterSelectQueryBuilder;
     }
 }

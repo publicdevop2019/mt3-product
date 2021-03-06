@@ -10,8 +10,6 @@ import java.util.Set;
 public interface TagRepository{
     SumPagedRep<Tag> tagsOfQuery(TagQuery queryParam, PageConfig queryPagingParam);
 
-    TagId nextIdentity();
-
     void add(Tag tag);
 
     SumPagedRep<Tag> tagsOfQuery(TagQuery tagQuery, PageConfig defaultPaging, QueryConfig queryConfig);

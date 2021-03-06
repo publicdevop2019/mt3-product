@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 
 @Getter
-public class CatalogQuery implements QueryCriteria {
+public class CatalogQuery extends QueryCriteria {
     private static final String TYPE_LITERAL = "type";
     private static final String PARENT_ID_LITERAL = "parentId";
     @Setter(AccessLevel.PRIVATE)
@@ -23,9 +23,6 @@ public class CatalogQuery implements QueryCriteria {
     @Setter(AccessLevel.PRIVATE)
     private Type type;
     private CatalogSort catalogSort;
-    private PageConfig pageConfig;
-    @Setter(AccessLevel.PRIVATE)
-    private QueryConfig queryConfig;
 
     public CatalogQuery(String query, String pageConfig, String queryConfig) {
         setPageConfig(new PageConfig(pageConfig, 2000));
@@ -77,6 +74,8 @@ public class CatalogQuery implements QueryCriteria {
 
     public CatalogQuery(CatalogId catalogId) {
         this.catalogIds = new HashSet<>(List.of(catalogId));
+        setQueryConfig(QueryConfig.skipCount());
+        setPageConfig(PageConfig.defaultConfig());
     }
 
     public CatalogQuery(Set<CatalogId> catalogIds) {
@@ -91,15 +90,8 @@ public class CatalogQuery implements QueryCriteria {
         return catalogQuery;
     }
 
-    @Override
-    public QueryCriteria pageOf(int a) {
-        PageConfig pageConfig = this.pageConfig.pageOf(((Integer) a).longValue());
-        setPageConfig(pageConfig);
-        return this;
-    }
-
     @Getter
-    private static class CatalogSort {
+    public static class CatalogSort {
         private boolean byName;
         private boolean byId;
         private final boolean isAscending;

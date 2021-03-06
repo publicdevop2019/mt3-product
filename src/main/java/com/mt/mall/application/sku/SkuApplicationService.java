@@ -48,7 +48,7 @@ public class SkuApplicationService {
     @SubscribeForEvent
     @Transactional
     public String create(CreateSkuCommand command, String operationId) {
-        SkuId skuId = DomainRegistry.skuRepository().nextIdentity();
+        SkuId skuId = new SkuId();
         return doCreate(command, operationId, skuId);
     }
 

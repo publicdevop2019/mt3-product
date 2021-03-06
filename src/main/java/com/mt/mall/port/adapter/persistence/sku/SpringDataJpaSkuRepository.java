@@ -1,17 +1,13 @@
 package com.mt.mall.port.adapter.persistence.sku;
 
+import com.mt.common.domain.model.domainId.DomainId;
+import com.mt.common.domain.model.restful.PatchCommand;
+import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.exception.NoUpdatableFieldException;
 import com.mt.common.domain.model.restful.exception.UnsupportedPatchOperationException;
 import com.mt.common.domain.model.restful.exception.UpdateFiledValueException;
-import com.mt.common.domain.model.restful.query.QueryConfig;
-import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.restful.PatchCommand;
-import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.sql.builder.SqlSelectQueryConverter;
 import com.mt.common.domain.model.sql.builder.UpdateQueryBuilder;
-import com.mt.common.domain.model.sql.clause.DomainIdQueryClause;
-import com.mt.common.domain.model.sql.clause.FieldStringEqualClause;
 import com.mt.mall.domain.model.sku.Sku;
 import com.mt.mall.domain.model.sku.SkuId;
 import com.mt.mall.domain.model.sku.SkuQuery;
@@ -33,7 +29,7 @@ import java.util.stream.Collectors;
 
 import static com.mt.common.CommonConstant.*;
 import static com.mt.mall.domain.model.sku.Sku.*;
-import static com.mt.mall.port.adapter.persistence.sku.SpringDataJpaSkuRepository.SkuQueryBuilder.SKU_ID_LITERAL;
+import static com.mt.mall.port.adapter.persistence.sku.SpringDataJpaSkuRepository.JpaCriteriaApiSkuAdapter.SKU_ID_LITERAL;
 
 public interface SpringDataJpaSkuRepository extends SkuRepository, JpaRepository<Sku, Long> {
 
@@ -45,20 +41,8 @@ public interface SpringDataJpaSkuRepository extends SkuRepository, JpaRepository
     @Query("update #{#entityName} e set e.deleted=true where e.id in ?1")
     void softDeleteAll(Set<Long> id);
 
-    default SkuId nextIdentity() {
-        return new SkuId();
-    }
-
     default Optional<Sku> skuOfId(SkuId skuOfId) {
-        return getSkuOfId(skuOfId);
-    }
-
-    private Optional<Sku> getSkuOfId(SkuId skuId) {
-        SqlSelectQueryConverter<Sku> skuSelectQueryBuilder = QueryBuilderRegistry.skuSelectQueryBuilder();
-        List<Sku> select = skuSelectQueryBuilder.select(new SkuQuery(skuId), new PageConfig(), Sku.class);
-        if (select.isEmpty())
-            return Optional.empty();
-        return Optional.of(select.get(0));
+        return skusOfQuery(new SkuQuery(skuOfId)).findFirst();
     }
 
     default void add(Sku client) {
@@ -73,26 +57,27 @@ public interface SpringDataJpaSkuRepository extends SkuRepository, JpaRepository
         softDeleteAll(client.stream().map(Sku::getId).collect(Collectors.toSet()));
     }
 
-    default SumPagedRep<Sku> skusOfQuery(SkuQuery query, PageConfig clientPaging, QueryConfig queryConfig) {
-        return QueryUtility.pagedQuery(QueryBuilderRegistry.skuSelectQueryBuilder(), query, clientPaging, queryConfig, Sku.class);
-    }
-
     default void patchBatch(List<PatchCommand> commands) {
-        QueryBuilderRegistry.skuUpdateQueryBuilder().update(commands, Sku.class);
+        QueryBuilderRegistry.getSkuUpdateQueryBuilder().update(commands, Sku.class);
     }
 
-    default SumPagedRep<Sku> skusOfQuery(SkuQuery query, PageConfig clientPaging) {
-        return QueryUtility.pagedQuery(QueryBuilderRegistry.skuSelectQueryBuilder(), query, clientPaging, new QueryConfig(), Sku.class);
+    default SumPagedRep<Sku> skusOfQuery(SkuQuery query) {
+        return QueryBuilderRegistry.getSkuSelectQueryBuilder().execute(query);
     }
 
     @Component
-    class SkuQueryBuilder extends SqlSelectQueryConverter<Sku> {
+    class JpaCriteriaApiSkuAdapter {
         public static final String SKU_ID_LITERAL = "skuId";
 
-        {
-            supportedSort.put("id",SKU_ID_LITERAL);
-            supportedWhere.put(COMMON_ENTITY_ID, new DomainIdQueryClause<>(SKU_ID_LITERAL));
-            supportedWhere.put(SKU_REFERENCE_ID_LITERAL, new FieldStringEqualClause<>(SKU_REFERENCE_ID_LITERAL));
+        public SumPagedRep<Sku> execute(SkuQuery skuQuery) {
+            QueryUtility.QueryContext<Sku> queryContext = QueryUtility.prepareContext(Sku.class);
+            Predicate domainIdPredicate = QueryUtility.getStringInPredicate(skuQuery.getSkuIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), SKU_ID_LITERAL, queryContext);
+            Predicate typePredicate = QueryUtility.getStringEqualPredicate(skuQuery.getProductId().getDomainId(), SKU_REFERENCE_ID_LITERAL, queryContext);
+            Predicate predicate = QueryUtility.combinePredicate(queryContext, typePredicate, domainIdPredicate);
+            Order order = null;
+            if (skuQuery.getSkuSort().isById())
+                order = QueryUtility.getOrder(SKU_ID_LITERAL, queryContext, skuQuery.getSkuSort().isAsc());
+            return QueryUtility.pagedQuery(predicate, order, skuQuery, queryContext);
         }
     }
 

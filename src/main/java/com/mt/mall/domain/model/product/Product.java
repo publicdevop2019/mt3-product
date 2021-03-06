@@ -308,7 +308,7 @@ public class Product extends Auditable {
                 }
 
                 CreateSkuCommand command1 = new CreateSkuCommand();
-                SkuId skuId = DomainRegistry.skuRepository().nextIdentity();
+                SkuId skuId = new SkuId();
                 command1.setSkuId(skuId);
                 command1.setPrice(command.getPrice());
                 command1.setReferenceId(this.id.toString());
@@ -443,7 +443,7 @@ public class Product extends Auditable {
             command1.setStorageOrder(skuAdminCommand.getStorageOrder());
             command1.setStorageActual(skuAdminCommand.getStorageActual());
             command1.setSales(skuAdminCommand.getSales());
-            SkuId skuId = DomainRegistry.skuRepository().nextIdentity();
+            SkuId skuId = new SkuId();
             command1.setSkuId(skuId);
             createSkuCommands.add(command1);
             getAttrSalesMap().put(String.join(",", skuAdminCommand.getAttributesSales()), skuId.getDomainId());

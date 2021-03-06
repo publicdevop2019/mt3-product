@@ -14,8 +14,6 @@ public interface ProductRepository {
 
     void add(Product product);
 
-    ProductId nextIdentity();
-
     SumPagedRep<Product> productsOfQuery(ProductQuery productQuery, PageConfig defaultPaging, QueryConfig queryConfig);
 
     Optional<Product> productOfId(ProductId productId);

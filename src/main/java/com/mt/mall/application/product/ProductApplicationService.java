@@ -36,7 +36,7 @@ public class ProductApplicationService {
     @SubscribeForEvent
     @Transactional
     public String create(CreateProductCommand command, String operationId) {
-        ProductId productId = DomainRegistry.productRepository().nextIdentity();
+        ProductId productId = new ProductId();
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, productId,
                 () -> DomainRegistry.productService().create(
                         productId,

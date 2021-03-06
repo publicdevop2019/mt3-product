@@ -1,7 +1,5 @@
 package com.mt.mall.domain.model.catalog;
 
-import com.mt.common.domain.model.restful.query.QueryConfig;
-import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.SumPagedRep;
 
 import java.util.Optional;
@@ -14,12 +12,7 @@ public interface CatalogRepository {
 
     void add(Catalog catalog);
 
-    SumPagedRep<Catalog> catalogsOfQuery(CatalogQuery queryParam, PageConfig queryPagingParam);
-
     void remove(Set<Catalog> allClientsOfQuery);
 
     void remove(Catalog catalog);
-
-    CatalogId nextIdentity();
-
 }

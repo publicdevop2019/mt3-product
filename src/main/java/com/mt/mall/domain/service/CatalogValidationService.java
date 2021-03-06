@@ -4,6 +4,7 @@ import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.tag.Tag;
+import com.mt.mall.domain.model.tag.TagId;
 import com.mt.mall.domain.model.tag.TagQuery;
 import com.mt.mall.domain.model.tag.TagValueType;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class CatalogValidationService {
@@ -21,7 +23,7 @@ public class CatalogValidationService {
             String[] split = e.split(":");
             stringStringHashMap.put(split[0], split[1]);
         });
-        Set<Tag> tagSet = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.tagRepository().tagsOfQuery(query, page), new TagQuery(stringStringHashMap.keySet()));
+        Set<Tag> tagSet = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.tagRepository().tagsOfQuery(query, page), new TagQuery(stringStringHashMap.keySet().stream().map(TagId::new).collect(Collectors.toSet())));
         stringStringHashMap.forEach((k, v) -> {
             Optional<Tag> first = tagSet.stream().filter(e -> e.getTagId().getDomainId().equals(k)).findFirst();
             if (first.isEmpty()) {

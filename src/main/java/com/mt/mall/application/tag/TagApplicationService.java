@@ -28,7 +28,7 @@ public class TagApplicationService {
     @SubscribeForEvent
     @Transactional
     public String create(CreateTagCommand command, String operationId) {
-        TagId tagId = DomainRegistry.tagRepository().nextIdentity();
+        TagId tagId = new TagId();
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, tagId,
                 () -> DomainRegistry.tagService().create(
                         tagId,

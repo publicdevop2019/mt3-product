@@ -1,13 +1,8 @@
 package com.mt.mall.port.adapter.persistence.filter;
 
-import com.mt.common.domain.model.restful.query.QueryConfig;
-import com.mt.common.domain.model.restful.query.PageConfig;
-import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.sql.builder.SqlSelectQueryConverter;
-import com.mt.common.domain.model.sql.clause.DomainIdQueryClause;
-import com.mt.common.domain.model.sql.clause.FieldStringEqualClause;
-import com.mt.common.domain.model.sql.clause.FieldStringLikeClause;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.mall.domain.model.filter.Filter;
 import com.mt.mall.domain.model.filter.FilterId;
 import com.mt.mall.domain.model.filter.FilterQuery;
@@ -19,12 +14,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.mt.common.CommonConstant.COMMON_ENTITY_ID;
+import static com.mt.mall.port.adapter.persistence.catalog.SpringDataJpaCatalogRepository.JpaCriteriaApiCatalogAdaptor.CATALOG_ID_LITERAL;
 
 @Repository
 public interface SpringDataJpaFilterRepository extends FilterRepository, JpaRepository<Filter, Long> {
@@ -37,20 +33,13 @@ public interface SpringDataJpaFilterRepository extends FilterRepository, JpaRepo
     @Query("update #{#entityName} e set e.deleted=true where e.id in ?1")
     void softDeleteAll(Set<Long> id);
 
-    default FilterId nextIdentity() {
-        return new FilterId();
-    }
-
     default Optional<Filter> filterOfId(FilterId filterId) {
         return getFilterOfId(filterId);
     }
 
     private Optional<Filter> getFilterOfId(FilterId filterId) {
-        SqlSelectQueryConverter<Filter> filterSelectQueryBuilder = QueryBuilderRegistry.filterSelectQueryBuilder();
-        List<Filter> select = filterSelectQueryBuilder.select(new FilterQuery(filterId), new PageConfig(), Filter.class);
-        if (select.isEmpty())
-            return Optional.empty();
-        return Optional.of(select.get(0));
+        SumPagedRep<Filter> execute = filtersOfQuery(new FilterQuery(filterId));
+        return execute.findFirst();
     }
 
     default void add(Filter client) {
@@ -65,25 +54,25 @@ public interface SpringDataJpaFilterRepository extends FilterRepository, JpaRepo
         softDeleteAll(filters.stream().map(Filter::getId).collect(Collectors.toSet()));
     }
 
-    default SumPagedRep<Filter> filtersOfQuery(FilterQuery query, PageConfig clientPaging, QueryConfig queryConfig) {
-        return QueryUtility.pagedQuery(QueryBuilderRegistry.filterSelectQueryBuilder(), query, clientPaging, queryConfig, Filter.class);
-    }
-
-    default SumPagedRep<Filter> filtersOfQuery(FilterQuery query, PageConfig clientPaging) {
-        return QueryUtility.pagedQuery(QueryBuilderRegistry.filterSelectQueryBuilder(), query, clientPaging, new QueryConfig(), Filter.class);
+    default SumPagedRep<Filter> filtersOfQuery(FilterQuery query) {
+        return QueryBuilderRegistry.getFilterSelectQueryBuilder().execute(query);
     }
 
     @Component
-    class FilterQueryBuilder extends SqlSelectQueryConverter<Filter> {
+    class JpaCriteriaApiFilterAdaptor {
         public transient static final String ENTITY_CATALOG_LITERAL = "catalogs";
         private static final String FILTER_ID_LITERAL = "filterId";
 
-        {
-            supportedSort.put("id",FILTER_ID_LITERAL);
-            supportedWhere.put(COMMON_ENTITY_ID, new DomainIdQueryClause<>(FILTER_ID_LITERAL));
-            supportedWhere.put(ENTITY_CATALOG_LITERAL, new FieldStringLikeClause(ENTITY_CATALOG_LITERAL));
-            supportedWhere.put("catalog", new FieldStringEqualClause<>(ENTITY_CATALOG_LITERAL));
+        public SumPagedRep<Filter> execute(FilterQuery filterQuery) {
+            QueryUtility.QueryContext<Filter> queryContext = QueryUtility.prepareContext(Filter.class);
+            Predicate catalogPredicate = QueryUtility.getStringEqualPredicate(filterQuery.getCatalog(), ENTITY_CATALOG_LITERAL, queryContext);
+            Predicate catalogsPredicate = QueryUtility.getStringLikePredicate(filterQuery.getCatalogs(), ENTITY_CATALOG_LITERAL, queryContext);
+            Predicate domainIdPredicate = QueryUtility.getStringInPredicate(filterQuery.getFilterIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), FILTER_ID_LITERAL, queryContext);
+            Predicate predicate = QueryUtility.combinePredicate(queryContext, catalogPredicate, catalogsPredicate, domainIdPredicate);
+            Order order = null;
+            if (filterQuery.getFilterSort().isById())
+                order = QueryUtility.getOrder(CATALOG_ID_LITERAL, queryContext, filterQuery.getFilterSort().isAsc());
+            return QueryUtility.pagedQuery(predicate, order, filterQuery, queryContext);
         }
-
     }
 }

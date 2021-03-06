@@ -29,7 +29,7 @@ public class FilterApplicationService {
     @SubscribeForEvent
     @Transactional
     public String create(CreateFilterCommand command, String operationId) {
-        FilterId filterId = DomainRegistry.filterRepository().nextIdentity();
+        FilterId filterId = new FilterId();
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, filterId,
                 () -> DomainRegistry.filterService().create(
                         filterId,
