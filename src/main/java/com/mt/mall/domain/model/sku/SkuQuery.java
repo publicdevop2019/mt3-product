@@ -8,6 +8,7 @@ import com.mt.mall.domain.model.product.ProductId;
 import lombok.Getter;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 public class SkuQuery extends QueryCriteria {
@@ -41,6 +42,10 @@ public class SkuQuery extends QueryCriteria {
         Optional.ofNullable(stringStringMap.get("referenceId")).ifPresent(e -> {
             productId = new ProductId(e);
         });
+        Optional.ofNullable(stringStringMap.get("id")).ifPresent(e -> {
+            this.skuIds = Arrays.stream(e.split("\\.")).map(SkuId::new).collect(Collectors.toSet());
+        });
+
     }
 
     private void setSkuSort(PageConfig pageConfig) {

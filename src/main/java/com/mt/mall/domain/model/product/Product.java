@@ -311,7 +311,7 @@ public class Product extends Auditable {
                 SkuId skuId = new SkuId();
                 command1.setSkuId(skuId);
                 command1.setPrice(command.getPrice());
-                command1.setReferenceId(this.id.toString());
+                command1.setReferenceId(productId);
                 command1.setStorageOrder(command.getStorageOrder());
                 command1.setStorageActual(command.getStorageActual());
                 command1.setSales(command.getSales() == null ? 0 : command.getSales());
@@ -439,7 +439,7 @@ public class Product extends Auditable {
         for (CreateProductCommand.CreateProductSkuAdminCommand skuAdminCommand : skus) {
             CreateSkuCommand command1 = new CreateSkuCommand();
             command1.setPrice(skuAdminCommand.getPrice());
-            command1.setReferenceId(this.id.toString());
+            command1.setReferenceId(productId);
             command1.setStorageOrder(skuAdminCommand.getStorageOrder());
             command1.setStorageActual(skuAdminCommand.getStorageActual());
             command1.setSales(skuAdminCommand.getSales());

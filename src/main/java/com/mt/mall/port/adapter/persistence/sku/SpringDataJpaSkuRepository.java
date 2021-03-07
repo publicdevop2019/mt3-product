@@ -76,7 +76,7 @@ public interface SpringDataJpaSkuRepository extends SkuRepository, JpaRepository
             Predicate predicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
             Order order = null;
             if (skuQuery.getSkuSort().isById())
-                order = QueryUtility.getOrder(SKU_ID_LITERAL, queryContext, skuQuery.getSkuSort().isAsc());
+                order = QueryUtility.getDomainIdOrder(SKU_ID_LITERAL, queryContext, skuQuery.getSkuSort().isAsc());
             return QueryUtility.pagedQuery(predicate, order, skuQuery, queryContext);
         }
     }

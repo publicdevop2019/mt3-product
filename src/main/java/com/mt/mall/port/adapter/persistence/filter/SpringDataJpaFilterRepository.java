@@ -71,7 +71,7 @@ public interface SpringDataJpaFilterRepository extends FilterRepository, JpaRepo
             Predicate predicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
             Order order = null;
             if (filterQuery.getFilterSort().isById())
-                order = QueryUtility.getOrder(CATALOG_ID_LITERAL, queryContext, filterQuery.getFilterSort().isAsc());
+                order = QueryUtility.getDomainIdOrder(CATALOG_ID_LITERAL, queryContext, filterQuery.getFilterSort().isAsc());
             return QueryUtility.pagedQuery(predicate, order, filterQuery, queryContext);
         }
     }

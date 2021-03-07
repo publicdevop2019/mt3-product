@@ -15,7 +15,7 @@ public class ProductQuery extends QueryCriteria {
     private ProductSort productSort;
     private String tagSearch;
     private String priceSearch;
-    private String name;
+    private Set<String> names;
     private boolean isAvailable = false;
     private boolean isPublic = false;
     public static final String AVAILABLE = "available";
@@ -77,19 +77,21 @@ public class ProductQuery extends QueryCriteria {
 
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam);
-        tagSearch = stringStringMap.get("attr");
-        tagSearch = stringStringMap.get("attributes");
+        Optional.ofNullable(stringStringMap.get("attr")).ifPresent(e -> tagSearch = e);
+        Optional.ofNullable(stringStringMap.get("attributes")).ifPresent(e -> tagSearch = e);
         Optional.ofNullable(stringStringMap.get("id")).ifPresent(e -> {
             String[] split = e.split("\\.");
             this.productIds = Arrays.stream(split).map(ProductId::new).collect(Collectors.toSet());
         });
         priceSearch = stringStringMap.get("lowestPrice");
-        name = stringStringMap.get("name");
+        Optional.ofNullable(stringStringMap.get("name")).ifPresent(e -> names = Arrays.stream(e.split("\\.")).collect(Collectors.toSet()));
         if (isPublic) {
             isAvailable = true;
         }
-        if (name == null && priceSearch == null && tagSearch == null && (productIds == null || productIds.isEmpty()))
-            throw new IllegalArgumentException("public query must have value");
+        if (isPublic) {
+            if (names == null && priceSearch == null && tagSearch == null && (productIds == null || productIds.isEmpty()))
+                throw new IllegalArgumentException("public query must have value");
+        }
     }
 
     @Getter

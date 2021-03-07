@@ -68,7 +68,7 @@ public interface SpringDataJpaTagRepository extends TagRepository, JpaRepository
             Predicate predicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
             Order order = null;
             if (tagQuery.getTagSort().isById())
-                order = QueryUtility.getOrder(TAG_ID_LITERAL, queryContext, tagQuery.getTagSort().isAsc());
+                order = QueryUtility.getDomainIdOrder(TAG_ID_LITERAL, queryContext, tagQuery.getTagSort().isAsc());
             if (tagQuery.getTagSort().isByName())
                 order = QueryUtility.getOrder(NAME_LITERAL, queryContext, tagQuery.getTagSort().isAsc());
             if (tagQuery.getTagSort().isByType())

@@ -67,8 +67,8 @@ public interface SpringDataJpaCatalogRepository extends CatalogRepository, JpaRe
             Predicate predicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
             Order order = null;
             if (catalogQuery.getCatalogSort().isById())
-                order = QueryUtility.getOrder(CATALOG_ID_LITERAL, queryContext, catalogQuery.getCatalogSort().isAscending());
-            if (catalogQuery.getCatalogSort().isById())
+                order = QueryUtility.getDomainIdOrder(CATALOG_ID_LITERAL, queryContext, catalogQuery.getCatalogSort().isAscending());
+            if (catalogQuery.getCatalogSort().isByName())
                 order = QueryUtility.getOrder(NAME_LITERAL, queryContext, catalogQuery.getCatalogSort().isAscending());
             return QueryUtility.pagedQuery(predicate, order, catalogQuery, queryContext);
         }

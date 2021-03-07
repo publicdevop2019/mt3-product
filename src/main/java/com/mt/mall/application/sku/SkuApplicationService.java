@@ -54,7 +54,7 @@ public class SkuApplicationService {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, skuId,
                 () -> DomainRegistry.skuService().create(
                         skuId,
-                        command.getReferenceId(),
+                        command.getReferenceId().getDomainId(),
                         command.getDescription(),
                         command.getStorageOrder(),
                         command.getStorageActual(),

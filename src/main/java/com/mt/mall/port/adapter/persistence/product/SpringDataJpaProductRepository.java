@@ -80,8 +80,8 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
         public SumPagedRep<Product> execute(ProductQuery productQuery) {
             List<Predicate> countPredicates = new ArrayList<>();
             QueryUtility.QueryContext<Product> queryContext = QueryUtility.prepareContext(Product.class);
-            Optional.ofNullable(productQuery.getName()).ifPresent(e -> {
-                Predicate predicate1 = QueryUtility.getStringLikePredicate(productQuery.getName(), PRODUCT_NAME_LITERAL, queryContext);
+            Optional.ofNullable(productQuery.getNames()).ifPresent(e -> {
+                Predicate predicate1 = QueryUtility.getStringInPredicate(productQuery.getNames(), PRODUCT_NAME_LITERAL, queryContext);
                 queryContext.getPredicates().add(predicate1);
                 countPredicates.add(predicate1);
             });
@@ -112,7 +112,7 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
             Predicate countPredicate = QueryUtility.combinePredicate(queryContext, countPredicates);
             Order order = null;
             if (productQuery.getProductSort().isById())
-                order = QueryUtility.getOrder(PRODUCT_ID_LITERAL, queryContext, productQuery.getProductSort().isAsc());
+                order = QueryUtility.getDomainIdOrder(PRODUCT_ID_LITERAL, queryContext, productQuery.getProductSort().isAsc());
             if (productQuery.getProductSort().isByName())
                 order = QueryUtility.getOrder(PRODUCT_NAME_LITERAL, queryContext, productQuery.getProductSort().isAsc());
             if (productQuery.getProductSort().isByTotalSale())

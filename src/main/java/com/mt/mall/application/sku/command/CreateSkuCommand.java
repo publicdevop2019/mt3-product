@@ -1,5 +1,6 @@
 package com.mt.mall.application.sku.command;
 
+import com.mt.mall.domain.model.product.ProductId;
 import com.mt.mall.domain.model.sku.SkuId;
 import lombok.Data;
 
@@ -9,7 +10,7 @@ import java.math.BigDecimal;
 @Data
 public class CreateSkuCommand implements Serializable {
     private static final long serialVersionUID = 1;
-    private String referenceId;
+    private ProductId referenceId;
     private String description;
     private Integer storageOrder;
     private Integer storageActual;
