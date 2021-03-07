@@ -61,10 +61,10 @@ public interface SpringDataJpaCatalogRepository extends CatalogRepository, JpaRe
 
         public SumPagedRep<Catalog> execute(CatalogQuery catalogQuery) {
             QueryUtility.QueryContext<Catalog> queryContext = QueryUtility.prepareContext(Catalog.class);
-            Predicate typePredicate = QueryUtility.getStringEqualPredicate(catalogQuery.getType().name(), TYPE_LITERAL, queryContext);
-            Predicate parentIdPredicate = QueryUtility.getStringEqualPredicate(catalogQuery.getParentId().getDomainId(), PARENT_ID_LITERAL, queryContext);
-            Predicate domainIdPredicate = QueryUtility.getStringInPredicate(catalogQuery.getCatalogIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), CATALOG_ID_LITERAL, queryContext);
-            Predicate predicate = QueryUtility.combinePredicate(queryContext, typePredicate, domainIdPredicate, parentIdPredicate);
+            Optional.ofNullable(catalogQuery.getType()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringEqualPredicate(catalogQuery.getType().name(), TYPE_LITERAL, queryContext)));
+            Optional.ofNullable(catalogQuery.getParentId()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringEqualPredicate(catalogQuery.getParentId().getDomainId(), PARENT_ID_LITERAL, queryContext)));
+            Optional.ofNullable(catalogQuery.getCatalogIds()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getDomainIdInPredicate(catalogQuery.getCatalogIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), CATALOG_ID_LITERAL, queryContext)));
+            Predicate predicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
             Order order = null;
             if (catalogQuery.getCatalogSort().isById())
                 order = QueryUtility.getOrder(CATALOG_ID_LITERAL, queryContext, catalogQuery.getCatalogSort().isAscending());

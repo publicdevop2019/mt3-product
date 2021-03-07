@@ -36,7 +36,7 @@ public class CatalogQuery extends QueryCriteria {
         setQueryDetail(QueryUtility.parseQuery(query));
     }
 
-    private void setPageConfig(PageConfig pageConfig) {
+    protected void setPageConfig(PageConfig pageConfig) {
         this.pageConfig = pageConfig;
         setCatalogSort();
     }
@@ -104,7 +104,7 @@ public class CatalogQuery extends QueryCriteria {
             this.byId = true;
         }
 
-        public CatalogSort(boolean isAscending) {
+        private CatalogSort(boolean isAscending) {
             this.isAscending = isAscending;
         }
 

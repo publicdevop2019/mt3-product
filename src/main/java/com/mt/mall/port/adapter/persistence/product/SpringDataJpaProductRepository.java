@@ -78,28 +78,37 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
         private static final String PRODUCT_ID_LITERAL = "productId";
 
         public SumPagedRep<Product> execute(ProductQuery productQuery) {
-            List<Predicate> selectPredicates = new ArrayList<>();
             List<Predicate> countPredicates = new ArrayList<>();
             QueryUtility.QueryContext<Product> queryContext = QueryUtility.prepareContext(Product.class);
-            Predicate predicate1 = QueryUtility.getStringLikePredicate(productQuery.getName(), PRODUCT_NAME_LITERAL, queryContext);
-            Predicate predicate2 = QueryUtility.getStringInPredicate(productQuery.getProductIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), PRODUCT_ID_LITERAL, queryContext);
-            Predicate predicate3 = ProductTagPredicateConverter.getPredicate(productQuery.getTagSearch(), queryContext, queryContext.getQuery());
-            Predicate predicate4 = ProductTagPredicateConverter.getPredicate(productQuery.getTagSearch(), queryContext, queryContext.getCountQuery());
-            Predicate predicate5 = QueryUtility.getNumberRagePredicate(productQuery.getPriceSearch(), PRODUCT_LOWEST_PRICE_LITERAL, queryContext);
-            selectPredicates.add(predicate1);
-            selectPredicates.add(predicate2);
-            selectPredicates.add(predicate3);
-            selectPredicates.add(predicate5);
-            countPredicates.add(predicate1);
-            countPredicates.add(predicate2);
-            countPredicates.add(predicate4);
-            countPredicates.add(predicate5);
+            Optional.ofNullable(productQuery.getName()).ifPresent(e -> {
+                Predicate predicate1 = QueryUtility.getStringLikePredicate(productQuery.getName(), PRODUCT_NAME_LITERAL, queryContext);
+                queryContext.getPredicates().add(predicate1);
+                countPredicates.add(predicate1);
+            });
+            Optional.ofNullable(productQuery.getProductIds()).ifPresent(e -> {
+                Predicate predicate2 = QueryUtility.getDomainIdInPredicate(productQuery.getProductIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), PRODUCT_ID_LITERAL, queryContext);
+                queryContext.getPredicates().add(predicate2);
+                countPredicates.add(predicate2);
+            });
+            Optional.ofNullable(productQuery.getTagSearch()).ifPresent(e -> {
+                Predicate predicate3 = ProductTagPredicateConverter.getPredicate(productQuery.getTagSearch(), queryContext, queryContext.getQuery());
+                queryContext.getPredicates().add(predicate3);
+            });
+            Optional.ofNullable(productQuery.getTagSearch()).ifPresent(e -> {
+                Predicate predicate4 = ProductTagPredicateConverter.getPredicate(productQuery.getTagSearch(), queryContext, queryContext.getCountQuery());
+                countPredicates.add(predicate4);
+            });
+            Optional.ofNullable(productQuery.getPriceSearch()).ifPresent(e -> {
+                Predicate predicate5 = QueryUtility.getNumberRagePredicate(productQuery.getPriceSearch(), PRODUCT_LOWEST_PRICE_LITERAL, queryContext);
+                queryContext.getPredicates().add(predicate5);
+                countPredicates.add(predicate5);
+            });
             if (productQuery.isAvailable()) {
                 Predicate predicate = ProductStatusPredicateConverter.getPredicate(queryContext);
-                selectPredicates.add(predicate);
+                queryContext.getPredicates().add(predicate);
                 countPredicates.add(predicate);
             }
-            Predicate selectPredicate = QueryUtility.combinePredicate(queryContext, selectPredicates);
+            Predicate selectPredicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
             Predicate countPredicate = QueryUtility.combinePredicate(queryContext, countPredicates);
             Order order = null;
             if (productQuery.getProductSort().isById())

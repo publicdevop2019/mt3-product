@@ -61,8 +61,8 @@ public interface SpringDataJpaSkuRepository extends SkuRepository, JpaRepository
         QueryBuilderRegistry.getSkuUpdateQueryBuilder().update(commands, Sku.class);
     }
 
-    default SumPagedRep<Sku> skusOfQuery(SkuQuery query) {
-        return QueryBuilderRegistry.getSkuSelectQueryBuilder().execute(query);
+    default SumPagedRep<Sku> skusOfQuery(SkuQuery skuQuery) {
+        return QueryBuilderRegistry.getSkuSelectQueryBuilder().execute(skuQuery);
     }
 
     @Component
@@ -71,9 +71,9 @@ public interface SpringDataJpaSkuRepository extends SkuRepository, JpaRepository
 
         public SumPagedRep<Sku> execute(SkuQuery skuQuery) {
             QueryUtility.QueryContext<Sku> queryContext = QueryUtility.prepareContext(Sku.class);
-            Predicate domainIdPredicate = QueryUtility.getStringInPredicate(skuQuery.getSkuIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), SKU_ID_LITERAL, queryContext);
-            Predicate typePredicate = QueryUtility.getStringEqualPredicate(skuQuery.getProductId().getDomainId(), SKU_REFERENCE_ID_LITERAL, queryContext);
-            Predicate predicate = QueryUtility.combinePredicate(queryContext, typePredicate, domainIdPredicate);
+            Optional.ofNullable(skuQuery.getSkuIds()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getDomainIdInPredicate(skuQuery.getSkuIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), SKU_ID_LITERAL, queryContext)));
+            Optional.ofNullable(skuQuery.getProductId()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringEqualPredicate(skuQuery.getProductId().getDomainId(), SKU_REFERENCE_ID_LITERAL, queryContext)));
+            Predicate predicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
             Order order = null;
             if (skuQuery.getSkuSort().isById())
                 order = QueryUtility.getOrder(SKU_ID_LITERAL, queryContext, skuQuery.getSkuSort().isAsc());

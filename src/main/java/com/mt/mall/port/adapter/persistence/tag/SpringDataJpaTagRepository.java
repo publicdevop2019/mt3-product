@@ -49,8 +49,8 @@ public interface SpringDataJpaTagRepository extends TagRepository, JpaRepository
         softDeleteAll(client.stream().map(Tag::getId).collect(Collectors.toSet()));
     }
 
-    default SumPagedRep<Tag> tagsOfQuery(TagQuery query) {
-        return QueryBuilderRegistry.getTagSelectQueryBuilder().execute(query);
+    default SumPagedRep<Tag> tagsOfQuery(TagQuery tagQuery) {
+        return QueryBuilderRegistry.getTagSelectQueryBuilder().execute(tagQuery);
     }
 
 
@@ -62,10 +62,10 @@ public interface SpringDataJpaTagRepository extends TagRepository, JpaRepository
 
         public SumPagedRep<Tag> execute(TagQuery tagQuery) {
             QueryUtility.QueryContext<Tag> queryContext = QueryUtility.prepareContext(Tag.class);
-            Predicate domainIdPredicate = QueryUtility.getStringInPredicate(tagQuery.getTagIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), TAG_ID_LITERAL, queryContext);
-            Predicate catalogsPredicate = QueryUtility.getStringLikePredicate(tagQuery.getName(), NAME_LITERAL, queryContext);
-            Predicate catalogPredicate = QueryUtility.getStringEqualPredicate(tagQuery.getType().name(), TYPE_LITERAL, queryContext);
-            Predicate predicate = QueryUtility.combinePredicate(queryContext, catalogPredicate, catalogsPredicate, domainIdPredicate);
+            Optional.ofNullable(tagQuery.getTagIds()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getDomainIdInPredicate(tagQuery.getTagIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), TAG_ID_LITERAL, queryContext)));
+            Optional.ofNullable(tagQuery.getName()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringLikePredicate(tagQuery.getName(), NAME_LITERAL, queryContext)));
+            Optional.ofNullable(tagQuery.getType()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringEqualPredicate(tagQuery.getType().name(), TYPE_LITERAL, queryContext)));
+            Predicate predicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
             Order order = null;
             if (tagQuery.getTagSort().isById())
                 order = QueryUtility.getOrder(TAG_ID_LITERAL, queryContext, tagQuery.getTagSort().isAsc());

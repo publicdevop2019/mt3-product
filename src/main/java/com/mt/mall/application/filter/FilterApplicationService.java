@@ -3,10 +3,8 @@ package com.mt.mall.application.filter;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
-import com.mt.common.domain.model.restful.query.QueryConfig;
-import com.mt.common.domain.model.restful.query.PageConfig;
-import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.filter.command.CreateFilterCommand;
 import com.mt.mall.application.filter.command.PatchFilterCommand;
@@ -41,11 +39,11 @@ public class FilterApplicationService {
     }
 
     public SumPagedRep<Filter> filters(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.filterRepository().filtersOfQuery(new FilterQuery(queryParam, false), new PageConfig(pageParam, 400), new QueryConfig(skipCount));
+        return DomainRegistry.filterRepository().filtersOfQuery(new FilterQuery(queryParam, pageParam, skipCount, false));
     }
 
     public SumPagedRep<Filter> publicFilters(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.filterRepository().filtersOfQuery(new FilterQuery(queryParam, true), new PageConfig(pageParam, 5), new QueryConfig(skipCount));
+        return DomainRegistry.filterRepository().filtersOfQuery(new FilterQuery(queryParam, pageParam, skipCount, true));
     }
 
     public Optional<Filter> filter(String id) {
@@ -86,7 +84,7 @@ public class FilterApplicationService {
     @Transactional
     public Set<String> removeFilters(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
-            Set<Filter> filters = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.filterRepository().filtersOfQuery(query, page), new FilterQuery(queryParam, false));
+            Set<Filter> filters = QueryUtility.getAllByQuery((query) -> DomainRegistry.filterRepository().filtersOfQuery((FilterQuery) query), new FilterQuery(queryParam));
             DomainRegistry.filterRepository().remove(filters);
             change.setRequestBody(filters);
             change.setDeletedIds(filters.stream().map(e -> e.getFilterId().getDomainId()).collect(Collectors.toSet()));

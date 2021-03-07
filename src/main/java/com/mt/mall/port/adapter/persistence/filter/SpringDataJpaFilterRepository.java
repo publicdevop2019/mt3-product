@@ -65,10 +65,10 @@ public interface SpringDataJpaFilterRepository extends FilterRepository, JpaRepo
 
         public SumPagedRep<Filter> execute(FilterQuery filterQuery) {
             QueryUtility.QueryContext<Filter> queryContext = QueryUtility.prepareContext(Filter.class);
-            Predicate catalogPredicate = QueryUtility.getStringEqualPredicate(filterQuery.getCatalog(), ENTITY_CATALOG_LITERAL, queryContext);
-            Predicate catalogsPredicate = QueryUtility.getStringLikePredicate(filterQuery.getCatalogs(), ENTITY_CATALOG_LITERAL, queryContext);
-            Predicate domainIdPredicate = QueryUtility.getStringInPredicate(filterQuery.getFilterIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), FILTER_ID_LITERAL, queryContext);
-            Predicate predicate = QueryUtility.combinePredicate(queryContext, catalogPredicate, catalogsPredicate, domainIdPredicate);
+            Optional.ofNullable(filterQuery.getCatalog()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringEqualPredicate(filterQuery.getCatalog(), ENTITY_CATALOG_LITERAL, queryContext)));
+            Optional.ofNullable(filterQuery.getCatalogs()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringLikePredicate(filterQuery.getCatalogs(), ENTITY_CATALOG_LITERAL, queryContext)));
+            Optional.ofNullable(filterQuery.getFilterIds()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getDomainIdInPredicate(filterQuery.getFilterIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), FILTER_ID_LITERAL, queryContext)));
+            Predicate predicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
             Order order = null;
             if (filterQuery.getFilterSort().isById())
                 order = QueryUtility.getOrder(CATALOG_ID_LITERAL, queryContext, filterQuery.getFilterSort().isAsc());

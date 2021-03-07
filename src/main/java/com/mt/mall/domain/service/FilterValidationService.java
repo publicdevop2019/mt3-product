@@ -33,7 +33,7 @@ public class FilterValidationService {
 
     public void validateTags(Set<FilterItem> filterItems, HttpValidationNotificationHandler handler) {
         Set<TagId> collect = filterItems.stream().map(FilterItem::getTagId).map(TagId::new).collect(Collectors.toSet());
-        Set<Tag> tagSet = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.tagRepository().tagsOfQuery(query, page), new TagQuery(collect));
+        Set<Tag> tagSet = QueryUtility.getAllByQuery((query) -> DomainRegistry.tagRepository().tagsOfQuery((TagQuery) query), new TagQuery(collect));
         if (collect.size() != tagSet.size())
             handler.handleError("can not find all tags");
     }

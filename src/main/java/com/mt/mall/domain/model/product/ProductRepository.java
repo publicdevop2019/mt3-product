@@ -1,7 +1,5 @@
 package com.mt.mall.domain.model.product;
 
-import com.mt.common.domain.model.restful.query.QueryConfig;
-import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 
@@ -10,11 +8,9 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface ProductRepository {
-    SumPagedRep<Product> productsOfQuery(ProductQuery queryParam, PageConfig queryPagingParam);
+    SumPagedRep<Product> productsOfQuery(ProductQuery queryParam);
 
     void add(Product product);
-
-    SumPagedRep<Product> productsOfQuery(ProductQuery productQuery, PageConfig defaultPaging, QueryConfig queryConfig);
 
     Optional<Product> productOfId(ProductId productId);
 

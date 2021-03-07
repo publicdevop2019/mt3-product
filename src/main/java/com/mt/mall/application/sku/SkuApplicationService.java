@@ -7,8 +7,6 @@ import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.idempotent.event.SkuChangeFailed;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.restful.query.PageConfig;
-import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.sql.builder.UpdateQueryBuilder;
 import com.mt.mall.application.ApplicationServiceRegistry;
@@ -67,7 +65,7 @@ public class SkuApplicationService {
     }
 
     public SumPagedRep<Sku> skus(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.skuRepository().skusOfQuery(new SkuQuery(queryParam), new PageConfig(pageParam, 1000), new QueryConfig(skipCount));
+        return DomainRegistry.skuRepository().skusOfQuery(new SkuQuery(queryParam, pageParam, skipCount));
     }
 
     public Optional<Sku> sku(String id) {
@@ -117,7 +115,7 @@ public class SkuApplicationService {
     @Transactional
     public Set<String> removeByQuery(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
-            Set<Sku> skus = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.skuRepository().skusOfQuery(query, page), new SkuQuery(queryParam));
+            Set<Sku> skus = QueryUtility.getAllByQuery((query) -> DomainRegistry.skuRepository().skusOfQuery((SkuQuery) query), new SkuQuery(queryParam));
             DomainRegistry.skuRepository().remove(skus);
             change.setRequestBody(skus);
             change.setDeletedIds(skus.stream().map(e -> e.getSkuId().getDomainId()).collect(Collectors.toSet()));
