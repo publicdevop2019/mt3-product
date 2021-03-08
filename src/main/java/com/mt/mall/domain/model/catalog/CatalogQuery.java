@@ -25,15 +25,15 @@ public class CatalogQuery extends QueryCriteria {
     private CatalogSort catalogSort;
 
     public CatalogQuery(String query, String pageConfig, String queryConfig) {
-        setPageConfig(new PageConfig(pageConfig, 2000));
+        setPageConfig(PageConfig.limited(pageConfig, 2000));
         setQueryConfig(new QueryConfig(queryConfig));
-        setQueryDetail(QueryUtility.parseQuery(query));
+        udpateQueryParam(QueryUtility.parseQuery(query));
     }
 
     public CatalogQuery(String query) {
         setPageConfig(new PageConfig());
-        setQueryConfig(new QueryConfig());
-        setQueryDetail(QueryUtility.parseQuery(query));
+        setQueryConfig(QueryConfig.countRequired());
+        udpateQueryParam(QueryUtility.parseQuery(query));
     }
 
     protected void setPageConfig(PageConfig pageConfig) {
@@ -41,7 +41,7 @@ public class CatalogQuery extends QueryCriteria {
         setCatalogSort();
     }
 
-    private void setQueryDetail(Map<String, String> queryMap) {
+    private void udpateQueryParam(Map<String, String> queryMap) {
         if (queryMap.get("id") != null) {
             String id = queryMap.get("id");
             setCatalogIds(Arrays.stream(id.split("\\.")).map(CatalogId::new).collect(Collectors.toSet()));
@@ -64,9 +64,9 @@ public class CatalogQuery extends QueryCriteria {
 
     private void setCatalogSort() {
         if (pageConfig.getSortBy().equalsIgnoreCase("name"))
-            this.catalogSort = CatalogSort.sortByName(pageConfig.isSortOrderAsc());
+            this.catalogSort = CatalogSort.byName(pageConfig.isSortOrderAsc());
         if (pageConfig.getSortBy().equalsIgnoreCase("id"))
-            this.catalogSort = CatalogSort.sortByCatalogId(pageConfig.isSortOrderAsc());
+            this.catalogSort = CatalogSort.byCatalogId(pageConfig.isSortOrderAsc());
     }
 
     private CatalogQuery() {
@@ -108,13 +108,13 @@ public class CatalogQuery extends QueryCriteria {
             this.isAscending = isAscending;
         }
 
-        public static CatalogSort sortByName(boolean isAscending) {
+        public static CatalogSort byName(boolean isAscending) {
             CatalogSort catalogSort = new CatalogSort(isAscending);
             catalogSort.setByName();
             return catalogSort;
         }
 
-        public static CatalogSort sortByCatalogId(boolean isAscending) {
+        public static CatalogSort byCatalogId(boolean isAscending) {
             CatalogSort catalogSort = new CatalogSort(isAscending);
             catalogSort.setById();
             return catalogSort;
