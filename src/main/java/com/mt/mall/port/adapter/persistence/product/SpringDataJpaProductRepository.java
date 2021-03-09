@@ -78,38 +78,24 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
         private static final String PRODUCT_ID_LITERAL = "productId";
 
         public SumPagedRep<Product> execute(ProductQuery productQuery) {
-            List<Predicate> countPredicates = new ArrayList<>();
-            QueryUtility.QueryContext<Product> queryContext = QueryUtility.prepareContext(Product.class);
+            QueryUtility.QueryContext<Product> queryContext = QueryUtility.prepareContext(Product.class, productQuery);
             Optional.ofNullable(productQuery.getNames()).ifPresent(e -> {
-                Predicate predicate1 = QueryUtility.getStringInPredicate(productQuery.getNames(), PRODUCT_NAME_LITERAL, queryContext);
-                queryContext.getPredicates().add(predicate1);
-                countPredicates.add(predicate1);
+                QueryUtility.addStringInPredicate(productQuery.getNames(), PRODUCT_NAME_LITERAL, queryContext);
             });
             Optional.ofNullable(productQuery.getProductIds()).ifPresent(e -> {
-                Predicate predicate2 = QueryUtility.getDomainIdInPredicate(productQuery.getProductIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), PRODUCT_ID_LITERAL, queryContext);
-                queryContext.getPredicates().add(predicate2);
-                countPredicates.add(predicate2);
+                QueryUtility.addDomainIdInPredicate(productQuery.getProductIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), PRODUCT_ID_LITERAL, queryContext);
             });
             Optional.ofNullable(productQuery.getTagSearch()).ifPresent(e -> {
-                Predicate predicate3 = ProductTagPredicateConverter.getPredicate(productQuery.getTagSearch(), queryContext, queryContext.getQuery());
-                queryContext.getPredicates().add(predicate3);
-            });
-            Optional.ofNullable(productQuery.getTagSearch()).ifPresent(e -> {
-                Predicate predicate4 = ProductTagPredicateConverter.getPredicate(productQuery.getTagSearch(), queryContext, queryContext.getCountQuery());
-                countPredicates.add(predicate4);
+                queryContext.getPredicates().add(ProductTagPredicateConverter.getPredicate(productQuery.getTagSearch(), queryContext.getCriteriaBuilder(), queryContext.getRoot(), queryContext.getQuery()));
+                queryContext.getCountPredicates().add(ProductTagPredicateConverter.getPredicate(productQuery.getTagSearch(), queryContext.getCriteriaBuilder(), queryContext.getCountRoot(), queryContext.getCountQuery()));
             });
             Optional.ofNullable(productQuery.getPriceSearch()).ifPresent(e -> {
-                Predicate predicate5 = QueryUtility.getNumberRagePredicate(productQuery.getPriceSearch(), PRODUCT_LOWEST_PRICE_LITERAL, queryContext);
-                queryContext.getPredicates().add(predicate5);
-                countPredicates.add(predicate5);
+                QueryUtility.addNumberRagePredicate(productQuery.getPriceSearch(), PRODUCT_LOWEST_PRICE_LITERAL, queryContext);
             });
             if (productQuery.isAvailable()) {
-                Predicate predicate = ProductStatusPredicateConverter.getPredicate(queryContext);
-                queryContext.getPredicates().add(predicate);
-                countPredicates.add(predicate);
+                queryContext.getPredicates().add(ProductStatusPredicateConverter.getPredicate(queryContext.getCriteriaBuilder(), queryContext.getRoot()));
+                queryContext.getCountPredicates().add(ProductStatusPredicateConverter.getPredicate(queryContext.getCriteriaBuilder(), queryContext.getCountRoot()));
             }
-            Predicate selectPredicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
-            Predicate countPredicate = QueryUtility.combinePredicate(queryContext, countPredicates);
             Order order = null;
             if (productQuery.getProductSort().isById())
                 order = QueryUtility.getDomainIdOrder(PRODUCT_ID_LITERAL, queryContext, productQuery.getProductSort().isAsc());
@@ -121,7 +107,8 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
                 order = QueryUtility.getOrder(PRODUCT_LOWEST_PRICE_LITERAL, queryContext, productQuery.getProductSort().isAsc());
             if (productQuery.getProductSort().isByEndAt())
                 order = QueryUtility.getOrder(PRODUCT_END_AT_LITERAL, queryContext, productQuery.getProductSort().isAsc());
-            return QueryUtility.pagedQuery(selectPredicate, countPredicate, order, productQuery, queryContext);
+            queryContext.setOrder(order);
+            return QueryUtility.pagedQuery(productQuery, queryContext);
         }
 
         public static class ProductTagPredicateConverter {
@@ -141,9 +128,7 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
              *
              * @return
              */
-            public static Predicate getPredicate(String userInput, QueryUtility.QueryContext<Product> queryContext, AbstractQuery<?> query) {
-                CriteriaBuilder cb = queryContext.getCriteriaBuilder();
-                Root<Product> root = queryContext.getRoot();
+            public static Predicate getPredicate(String userInput, CriteriaBuilder cb, Root<Product> root, AbstractQuery<?> query) {
                 String[] split = userInput.split("\\$");
                 Predicate id = null;
                 for (String s : split) {
@@ -181,9 +166,7 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
         }
 
         public static class ProductStatusPredicateConverter {
-            public static Predicate getPredicate(QueryUtility.QueryContext<Product> queryContext) {
-                CriteriaBuilder cb = queryContext.getCriteriaBuilder();
-                Root<Product> root = queryContext.getRoot();
+            public static Predicate getPredicate(CriteriaBuilder cb, Root<Product> root) {
                 Predicate startAtLessThanOrEqualToCurrentEpochMilli = cb.lessThanOrEqualTo(root.get(PRODUCT_START_AT_LITERAL).as(Long.class), Instant.now().toEpochMilli());
                 Predicate startAtNotNull = cb.isNotNull(root.get(PRODUCT_START_AT_LITERAL).as(Long.class));
                 Predicate and = cb.and(startAtNotNull, startAtLessThanOrEqualToCurrentEpochMilli);

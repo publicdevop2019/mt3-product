@@ -14,7 +14,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -61,11 +60,10 @@ public interface SpringDataJpaTagRepository extends TagRepository, JpaRepository
         public transient static final String TYPE_LITERAL = "type";
 
         public SumPagedRep<Tag> execute(TagQuery tagQuery) {
-            QueryUtility.QueryContext<Tag> queryContext = QueryUtility.prepareContext(Tag.class);
-            Optional.ofNullable(tagQuery.getTagIds()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getDomainIdInPredicate(tagQuery.getTagIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), TAG_ID_LITERAL, queryContext)));
-            Optional.ofNullable(tagQuery.getName()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringLikePredicate(tagQuery.getName(), NAME_LITERAL, queryContext)));
-            Optional.ofNullable(tagQuery.getType()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringEqualPredicate(tagQuery.getType().name(), TYPE_LITERAL, queryContext)));
-            Predicate predicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
+            QueryUtility.QueryContext<Tag> queryContext = QueryUtility.prepareContext(Tag.class, tagQuery);
+            Optional.ofNullable(tagQuery.getTagIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(tagQuery.getTagIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), TAG_ID_LITERAL, queryContext));
+            Optional.ofNullable(tagQuery.getName()).ifPresent(e -> QueryUtility.addStringLikePredicate(tagQuery.getName(), NAME_LITERAL, queryContext));
+            Optional.ofNullable(tagQuery.getType()).ifPresent(e -> QueryUtility.addStringEqualPredicate(tagQuery.getType().name(), TYPE_LITERAL, queryContext));
             Order order = null;
             if (tagQuery.getTagSort().isById())
                 order = QueryUtility.getDomainIdOrder(TAG_ID_LITERAL, queryContext, tagQuery.getTagSort().isAsc());
@@ -73,7 +71,8 @@ public interface SpringDataJpaTagRepository extends TagRepository, JpaRepository
                 order = QueryUtility.getOrder(NAME_LITERAL, queryContext, tagQuery.getTagSort().isAsc());
             if (tagQuery.getTagSort().isByType())
                 order = QueryUtility.getOrder(TYPE_LITERAL, queryContext, tagQuery.getTagSort().isAsc());
-            return QueryUtility.pagedQuery(predicate, order, tagQuery, queryContext);
+            queryContext.setOrder(order);
+            return QueryUtility.pagedQuery(tagQuery, queryContext);
         }
     }
 }

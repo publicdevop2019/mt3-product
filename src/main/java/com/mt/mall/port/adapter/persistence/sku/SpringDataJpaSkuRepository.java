@@ -70,14 +70,14 @@ public interface SpringDataJpaSkuRepository extends SkuRepository, JpaRepository
         public static final String SKU_ID_LITERAL = "skuId";
 
         public SumPagedRep<Sku> execute(SkuQuery skuQuery) {
-            QueryUtility.QueryContext<Sku> queryContext = QueryUtility.prepareContext(Sku.class);
-            Optional.ofNullable(skuQuery.getSkuIds()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getDomainIdInPredicate(skuQuery.getSkuIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), SKU_ID_LITERAL, queryContext)));
-            Optional.ofNullable(skuQuery.getProductId()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringEqualPredicate(skuQuery.getProductId().getDomainId(), SKU_REFERENCE_ID_LITERAL, queryContext)));
-            Predicate predicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
+            QueryUtility.QueryContext<Sku> queryContext = QueryUtility.prepareContext(Sku.class, skuQuery);
+            Optional.ofNullable(skuQuery.getSkuIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(skuQuery.getSkuIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), SKU_ID_LITERAL, queryContext));
+            Optional.ofNullable(skuQuery.getProductId()).ifPresent(e -> QueryUtility.addStringEqualPredicate(skuQuery.getProductId().getDomainId(), SKU_REFERENCE_ID_LITERAL, queryContext));
             Order order = null;
             if (skuQuery.getSkuSort().isById())
                 order = QueryUtility.getDomainIdOrder(SKU_ID_LITERAL, queryContext, skuQuery.getSkuSort().isAsc());
-            return QueryUtility.pagedQuery(predicate, order, skuQuery, queryContext);
+            queryContext.setOrder(order);
+            return QueryUtility.pagedQuery(skuQuery, queryContext);
         }
     }
 

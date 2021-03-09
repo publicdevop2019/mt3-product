@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -64,15 +63,15 @@ public interface SpringDataJpaFilterRepository extends FilterRepository, JpaRepo
         private static final String FILTER_ID_LITERAL = "filterId";
 
         public SumPagedRep<Filter> execute(FilterQuery filterQuery) {
-            QueryUtility.QueryContext<Filter> queryContext = QueryUtility.prepareContext(Filter.class);
-            Optional.ofNullable(filterQuery.getCatalog()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringEqualPredicate(filterQuery.getCatalog(), ENTITY_CATALOG_LITERAL, queryContext)));
-            Optional.ofNullable(filterQuery.getCatalogs()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringLikePredicate(filterQuery.getCatalogs(), ENTITY_CATALOG_LITERAL, queryContext)));
-            Optional.ofNullable(filterQuery.getFilterIds()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getDomainIdInPredicate(filterQuery.getFilterIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), FILTER_ID_LITERAL, queryContext)));
-            Predicate predicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
+            QueryUtility.QueryContext<Filter> queryContext = QueryUtility.prepareContext(Filter.class, filterQuery);
+            Optional.ofNullable(filterQuery.getCatalog()).ifPresent(e -> QueryUtility.addStringEqualPredicate(filterQuery.getCatalog(), ENTITY_CATALOG_LITERAL, queryContext));
+            Optional.ofNullable(filterQuery.getCatalogs()).ifPresent(e -> QueryUtility.addStringLikePredicate(filterQuery.getCatalogs(), ENTITY_CATALOG_LITERAL, queryContext));
+            Optional.ofNullable(filterQuery.getFilterIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(filterQuery.getFilterIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), FILTER_ID_LITERAL, queryContext));
             Order order = null;
             if (filterQuery.getFilterSort().isById())
                 order = QueryUtility.getDomainIdOrder(CATALOG_ID_LITERAL, queryContext, filterQuery.getFilterSort().isAsc());
-            return QueryUtility.pagedQuery(predicate, order, filterQuery, queryContext);
+            queryContext.setOrder(order);
+            return QueryUtility.pagedQuery(filterQuery, queryContext);
         }
     }
 }

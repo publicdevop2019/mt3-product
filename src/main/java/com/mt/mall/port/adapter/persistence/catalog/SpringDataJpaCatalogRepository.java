@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,17 +59,17 @@ public interface SpringDataJpaCatalogRepository extends CatalogRepository, JpaRe
         public transient static final String CATALOG_ID_LITERAL = "catalogId";
 
         public SumPagedRep<Catalog> execute(CatalogQuery catalogQuery) {
-            QueryUtility.QueryContext<Catalog> queryContext = QueryUtility.prepareContext(Catalog.class);
-            Optional.ofNullable(catalogQuery.getType()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringEqualPredicate(catalogQuery.getType().name(), TYPE_LITERAL, queryContext)));
-            Optional.ofNullable(catalogQuery.getParentId()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringEqualPredicate(catalogQuery.getParentId().getDomainId(), PARENT_ID_LITERAL, queryContext)));
-            Optional.ofNullable(catalogQuery.getCatalogIds()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getDomainIdInPredicate(catalogQuery.getCatalogIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), CATALOG_ID_LITERAL, queryContext)));
-            Predicate predicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
+            QueryUtility.QueryContext<Catalog> queryContext = QueryUtility.prepareContext(Catalog.class, catalogQuery);
+            Optional.ofNullable(catalogQuery.getType()).ifPresent(e -> QueryUtility.addStringEqualPredicate(catalogQuery.getType().name(), TYPE_LITERAL, queryContext));
+            Optional.ofNullable(catalogQuery.getParentId()).ifPresent(e -> QueryUtility.addStringEqualPredicate(catalogQuery.getParentId().getDomainId(), PARENT_ID_LITERAL, queryContext));
+            Optional.ofNullable(catalogQuery.getCatalogIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(catalogQuery.getCatalogIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), CATALOG_ID_LITERAL, queryContext));
             Order order = null;
             if (catalogQuery.getCatalogSort().isById())
                 order = QueryUtility.getDomainIdOrder(CATALOG_ID_LITERAL, queryContext, catalogQuery.getCatalogSort().isAscending());
             if (catalogQuery.getCatalogSort().isByName())
                 order = QueryUtility.getOrder(NAME_LITERAL, queryContext, catalogQuery.getCatalogSort().isAscending());
-            return QueryUtility.pagedQuery(predicate, order, catalogQuery, queryContext);
+            queryContext.setOrder(order);
+            return QueryUtility.pagedQuery(catalogQuery, queryContext);
         }
     }
 }
