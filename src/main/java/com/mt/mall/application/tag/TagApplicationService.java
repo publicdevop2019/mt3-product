@@ -3,10 +3,8 @@ package com.mt.mall.application.tag;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
-import com.mt.common.domain.model.restful.query.QueryConfig;
-import com.mt.common.domain.model.restful.query.PageConfig;
-import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.tag.command.CreateTagCommand;
 import com.mt.mall.application.tag.command.PatchTagCommand;
@@ -28,7 +26,7 @@ public class TagApplicationService {
     @SubscribeForEvent
     @Transactional
     public String create(CreateTagCommand command, String operationId) {
-        TagId tagId = DomainRegistry.tagRepository().nextIdentity();
+        TagId tagId = new TagId();
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, tagId,
                 () -> DomainRegistry.tagService().create(
                         tagId,
@@ -42,7 +40,7 @@ public class TagApplicationService {
     }
 
     public SumPagedRep<Tag> tags(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.tagRepository().tagsOfQuery(new TagQuery(queryParam), new PageConfig(pageParam, 1000), new QueryConfig(skipCount));
+        return DomainRegistry.tagRepository().tagsOfQuery(new TagQuery(queryParam, pageParam, skipCount));
     }
 
     public Optional<Tag> tag(String id) {
@@ -86,7 +84,7 @@ public class TagApplicationService {
     @Transactional
     public Set<String> removeByQuery(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
-            Set<Tag> tags = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.tagRepository().tagsOfQuery(query, page), new TagQuery(queryParam));
+            Set<Tag> tags = QueryUtility.getAllByQuery((query) -> DomainRegistry.tagRepository().tagsOfQuery((TagQuery) query), new TagQuery(queryParam));
             DomainRegistry.tagRepository().remove(tags);
             change.setRequestBody(tags);
             change.setDeletedIds(tags.stream().map(e -> e.getTagId().getDomainId()).collect(Collectors.toSet()));

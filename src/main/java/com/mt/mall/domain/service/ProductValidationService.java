@@ -6,6 +6,7 @@ import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.product.ProductAttrSaleImages;
 import com.mt.mall.domain.model.tag.Tag;
+import com.mt.mall.domain.model.tag.TagId;
 import com.mt.mall.domain.model.tag.TagQuery;
 import com.mt.mall.domain.model.tag.Type;
 import org.springframework.stereotype.Service;
@@ -18,8 +19,8 @@ import java.util.stream.Collectors;
 public class ProductValidationService {
     public void validate(List<ProductAttrSaleImages> saleImages, ValidationNotificationHandler handler) {
         if (saleImages != null && !saleImages.isEmpty()) {
-            Set<String> collect = saleImages.stream().map(e -> e.getAttributeSales().split(CommonConstant.QUERY_DELIMITER)[0]).collect(Collectors.toSet());
-            Set<Tag> allByQuery = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.tagRepository().tagsOfQuery(query, page), new TagQuery(collect));
+            Set<TagId> collect = saleImages.stream().map(e -> e.getAttributeSales().split(CommonConstant.QUERY_DELIMITER)[0]).map(TagId::new).collect(Collectors.toSet());
+            Set<Tag> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.tagRepository().tagsOfQuery((TagQuery) query), new TagQuery(collect));
             if (allByQuery.size() != collect.size())
                 handler.handleError("unable find all sales tags");
             if (allByQuery.stream().anyMatch(e -> !e.getType().equals(Type.SALES_ATTR)))

@@ -7,8 +7,6 @@ import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.restful.query.PageConfig;
-import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.product.command.CreateProductCommand;
@@ -36,7 +34,7 @@ public class ProductApplicationService {
     @SubscribeForEvent
     @Transactional
     public String create(CreateProductCommand command, String operationId) {
-        ProductId productId = DomainRegistry.productRepository().nextIdentity();
+        ProductId productId = new ProductId();
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, productId,
                 () -> DomainRegistry.productService().create(
                         productId,
@@ -57,7 +55,7 @@ public class ProductApplicationService {
     }
 
     public SumPagedRep<Product> products(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.productRepository().productsOfQuery(new ProductQuery(queryParam, false), new PageConfig(pageParam, 400), new QueryConfig(skipCount));
+        return DomainRegistry.productRepository().productsOfQuery(new ProductQuery(queryParam, pageParam, skipCount, false));
     }
 
     public Optional<Product> product(String id) {
@@ -65,7 +63,7 @@ public class ProductApplicationService {
     }
 
     public SumPagedRep<Product> publicProducts(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.productRepository().productsOfQuery(new ProductQuery(queryParam, true), new PageConfig(pageParam, 200), new QueryConfig(skipCount));
+        return DomainRegistry.productRepository().productsOfQuery(new ProductQuery(queryParam, pageParam, skipCount, true));
     }
 
     public Optional<Product> publicProduct(String id) {
@@ -121,7 +119,7 @@ public class ProductApplicationService {
     @Transactional
     public Set<String> removeByQuery(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
-            Set<Product> products = QueryUtility.getAllByQuery((query, page) -> DomainRegistry.productRepository().productsOfQuery(query, page), new ProductQuery(queryParam, false));
+            Set<Product> products = QueryUtility.getAllByQuery((query) -> DomainRegistry.productRepository().productsOfQuery((ProductQuery) query), new ProductQuery(queryParam));
             DomainRegistry.productRepository().remove(products);
             change.setRequestBody(products);
             change.setDeletedIds(products.stream().map(e -> e.getProductId().getDomainId()).collect(Collectors.toSet()));

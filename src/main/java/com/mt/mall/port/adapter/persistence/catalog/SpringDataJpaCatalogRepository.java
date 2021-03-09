@@ -1,10 +1,8 @@
 package com.mt.mall.port.adapter.persistence.catalog;
 
-import com.mt.common.domain.model.restful.query.QueryConfig;
-import com.mt.common.domain.model.restful.query.PageConfig;
-import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.sql.builder.SelectQueryBuilder;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.mall.domain.model.catalog.Catalog;
 import com.mt.mall.domain.model.catalog.CatalogId;
 import com.mt.mall.domain.model.catalog.CatalogQuery;
@@ -13,9 +11,10 @@ import com.mt.mall.port.adapter.persistence.QueryBuilderRegistry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import javax.persistence.criteria.Order;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,20 +30,13 @@ public interface SpringDataJpaCatalogRepository extends CatalogRepository, JpaRe
     @Query("update #{#entityName} e set e.deleted=true where e.id in ?1")
     void softDeleteAll(Set<Long> id);
 
-    default CatalogId nextIdentity() {
-        return new CatalogId();
+    default Optional<Catalog> catalogOfId(CatalogId catalogId) {
+        SumPagedRep<Catalog> execute = catalogsOfQuery(new CatalogQuery(catalogId));
+        return execute.findFirst();
     }
 
-    default Optional<Catalog> catalogOfId(CatalogId catalogOfId) {
-        return getCatalogOfId(catalogOfId);
-    }
-
-    private Optional<Catalog> getCatalogOfId(CatalogId catalogId) {
-        SelectQueryBuilder<Catalog> catalogs = QueryBuilderRegistry.catalogSelectQueryBuilder();
-        List<Catalog> select = catalogs.select(new CatalogQuery(catalogId), new PageConfig(), Catalog.class);
-        if (select.isEmpty())
-            return Optional.empty();
-        return Optional.of(select.get(0));
+    default SumPagedRep<Catalog> catalogsOfQuery(CatalogQuery query) {
+        return QueryBuilderRegistry.getCatalogSelectQueryBuilder().execute(query);
     }
 
     default void add(Catalog client) {
@@ -59,12 +51,25 @@ public interface SpringDataJpaCatalogRepository extends CatalogRepository, JpaRe
         softDeleteAll(client.stream().map(Catalog::getId).collect(Collectors.toSet()));
     }
 
-    default SumPagedRep<Catalog> catalogsOfQuery(CatalogQuery query, PageConfig pageConfig, QueryConfig queryConfig) {
-        return QueryUtility.pagedQuery(QueryBuilderRegistry.catalogSelectQueryBuilder(), query, pageConfig, queryConfig, Catalog.class);
-    }
+    @Component
+    class JpaCriteriaApiCatalogAdaptor {
+        public transient static final String NAME_LITERAL = "name";
+        public transient static final String PARENT_ID_LITERAL = "parentId";
+        public transient static final String TYPE_LITERAL = "type";
+        public transient static final String CATALOG_ID_LITERAL = "catalogId";
 
-    default SumPagedRep<Catalog> catalogsOfQuery(CatalogQuery query, PageConfig pageConfig) {
-        return QueryUtility.pagedQuery(QueryBuilderRegistry.catalogSelectQueryBuilder(), query, pageConfig, new QueryConfig(), Catalog.class);
+        public SumPagedRep<Catalog> execute(CatalogQuery catalogQuery) {
+            QueryUtility.QueryContext<Catalog> queryContext = QueryUtility.prepareContext(Catalog.class, catalogQuery);
+            Optional.ofNullable(catalogQuery.getType()).ifPresent(e -> QueryUtility.addStringEqualPredicate(catalogQuery.getType().name(), TYPE_LITERAL, queryContext));
+            Optional.ofNullable(catalogQuery.getParentId()).ifPresent(e -> QueryUtility.addStringEqualPredicate(catalogQuery.getParentId().getDomainId(), PARENT_ID_LITERAL, queryContext));
+            Optional.ofNullable(catalogQuery.getCatalogIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(catalogQuery.getCatalogIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), CATALOG_ID_LITERAL, queryContext));
+            Order order = null;
+            if (catalogQuery.getCatalogSort().isById())
+                order = QueryUtility.getDomainIdOrder(CATALOG_ID_LITERAL, queryContext, catalogQuery.getCatalogSort().isAscending());
+            if (catalogQuery.getCatalogSort().isByName())
+                order = QueryUtility.getOrder(NAME_LITERAL, queryContext, catalogQuery.getCatalogSort().isAscending());
+            queryContext.setOrder(order);
+            return QueryUtility.pagedQuery(catalogQuery, queryContext);
+        }
     }
-
 }
