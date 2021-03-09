@@ -7,7 +7,6 @@ import com.mt.common.domain.model.restful.exception.NoUpdatableFieldException;
 import com.mt.common.domain.model.restful.exception.UnsupportedPatchOperationException;
 import com.mt.common.domain.model.restful.exception.UpdateFiledValueException;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.sql.builder.SqlSelectQueryConverter;
 import com.mt.common.domain.model.sql.builder.UpdateQueryBuilder;
 import com.mt.mall.domain.model.product.Product;
 import com.mt.mall.domain.model.product.ProductId;
@@ -74,7 +73,7 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
     }
 
     @Component
-    class JpaCriteriaApiProductAdaptor extends SqlSelectQueryConverter<Product> {
+    class JpaCriteriaApiProductAdaptor {
         private static final String PRODUCT_ID_LITERAL = "productId";
 
         public SumPagedRep<Product> execute(ProductQuery productQuery) {
