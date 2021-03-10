@@ -2,7 +2,10 @@ package com.mt.mall.application.product.representation;
 
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.mall.application.ApplicationServiceRegistry;
-import com.mt.mall.domain.model.product.*;
+import com.mt.mall.domain.model.product.Product;
+import com.mt.mall.domain.model.product.ProductAttrSaleImages;
+import com.mt.mall.domain.model.product.ProductOption;
+import com.mt.mall.domain.model.product.TagType;
 import com.mt.mall.domain.model.sku.Sku;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -61,9 +64,9 @@ public class ProductRepresentation {
         setTotalSales(product.getTotalSales());
         setLowestPrice(product.getLowestPrice());
         setVersion(product.getVersion());
-        this.attributesKey = product.getTags().stream().filter(e -> e.getType().equals(TagType.KEY)).map(ProductTag::getValue).collect(Collectors.toSet());
-        this.attributesProd = product.getTags().stream().filter(e -> e.getType().equals(TagType.PROD)).map(ProductTag::getValue).collect(Collectors.toSet());
-        this.attributesGen = product.getTags().stream().filter(e -> e.getType().equals(TagType.GEN)).map(ProductTag::getValue).collect(Collectors.toSet());
+        this.attributesKey = product.getTags().stream().filter(e -> e.getType().equals(TagType.KEY)).map(e -> String.join(":", e.getTagId().getDomainId(), e.getTagValue())).collect(Collectors.toSet());
+        this.attributesProd = product.getTags().stream().filter(e -> e.getType().equals(TagType.PROD)).map(e -> String.join(":", e.getTagId().getDomainId(), e.getTagValue())).collect(Collectors.toSet());
+        this.attributesGen = product.getTags().stream().filter(e -> e.getType().equals(TagType.GEN)).map(e -> String.join(":", e.getTagId().getDomainId(), e.getTagValue())).collect(Collectors.toSet());
 
         HashMap<String, String> attrSalesMap = product.getAttrSalesMap();
         Set<String> collect = attrSalesMap.values().stream().map(Object::toString).collect(Collectors.toSet());

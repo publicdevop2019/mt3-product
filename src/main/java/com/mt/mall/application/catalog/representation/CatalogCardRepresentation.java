@@ -5,6 +5,7 @@ import com.mt.mall.domain.model.catalog.Type;
 import lombok.Data;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 public class CatalogCardRepresentation {
@@ -23,7 +24,7 @@ public class CatalogCardRepresentation {
         setName(catalog.getName());
         if (catalog.getParentId() != null)
             setParentId(catalog.getParentId().getDomainId());
-        setAttributes(catalog.getAttributes());
+        setAttributes(catalog.getLinkedTags().stream().map(e -> String.join(":", e.getTagId().getDomainId(), e.getTagValue())).collect(Collectors.toSet()));
         setCatalogType(catalog.getType());
         setVersion(catalog.getVersion());
     }

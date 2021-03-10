@@ -10,10 +10,12 @@ import com.mt.mall.application.filter.command.CreateFilterCommand;
 import com.mt.mall.application.filter.command.PatchFilterCommand;
 import com.mt.mall.application.filter.command.UpdateFilterCommand;
 import com.mt.mall.domain.DomainRegistry;
+import com.mt.mall.domain.model.catalog.CatalogId;
 import com.mt.mall.domain.model.filter.Filter;
 import com.mt.mall.domain.model.filter.FilterId;
 import com.mt.mall.domain.model.filter.FilterItem;
 import com.mt.mall.domain.model.filter.FilterQuery;
+import com.mt.mall.domain.model.tag.TagId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +34,8 @@ public class FilterApplicationService {
                 () -> DomainRegistry.filterService().create(
                         filterId,
                         command.getDescription(),
-                        command.getCatalogs(),
-                        command.getFilters().stream().map(e -> new FilterItem(e.getId(), e.getName(), e.getValues())).collect(Collectors.toSet())
+                        command.getCatalogs().stream().map(CatalogId::new).collect(Collectors.toSet()),
+                        command.getFilters().stream().map(e -> new FilterItem(new TagId(e.getId()), e.getName(), e.getValues())).collect(Collectors.toSet())
                 ), Filter.class
         );
     }
@@ -59,8 +61,8 @@ public class FilterApplicationService {
             if (optionalFilter.isPresent()) {
                 Filter filter = optionalFilter.get();
                 filter.replace(
-                        command.getCatalogs(),
-                        command.getFilters().stream().map(e -> new FilterItem(e.getId(), e.getName(), e.getValues())).collect(Collectors.toSet()),
+                        command.getCatalogs().stream().map(CatalogId::new).collect(Collectors.toSet()),
+                        command.getFilters().stream().map(e -> new FilterItem(new TagId(e.getId()), e.getName(), e.getValues())).collect(Collectors.toSet()),
                         command.getDescription());
                 DomainRegistry.filterRepository().add(filter);
             }
@@ -104,7 +106,7 @@ public class FilterApplicationService {
                 PatchFilterCommand beforePatch = new PatchFilterCommand(filter);
                 PatchFilterCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer().applyJsonPatch(command, beforePatch, PatchFilterCommand.class);
                 filter.replace(
-                        afterPatch.getCatalogs(),
+                        afterPatch.getCatalogs().stream().map(CatalogId::new).collect(Collectors.toSet()),
                         afterPatch.getDescription()
                 );
             }

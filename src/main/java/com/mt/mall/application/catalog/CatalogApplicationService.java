@@ -13,6 +13,7 @@ import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.catalog.Catalog;
 import com.mt.mall.domain.model.catalog.CatalogId;
 import com.mt.mall.domain.model.catalog.CatalogQuery;
+import com.mt.mall.domain.model.catalog.LinkedTag;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +32,7 @@ public class CatalogApplicationService {
                         catalogId,
                         command.getName(),
                         new CatalogId(command.getParentId()),
-                        command.getAttributes(),
+                        command.getAttributes().stream().map(LinkedTag::new).collect(Collectors.toSet()),
                         command.getCatalogType()
                 ), Catalog.class
         );
@@ -57,7 +58,7 @@ public class CatalogApplicationService {
             Optional<Catalog> optionalCatalog = DomainRegistry.catalogRepository().catalogOfId(catalogId);
             if (optionalCatalog.isPresent()) {
                 Catalog catalog = optionalCatalog.get();
-                catalog.replace(command.getName(), new CatalogId(command.getParentId()), command.getAttributes(), command.getCatalogType());
+                catalog.replace(command.getName(), new CatalogId(command.getParentId()), command.getAttributes().stream().map(LinkedTag::new).collect(Collectors.toSet()), command.getCatalogType());
                 DomainRegistry.catalogRepository().add(catalog);
             }
         }, Catalog.class);
@@ -102,7 +103,7 @@ public class CatalogApplicationService {
                 catalog.replace(
                         afterPatch.getName(),
                         new CatalogId(afterPatch.getParentId()),
-                        afterPatch.getAttributes(),
+                        afterPatch.getAttributes().stream().map(LinkedTag::new).collect(Collectors.toSet()),
                         afterPatch.getType()
                 );
             }

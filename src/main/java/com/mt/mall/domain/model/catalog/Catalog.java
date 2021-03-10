@@ -42,8 +42,8 @@ public class Catalog extends Auditable {
     private CatalogId catalogId;
 
 
-    @Convert(converter = StringSetConverter.class)
-    private Set<String> attributes;
+    @Convert(converter = LinkedTag.LinkedTagConverter.class)
+    private Set<LinkedTag> linkedTags;
 
     @Convert(converter = Type.DBConverter.class)
     @Setter(AccessLevel.PRIVATE)
@@ -54,26 +54,26 @@ public class Catalog extends Auditable {
             this.parentId = parentId;
     }
 
-    public Catalog(CatalogId catalogId, String name, CatalogId parentId, Set<String> attributes, Type catalogType) {
+    public Catalog(CatalogId catalogId, String name, CatalogId parentId, Set<LinkedTag> linkedTags, Type catalogType) {
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setCatalogId(catalogId);
         setName(name);
         setParentId(parentId);
-        setAttributes(attributes);
+        setLinkedTags(linkedTags);
         setType(catalogType);
         HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();
         validate(handler);
-        DomainRegistry.getCatalogValidationService().validate(attributes, handler);
+        DomainRegistry.getCatalogValidationService().validate(linkedTags, handler);
     }
 
-    public void replace(String name, CatalogId parentId, Set<String> attributes, Type catalogType) {
+    public void replace(String name, CatalogId parentId, Set<LinkedTag> linkedTags, Type catalogType) {
         setName(name);
         setParentId(parentId);
-        setAttributes(attributes);
+        setLinkedTags(linkedTags);
         setType(catalogType);
         HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();
         validate(handler);
-        DomainRegistry.getCatalogValidationService().validate(attributes, handler);
+        DomainRegistry.getCatalogValidationService().validate(linkedTags, handler);
     }
 
     @Override
@@ -81,9 +81,9 @@ public class Catalog extends Auditable {
         (new CatalogValidator(this, handler)).validate();
     }
 
-    private void setAttributes(Set<String> attributes) {
-        Validator.notEmpty(attributes);
-        this.attributes = attributes;
+    private void setLinkedTags(Set<LinkedTag> linkedTags) {
+        Validator.notEmpty(linkedTags);
+        this.linkedTags = linkedTags;
     }
 
     private void setName(String name) {

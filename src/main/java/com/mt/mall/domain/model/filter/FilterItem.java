@@ -2,6 +2,7 @@ package com.mt.mall.domain.model.filter;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.mall.domain.model.tag.TagId;
 import lombok.*;
 
 import javax.persistence.AttributeConverter;
@@ -13,11 +14,11 @@ import java.util.Set;
 public class FilterItem implements Serializable {
     private static final long serialVersionUID = 1;
     @Setter(AccessLevel.PRIVATE)
-    private String tagId;
+    private TagId tagId;
     private String name;
     private Set<String> values;
 
-    public FilterItem(String id, String name, Set<String> selectValues) {
+    public FilterItem(TagId id, String name, Set<String> selectValues) {
         setTagId(id);
         setName(name);
         setValues(selectValues);

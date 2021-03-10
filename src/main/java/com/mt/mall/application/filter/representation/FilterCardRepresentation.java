@@ -1,9 +1,11 @@
 package com.mt.mall.application.filter.representation;
 
+import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.mall.domain.model.filter.Filter;
 import lombok.Data;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 public class FilterCardRepresentation {
@@ -16,7 +18,7 @@ public class FilterCardRepresentation {
         Filter e1 = (Filter) e;
         setId(e1.getFilterId().getDomainId());
         setDescription(e1.getDescription());
-        setCatalogs(e1.getCatalogs());
+        setCatalogs(e1.getCatalogs().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
         setVersion(e1.getVersion());
     }
 }

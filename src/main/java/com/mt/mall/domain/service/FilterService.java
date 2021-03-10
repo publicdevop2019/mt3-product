@@ -1,6 +1,7 @@
 package com.mt.mall.domain.service;
 
 import com.mt.mall.domain.DomainRegistry;
+import com.mt.mall.domain.model.catalog.CatalogId;
 import com.mt.mall.domain.model.filter.Filter;
 import com.mt.mall.domain.model.filter.FilterId;
 import com.mt.mall.domain.model.filter.FilterItem;
@@ -10,7 +11,7 @@ import java.util.Set;
 
 @Service
 public class FilterService {
-    public FilterId create(FilterId filterId, String des, Set<String> catalogs, Set<FilterItem> filter1) {
+    public FilterId create(FilterId filterId, String des, Set<CatalogId> catalogs, Set<FilterItem> filter1) {
         Filter filter = new Filter(filterId, catalogs, filter1, des);
         DomainRegistry.filterRepository().add(filter);
         return filter.getFilterId();
