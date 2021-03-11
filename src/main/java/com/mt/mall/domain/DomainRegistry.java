@@ -6,6 +6,7 @@ import com.mt.mall.domain.model.catalog.CatalogValidationService;
 import com.mt.mall.domain.model.filter.FilterRepository;
 import com.mt.mall.domain.model.filter.FilterService;
 import com.mt.mall.domain.model.filter.FilterValidationService;
+import com.mt.mall.domain.model.meta.MetaRepository;
 import com.mt.mall.domain.model.product.ProductRepository;
 import com.mt.mall.domain.model.product.ProductService;
 import com.mt.mall.domain.model.product.ProductTagRepository;
@@ -48,6 +49,8 @@ public class DomainRegistry {
     private static FilterValidationService filterValidationService;
     @Getter
     private static ProductValidationService productValidationService;
+    @Getter
+    private static MetaRepository metaRepository;
 
     @Autowired
     private void setCatalogValidationService(FilterValidationService catalogValidationService) {
@@ -112,6 +115,11 @@ public class DomainRegistry {
     @Autowired
     private void setFilterRepository(FilterRepository filterRepository) {
         DomainRegistry.filterRepository = filterRepository;
+    }
+
+    @Autowired
+    private void setMetaRepository(MetaRepository metaRepository) {
+        DomainRegistry.metaRepository = metaRepository;
     }
 
     @Autowired

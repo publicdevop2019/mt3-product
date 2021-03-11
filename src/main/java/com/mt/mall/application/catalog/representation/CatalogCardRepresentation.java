@@ -17,6 +17,7 @@ public class CatalogCardRepresentation {
     private Set<String> attributes;
     private Type catalogType;
     private Integer version;
+    private boolean reviewRequired = false;
 
     public CatalogCardRepresentation(Object obj) {
         Catalog catalog = (Catalog) obj;
@@ -27,5 +28,6 @@ public class CatalogCardRepresentation {
         setAttributes(catalog.getLinkedTags().stream().map(e -> String.join(":", e.getTagId().getDomainId(), e.getTagValue())).collect(Collectors.toSet()));
         setCatalogType(catalog.getType());
         setVersion(catalog.getVersion());
+        setReviewRequired(catalog.isReviewRequired());
     }
 }

@@ -14,6 +14,8 @@ import com.mt.mall.domain.model.catalog.Catalog;
 import com.mt.mall.domain.model.catalog.CatalogId;
 import com.mt.mall.domain.model.catalog.CatalogQuery;
 import com.mt.mall.domain.model.catalog.LinkedTag;
+import com.mt.mall.domain.model.meta.Meta;
+import com.mt.mall.domain.model.meta.MetaQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +41,16 @@ public class CatalogApplicationService {
     }
 
     public SumPagedRep<Catalog> catalogs(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.getCatalogRepository().catalogsOfQuery(new CatalogQuery(queryParam, pageParam, skipCount));
+        SumPagedRep<Catalog> catalogs = DomainRegistry.getCatalogRepository().catalogsOfQuery(new CatalogQuery(queryParam, pageParam, skipCount));
+        Set<CatalogId> collect = catalogs.getData().stream().map(Catalog::getCatalogId).collect(Collectors.toSet());
+        Set<Meta> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getMetaRepository().metaOfQuery((MetaQuery) e), new MetaQuery(collect));
+        catalogs.getData().forEach(e -> {
+            Optional<Meta> first = allByQuery.stream().filter(ee -> ee.getDomainId().toString().equalsIgnoreCase(e.getCatalogId().getDomainId())).findFirst();
+            if (first.isPresent() && first.get().getHasChangedTag()) {
+                e.setReviewRequired(true);
+            }
+        });
+        return catalogs;
     }
 
     public SumPagedRep<Catalog> publicCatalogs(String pageParam, String skipCount) {

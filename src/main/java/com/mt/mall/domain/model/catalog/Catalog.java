@@ -48,6 +48,8 @@ public class Catalog extends Auditable {
     @Convert(converter = Type.DBConverter.class)
     @Setter(AccessLevel.PRIVATE)
     private Type type;
+    @Setter
+    private transient boolean reviewRequired=false;
 
     private void setParentId(CatalogId parentId) {
         if (parentId.getDomainId() != null)
