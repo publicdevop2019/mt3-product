@@ -223,7 +223,7 @@ public class Product extends Auditable {
         Set<ProductTag> productTags = new HashSet<>();
         if (sales != null) {
             sales.forEach(e -> {
-                Optional<ProductTag> byValue = DomainRegistry.productTagRepository().findByValueAndType(e, TagType.SALES);
+                Optional<ProductTag> byValue = DomainRegistry.getProductTagRepository().findByValueAndType(e, TagType.SALES);
                 if (byValue.isPresent()) {
                     productTags.add(byValue.get());
                 } else {
@@ -234,7 +234,7 @@ public class Product extends Auditable {
         }
         if (attributesKey != null) {
             attributesKey.forEach(e -> {
-                Optional<ProductTag> byValue = DomainRegistry.productTagRepository().findByValueAndType(e, TagType.KEY);
+                Optional<ProductTag> byValue = DomainRegistry.getProductTagRepository().findByValueAndType(e, TagType.KEY);
                 if (byValue.isPresent()) {
                     productTags.add(byValue.get());
                 } else {
@@ -245,7 +245,7 @@ public class Product extends Auditable {
         }
         if (attributesGen != null) {
             attributesGen.forEach(e -> {
-                Optional<ProductTag> byValue = DomainRegistry.productTagRepository().findByValueAndType(e, TagType.GEN);
+                Optional<ProductTag> byValue = DomainRegistry.getProductTagRepository().findByValueAndType(e, TagType.GEN);
                 if (byValue.isPresent()) {
                     productTags.add(byValue.get());
                 } else {
@@ -256,7 +256,7 @@ public class Product extends Auditable {
         }
         if (attributesProd != null) {
             attributesProd.forEach(e -> {
-                Optional<ProductTag> byValue = DomainRegistry.productTagRepository().findByValueAndType(e, TagType.PROD);
+                Optional<ProductTag> byValue = DomainRegistry.getProductTagRepository().findByValueAndType(e, TagType.PROD);
                 if (byValue.isPresent()) {
                     productTags.add(byValue.get());
                 } else {
@@ -279,7 +279,7 @@ public class Product extends Auditable {
 
     private Consumer<String> getStringConsumer(TagType key) {
         return e -> {
-            Optional<ProductTag> byValue = DomainRegistry.productTagRepository().findByValueAndType(e, key);
+            Optional<ProductTag> byValue = DomainRegistry.getProductTagRepository().findByValueAndType(e, key);
             if (byValue.isPresent()) {
                 addTag(byValue.get());
             } else {

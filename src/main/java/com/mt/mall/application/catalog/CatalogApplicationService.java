@@ -28,7 +28,7 @@ public class CatalogApplicationService {
     public String create(CreateCatalogCommand command, String operationId) {
         CatalogId catalogId = new CatalogId();
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, catalogId,
-                () -> DomainRegistry.catalogService().create(
+                () -> DomainRegistry.getCatalogService().create(
                         catalogId,
                         command.getName(),
                         new CatalogId(command.getParentId()),
@@ -39,15 +39,15 @@ public class CatalogApplicationService {
     }
 
     public SumPagedRep<Catalog> catalogs(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.catalogRepository().catalogsOfQuery(new CatalogQuery(queryParam, pageParam, skipCount));
+        return DomainRegistry.getCatalogRepository().catalogsOfQuery(new CatalogQuery(queryParam, pageParam, skipCount));
     }
 
     public SumPagedRep<Catalog> publicCatalogs(String pageParam, String skipCount) {
-        return DomainRegistry.catalogRepository().catalogsOfQuery(CatalogQuery.publicQuery(pageParam, skipCount));
+        return DomainRegistry.getCatalogRepository().catalogsOfQuery(CatalogQuery.publicQuery(pageParam, skipCount));
     }
 
     public Optional<Catalog> catalog(String id) {
-        return DomainRegistry.catalogRepository().catalogOfId(new CatalogId(id));
+        return DomainRegistry.getCatalogRepository().catalogOfId(new CatalogId(id));
     }
 
     @SubscribeForEvent
@@ -55,11 +55,11 @@ public class CatalogApplicationService {
     public void replace(String id, UpdateCatalogCommand command, String changeId) {
         CatalogId catalogId = new CatalogId(id);
         ApplicationServiceRegistry.idempotentWrapper().idempotent(catalogId, command, changeId, (change) -> {
-            Optional<Catalog> optionalCatalog = DomainRegistry.catalogRepository().catalogOfId(catalogId);
+            Optional<Catalog> optionalCatalog = DomainRegistry.getCatalogRepository().catalogOfId(catalogId);
             if (optionalCatalog.isPresent()) {
                 Catalog catalog = optionalCatalog.get();
                 catalog.replace(command.getName(), new CatalogId(command.getParentId()), command.getAttributes().stream().map(LinkedTag::new).collect(Collectors.toSet()), command.getCatalogType());
-                DomainRegistry.catalogRepository().add(catalog);
+                DomainRegistry.getCatalogRepository().add(catalog);
             }
         }, Catalog.class);
     }
@@ -69,10 +69,10 @@ public class CatalogApplicationService {
     public void removeCatalog(String id, String changeId) {
         CatalogId catalogId = new CatalogId(id);
         ApplicationServiceRegistry.idempotentWrapper().idempotent(catalogId, null, changeId, (change) -> {
-            Optional<Catalog> optionalCatalog = DomainRegistry.catalogRepository().catalogOfId(catalogId);
+            Optional<Catalog> optionalCatalog = DomainRegistry.getCatalogRepository().catalogOfId(catalogId);
             if (optionalCatalog.isPresent()) {
                 Catalog catalog = optionalCatalog.get();
-                DomainRegistry.catalogRepository().remove(catalog);
+                DomainRegistry.getCatalogRepository().remove(catalog);
             }
         }, Catalog.class);
     }
@@ -81,8 +81,8 @@ public class CatalogApplicationService {
     @Transactional
     public Set<String> removeCatalogs(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
-            Set<Catalog> allClientsOfQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.catalogRepository().catalogsOfQuery((CatalogQuery) query), new CatalogQuery(queryParam));
-            DomainRegistry.catalogRepository().remove(allClientsOfQuery);
+            Set<Catalog> allClientsOfQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getCatalogRepository().catalogsOfQuery((CatalogQuery) query), new CatalogQuery(queryParam));
+            DomainRegistry.getCatalogRepository().remove(allClientsOfQuery);
             change.setRequestBody(allClientsOfQuery);
             change.setDeletedIds(allClientsOfQuery.stream().map(e -> e.getCatalogId().getDomainId()).collect(Collectors.toSet()));
             change.setQuery(queryParam);
@@ -95,7 +95,7 @@ public class CatalogApplicationService {
     public void patch(String id, JsonPatch command, String changeId) {
         CatalogId catalogId = new CatalogId(id);
         ApplicationServiceRegistry.idempotentWrapper().idempotent(catalogId, command, changeId, (ignored) -> {
-            Optional<Catalog> optionalCatalog = DomainRegistry.catalogRepository().catalogOfId(catalogId);
+            Optional<Catalog> optionalCatalog = DomainRegistry.getCatalogRepository().catalogOfId(catalogId);
             if (optionalCatalog.isPresent()) {
                 Catalog catalog = optionalCatalog.get();
                 PatchCatalogCommand beforePatch = new PatchCatalogCommand(catalog);

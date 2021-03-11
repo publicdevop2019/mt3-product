@@ -36,7 +36,7 @@ public class ProductApplicationService {
     public String create(CreateProductCommand command, String operationId) {
         ProductId productId = new ProductId();
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, productId,
-                () -> DomainRegistry.productService().create(
+                () -> DomainRegistry.getProductService().create(
                         productId,
                         command.getName(),
                         command.getImageUrlSmall(),
@@ -55,19 +55,19 @@ public class ProductApplicationService {
     }
 
     public SumPagedRep<Product> products(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.productRepository().productsOfQuery(new ProductQuery(queryParam, pageParam, skipCount, false));
+        return DomainRegistry.getProductRepository().productsOfQuery(new ProductQuery(queryParam, pageParam, skipCount, false));
     }
 
     public Optional<Product> product(String id) {
-        return DomainRegistry.productRepository().productOfId(new ProductId(id));
+        return DomainRegistry.getProductRepository().productOfId(new ProductId(id));
     }
 
     public SumPagedRep<Product> publicProducts(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.productRepository().productsOfQuery(new ProductQuery(queryParam, pageParam, skipCount, true));
+        return DomainRegistry.getProductRepository().productsOfQuery(new ProductQuery(queryParam, pageParam, skipCount, true));
     }
 
     public Optional<Product> publicProduct(String id) {
-        return DomainRegistry.productRepository().publicProductOfId(new ProductId(id));
+        return DomainRegistry.getProductRepository().publicProductOfId(new ProductId(id));
     }
 
     @SubscribeForEvent
@@ -75,7 +75,7 @@ public class ProductApplicationService {
     public void replace(String id, UpdateProductCommand command, String changeId) {
         ProductId productId = new ProductId(id);
         ApplicationServiceRegistry.idempotentWrapper().idempotent(productId, command, changeId, (change) -> {
-            Optional<Product> optionalProduct = DomainRegistry.productRepository().productOfId(productId);
+            Optional<Product> optionalProduct = DomainRegistry.getProductRepository().productOfId(productId);
             if (optionalProduct.isPresent()) {
                 Product product = optionalProduct.get();
                 product.checkVersion(command.getVersion());
@@ -94,7 +94,7 @@ public class ProductApplicationService {
                         command.getAttributeSaleImages(),
                         command.getChangeId()
                 );
-                DomainRegistry.productRepository().add(product);
+                DomainRegistry.getProductRepository().add(product);
             }
         }, Product.class);
     }
@@ -104,10 +104,10 @@ public class ProductApplicationService {
     public void removeById(String id, String changeId) {
         ProductId productId = new ProductId(id);
         ApplicationServiceRegistry.idempotentWrapper().idempotent(productId, null, changeId, (change) -> {
-            Optional<Product> optionalProduct = DomainRegistry.productRepository().productOfId(productId);
+            Optional<Product> optionalProduct = DomainRegistry.getProductRepository().productOfId(productId);
             if (optionalProduct.isPresent()) {
                 Product product = optionalProduct.get();
-                DomainRegistry.productRepository().remove(product);
+                DomainRegistry.getProductRepository().remove(product);
                 Set<SkuId> collect = product.getAttrSalesMap().values().stream().map(SkuId::new).collect(Collectors.toSet());
                 DomainEventPublisher.instance().publish(new ProductDeleted(productId, collect, UUID.randomUUID().toString()));
             }
@@ -119,8 +119,8 @@ public class ProductApplicationService {
     @Transactional
     public Set<String> removeByQuery(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
-            Set<Product> products = QueryUtility.getAllByQuery((query) -> DomainRegistry.productRepository().productsOfQuery((ProductQuery) query), new ProductQuery(queryParam));
-            DomainRegistry.productRepository().remove(products);
+            Set<Product> products = QueryUtility.getAllByQuery((query) -> DomainRegistry.getProductRepository().productsOfQuery((ProductQuery) query), new ProductQuery(queryParam));
+            DomainRegistry.getProductRepository().remove(products);
             change.setRequestBody(products);
             change.setDeletedIds(products.stream().map(e -> e.getProductId().getDomainId()).collect(Collectors.toSet()));
             change.setQuery(queryParam);
@@ -139,7 +139,7 @@ public class ProductApplicationService {
     public void patch(String id, JsonPatch command, String changeId) {
         ProductId productId = new ProductId(id);
         ApplicationServiceRegistry.idempotentWrapper().idempotent(productId, command, changeId, (change) -> {
-            Optional<Product> optionalCatalog = DomainRegistry.productRepository().productOfId(productId);
+            Optional<Product> optionalCatalog = DomainRegistry.getProductRepository().productOfId(productId);
             if (optionalCatalog.isPresent()) {
                 Product product = optionalCatalog.get();
                 PatchProductCommand beforePatch = new PatchProductCommand(product);
@@ -161,7 +161,7 @@ public class ProductApplicationService {
             List<PatchCommand> skuChange = commands.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
             List<PatchCommand> productChange = commands.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
             if (!productChange.isEmpty())
-                DomainRegistry.productRepository().patchBatch(productChange);
+                DomainRegistry.getProductRepository().patchBatch(productChange);
             if (!skuChange.isEmpty()) {
                 DomainEventPublisher.instance().publish(new ProductPatchBatched(Product.convertToSkuCommands(skuChange), changeId));
             }

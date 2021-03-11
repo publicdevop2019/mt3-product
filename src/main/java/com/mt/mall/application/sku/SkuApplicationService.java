@@ -52,7 +52,7 @@ public class SkuApplicationService {
 
     private String doCreate(CreateSkuCommand command, String operationId, SkuId skuId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, skuId,
-                () -> DomainRegistry.skuService().create(
+                () -> DomainRegistry.getSkuService().create(
                         skuId,
                         command.getReferenceId().getDomainId(),
                         command.getDescription(),
@@ -65,11 +65,11 @@ public class SkuApplicationService {
     }
 
     public SumPagedRep<Sku> skus(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.skuRepository().skusOfQuery(new SkuQuery(queryParam, pageParam, skipCount));
+        return DomainRegistry.getSkuRepository().skusOfQuery(new SkuQuery(queryParam, pageParam, skipCount));
     }
 
     public Optional<Sku> sku(String id) {
-        return DomainRegistry.skuRepository().skuOfId(new SkuId(id));
+        return DomainRegistry.getSkuRepository().skuOfId(new SkuId(id));
     }
 
     @SubscribeForEvent
@@ -81,7 +81,7 @@ public class SkuApplicationService {
 
     private void doReplace(UpdateSkuCommand command, String changeId, SkuId skuId) {
         ApplicationServiceRegistry.idempotentWrapper().idempotent(skuId, command, changeId, (ignored) -> {
-            Optional<Sku> optionalSku = DomainRegistry.skuRepository().skuOfId(skuId);
+            Optional<Sku> optionalSku = DomainRegistry.getSkuRepository().skuOfId(skuId);
             if (optionalSku.isPresent()) {
                 Sku sku = optionalSku.get();
                 sku.checkVersion(command.getVersion());
@@ -89,7 +89,7 @@ public class SkuApplicationService {
                         command.getPrice(),
                         command.getDescription()
                 );
-                DomainRegistry.skuRepository().add(sku);
+                DomainRegistry.getSkuRepository().add(sku);
             }
         }, Sku.class);
     }
@@ -103,10 +103,10 @@ public class SkuApplicationService {
 
     private void doRemoveById(String changeId, SkuId skuId) {
         ApplicationServiceRegistry.idempotentWrapper().idempotent(skuId, null, changeId, (change) -> {
-            Optional<Sku> optionalSku = DomainRegistry.skuRepository().skuOfId(skuId);
+            Optional<Sku> optionalSku = DomainRegistry.getSkuRepository().skuOfId(skuId);
             if (optionalSku.isPresent()) {
                 Sku sku = optionalSku.get();
-                DomainRegistry.skuRepository().remove(sku);
+                DomainRegistry.getSkuRepository().remove(sku);
             }
         }, Sku.class);
     }
@@ -115,8 +115,8 @@ public class SkuApplicationService {
     @Transactional
     public Set<String> removeByQuery(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
-            Set<Sku> skus = QueryUtility.getAllByQuery((query) -> DomainRegistry.skuRepository().skusOfQuery((SkuQuery) query), new SkuQuery(queryParam));
-            DomainRegistry.skuRepository().remove(skus);
+            Set<Sku> skus = QueryUtility.getAllByQuery((query) -> DomainRegistry.getSkuRepository().skusOfQuery((SkuQuery) query), new SkuQuery(queryParam));
+            DomainRegistry.getSkuRepository().remove(skus);
             change.setRequestBody(skus);
             change.setDeletedIds(skus.stream().map(e -> e.getSkuId().getDomainId()).collect(Collectors.toSet()));
             change.setQuery(queryParam);
@@ -129,7 +129,7 @@ public class SkuApplicationService {
     public void patch(String id, JsonPatch command, String changeId) {
         SkuId skuId = new SkuId(id);
         ApplicationServiceRegistry.idempotentWrapper().idempotent(skuId, command, changeId, (ignored) -> {
-            Optional<Sku> optionalCatalog = DomainRegistry.skuRepository().skuOfId(skuId);
+            Optional<Sku> optionalCatalog = DomainRegistry.getSkuRepository().skuOfId(skuId);
             if (optionalCatalog.isPresent()) {
                 Sku sku = optionalCatalog.get();
                 PatchSkuCommand beforePatch = new PatchSkuCommand(sku);
@@ -152,7 +152,7 @@ public class SkuApplicationService {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     ApplicationServiceRegistry.idempotentWrapper().idempotent(null, commands, changeId, (ignored) -> {
-                        DomainRegistry.skuRepository().patchBatch(commands);
+                        DomainRegistry.getSkuRepository().patchBatch(commands);
                     }, Sku.class);
                 }
             });

@@ -28,7 +28,7 @@ public class TagApplicationService {
     public String create(CreateTagCommand command, String operationId) {
         TagId tagId = new TagId();
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, tagId,
-                () -> DomainRegistry.tagService().create(
+                () -> DomainRegistry.getTagService().create(
                         tagId,
                         command.getName(),
                         command.getDescription(),
@@ -40,11 +40,11 @@ public class TagApplicationService {
     }
 
     public SumPagedRep<Tag> tags(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.tagRepository().tagsOfQuery(new TagQuery(queryParam, pageParam, skipCount));
+        return DomainRegistry.getTagRepository().tagsOfQuery(new TagQuery(queryParam, pageParam, skipCount));
     }
 
     public Optional<Tag> tag(String id) {
-        return DomainRegistry.tagRepository().tagOfId(new TagId(id));
+        return DomainRegistry.getTagRepository().tagOfId(new TagId(id));
     }
 
     @SubscribeForEvent
@@ -52,7 +52,7 @@ public class TagApplicationService {
     public void replace(String id, UpdateTagCommand command, String changeId) {
         TagId tagId = new TagId(id);
         ApplicationServiceRegistry.idempotentWrapper().idempotent(tagId, command, changeId, (ignored) -> {
-            Optional<Tag> optionalTag = DomainRegistry.tagRepository().tagOfId(tagId);
+            Optional<Tag> optionalTag = DomainRegistry.getTagRepository().tagOfId(tagId);
             if (optionalTag.isPresent()) {
                 Tag tag = optionalTag.get();
                 tag.replace(
@@ -62,7 +62,7 @@ public class TagApplicationService {
                         command.getSelectValues(),
                         command.getType()
                 );
-                DomainRegistry.tagRepository().add(tag);
+                DomainRegistry.getTagRepository().add(tag);
             }
         }, Tag.class);
     }
@@ -72,10 +72,10 @@ public class TagApplicationService {
     public void removeById(String id, String changeId) {
         TagId tagId = new TagId(id);
         ApplicationServiceRegistry.idempotentWrapper().idempotent(tagId, null, changeId, (change) -> {
-            Optional<Tag> optionalTag = DomainRegistry.tagRepository().tagOfId(tagId);
+            Optional<Tag> optionalTag = DomainRegistry.getTagRepository().tagOfId(tagId);
             if (optionalTag.isPresent()) {
                 Tag tag = optionalTag.get();
-                DomainRegistry.tagRepository().remove(tag);
+                DomainRegistry.getTagRepository().remove(tag);
             }
         }, Tag.class);
     }
@@ -84,8 +84,8 @@ public class TagApplicationService {
     @Transactional
     public Set<String> removeByQuery(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
-            Set<Tag> tags = QueryUtility.getAllByQuery((query) -> DomainRegistry.tagRepository().tagsOfQuery((TagQuery) query), new TagQuery(queryParam));
-            DomainRegistry.tagRepository().remove(tags);
+            Set<Tag> tags = QueryUtility.getAllByQuery((query) -> DomainRegistry.getTagRepository().tagsOfQuery((TagQuery) query), new TagQuery(queryParam));
+            DomainRegistry.getTagRepository().remove(tags);
             change.setRequestBody(tags);
             change.setDeletedIds(tags.stream().map(e -> e.getTagId().getDomainId()).collect(Collectors.toSet()));
             change.setQuery(queryParam);
@@ -98,7 +98,7 @@ public class TagApplicationService {
     public void patch(String id, JsonPatch command, String changeId) {
         TagId tagId = new TagId(id);
         ApplicationServiceRegistry.idempotentWrapper().idempotent(tagId, command, changeId, (ignored) -> {
-            Optional<Tag> optionalCatalog = DomainRegistry.tagRepository().tagOfId(tagId);
+            Optional<Tag> optionalCatalog = DomainRegistry.getTagRepository().tagOfId(tagId);
             if (optionalCatalog.isPresent()) {
                 Tag tag = optionalCatalog.get();
                 PatchTagCommand beforePatch = new PatchTagCommand(tag);
@@ -110,7 +110,7 @@ public class TagApplicationService {
                         afterPatch.getSelectValues(),
                         afterPatch.getType()
                 );
-                DomainRegistry.tagRepository().add(tag);
+                DomainRegistry.getTagRepository().add(tag);
             }
         }, Tag.class);
     }

@@ -24,7 +24,7 @@ public class CatalogValidator {
         if (catalogId.equals(parentId))
             handler.handleError("parentId can not same as catalogId");
         if (parentId != null) {
-            Optional<Catalog> parent = DomainRegistry.catalogRepository().catalogOfId(parentId);
+            Optional<Catalog> parent = DomainRegistry.getCatalogRepository().catalogOfId(parentId);
             if (parent.isEmpty())
                 handler.handleError("parentId not found");
             if (parent.isPresent()) {
