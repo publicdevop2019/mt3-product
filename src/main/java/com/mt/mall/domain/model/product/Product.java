@@ -30,6 +30,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Where;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
@@ -50,6 +52,8 @@ import static com.mt.mall.application.product.representation.ProductRepresentati
 @Entity
 @Table(name = "product_")
 @NoArgsConstructor
+@Where(clause = "deleted=0")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Product extends Auditable {
     public transient static final String PRODUCT_NAME_LITERAL = "name";
     public transient static final String PRODUCT_END_AT_LITERAL = "endAt";
@@ -324,7 +328,7 @@ public class Product extends Auditable {
                 }
                 //update price
                 String s = getAttrSalesMap().get(getAttrSalesKey(command.getAttributesSales()));
-                Optional<Sku> sku = ApplicationServiceRegistry.skuApplicationService().sku(s);
+                Optional<Sku> sku = ApplicationServiceRegistry.getSkuApplicationService().sku(s);
                 if (sku.isPresent() && sku.get().getPrice().compareTo(command.getPrice()) != 0) {
                     UpdateSkuCommand updateSkuCommand = new UpdateSkuCommand();
                     updateSkuCommand.setPrice(command.getPrice());
@@ -390,7 +394,7 @@ public class Product extends Auditable {
             patchCommands.add(patchCommand);
         }
         if (patchCommands.size() > 0)
-            ApplicationServiceRegistry.productApplicationService().patchBatch(patchCommands, changeId);
+            ApplicationServiceRegistry.getProductApplicationService().patchBatch(patchCommands, changeId);
     }
 
     private String toSkuQueryPath(UpdateProductCommand.UpdateProductAdminSkuCommand command, String storageType) {
@@ -479,7 +483,7 @@ public class Product extends Auditable {
     public static List<PatchCommand> convertToSkuCommands(List<PatchCommand> hasNestedEntity) {
         Set<String> collect = hasNestedEntity.stream().map(e -> e.getPath().split("/")[1]).collect(Collectors.toSet());
         String join = "id:" + String.join(".", collect);
-        SumPagedRep<Product> products = ApplicationServiceRegistry.productApplicationService().products(join, null, "sc:1");
+        SumPagedRep<Product> products = ApplicationServiceRegistry.getProductApplicationService().products(join, null, "sc:1");
         hasNestedEntity.forEach(e -> {
             String[] split = e.getPath().split("/");
             String id = split[1];

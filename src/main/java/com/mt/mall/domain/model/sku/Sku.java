@@ -7,6 +7,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -17,6 +19,8 @@ import java.math.RoundingMode;
 @Entity
 @Table
 @NoArgsConstructor
+@Where(clause = "deleted=0")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Sku extends Auditable {
     public transient static final String SKU_REFERENCE_ID_LITERAL = "referenceId";
     public transient static final String SKU_STORAGE_ORDER_LITERAL = "storageOrder";

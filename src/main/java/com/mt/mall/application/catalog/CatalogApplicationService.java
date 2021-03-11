@@ -29,7 +29,7 @@ public class CatalogApplicationService {
     @Transactional
     public String create(CreateCatalogCommand command, String operationId) {
         CatalogId catalogId = new CatalogId();
-        return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, catalogId,
+        return ApplicationServiceRegistry.getIdempotentWrapper().idempotentCreate(command, operationId, catalogId,
                 () -> DomainRegistry.getCatalogService().create(
                         catalogId,
                         command.getName(),
@@ -65,7 +65,7 @@ public class CatalogApplicationService {
     @Transactional
     public void replace(String id, UpdateCatalogCommand command, String changeId) {
         CatalogId catalogId = new CatalogId(id);
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(catalogId, command, changeId, (change) -> {
+        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(catalogId, command, changeId, (change) -> {
             Optional<Catalog> optionalCatalog = DomainRegistry.getCatalogRepository().catalogOfId(catalogId);
             if (optionalCatalog.isPresent()) {
                 Catalog catalog = optionalCatalog.get();
@@ -79,7 +79,7 @@ public class CatalogApplicationService {
     @Transactional
     public void removeCatalog(String id, String changeId) {
         CatalogId catalogId = new CatalogId(id);
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(catalogId, null, changeId, (change) -> {
+        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(catalogId, null, changeId, (change) -> {
             Optional<Catalog> optionalCatalog = DomainRegistry.getCatalogRepository().catalogOfId(catalogId);
             if (optionalCatalog.isPresent()) {
                 Catalog catalog = optionalCatalog.get();
@@ -91,7 +91,7 @@ public class CatalogApplicationService {
     @SubscribeForEvent
     @Transactional
     public Set<String> removeCatalogs(String queryParam, String changeId) {
-        return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
+        return ApplicationServiceRegistry.getIdempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
             Set<Catalog> allClientsOfQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getCatalogRepository().catalogsOfQuery((CatalogQuery) query), new CatalogQuery(queryParam));
             DomainRegistry.getCatalogRepository().remove(allClientsOfQuery);
             change.setRequestBody(allClientsOfQuery);
@@ -105,7 +105,7 @@ public class CatalogApplicationService {
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
         CatalogId catalogId = new CatalogId(id);
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(catalogId, command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(catalogId, command, changeId, (ignored) -> {
             Optional<Catalog> optionalCatalog = DomainRegistry.getCatalogRepository().catalogOfId(catalogId);
             if (optionalCatalog.isPresent()) {
                 Catalog catalog = optionalCatalog.get();

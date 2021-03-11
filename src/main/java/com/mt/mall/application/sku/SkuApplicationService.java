@@ -51,7 +51,7 @@ public class SkuApplicationService {
     }
 
     private String doCreate(CreateSkuCommand command, String operationId, SkuId skuId) {
-        return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, skuId,
+        return ApplicationServiceRegistry.getIdempotentWrapper().idempotentCreate(command, operationId, skuId,
                 () -> DomainRegistry.getSkuService().create(
                         skuId,
                         command.getReferenceId().getDomainId(),
@@ -80,7 +80,7 @@ public class SkuApplicationService {
     }
 
     private void doReplace(UpdateSkuCommand command, String changeId, SkuId skuId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(skuId, command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(skuId, command, changeId, (ignored) -> {
             Optional<Sku> optionalSku = DomainRegistry.getSkuRepository().skuOfId(skuId);
             if (optionalSku.isPresent()) {
                 Sku sku = optionalSku.get();
@@ -102,7 +102,7 @@ public class SkuApplicationService {
     }
 
     private void doRemoveById(String changeId, SkuId skuId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(skuId, null, changeId, (change) -> {
+        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(skuId, null, changeId, (change) -> {
             Optional<Sku> optionalSku = DomainRegistry.getSkuRepository().skuOfId(skuId);
             if (optionalSku.isPresent()) {
                 Sku sku = optionalSku.get();
@@ -114,7 +114,7 @@ public class SkuApplicationService {
     @SubscribeForEvent
     @Transactional
     public Set<String> removeByQuery(String queryParam, String changeId) {
-        return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
+        return ApplicationServiceRegistry.getIdempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
             Set<Sku> skus = QueryUtility.getAllByQuery((query) -> DomainRegistry.getSkuRepository().skusOfQuery((SkuQuery) query), new SkuQuery(queryParam));
             DomainRegistry.getSkuRepository().remove(skus);
             change.setRequestBody(skus);
@@ -128,7 +128,7 @@ public class SkuApplicationService {
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
         SkuId skuId = new SkuId(id);
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(skuId, command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(skuId, command, changeId, (ignored) -> {
             Optional<Sku> optionalCatalog = DomainRegistry.getSkuRepository().skuOfId(skuId);
             if (optionalCatalog.isPresent()) {
                 Sku sku = optionalCatalog.get();
@@ -151,7 +151,7 @@ public class SkuApplicationService {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    ApplicationServiceRegistry.idempotentWrapper().idempotent(null, commands, changeId, (ignored) -> {
+                    ApplicationServiceRegistry.getIdempotentWrapper().idempotent(null, commands, changeId, (ignored) -> {
                         DomainRegistry.getSkuRepository().patchBatch(commands);
                     }, Sku.class);
                 }
@@ -167,7 +167,7 @@ public class SkuApplicationService {
     @SubscribeForEvent
     @Transactional
     public void handleChange(StoredEvent event) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, null, event.getId().toString(), (ignored) -> {
+        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(null, null, event.getId().toString(), (ignored) -> {
             if (ProductCreated.class.getName().equals(event.getName())) {
                 ProductCreated deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProductCreated.class);
                 create(deserialize.getCreateSkuCommands(), deserialize.getChangeId());

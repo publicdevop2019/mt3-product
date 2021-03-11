@@ -85,6 +85,6 @@ public class FilterResource {
     }
 
     private FilterApplicationService filterApplicationService() {
-        return ApplicationServiceRegistry.filterApplicationService();
+        return ApplicationServiceRegistry.getFilterApplicationService();
     }
 }

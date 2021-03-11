@@ -116,7 +116,7 @@ public class ProductResource {
     }
 
     private ProductApplicationService productApplicationService() {
-        return ApplicationServiceRegistry.productApplicationService();
+        return ApplicationServiceRegistry.getProductApplicationService();
     }
 
 }

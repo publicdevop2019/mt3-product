@@ -25,7 +25,7 @@ public class InternalProductRepresentation {
         setAttrSalesMap(product.getAttrSalesMap());
         HashMap<String, String> attrSalesMap = product.getAttrSalesMap();
         Set<String> collect = attrSalesMap.values().stream().map(Object::toString).collect(Collectors.toSet());
-        SumPagedRep<Sku> skus = ApplicationServiceRegistry.skuApplicationService().skus("id:" + String.join(".", collect), null, null);
+        SumPagedRep<Sku> skus = ApplicationServiceRegistry.getSkuApplicationService().skus("id:" + String.join(".", collect), null, null);
         this.productSkuList = attrSalesMap.keySet().stream().map(e -> {
             AppProductSkuRep appProductSkuRep = new AppProductSkuRep();
             String aLong = attrSalesMap.get(e);

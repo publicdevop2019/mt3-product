@@ -94,6 +94,6 @@ public class SkuResource {
     }
 
     private SkuApplicationService skuApplicationService() {
-        return ApplicationServiceRegistry.skuApplicationService();
+        return ApplicationServiceRegistry.getSkuApplicationService();
     }
 }

@@ -70,7 +70,7 @@ public class ProductRepresentation {
 
         HashMap<String, String> attrSalesMap = product.getAttrSalesMap();
         Set<String> collect = attrSalesMap.values().stream().map(Object::toString).collect(Collectors.toSet());
-        SumPagedRep<Sku> skus = ApplicationServiceRegistry.skuApplicationService().skus("id:" + String.join(".", collect), null, null);
+        SumPagedRep<Sku> skus = ApplicationServiceRegistry.getSkuApplicationService().skus("id:" + String.join(".", collect), null, null);
         this.skus = attrSalesMap.keySet().stream().map(e -> {
             ProductSkuAdminRepresentation appProductSkuRep = new ProductSkuAdminRepresentation();
             String aLong = attrSalesMap.get(e);

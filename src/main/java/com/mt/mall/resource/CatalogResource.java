@@ -78,6 +78,6 @@ public class CatalogResource {
     }
 
     private CatalogApplicationService catalogApplicationService() {
-        return ApplicationServiceRegistry.catalogApplicationService();
+        return ApplicationServiceRegistry.getCatalogApplicationService();
     }
 }

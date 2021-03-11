@@ -11,6 +11,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "filter_")
 @NoArgsConstructor
+@Where(clause = "deleted=0")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Filter extends Auditable {
     @Id
     @Setter(AccessLevel.PRIVATE)
