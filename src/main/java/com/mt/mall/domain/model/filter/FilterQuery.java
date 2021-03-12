@@ -5,6 +5,7 @@ import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.mall.domain.model.tag.TagId;
 import lombok.Getter;
 
 import java.util.*;
@@ -15,6 +16,7 @@ public class FilterQuery extends QueryCriteria {
     private Set<FilterId> filterIds;
     private String catalog;
     private String catalogs;
+    private TagId tagId;
     private boolean isPublic = false;
 
     private FilterSort filterSort;
@@ -22,7 +24,7 @@ public class FilterQuery extends QueryCriteria {
     public FilterQuery(String queryParam) {
         updateQueryParam(queryParam);
         setPageConfig();
-        setQueryConfig(QueryConfig.skipCount());
+        setQueryConfig(QueryConfig.countRequired());
         setFilterSort(this.pageConfig);
     }
 
@@ -39,6 +41,12 @@ public class FilterQuery extends QueryCriteria {
         setPageConfig();
         setQueryConfig(QueryConfig.skipCount());
         setFilterSort(this.pageConfig);
+    }
+
+    public FilterQuery(TagId tagId) {
+        setQueryConfig(QueryConfig.countRequired());
+        setPageConfig();
+        this.tagId = tagId;
     }
 
     private void setFilterSort(PageConfig pageConfig) {

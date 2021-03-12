@@ -4,4 +4,5 @@ import com.mt.common.domain.model.restful.SumPagedRep;
 
 public interface MetaRepository {
     SumPagedRep<Meta> metaOfQuery(MetaQuery query);
+    void save(Meta meta);
 }

@@ -7,6 +7,7 @@ import com.mt.mall.domain.model.filter.FilterRepository;
 import com.mt.mall.domain.model.filter.FilterService;
 import com.mt.mall.domain.model.filter.FilterValidationService;
 import com.mt.mall.domain.model.meta.MetaRepository;
+import com.mt.mall.domain.model.meta.MetaService;
 import com.mt.mall.domain.model.product.ProductRepository;
 import com.mt.mall.domain.model.product.ProductService;
 import com.mt.mall.domain.model.product.ProductTagRepository;
@@ -51,10 +52,17 @@ public class DomainRegistry {
     private static ProductValidationService productValidationService;
     @Getter
     private static MetaRepository metaRepository;
+    @Getter
+    private static MetaService metaService;
 
     @Autowired
     private void setCatalogValidationService(FilterValidationService catalogValidationService) {
         DomainRegistry.filterValidationService = catalogValidationService;
+    }
+
+    @Autowired
+    private void setMetaService(MetaService metaService) {
+        DomainRegistry.metaService = metaService;
     }
 
     @Autowired

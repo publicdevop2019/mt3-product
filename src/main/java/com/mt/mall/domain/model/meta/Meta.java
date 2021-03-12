@@ -7,9 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Table
 @Entity
@@ -18,15 +18,30 @@ import javax.persistence.Table;
 public class Meta {
     @Id
     @Setter(AccessLevel.PRIVATE)
+    @Embedded
     private DomainId domainId;
-    private Type type;
+    @Column(updatable = false)
+    private MetaType type;
     private Boolean hasChangedTag;
-    private TagId changedTagId;
+    private Set<TagId> changedTagId;
 
-    private enum Type {
+    public enum MetaType {
         CATALOG,
         FILTER,
         PRODUCT,
         SKU,
+    }
+
+    public Meta(DomainId domainId, MetaType type, Boolean hasChangedTag, Set<TagId> changedTagId) {
+        this.domainId = domainId;
+        this.type = type;
+        this.hasChangedTag = hasChangedTag;
+        this.changedTagId = changedTagId;
+    }
+
+    public void addChangeTag(TagId tagId) {
+        if (changedTagId == null)
+            changedTagId = new HashSet<>();
+        changedTagId.add(tagId);
     }
 }

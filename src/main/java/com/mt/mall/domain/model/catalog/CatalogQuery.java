@@ -4,6 +4,7 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.mall.domain.model.tag.TagId;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +24,7 @@ public class CatalogQuery extends QueryCriteria {
     @Setter(AccessLevel.PRIVATE)
     private Type type;
     private CatalogSort catalogSort;
+    private TagId tagId;
 
     public CatalogQuery(String query, String pageConfig, String queryConfig) {
         setPageConfig(PageConfig.limited(pageConfig, 2000));
@@ -31,9 +33,15 @@ public class CatalogQuery extends QueryCriteria {
     }
 
     public CatalogQuery(String query) {
-        setPageConfig(new PageConfig());
+        setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.countRequired());
         udpateQueryParam(QueryUtility.parseQuery(query));
+    }
+
+    public CatalogQuery(TagId tagId) {
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.countRequired());
+        this.tagId=tagId;
     }
 
     protected void setPageConfig(PageConfig pageConfig) {
