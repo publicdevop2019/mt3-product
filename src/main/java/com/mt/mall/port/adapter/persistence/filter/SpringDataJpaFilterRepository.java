@@ -15,9 +15,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.criteria.Order;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.mt.mall.port.adapter.persistence.catalog.SpringDataJpaCatalogRepository.JpaCriteriaApiCatalogAdaptor.CATALOG_ID_LITERAL;
 
@@ -54,6 +56,14 @@ public interface SpringDataJpaFilterRepository extends FilterRepository, JpaRepo
     }
 
     default SumPagedRep<Filter> filtersOfQuery(FilterQuery query) {
+        if (query.getTagId() != null) {
+            //in-memory search
+            List<Filter> all2 = findAll();
+            List<Filter> collect = all2.stream().filter(e -> e.getFilterItems().stream().anyMatch(ee -> ee.getTagId().equals(query.getTagId()))).collect(Collectors.toList());
+            long offset = query.getPageConfig().getPageSize() * query.getPageConfig().getPageNumber();
+            List<Filter> collect1 = IntStream.range(0, collect.size()).filter(i -> i >= offset && i < (offset + query.getPageConfig().getPageSize())).boxed().map(collect::get).collect(Collectors.toList());
+            return new SumPagedRep<>(collect1, (long) collect.size());
+        }
         return QueryBuilderRegistry.getFilterSelectQueryBuilder().execute(query);
     }
 

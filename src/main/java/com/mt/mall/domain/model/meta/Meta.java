@@ -1,7 +1,10 @@
 package com.mt.mall.domain.model.meta;
 
+import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domainId.DomainId;
+import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import com.mt.mall.domain.model.tag.TagId;
+import com.mt.mall.infrastructure.MetaChangeTagIdConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +18,7 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 @Getter
-public class Meta {
+public class Meta extends Auditable {
     @Id
     @Setter(AccessLevel.PRIVATE)
     @Embedded
@@ -23,6 +26,7 @@ public class Meta {
     @Column(updatable = false)
     private MetaType type;
     private Boolean hasChangedTag;
+    @Convert(converter = MetaChangeTagIdConverter.class)
     private Set<TagId> changedTagId;
 
     public enum MetaType {

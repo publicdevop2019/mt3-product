@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface SpringDataJpaProductTagRepository extends ProductTagRepository, JpaRepository<ProductTag, Long> {
-    Optional<ProductTag> findByValueAndType(String value, TagType tagTypeEnum);
+    Optional<ProductTag> findByTagValueAndType(String value, TagType tagTypeEnum);
 }

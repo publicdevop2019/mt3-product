@@ -35,10 +35,10 @@ public class MetaService {
             Optional<Meta> first = allByQuery3.stream().filter(ee -> ee.getDomainId().getDomainId().equalsIgnoreCase(e.getCatalogId().getDomainId())).findFirst();
             if (first.isPresent()) {
                 first.get().addChangeTag(tagId);
-                DomainRegistry.getMetaRepository().save(first.get());
+                DomainRegistry.getMetaRepository().add(first.get());
             } else {
                 Meta meta = new Meta(e.getCatalogId(), Meta.MetaType.CATALOG, true, new HashSet<>(List.of(tagId)));
-                DomainRegistry.getMetaRepository().save(meta);
+                DomainRegistry.getMetaRepository().add(meta);
             }
         });
         //update impacted filter
@@ -46,10 +46,10 @@ public class MetaService {
             Optional<Meta> first = allByQuery3.stream().filter(ee -> ee.getDomainId().getDomainId().equalsIgnoreCase(e.getFilterId().getDomainId())).findFirst();
             if (first.isPresent()) {
                 first.get().addChangeTag(tagId);
-                DomainRegistry.getMetaRepository().save(first.get());
+                DomainRegistry.getMetaRepository().add(first.get());
             } else {
                 Meta meta = new Meta(e.getFilterId(), Meta.MetaType.PRODUCT, true, new HashSet<>(List.of(tagId)));
-                DomainRegistry.getMetaRepository().save(meta);
+                DomainRegistry.getMetaRepository().add(meta);
             }
         });
         //update impacted products
@@ -57,10 +57,10 @@ public class MetaService {
             Optional<Meta> first = allByQuery3.stream().filter(ee -> ee.getDomainId().getDomainId().equalsIgnoreCase(e.getProductId().getDomainId())).findFirst();
             if (first.isPresent()) {
                 first.get().addChangeTag(tagId);
-                DomainRegistry.getMetaRepository().save(first.get());
+                DomainRegistry.getMetaRepository().add(first.get());
             } else {
                 Meta meta = new Meta(e.getProductId(), Meta.MetaType.PRODUCT, true, new HashSet<>(List.of(tagId)));
-                DomainRegistry.getMetaRepository().save(meta);
+                DomainRegistry.getMetaRepository().add(meta);
             }
         });
     }

@@ -2,6 +2,7 @@ package com.mt.mall.application.catalog;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -19,6 +20,7 @@ import com.mt.mall.domain.model.meta.MetaQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,7 +45,7 @@ public class CatalogApplicationService {
     public SumPagedRep<Catalog> catalogs(String queryParam, String pageParam, String skipCount) {
         SumPagedRep<Catalog> catalogs = DomainRegistry.getCatalogRepository().catalogsOfQuery(new CatalogQuery(queryParam, pageParam, skipCount));
         Set<CatalogId> collect = catalogs.getData().stream().map(Catalog::getCatalogId).collect(Collectors.toSet());
-        Set<Meta> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getMetaRepository().metaOfQuery((MetaQuery) e), new MetaQuery(collect));
+        Set<Meta> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getMetaRepository().metaOfQuery((MetaQuery) e), new MetaQuery(new HashSet<>(collect)));
         catalogs.getData().forEach(e -> {
             Optional<Meta> first = allByQuery.stream().filter(ee -> ee.getDomainId().toString().equalsIgnoreCase(e.getCatalogId().getDomainId())).findFirst();
             if (first.isPresent() && first.get().getHasChangedTag()) {

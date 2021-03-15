@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.mt.common.CommonConstant.*;
 import static com.mt.mall.application.product.representation.ProductRepresentation.*;
@@ -69,6 +70,14 @@ public interface SpringDataJpaProductRepository extends ProductRepository, JpaRe
     }
 
     default SumPagedRep<Product> productsOfQuery(ProductQuery query) {
+        if (query.getTagId() != null) {
+            //in-memory search
+            List<Product> all2 = findAll();
+            List<Product> collect = all2.stream().filter(e -> e.getTags().stream().anyMatch(ee -> ee.getTagId().equals(query.getTagId()))).collect(Collectors.toList());
+            long offset = query.getPageConfig().getPageSize() * query.getPageConfig().getPageNumber();
+            List<Product> collect1 = IntStream.range(0, collect.size()).filter(i -> i >= offset && i < (offset + query.getPageConfig().getPageSize())).boxed().map(collect::get).collect(Collectors.toList());
+            return new SumPagedRep<>(collect1, (long) collect.size());
+        }
         return QueryBuilderRegistry.getProductSelectQueryBuilder().execute(query);
     }
 

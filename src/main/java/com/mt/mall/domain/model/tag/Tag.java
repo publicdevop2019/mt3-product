@@ -86,12 +86,24 @@ public class Tag extends Auditable {
         setSelectValues(selectValues);
         setType(type);
         new TagValidator(this, new HttpValidationNotificationHandler()).validate();
-        if (copy.getType().equals(this.getType())
-                || copy.getName().equals(this.getName())
-                || copy.getMethod().equals(this.getMethod())
-                || copy.getSelectValues().equals(this.getSelectValues())
-        ){
+        if (!copy.getType().equals(this.getType())
+                || !copy.getName().equals(this.getName())
+                || !copy.getMethod().equals(this.getMethod())
+                || !sameAs(copy.getSelectValues(), this.getSelectValues())
+        ) {
             DomainEventPublisher.instance().publish(new TagCriticalFieldChanged(tagId));
         }
+    }
+
+    private boolean sameAs(Set<String> a, Set<String> b) {
+        if (a == null && b == null)
+            return true;
+        if (a == null){
+            return b.isEmpty();
+        }
+        if (b == null){
+            return a.isEmpty();
+        }
+        return a.equals(b);
     }
 }

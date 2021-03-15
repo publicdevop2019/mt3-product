@@ -10,11 +10,16 @@ import java.util.Set;
 
 @Getter
 public class MetaQuery extends QueryCriteria {
+
     private Set<DomainId> domainIds;
 
     public MetaQuery(Set<DomainId> collect) {
-        this.domainIds = collect;
+        setDomainIds(collect);
         this.pageConfig = PageConfig.defaultConfig();
         setQueryConfig(QueryConfig.countRequired());
+    }
+
+    private void setDomainIds(Set<DomainId> domainIds) {
+        this.domainIds = domainIds;
     }
 }
