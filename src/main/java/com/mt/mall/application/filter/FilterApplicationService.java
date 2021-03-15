@@ -9,16 +9,21 @@ import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.filter.command.CreateFilterCommand;
 import com.mt.mall.application.filter.command.PatchFilterCommand;
 import com.mt.mall.application.filter.command.UpdateFilterCommand;
+import com.mt.mall.application.filter.representation.FilterCardRepresentation;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.catalog.CatalogId;
 import com.mt.mall.domain.model.filter.Filter;
 import com.mt.mall.domain.model.filter.FilterId;
 import com.mt.mall.domain.model.filter.FilterItem;
 import com.mt.mall.domain.model.filter.FilterQuery;
+import com.mt.mall.domain.model.meta.Meta;
+import com.mt.mall.domain.model.meta.MetaQuery;
 import com.mt.mall.domain.model.tag.TagId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,8 +45,19 @@ public class FilterApplicationService {
         );
     }
 
-    public SumPagedRep<Filter> filters(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.getFilterRepository().filtersOfQuery(new FilterQuery(queryParam, pageParam, skipCount, false));
+    public SumPagedRep<FilterCardRepresentation> filters(String queryParam, String pageParam, String skipCount) {
+        SumPagedRep<Filter> filterSumPagedRep = DomainRegistry.getFilterRepository().filtersOfQuery(new FilterQuery(queryParam, pageParam, skipCount, false));
+        Set<FilterId> collect = filterSumPagedRep.getData().stream().map(Filter::getFilterId).collect(Collectors.toSet());
+        Set<Meta> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getMetaRepository().metaOfQuery((MetaQuery) e), new MetaQuery(new HashSet<>(collect)));
+        List<FilterCardRepresentation> collect1 = filterSumPagedRep.getData().stream().map(e -> {
+            boolean review = false;
+            Optional<Meta> first = allByQuery.stream().filter(ee -> ee.getDomainId().getDomainId().equalsIgnoreCase(e.getFilterId().getDomainId())).findFirst();
+            if (first.isPresent() && first.get().getHasChangedTag()) {
+                review = true;
+            }
+            return new FilterCardRepresentation(e, review);
+        }).collect(Collectors.toList());
+        return new SumPagedRep<>(collect1, filterSumPagedRep.getTotalItemCount());
     }
 
     public SumPagedRep<Filter> publicFilters(String queryParam, String pageParam, String skipCount) {

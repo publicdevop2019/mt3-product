@@ -23,7 +23,8 @@ public class CatalogRepresentation {
     public CatalogRepresentation(Catalog catalog) {
         setId(catalog.getCatalogId().getDomainId());
         setName(catalog.getName());
-        setParentId(catalog.getParentId().getDomainId());
+        if (catalog.getParentId() != null)
+            setParentId(catalog.getParentId().getDomainId());
         setAttributes(catalog.getLinkedTags().stream().map(e -> String.join(":", e.getTagId().getDomainId(), e.getTagValue())).collect(Collectors.toSet()));
         setCatalogType(catalog.getType());
         setVersion(catalog.getVersion());

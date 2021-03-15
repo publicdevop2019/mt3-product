@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.criteria.Order;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
@@ -27,11 +28,15 @@ public interface SpringDataJpaMetaRepository extends MetaRepository, JpaReposito
     @Component
     class JpaCriteriaApiMetaAdaptor {
         public SumPagedRep<Meta> execute(MetaQuery query) {
-            if(query.getDomainIds().isEmpty()){
-                return new SumPagedRep<>(Collections.emptyList(),0L);
+            if (query.getDomainIds().isEmpty()) {
+                return new SumPagedRep<>(Collections.emptyList(), 0L);
             }
             QueryUtility.QueryContext<Meta> context = QueryUtility.prepareContext(Meta.class, query);
             QueryUtility.addDomainIdInPredicate(query.getDomainIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), "domainId", context);
+            Order order = null;
+            if (query.getMetaSort().isById())
+                order = QueryUtility.getOrder("id", context, query.getMetaSort().isAsc());
+            context.setOrder(order);
             return QueryUtility.pagedQuery(query, context);
         }
     }

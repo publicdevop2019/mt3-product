@@ -29,13 +29,13 @@ public class CatalogQuery extends QueryCriteria {
     public CatalogQuery(String query, String pageConfig, String queryConfig) {
         setPageConfig(PageConfig.limited(pageConfig, 2000));
         setQueryConfig(new QueryConfig(queryConfig));
-        udpateQueryParam(QueryUtility.parseQuery(query));
+        updateQueryParam(QueryUtility.parseQuery(query));
     }
 
     public CatalogQuery(String query) {
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.countRequired());
-        udpateQueryParam(QueryUtility.parseQuery(query));
+        updateQueryParam(QueryUtility.parseQuery(query));
     }
 
     public CatalogQuery(TagId tagId) {
@@ -49,7 +49,7 @@ public class CatalogQuery extends QueryCriteria {
         setCatalogSort();
     }
 
-    private void udpateQueryParam(Map<String, String> queryMap) {
+    private void updateQueryParam(Map<String, String> queryMap) {
         if (queryMap.get("id") != null) {
             String id = queryMap.get("id");
             setCatalogIds(Arrays.stream(id.split("\\.")).map(CatalogId::new).collect(Collectors.toSet()));
@@ -88,6 +88,8 @@ public class CatalogQuery extends QueryCriteria {
 
     public CatalogQuery(Set<CatalogId> catalogIds) {
         this.catalogIds = catalogIds;
+        setQueryConfig(QueryConfig.countRequired());
+        setPageConfig(PageConfig.defaultConfig());
     }
 
     public static CatalogQuery publicQuery(String pageConfig, String queryConfig) {

@@ -28,7 +28,7 @@ public class FilterResource {
             @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
-        SumPagedRep<Filter> filterSumPagedRep = filterApplicationService().publicFilters(queryParam,pageParam, skipCount);
+        SumPagedRep<Filter> filterSumPagedRep = filterApplicationService().publicFilters(queryParam, pageParam, skipCount);
         List<Filter> data = filterSumPagedRep.getData();
         List<PublicFilterCardRepresentation> collect = null;
         if (data.size() != 0) {
@@ -43,8 +43,8 @@ public class FilterResource {
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        SumPagedRep<Filter> filters = filterApplicationService().filters(queryParam, pageParam, skipCount);
-        return ResponseEntity.ok(new SumPagedRep(filters, FilterCardRepresentation::new));
+        SumPagedRep<FilterCardRepresentation> filters = filterApplicationService().filters(queryParam, pageParam, skipCount);
+        return ResponseEntity.ok(filters);
     }
 
     @GetMapping("admin/{id}")

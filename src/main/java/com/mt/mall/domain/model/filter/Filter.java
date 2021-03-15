@@ -7,6 +7,7 @@ import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.catalog.CatalogId;
+import com.mt.mall.infrastructure.FilterCatalogsConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,7 +29,7 @@ public class Filter extends Auditable {
     @Id
     @Setter(AccessLevel.PRIVATE)
     private Long id;
-    @Convert(converter = StringSetConverter.class)
+    @Convert(converter = FilterCatalogsConverter.class)
     private Set<CatalogId> catalogs;
 
     @Embedded

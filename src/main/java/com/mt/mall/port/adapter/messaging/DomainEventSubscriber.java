@@ -36,12 +36,7 @@ public class DomainEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     private void tagChangeListener() {
         CommonDomainRegistry.getEventStreamService().subscribe(appName, true, TAG_CHANGE_QUEUE_NAME, (event) -> {
-            try {
-                ApplicationServiceRegistry.getMetaApplicationService().handleChange(event);
-            } catch (UpdateQueryBuilder.PatchCommandExpectNotMatchException | AggregateOutdatedException ex) {
-                //ignore above ex
-                log.debug("ignore exception in event {}", ex.getClass().toString());
-            }
+            ApplicationServiceRegistry.getMetaApplicationService().handleChange(event);
         }, TOPIC_TAG);
     }
 

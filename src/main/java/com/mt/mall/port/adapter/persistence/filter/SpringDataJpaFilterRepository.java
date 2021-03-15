@@ -79,7 +79,7 @@ public interface SpringDataJpaFilterRepository extends FilterRepository, JpaRepo
             Optional.ofNullable(filterQuery.getFilterIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(filterQuery.getFilterIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), FILTER_ID_LITERAL, queryContext));
             Order order = null;
             if (filterQuery.getFilterSort().isById())
-                order = QueryUtility.getDomainIdOrder(CATALOG_ID_LITERAL, queryContext, filterQuery.getFilterSort().isAsc());
+                order = QueryUtility.getDomainIdOrder(FILTER_ID_LITERAL, queryContext, filterQuery.getFilterSort().isAsc());
             queryContext.setOrder(order);
             return QueryUtility.pagedQuery(filterQuery, queryContext);
         }

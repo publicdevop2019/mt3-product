@@ -1,8 +1,8 @@
 package com.mt.mall.domain.model.meta;
 
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domainId.DomainId;
-import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import com.mt.mall.domain.model.tag.TagId;
 import com.mt.mall.infrastructure.MetaChangeTagIdConverter;
 import lombok.AccessLevel;
@@ -20,6 +20,7 @@ import java.util.Set;
 @Getter
 public class Meta extends Auditable {
     @Id
+    private long id;
     @Setter(AccessLevel.PRIVATE)
     @Embedded
     private DomainId domainId;
@@ -37,6 +38,7 @@ public class Meta extends Auditable {
     }
 
     public Meta(DomainId domainId, MetaType type, Boolean hasChangedTag, Set<TagId> changedTagId) {
+        this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.domainId = domainId;
         this.type = type;
         this.hasChangedTag = hasChangedTag;

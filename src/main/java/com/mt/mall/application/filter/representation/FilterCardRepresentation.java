@@ -13,12 +13,13 @@ public class FilterCardRepresentation {
     private Set<String> catalogs;
     private String description;
     private Integer version;
+    private boolean reviewRequired = false;
 
-    public FilterCardRepresentation(Object e) {
-        Filter e1 = (Filter) e;
+    public FilterCardRepresentation(Filter e1,boolean reviewRequired) {
         setId(e1.getFilterId().getDomainId());
         setDescription(e1.getDescription());
         setCatalogs(e1.getCatalogs().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
         setVersion(e1.getVersion());
+        setReviewRequired(reviewRequired);
     }
 }

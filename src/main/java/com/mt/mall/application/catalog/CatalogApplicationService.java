@@ -2,7 +2,6 @@ package com.mt.mall.application.catalog;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -10,6 +9,7 @@ import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.catalog.command.CreateCatalogCommand;
 import com.mt.mall.application.catalog.command.PatchCatalogCommand;
 import com.mt.mall.application.catalog.command.UpdateCatalogCommand;
+import com.mt.mall.application.catalog.representation.CatalogCardRepresentation;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.catalog.Catalog;
 import com.mt.mall.domain.model.catalog.CatalogId;
@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,24 +36,26 @@ public class CatalogApplicationService {
                 () -> DomainRegistry.getCatalogService().create(
                         catalogId,
                         command.getName(),
-                        new CatalogId(command.getParentId()),
+                        command.getParentId() != null && !command.getParentId().isBlank() ? new CatalogId(command.getParentId()) : null,
                         command.getAttributes().stream().map(LinkedTag::new).collect(Collectors.toSet()),
                         command.getCatalogType()
                 ), Catalog.class
         );
     }
 
-    public SumPagedRep<Catalog> catalogs(String queryParam, String pageParam, String skipCount) {
+    public SumPagedRep<CatalogCardRepresentation> catalogs(String queryParam, String pageParam, String skipCount) {
         SumPagedRep<Catalog> catalogs = DomainRegistry.getCatalogRepository().catalogsOfQuery(new CatalogQuery(queryParam, pageParam, skipCount));
         Set<CatalogId> collect = catalogs.getData().stream().map(Catalog::getCatalogId).collect(Collectors.toSet());
         Set<Meta> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getMetaRepository().metaOfQuery((MetaQuery) e), new MetaQuery(new HashSet<>(collect)));
-        catalogs.getData().forEach(e -> {
-            Optional<Meta> first = allByQuery.stream().filter(ee -> ee.getDomainId().toString().equalsIgnoreCase(e.getCatalogId().getDomainId())).findFirst();
+        List<CatalogCardRepresentation> collect1 = catalogs.getData().stream().map(e -> {
+            boolean review = false;
+            Optional<Meta> first = allByQuery.stream().filter(ee -> ee.getDomainId().getDomainId().equalsIgnoreCase(e.getCatalogId().getDomainId())).findFirst();
             if (first.isPresent() && first.get().getHasChangedTag()) {
-                e.setReviewRequired(true);
+                review = true;
             }
-        });
-        return catalogs;
+            return new CatalogCardRepresentation(e, review);
+        }).collect(Collectors.toList());
+        return new SumPagedRep<>(collect1,catalogs.getTotalItemCount());
     }
 
     public SumPagedRep<Catalog> publicCatalogs(String pageParam, String skipCount) {

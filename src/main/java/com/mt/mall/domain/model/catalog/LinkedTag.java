@@ -6,10 +6,11 @@ import com.mt.mall.domain.model.tag.TagId;
 import lombok.Getter;
 
 import javax.persistence.AttributeConverter;
+import java.io.Serializable;
 import java.util.Set;
 
 @Getter
-public class LinkedTag {
+public class LinkedTag implements Serializable {
     private TagId tagId;
     private String tagValue;
 

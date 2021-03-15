@@ -23,7 +23,7 @@ public class FilterValidationService {
         Set<Catalog> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getCatalogRepository().catalogsOfQuery((CatalogQuery) query), new CatalogQuery(catalogs));
         if (allByQuery.size() != catalogs.size())
             handler.handleError("can not find all catalogs");
-        Optional<Catalog> any = allByQuery.stream().filter(e -> Type.FRONTEND.equals(e.getType())).findAny();
+        Optional<Catalog> any = allByQuery.stream().filter(e -> Type.BACKEND.equals(e.getType())).findAny();
         if (any.isPresent())
             handler.handleError("filter can only be attached to frontend catalog");
 

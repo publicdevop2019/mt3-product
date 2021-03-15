@@ -2,7 +2,6 @@ package com.mt.mall.domain.model.catalog;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
@@ -14,6 +13,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Where;
 
+import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
@@ -52,10 +52,12 @@ public class Catalog extends Auditable {
     @Convert(converter = Type.DBConverter.class)
     @Setter(AccessLevel.PRIVATE)
     private Type type;
-    @Setter
-    private transient boolean reviewRequired=false;
 
-    private void setParentId(CatalogId parentId) {
+    private void setParentId(@Nullable CatalogId parentId) {
+        if (parentId == null) {
+            this.parentId = null;
+            return;
+        }
         if (parentId.getDomainId() != null)
             this.parentId = parentId;
     }
