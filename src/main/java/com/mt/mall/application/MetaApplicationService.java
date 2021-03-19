@@ -5,8 +5,10 @@ import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.catalog.event.CatalogUpdated;
+import com.mt.mall.domain.model.filter.event.FilterUpdated;
 import com.mt.mall.domain.model.meta.Meta;
 import com.mt.mall.domain.model.product.event.ProductSkuUpdated;
+import com.mt.mall.domain.model.product.event.ProductUpdated;
 import com.mt.mall.domain.model.tag.TagId;
 import com.mt.mall.domain.model.tag.event.TagCriticalFieldChanged;
 import com.mt.mall.domain.model.tag.event.TagDeleted;
@@ -30,10 +32,10 @@ public class MetaApplicationService {
             if (CatalogUpdated.class.getName().equals(event.getName())) {
                 //@todo
             }
-            if (ProductSkuUpdated.class.getName().equals(event.getName())) {
+            if (ProductUpdated.class.getName().equals(event.getName())) {
                 //@todo
             }
-            if (ProductSkuUpdated.class.getName().equals(event.getName())) {
+            if (FilterUpdated.class.getName().equals(event.getName())) {
                 //@todo
             }
         }, Meta.class);
