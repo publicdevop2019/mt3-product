@@ -44,8 +44,7 @@ public class ProductResource {
             @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipFlag) {
-        SumPagedRep<Product> products = productApplicationService().products(queryParam, pageParam, skipFlag);
-        return ResponseEntity.ok(new SumPagedRep(products, ProductCardRepresentation::new));
+        return ResponseEntity.ok(productApplicationService().products(queryParam, pageParam, skipFlag));
     }
 
     @GetMapping("admin/{id}")
@@ -104,7 +103,7 @@ public class ProductResource {
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        SumPagedRep<Product> products = productApplicationService().products(queryParam, pageParam, skipCount);
+        SumPagedRep<Product> products = productApplicationService().internalOnlyProducts(queryParam, pageParam, skipCount);
         return ResponseEntity.ok(new SumPagedRep(products, InternalProductRepresentation::new));
     }
 

@@ -483,7 +483,7 @@ public class Product extends Auditable {
     public static List<PatchCommand> convertToSkuCommands(List<PatchCommand> hasNestedEntity) {
         Set<String> collect = hasNestedEntity.stream().map(e -> e.getPath().split("/")[1]).collect(Collectors.toSet());
         String join = "id:" + String.join(".", collect);
-        SumPagedRep<Product> products = ApplicationServiceRegistry.getProductApplicationService().products(join, null, "sc:1");
+        SumPagedRep<Product> products = DomainRegistry.getProductRepository().productsOfQuery(new ProductQuery(join, null, "sc:1",false));
         hasNestedEntity.forEach(e -> {
             String[] split = e.getPath().split("/");
             String id = split[1];

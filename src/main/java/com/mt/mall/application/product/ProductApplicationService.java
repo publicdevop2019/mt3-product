@@ -9,10 +9,16 @@ import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.mall.application.ApplicationServiceRegistry;
+import com.mt.mall.application.filter.representation.FilterCardRepresentation;
 import com.mt.mall.application.product.command.CreateProductCommand;
 import com.mt.mall.application.product.command.PatchProductCommand;
 import com.mt.mall.application.product.command.UpdateProductCommand;
+import com.mt.mall.application.product.representation.ProductCardRepresentation;
 import com.mt.mall.domain.DomainRegistry;
+import com.mt.mall.domain.model.filter.Filter;
+import com.mt.mall.domain.model.filter.FilterId;
+import com.mt.mall.domain.model.meta.Meta;
+import com.mt.mall.domain.model.meta.MetaQuery;
 import com.mt.mall.domain.model.product.Product;
 import com.mt.mall.domain.model.product.ProductId;
 import com.mt.mall.domain.model.product.ProductQuery;
@@ -53,9 +59,23 @@ public class ProductApplicationService {
                 ), Product.class
         );
     }
-
-    public SumPagedRep<Product> products(String queryParam, String pageParam, String skipCount) {
+    public SumPagedRep<Product> internalOnlyProducts(String queryParam, String pageParam, String skipCount) {
         return DomainRegistry.getProductRepository().productsOfQuery(new ProductQuery(queryParam, pageParam, skipCount, false));
+    }
+
+    public SumPagedRep<ProductCardRepresentation> products(String queryParam, String pageParam, String skipCount) {
+        SumPagedRep<Product> productSumPagedRep = DomainRegistry.getProductRepository().productsOfQuery(new ProductQuery(queryParam, pageParam, skipCount, false));
+        Set<ProductId> collect = productSumPagedRep.getData().stream().map(Product::getProductId).collect(Collectors.toSet());
+        Set<Meta> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getMetaRepository().metaOfQuery((MetaQuery) e), new MetaQuery(new HashSet<>(collect)));
+        List<ProductCardRepresentation> collect1 = productSumPagedRep.getData().stream().map(e -> {
+            boolean review = false;
+            Optional<Meta> first = allByQuery.stream().filter(ee -> ee.getDomainId().getDomainId().equalsIgnoreCase(e.getProductId().getDomainId())).findFirst();
+            if (first.isPresent() && first.get().getHasChangedTag()) {
+                review = true;
+            }
+            return new ProductCardRepresentation(e, review);
+        }).collect(Collectors.toList());
+        return new SumPagedRep<>(collect1, productSumPagedRep.getTotalItemCount());
     }
 
     public Optional<Product> product(String id) {
