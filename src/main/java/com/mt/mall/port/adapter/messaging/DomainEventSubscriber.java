@@ -10,6 +10,8 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import static com.mt.mall.domain.model.catalog.event.CatalogEvent.TOPIC_CATALOG;
+import static com.mt.mall.domain.model.filter.event.FilterEvent.TOPIC_FILTER;
 import static com.mt.mall.domain.model.product.event.ProductCreated.TOPIC_PRODUCT;
 import static com.mt.mall.domain.model.tag.event.TagCriticalFieldChanged.TOPIC_TAG;
 
@@ -17,7 +19,7 @@ import static com.mt.mall.domain.model.tag.event.TagCriticalFieldChanged.TOPIC_T
 @Component
 public class DomainEventSubscriber {
     private static final String SKU_QUEUE_NAME = "sku_queue";
-    private static final String TAG_CHANGE_QUEUE_NAME = "tag_change_queue";
+    private static final String META_QUEUE_NAME = "meta_queue";
     @Value("${spring.application.name}")
     private String appName;
 
@@ -34,10 +36,10 @@ public class DomainEventSubscriber {
     }
 
     @EventListener(ApplicationReadyEvent.class)
-    private void tagChangeListener() {
-        CommonDomainRegistry.getEventStreamService().subscribe(appName, true, TAG_CHANGE_QUEUE_NAME, (event) -> {
+    private void metaChangeListener() {
+        CommonDomainRegistry.getEventStreamService().subscribe(appName, true, META_QUEUE_NAME, (event) -> {
             ApplicationServiceRegistry.getMetaApplicationService().handleChange(event);
-        }, TOPIC_TAG);
+        }, TOPIC_TAG, TOPIC_PRODUCT, TOPIC_CATALOG,TOPIC_FILTER);
     }
 
 }

@@ -22,6 +22,7 @@ import com.mt.mall.application.sku.command.CreateSkuCommand;
 import com.mt.mall.application.sku.command.UpdateSkuCommand;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.product.event.ProductCreated;
+import com.mt.mall.domain.model.product.event.ProductSkuUpdated;
 import com.mt.mall.domain.model.product.event.ProductUpdated;
 import com.mt.mall.domain.model.sku.Sku;
 import com.mt.mall.domain.model.sku.SkuId;
@@ -221,6 +222,7 @@ public class Product extends Auditable {
             if (attributesGen != null)
                 attributesGen.forEach(getStringConsumer(TagType.GEN));
         }
+        DomainEventPublisher.instance().publish(new ProductUpdated(productId));
     }
 
     private Set<ProductTag> getProductTags(Set<String> sales, Set<String> attributesKey, Set<String> attributesGen, Set<String> attributesProd) {
@@ -348,7 +350,7 @@ public class Product extends Auditable {
         if (collect1.size() > 0) {
             removeSkuCommands.addAll(collect1.stream().map(SkuId::new).collect(Collectors.toSet()));
         }
-        DomainEventPublisher.instance().publish(new ProductUpdated(productId, createSkuCommands, updateSkuCommands, removeSkuCommands, UUID.randomUUID().toString()));
+        DomainEventPublisher.instance().publish(new ProductSkuUpdated(productId, createSkuCommands, updateSkuCommands, removeSkuCommands, UUID.randomUUID().toString()));
     }
 
     private String getAttrSalesKey(Set<String> attributesSales) {
@@ -526,5 +528,6 @@ public class Product extends Auditable {
         setName(name);
         setStartAt(startAt);
         setEndAt(endAt);
+        DomainEventPublisher.instance().publish(new ProductUpdated(productId));
     }
 }

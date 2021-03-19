@@ -2,11 +2,12 @@ package com.mt.mall.domain.model.filter;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.sql.converter.StringSetConverter;
+import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.catalog.CatalogId;
+import com.mt.mall.domain.model.filter.event.FilterUpdated;
 import com.mt.mall.infrastructure.FilterCatalogsConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,7 +18,6 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Getter
 @Entity
@@ -67,6 +67,7 @@ public class Filter extends Auditable {
         setCatalogs(catalogs);
         setFilterItems(filterItems);
         setDescription(description);
+        DomainEventPublisher.instance().publish(new FilterUpdated(filterId));
     }
 
     public Filter(FilterId filterId, Set<CatalogId> catalogs, Set<FilterItem> filterItems, String description) {
@@ -80,5 +81,6 @@ public class Filter extends Auditable {
     public void replace(Set<CatalogId> catalogs, String description) {
         setCatalogs(catalogs);
         setDescription(description);
+        DomainEventPublisher.instance().publish(new FilterUpdated(filterId));
     }
 }

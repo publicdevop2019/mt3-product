@@ -4,7 +4,9 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.mall.domain.DomainRegistry;
+import com.mt.mall.domain.model.catalog.event.CatalogUpdated;
 import com.mt.mall.domain.model.meta.Meta;
+import com.mt.mall.domain.model.product.event.ProductSkuUpdated;
 import com.mt.mall.domain.model.tag.TagId;
 import com.mt.mall.domain.model.tag.event.TagCriticalFieldChanged;
 import com.mt.mall.domain.model.tag.event.TagDeleted;
@@ -24,6 +26,15 @@ public class MetaApplicationService {
             if (TagCriticalFieldChanged.class.getName().equals(event.getName())) {
                 TagCriticalFieldChanged deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), TagCriticalFieldChanged.class);
                 DomainRegistry.getMetaService().findImpactedEntities(new TagId(deserialize.getDomainId().getDomainId()));
+            }
+            if (CatalogUpdated.class.getName().equals(event.getName())) {
+                //@todo
+            }
+            if (ProductSkuUpdated.class.getName().equals(event.getName())) {
+                //@todo
+            }
+            if (ProductSkuUpdated.class.getName().equals(event.getName())) {
+                //@todo
             }
         }, Meta.class);
     }

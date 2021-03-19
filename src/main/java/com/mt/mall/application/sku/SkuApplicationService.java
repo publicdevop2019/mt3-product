@@ -17,7 +17,7 @@ import com.mt.mall.domain.DomainRegistry;
 import com.mt.mall.domain.model.product.event.ProductCreated;
 import com.mt.mall.domain.model.product.event.ProductDeleted;
 import com.mt.mall.domain.model.product.event.ProductPatchBatched;
-import com.mt.mall.domain.model.product.event.ProductUpdated;
+import com.mt.mall.domain.model.product.event.ProductSkuUpdated;
 import com.mt.mall.domain.model.sku.Sku;
 import com.mt.mall.domain.model.sku.SkuId;
 import com.mt.mall.domain.model.sku.SkuQuery;
@@ -172,8 +172,8 @@ public class SkuApplicationService {
                 ProductCreated deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProductCreated.class);
                 create(deserialize.getCreateSkuCommands(), deserialize.getChangeId());
             }
-            if (ProductUpdated.class.getName().equals(event.getName())) {
-                ProductUpdated deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProductUpdated.class);
+            if (ProductSkuUpdated.class.getName().equals(event.getName())) {
+                ProductSkuUpdated deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProductSkuUpdated.class);
                 create(deserialize.getCreateSkuCommands(), deserialize.getChangeId());
                 update(deserialize.getUpdateSkuCommands(), deserialize.getChangeId());
                 remove(deserialize.getRemoveSkuCommands(), deserialize.getChangeId());

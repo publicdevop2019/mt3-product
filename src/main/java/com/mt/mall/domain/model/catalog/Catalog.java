@@ -2,10 +2,12 @@ package com.mt.mall.domain.model.catalog;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import com.mt.mall.domain.DomainRegistry;
+import com.mt.mall.domain.model.catalog.event.CatalogUpdated;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -82,6 +84,7 @@ public class Catalog extends Auditable {
         HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();
         validate(handler);
         DomainRegistry.getCatalogValidationService().validate(linkedTags, handler);
+        DomainEventPublisher.instance().publish(new CatalogUpdated(catalogId));
     }
 
     @Override
