@@ -30,6 +30,11 @@ public class Meta extends Auditable {
     @Convert(converter = MetaChangeTagIdConverter.class)
     private Set<TagId> changedTagId;
 
+    public void updateWarning(Long entityUpdateAt) {
+        if (entityUpdateAt >= getModifiedAt().getTime())
+            hasChangedTag = false;
+    }
+
     public enum MetaType {
         CATALOG,
         FILTER,
@@ -49,5 +54,6 @@ public class Meta extends Auditable {
         if (changedTagId == null)
             changedTagId = new HashSet<>();
         changedTagId.add(tagId);
+        hasChangedTag = true;
     }
 }
