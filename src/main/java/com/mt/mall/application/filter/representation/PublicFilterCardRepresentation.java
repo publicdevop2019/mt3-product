@@ -12,7 +12,7 @@ public class PublicFilterCardRepresentation {
     private Set<String> values;
 
     public PublicFilterCardRepresentation(FilterItem e) {
-        setId(e.getTagId());
+        setId(e.getTagId().getDomainId());
         setName(e.getName());
         setValues(e.getValues());
     }

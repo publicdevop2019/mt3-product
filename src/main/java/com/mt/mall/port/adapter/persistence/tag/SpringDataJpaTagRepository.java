@@ -3,10 +3,7 @@ package com.mt.mall.port.adapter.persistence.tag;
 import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.mall.domain.model.tag.Tag;
-import com.mt.mall.domain.model.tag.TagId;
-import com.mt.mall.domain.model.tag.TagQuery;
-import com.mt.mall.domain.model.tag.TagRepository;
+import com.mt.mall.domain.model.tag.*;
 import com.mt.mall.port.adapter.persistence.QueryBuilderRegistry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -55,22 +52,18 @@ public interface SpringDataJpaTagRepository extends TagRepository, JpaRepository
 
     @Component
     class JpaCriteriaApiTagAdaptor {
-        public transient static final String NAME_LITERAL = "name";
-        public transient static final String TAG_ID_LITERAL = "tagId";
-        public transient static final String TYPE_LITERAL = "type";
-
         public SumPagedRep<Tag> execute(TagQuery tagQuery) {
             QueryUtility.QueryContext<Tag> queryContext = QueryUtility.prepareContext(Tag.class, tagQuery);
-            Optional.ofNullable(tagQuery.getTagIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(tagQuery.getTagIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), TAG_ID_LITERAL, queryContext));
-            Optional.ofNullable(tagQuery.getName()).ifPresent(e -> QueryUtility.addStringLikePredicate(tagQuery.getName(), NAME_LITERAL, queryContext));
-            Optional.ofNullable(tagQuery.getType()).ifPresent(e -> QueryUtility.addStringEqualPredicate(tagQuery.getType().name(), TYPE_LITERAL, queryContext));
+            Optional.ofNullable(tagQuery.getTagIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(tagQuery.getTagIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Tag_.TAG_ID, queryContext));
+            Optional.ofNullable(tagQuery.getName()).ifPresent(e -> QueryUtility.addStringLikePredicate(tagQuery.getName(), Tag_.NAME, queryContext));
+            Optional.ofNullable(tagQuery.getType()).ifPresent(e -> QueryUtility.addStringEqualPredicate(tagQuery.getType().name(), Tag_.TYPE, queryContext));
             Order order = null;
             if (tagQuery.getTagSort().isById())
-                order = QueryUtility.getDomainIdOrder(TAG_ID_LITERAL, queryContext, tagQuery.getTagSort().isAsc());
+                order = QueryUtility.getDomainIdOrder(Tag_.TAG_ID, queryContext, tagQuery.getTagSort().isAsc());
             if (tagQuery.getTagSort().isByName())
-                order = QueryUtility.getOrder(NAME_LITERAL, queryContext, tagQuery.getTagSort().isAsc());
+                order = QueryUtility.getOrder(Tag_.NAME, queryContext, tagQuery.getTagSort().isAsc());
             if (tagQuery.getTagSort().isByType())
-                order = QueryUtility.getOrder(TYPE_LITERAL, queryContext, tagQuery.getTagSort().isAsc());
+                order = QueryUtility.getOrder(Tag_.TYPE, queryContext, tagQuery.getTagSort().isAsc());
             queryContext.setOrder(order);
             return QueryUtility.pagedQuery(tagQuery, queryContext);
         }

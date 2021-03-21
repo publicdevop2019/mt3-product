@@ -8,6 +8,7 @@ import lombok.Data;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 public class PatchCatalogCommand extends TypedClass<PatchCatalogCommand> {
@@ -24,7 +25,7 @@ public class PatchCatalogCommand extends TypedClass<PatchCatalogCommand> {
         super(PatchCatalogCommand.class);
         this.name = catalog.getName();
         this.parentId = catalog.getParentId().getDomainId();
-        this.attributes = catalog.getAttributes();
+        this.attributes = catalog.getLinkedTags().stream().map(e -> String.join(":", e.getTagId().getDomainId(), e.getTagValue())).collect(Collectors.toSet());
         this.type = catalog.getType();
     }
 

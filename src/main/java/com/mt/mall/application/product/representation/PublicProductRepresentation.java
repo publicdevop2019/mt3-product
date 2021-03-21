@@ -42,7 +42,7 @@ public class PublicProductRepresentation {
 
         HashMap<String, String> attrSalesMap = product.getAttrSalesMap();
         Set<String> collect = attrSalesMap.values().stream().map(Object::toString).collect(Collectors.toSet());
-        SumPagedRep<Sku> skus = ApplicationServiceRegistry.skuApplicationService().skus("id:" + String.join(".", collect), null, null);
+        SumPagedRep<Sku> skus = ApplicationServiceRegistry.getSkuApplicationService().skus("id:" + String.join(".", collect), null, null);
         this.skus = attrSalesMap.keySet().stream().map(e -> {
             ProductSkuCustomerRepresentation appProductSkuRep = new ProductSkuCustomerRepresentation();
             String aLong = attrSalesMap.get(e);
@@ -63,7 +63,7 @@ public class PublicProductRepresentation {
         SumPagedRep<Tag> tags;
         if (this.attrIdMap.keySet().size() > 0 && !onlyEmptyKeyExist(this.attrIdMap.keySet())) {
             String page = "size:" + this.attrIdMap.keySet().size();
-            tags = ApplicationServiceRegistry.tagApplicationService().tags(search, page, "0");
+            tags = ApplicationServiceRegistry.getTagApplicationService().tags(search, page, "0");
             this.attrIdMap.keySet().forEach(e -> {
                 attrIdMap.put(e, findName(e, tags));
             });

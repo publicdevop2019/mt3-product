@@ -2,6 +2,7 @@ package com.mt.mall.port.adapter.persistence;
 
 import com.mt.mall.port.adapter.persistence.catalog.SpringDataJpaCatalogRepository;
 import com.mt.mall.port.adapter.persistence.filter.SpringDataJpaFilterRepository;
+import com.mt.mall.port.adapter.persistence.meta.SpringDataJpaMetaRepository;
 import com.mt.mall.port.adapter.persistence.product.SpringDataJpaProductRepository;
 import com.mt.mall.port.adapter.persistence.sku.SpringDataJpaSkuRepository;
 import com.mt.mall.port.adapter.persistence.tag.SpringDataJpaTagRepository;
@@ -25,6 +26,13 @@ public class QueryBuilderRegistry {
     private static SpringDataJpaProductRepository.ProductUpdateQueryBuilder productUpdateQueryBuilder;
     @Getter
     private static SpringDataJpaSkuRepository.SkuUpdateQueryBuilder skuUpdateQueryBuilder;
+    @Getter
+    private static SpringDataJpaMetaRepository.JpaCriteriaApiMetaAdaptor metaAdaptor;
+
+    @Autowired
+    public void setMetaAdaptor(SpringDataJpaMetaRepository.JpaCriteriaApiMetaAdaptor metaAdaptor) {
+        QueryBuilderRegistry.metaAdaptor = metaAdaptor;
+    }
 
     @Autowired
     public void setSkuUpdateQueryBuilder(SpringDataJpaSkuRepository.SkuUpdateQueryBuilder skuUpdateQueryBuilder) {

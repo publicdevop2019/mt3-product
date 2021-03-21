@@ -23,13 +23,13 @@ public class CatalogValidator {
         CatalogId parentId = catalog.getParentId();
         if (catalogId.equals(parentId))
             handler.handleError("parentId can not same as catalogId");
-        if (parentId != null) {
-            Optional<Catalog> parent = DomainRegistry.catalogRepository().catalogOfId(parentId);
+        if (parentId != null && !parentId.getDomainId().isBlank()) {
+            Optional<Catalog> parent = DomainRegistry.getCatalogRepository().catalogOfId(parentId);
             if (parent.isEmpty())
                 handler.handleError("parentId not found");
             if (parent.isPresent()) {
                 Catalog catalog1 = parent.get();
-                if (catalog1.getType().equals(catalog.getType()))
+                if (!catalog1.getType().equals(catalog.getType()))
                     handler.handleError("parent catalog must be same type as child");
             }
         }

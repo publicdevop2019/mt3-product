@@ -4,6 +4,7 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.mall.domain.model.tag.TagId;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,17 +24,24 @@ public class CatalogQuery extends QueryCriteria {
     @Setter(AccessLevel.PRIVATE)
     private Type type;
     private CatalogSort catalogSort;
+    private TagId tagId;
 
     public CatalogQuery(String query, String pageConfig, String queryConfig) {
         setPageConfig(PageConfig.limited(pageConfig, 2000));
         setQueryConfig(new QueryConfig(queryConfig));
-        udpateQueryParam(QueryUtility.parseQuery(query));
+        updateQueryParam(QueryUtility.parseQuery(query));
     }
 
     public CatalogQuery(String query) {
-        setPageConfig(new PageConfig());
+        setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.countRequired());
-        udpateQueryParam(QueryUtility.parseQuery(query));
+        updateQueryParam(QueryUtility.parseQuery(query));
+    }
+
+    public CatalogQuery(TagId tagId) {
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.countRequired());
+        this.tagId=tagId;
     }
 
     protected void setPageConfig(PageConfig pageConfig) {
@@ -41,7 +49,7 @@ public class CatalogQuery extends QueryCriteria {
         setCatalogSort();
     }
 
-    private void udpateQueryParam(Map<String, String> queryMap) {
+    private void updateQueryParam(Map<String, String> queryMap) {
         if (queryMap.get("id") != null) {
             String id = queryMap.get("id");
             setCatalogIds(Arrays.stream(id.split("\\.")).map(CatalogId::new).collect(Collectors.toSet()));
@@ -80,6 +88,8 @@ public class CatalogQuery extends QueryCriteria {
 
     public CatalogQuery(Set<CatalogId> catalogIds) {
         this.catalogIds = catalogIds;
+        setQueryConfig(QueryConfig.countRequired());
+        setPageConfig(PageConfig.defaultConfig());
     }
 
     public static CatalogQuery publicQuery(String pageConfig, String queryConfig) {

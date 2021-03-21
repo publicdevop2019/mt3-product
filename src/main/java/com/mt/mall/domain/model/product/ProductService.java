@@ -1,12 +1,9 @@
-package com.mt.mall.domain.service;
+package com.mt.mall.domain.model.product;
 
 import com.mt.mall.application.product.command.CreateProductCommand;
 import com.mt.mall.application.product.command.ProductOptionCommand;
 import com.mt.mall.application.product.command.ProductSalesImageCommand;
 import com.mt.mall.domain.DomainRegistry;
-import com.mt.mall.domain.model.product.Product;
-import com.mt.mall.domain.model.product.ProductId;
-import com.mt.mall.domain.model.product.ProductOption;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,7 +28,7 @@ public class ProductService {
                             ) {
         Product product = new Product(productId, name, imageUrlSmall, imageUrlLarge,
                 description, startAt, endAt, selectedOptions, attributesKey, attributesProd, attributesGen, skus, attributeSaleImages);
-        DomainRegistry.productRepository().add(product);
+        DomainRegistry.getProductRepository().add(product);
         return product.getProductId();
     }
 }

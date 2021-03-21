@@ -1,5 +1,6 @@
 package com.mt.mall.application.filter.representation;
 
+import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.mall.domain.model.filter.Filter;
 import com.mt.mall.domain.model.filter.FilterItem;
 import lombok.Data;
@@ -19,7 +20,7 @@ public class FilterRepresentation {
     public FilterRepresentation(Filter filter) {
         setId(filter.getFilterId().getDomainId());
         setDescription(filter.getDescription());
-        setCatalogs(filter.getCatalogs());
+        setCatalogs(filter.getCatalogs().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
         setVersion(filter.getVersion());
         this.filters = filter.getFilterItems().stream().map(FilterItemRepresentation::new).collect(Collectors.toList());
     }
@@ -31,7 +32,7 @@ public class FilterRepresentation {
         private Set<String> values;
 
         public FilterItemRepresentation(FilterItem e) {
-            setId(e.getTagId());
+            setId(e.getTagId().getDomainId());
             setName(e.getName());
             setValues(e.getValues());
         }

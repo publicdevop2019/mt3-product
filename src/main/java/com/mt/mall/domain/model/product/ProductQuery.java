@@ -4,6 +4,7 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.mall.domain.model.tag.TagId;
 import lombok.Getter;
 
 import java.util.*;
@@ -18,6 +19,7 @@ public class ProductQuery extends QueryCriteria {
     private Set<String> names;
     private boolean isAvailable = false;
     private boolean isPublic = false;
+    private TagId tagId;
     public static final String AVAILABLE = "available";
 
     public ProductQuery(String queryParam) {
@@ -44,6 +46,12 @@ public class ProductQuery extends QueryCriteria {
         setPageConfig(pageParam);
         setQueryConfig(new QueryConfig(skipCount));
         setProductSort(this.pageConfig);
+    }
+
+    public ProductQuery(TagId tagId) {
+        setPageConfig();
+        setQueryConfig(QueryConfig.countRequired());
+        this.tagId = tagId;
     }
 
     private void setPageConfig() {

@@ -36,8 +36,8 @@ public class CatalogResource {
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
-        SumPagedRep<Catalog> catalogs = catalogApplicationService().catalogs(queryParam, pageParam, skipCount);
-        return ResponseEntity.ok(new SumPagedRep(catalogs, CatalogCardRepresentation::new));
+        SumPagedRep<CatalogCardRepresentation> catalogs = catalogApplicationService().catalogs(queryParam, pageParam, skipCount);
+        return ResponseEntity.ok(catalogs);
     }
 
     @PostMapping("admin")
@@ -78,6 +78,6 @@ public class CatalogResource {
     }
 
     private CatalogApplicationService catalogApplicationService() {
-        return ApplicationServiceRegistry.catalogApplicationService();
+        return ApplicationServiceRegistry.getCatalogApplicationService();
     }
 }

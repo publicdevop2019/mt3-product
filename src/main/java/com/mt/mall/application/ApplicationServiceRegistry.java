@@ -6,40 +6,30 @@ import com.mt.mall.application.filter.FilterApplicationService;
 import com.mt.mall.application.product.ProductApplicationService;
 import com.mt.mall.application.sku.SkuApplicationService;
 import com.mt.mall.application.tag.TagApplicationService;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ApplicationServiceRegistry {
+    @Getter
     private static CatalogApplicationService catalogApplicationService;
+    @Getter
     private static IdempotentService idempotentWrapper;
+    @Getter
     private static FilterApplicationService filterApplicationService;
+    @Getter
     private static TagApplicationService tagApplicationService;
+    @Getter
     private static SkuApplicationService skuApplicationService;
+    @Getter
     private static ProductApplicationService productApplicationService;
+    @Getter
+    private static MetaApplicationService metaApplicationService;
 
-    public static SkuApplicationService skuApplicationService() {
-        return skuApplicationService;
-    }
-
-    public static ProductApplicationService productApplicationService() {
-        return productApplicationService;
-    }
-
-    public static TagApplicationService tagApplicationService() {
-        return tagApplicationService;
-    }
-
-    public static CatalogApplicationService catalogApplicationService() {
-        return catalogApplicationService;
-    }
-
-    public static FilterApplicationService filterApplicationService() {
-        return filterApplicationService;
-    }
-
-    public static IdempotentService idempotentWrapper() {
-        return idempotentWrapper;
+    @Autowired
+    public void setMetaApplicationService(MetaApplicationService metaApplicationService) {
+        ApplicationServiceRegistry.metaApplicationService = metaApplicationService;
     }
 
     @Autowired

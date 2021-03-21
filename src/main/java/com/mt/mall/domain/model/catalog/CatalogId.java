@@ -6,6 +6,7 @@ import com.mt.common.domain.model.domainId.DomainId;
 import java.io.Serializable;
 
 public class CatalogId extends DomainId implements Serializable {
+    private static final long serialVersionUID = 1L;
     public CatalogId() {
         super();
         long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();

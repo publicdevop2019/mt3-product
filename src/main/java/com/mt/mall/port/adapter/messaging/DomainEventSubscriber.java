@@ -10,25 +10,36 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import static com.mt.mall.domain.model.catalog.event.CatalogEvent.TOPIC_CATALOG;
+import static com.mt.mall.domain.model.filter.event.FilterEvent.TOPIC_FILTER;
 import static com.mt.mall.domain.model.product.event.ProductCreated.TOPIC_PRODUCT;
+import static com.mt.mall.domain.model.tag.event.TagCriticalFieldChanged.TOPIC_TAG;
 
 @Slf4j
 @Component
 public class DomainEventSubscriber {
     private static final String SKU_QUEUE_NAME = "sku_queue";
+    private static final String META_QUEUE_NAME = "meta_queue";
     @Value("${spring.application.name}")
     private String appName;
 
     @EventListener(ApplicationReadyEvent.class)
-    private void clientListener() {
+    private void skuListener() {
         CommonDomainRegistry.getEventStreamService().subscribe(appName, true, SKU_QUEUE_NAME, (event) -> {
             try {
-                ApplicationServiceRegistry.skuApplicationService().handleChange(event);
+                ApplicationServiceRegistry.getSkuApplicationService().handleChange(event);
             } catch (UpdateQueryBuilder.PatchCommandExpectNotMatchException | AggregateOutdatedException ex) {
                 //ignore above ex
-                log.debug("ignore exception in event {}",ex.getClass().toString());
+                log.debug("ignore exception in event {}", ex.getClass().toString());
             }
         }, TOPIC_PRODUCT);
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    private void metaChangeListener() {
+        CommonDomainRegistry.getEventStreamService().subscribe(appName, true, META_QUEUE_NAME, (event) -> {
+            ApplicationServiceRegistry.getMetaApplicationService().handleChange(event);
+        }, TOPIC_TAG, TOPIC_PRODUCT, TOPIC_CATALOG,TOPIC_FILTER);
     }
 
 }

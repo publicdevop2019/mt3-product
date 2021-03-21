@@ -1,28 +1,48 @@
 package com.mt.mall.domain;
 
 import com.mt.mall.domain.model.catalog.CatalogRepository;
+import com.mt.mall.domain.model.catalog.CatalogService;
+import com.mt.mall.domain.model.catalog.CatalogValidationService;
 import com.mt.mall.domain.model.filter.FilterRepository;
+import com.mt.mall.domain.model.filter.FilterService;
+import com.mt.mall.domain.model.filter.FilterValidationService;
+import com.mt.mall.domain.model.meta.MetaRepository;
+import com.mt.mall.domain.model.meta.MetaService;
 import com.mt.mall.domain.model.product.ProductRepository;
+import com.mt.mall.domain.model.product.ProductService;
 import com.mt.mall.domain.model.product.ProductTagRepository;
+import com.mt.mall.domain.model.product.ProductValidationService;
 import com.mt.mall.domain.model.sku.SkuRepository;
+import com.mt.mall.domain.model.sku.SkuService;
 import com.mt.mall.domain.model.tag.TagRepository;
-import com.mt.mall.domain.service.*;
+import com.mt.mall.domain.model.tag.TagService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DomainRegistry {
+    @Getter
     private static CatalogRepository catalogRepository;
+    @Getter
     private static CatalogService catalogService;
+    @Getter
     private static FilterRepository filterRepository;
+    @Getter
     private static FilterService filterService;
+    @Getter
     private static TagService tagService;
+    @Getter
     private static TagRepository tagRepository;
+    @Getter
     private static SkuService skuService;
+    @Getter
     private static SkuRepository skuRepository;
+    @Getter
     private static ProductRepository productRepository;
+    @Getter
     private static ProductService productService;
+    @Getter
     private static ProductTagRepository productTagRepository;
     @Getter
     private static CatalogValidationService catalogValidationService;
@@ -30,51 +50,19 @@ public class DomainRegistry {
     private static FilterValidationService filterValidationService;
     @Getter
     private static ProductValidationService productValidationService;
-
-    public static ProductRepository productRepository() {
-        return productRepository;
-    }
-
-    public static ProductTagRepository productTagRepository() {
-        return productTagRepository;
-    }
-
-    public static ProductService productService() {
-        return productService;
-    }
-
-    public static TagRepository tagRepository() {
-        return tagRepository;
-    }
-
-    public static SkuRepository skuRepository() {
-        return skuRepository;
-    }
-
-    public static SkuService skuService() {
-        return skuService;
-    }
-
-    public static TagService tagService() {
-        return tagService;
-    }
-
-    public static CatalogRepository catalogRepository() {
-        return catalogRepository;
-    }
-
-    public static FilterService filterService() {
-        return filterService;
-    }
-
-    public static FilterRepository filterRepository() {
-        return filterRepository;
-    }
-
+    @Getter
+    private static MetaRepository metaRepository;
+    @Getter
+    private static MetaService metaService;
 
     @Autowired
     private void setCatalogValidationService(FilterValidationService catalogValidationService) {
         DomainRegistry.filterValidationService = catalogValidationService;
+    }
+
+    @Autowired
+    private void setMetaService(MetaService metaService) {
+        DomainRegistry.metaService = metaService;
     }
 
     @Autowired
@@ -137,9 +125,9 @@ public class DomainRegistry {
         DomainRegistry.filterRepository = filterRepository;
     }
 
-
-    public static CatalogService catalogService() {
-        return catalogService;
+    @Autowired
+    private void setMetaRepository(MetaRepository metaRepository) {
+        DomainRegistry.metaRepository = metaRepository;
     }
 
     @Autowired

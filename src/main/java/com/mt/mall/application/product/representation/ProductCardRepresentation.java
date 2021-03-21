@@ -13,9 +13,9 @@ class ProductCardRepresentation {
     private Long startAt;
     private Long endAt;
     private Integer version;
+    private boolean reviewRequired = false;
 
-    public ProductCardRepresentation(Object obj) {
-        Product product = (Product) obj;
+    public ProductCardRepresentation(Product product, boolean review) {
         setId(product.getProductId().getDomainId());
         setName(product.getName());
         setCoverImage(product.getImageUrlSmall());
@@ -23,6 +23,7 @@ class ProductCardRepresentation {
         setStartAt(product.getStartAt());
         setEndAt(product.getEndAt());
         setVersion(product.getVersion());
+        setReviewRequired(review);
     }
 
 }

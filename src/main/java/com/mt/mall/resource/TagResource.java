@@ -68,6 +68,6 @@ public class TagResource {
     }
 
     private TagApplicationService tagApplicationService() {
-        return ApplicationServiceRegistry.tagApplicationService();
+        return ApplicationServiceRegistry.getTagApplicationService();
     }
 }
