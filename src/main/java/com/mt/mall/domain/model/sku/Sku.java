@@ -22,11 +22,6 @@ import java.math.RoundingMode;
 @Where(clause = "deleted=0")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Sku extends Auditable {
-    public transient static final String SKU_REFERENCE_ID_LITERAL = "referenceId";
-    public transient static final String SKU_STORAGE_ORDER_LITERAL = "storageOrder";
-    public transient static final String SKU_STORAGE_ACTUAL_LITERAL = "storageActual";
-    public transient static final String SKU_PRICE_LITERAL = "price";
-    public transient static final String SKU_SALES_LITERAL = "sales";
     @Id
     @Setter(AccessLevel.PRIVATE)
     private Long id;

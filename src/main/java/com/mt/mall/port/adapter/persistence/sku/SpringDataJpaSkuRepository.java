@@ -8,10 +8,7 @@ import com.mt.common.domain.model.restful.exception.UnsupportedPatchOperationExc
 import com.mt.common.domain.model.restful.exception.UpdateFiledValueException;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.sql.builder.UpdateQueryBuilder;
-import com.mt.mall.domain.model.sku.Sku;
-import com.mt.mall.domain.model.sku.SkuId;
-import com.mt.mall.domain.model.sku.SkuQuery;
-import com.mt.mall.domain.model.sku.SkuRepository;
+import com.mt.mall.domain.model.sku.*;
 import com.mt.mall.port.adapter.persistence.QueryBuilderRegistry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -28,8 +25,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.mt.common.CommonConstant.*;
-import static com.mt.mall.domain.model.sku.Sku.*;
-import static com.mt.mall.port.adapter.persistence.sku.SpringDataJpaSkuRepository.JpaCriteriaApiSkuAdapter.SKU_ID_LITERAL;
 
 public interface SpringDataJpaSkuRepository extends SkuRepository, JpaRepository<Sku, Long> {
 
@@ -67,15 +62,14 @@ public interface SpringDataJpaSkuRepository extends SkuRepository, JpaRepository
 
     @Component
     class JpaCriteriaApiSkuAdapter {
-        public static final String SKU_ID_LITERAL = "skuId";
 
         public SumPagedRep<Sku> execute(SkuQuery skuQuery) {
             QueryUtility.QueryContext<Sku> queryContext = QueryUtility.prepareContext(Sku.class, skuQuery);
-            Optional.ofNullable(skuQuery.getSkuIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(skuQuery.getSkuIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), SKU_ID_LITERAL, queryContext));
-            Optional.ofNullable(skuQuery.getProductId()).ifPresent(e -> QueryUtility.addStringEqualPredicate(skuQuery.getProductId().getDomainId(), SKU_REFERENCE_ID_LITERAL, queryContext));
+            Optional.ofNullable(skuQuery.getSkuIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(skuQuery.getSkuIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Sku_.SKU_ID, queryContext));
+            Optional.ofNullable(skuQuery.getProductId()).ifPresent(e -> QueryUtility.addStringEqualPredicate(skuQuery.getProductId().getDomainId(), Sku_.REFERENCE_ID, queryContext));
             Order order = null;
             if (skuQuery.getSkuSort().isById())
-                order = QueryUtility.getDomainIdOrder(SKU_ID_LITERAL, queryContext, skuQuery.getSkuSort().isAsc());
+                order = QueryUtility.getDomainIdOrder(Sku_.SKU_ID, queryContext, skuQuery.getSkuSort().isAsc());
             queryContext.setOrder(order);
             return QueryUtility.pagedQuery(skuQuery, queryContext);
         }
@@ -87,9 +81,9 @@ public interface SpringDataJpaSkuRepository extends SkuRepository, JpaRepository
         @Override
         protected void setUpdateValue(Root<Sku> root, CriteriaUpdate<Sku> criteriaUpdate, PatchCommand e) {
             ArrayList<Boolean> booleans = new ArrayList<>();
-            booleans.add(setUpdateStorageValueFor("/" + SKU_STORAGE_ORDER_LITERAL, SKU_STORAGE_ORDER_LITERAL, root, criteriaUpdate, e));
-            booleans.add(setUpdateStorageValueFor("/" + SKU_STORAGE_ACTUAL_LITERAL, SKU_STORAGE_ACTUAL_LITERAL, root, criteriaUpdate, e));
-            booleans.add(setUpdateStorageValueFor("/" + SKU_SALES_LITERAL, SKU_SALES_LITERAL, root, criteriaUpdate, e));
+            booleans.add(setUpdateStorageValueFor("/" + Sku_.STORAGE_ORDER, Sku_.STORAGE_ORDER, root, criteriaUpdate, e));
+            booleans.add(setUpdateStorageValueFor("/" + Sku_.STORAGE_ACTUAL, Sku_.STORAGE_ACTUAL, root, criteriaUpdate, e));
+            booleans.add(setUpdateStorageValueFor("/" + Sku_.SALES, Sku_.SALES, root, criteriaUpdate, e));
             Boolean hasFieldChange = booleans.stream().reduce(false, (a, b) -> a || b);
             if (!hasFieldChange) {
                 throw new NoUpdatableFieldException();
@@ -101,7 +95,7 @@ public interface SpringDataJpaSkuRepository extends SkuRepository, JpaRepository
             CriteriaBuilder cb = em.getCriteriaBuilder();
             List<Predicate> results = new ArrayList<>();
             for (String id : ids) {
-                Predicate idClause = cb.equal(root.get(SKU_ID_LITERAL).get(DOMAIN_ID), id);
+                Predicate idClause = cb.equal(root.get(Sku_.SKU_ID).get(DOMAIN_ID), id);
                 if (storagePatchOpSub(command)) {
                     //make sure if storage change, value is not negative
                     Predicate negativeClause = getStorageMustNotNegativeClause(cb, root, command);
@@ -151,18 +145,18 @@ public interface SpringDataJpaSkuRepository extends SkuRepository, JpaRepository
 
         private Predicate getStorageMustNotNegativeClause(CriteriaBuilder cb, Root<Sku> root, PatchCommand command) {
             String filedLiteral;
-            if (command.getPath().contains(SKU_STORAGE_ORDER_LITERAL)) {
-                filedLiteral = SKU_STORAGE_ORDER_LITERAL;
+            if (command.getPath().contains(Sku_.STORAGE_ORDER)) {
+                filedLiteral = Sku_.STORAGE_ORDER;
             } else {
-                filedLiteral = SKU_STORAGE_ACTUAL_LITERAL;
+                filedLiteral = Sku_.STORAGE_ACTUAL;
             }
             Expression<Integer> diff = cb.diff(root.get(filedLiteral), parseInteger(command.getValue()));
             return cb.greaterThanOrEqualTo(diff, 0);
         }
 
         private boolean storagePatchOpSub(PatchCommand command) {
-            return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF) && (command.getPath().contains(SKU_STORAGE_ORDER_LITERAL) ||
-                    command.getPath().contains(SKU_STORAGE_ACTUAL_LITERAL));
+            return command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF) && (command.getPath().contains(Sku_.STORAGE_ORDER) ||
+                    command.getPath().contains(Sku_.STORAGE_ACTUAL));
         }
     }
 }

@@ -26,6 +26,7 @@ import com.mt.mall.domain.model.product.event.ProductSkuUpdated;
 import com.mt.mall.domain.model.product.event.ProductUpdated;
 import com.mt.mall.domain.model.sku.Sku;
 import com.mt.mall.domain.model.sku.SkuId;
+import com.mt.mall.domain.model.tag.TagId;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -56,14 +57,6 @@ import static com.mt.mall.application.product.representation.ProductRepresentati
 @Where(clause = "deleted=0")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Product extends Auditable {
-    public transient static final String PRODUCT_NAME_LITERAL = "name";
-    public transient static final String PRODUCT_END_AT_LITERAL = "endAt";
-    public transient static final String PRODUCT_START_AT_LITERAL = "startAt";
-    public transient static final String PRODUCT_SELECTED_OPTIONS_LITERAL = "selectedOptions";
-    public transient static final String PRODUCT_IMAGE_URL_LARGE_LITERAL = "imageUrlLarge";
-    public transient static final String PRODUCT_LOWEST_PRICE_LITERAL = "lowestPrice";
-    public transient static final String PRODUCT_TOTAL_SALES_LITERAL = "totalSales";
-    public transient static final String PRODUCT_PRODUCT_ID = "productId";
     @Id
     @Setter(AccessLevel.PRIVATE)
     private Long id;
@@ -229,7 +222,8 @@ public class Product extends Auditable {
         Set<ProductTag> productTags = new HashSet<>();
         if (sales != null) {
             sales.forEach(e -> {
-                Optional<ProductTag> byValue = DomainRegistry.getProductTagRepository().findByTagValueAndType(e, TagType.SALES);
+                String[] split = e.split(":");
+                Optional<ProductTag> byValue = DomainRegistry.getProductTagRepository().findByTagIdAndTagValueAndType(new TagId(split[0]), split[1], TagType.SALES);
                 if (byValue.isPresent()) {
                     productTags.add(byValue.get());
                 } else {
@@ -240,7 +234,8 @@ public class Product extends Auditable {
         }
         if (attributesKey != null) {
             attributesKey.forEach(e -> {
-                Optional<ProductTag> byValue = DomainRegistry.getProductTagRepository().findByTagValueAndType(e, TagType.KEY);
+                String[] split = e.split(":");
+                Optional<ProductTag> byValue = DomainRegistry.getProductTagRepository().findByTagIdAndTagValueAndType(new TagId(split[0]), split[1], TagType.KEY);
                 if (byValue.isPresent()) {
                     productTags.add(byValue.get());
                 } else {
@@ -251,7 +246,8 @@ public class Product extends Auditable {
         }
         if (attributesGen != null) {
             attributesGen.forEach(e -> {
-                Optional<ProductTag> byValue = DomainRegistry.getProductTagRepository().findByTagValueAndType(e, TagType.GEN);
+                String[] split = e.split(":");
+                Optional<ProductTag> byValue = DomainRegistry.getProductTagRepository().findByTagIdAndTagValueAndType(new TagId(split[0]), split[1], TagType.GEN);
                 if (byValue.isPresent()) {
                     productTags.add(byValue.get());
                 } else {
@@ -262,7 +258,8 @@ public class Product extends Auditable {
         }
         if (attributesProd != null) {
             attributesProd.forEach(e -> {
-                Optional<ProductTag> byValue = DomainRegistry.getProductTagRepository().findByTagValueAndType(e, TagType.PROD);
+                String[] split = e.split(":");
+                Optional<ProductTag> byValue = DomainRegistry.getProductTagRepository().findByTagIdAndTagValueAndType(new TagId(split[0]), split[1], TagType.PROD);
                 if (byValue.isPresent()) {
                     productTags.add(byValue.get());
                 } else {
@@ -285,7 +282,8 @@ public class Product extends Auditable {
 
     private Consumer<String> getStringConsumer(TagType key) {
         return e -> {
-            Optional<ProductTag> byValue = DomainRegistry.getProductTagRepository().findByTagValueAndType(e, key);
+            String[] split = e.split(":");
+            Optional<ProductTag> byValue = DomainRegistry.getProductTagRepository().findByTagIdAndTagValueAndType(new TagId(split[0]), split[1], key);
             if (byValue.isPresent()) {
                 addTag(byValue.get());
             } else {
@@ -485,7 +483,7 @@ public class Product extends Auditable {
     public static List<PatchCommand> convertToSkuCommands(List<PatchCommand> hasNestedEntity) {
         Set<String> collect = hasNestedEntity.stream().map(e -> e.getPath().split("/")[1]).collect(Collectors.toSet());
         String join = "id:" + String.join(".", collect);
-        SumPagedRep<Product> products = DomainRegistry.getProductRepository().productsOfQuery(new ProductQuery(join, null, "sc:1",false));
+        SumPagedRep<Product> products = DomainRegistry.getProductRepository().productsOfQuery(new ProductQuery(join, null, "sc:1", false));
         hasNestedEntity.forEach(e -> {
             String[] split = e.getPath().split("/");
             String id = split[1];

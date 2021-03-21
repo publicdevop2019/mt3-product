@@ -3,7 +3,10 @@ package com.mt.mall.domain.model.filter;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
 
-public class FilterId extends DomainId {
+import java.io.Serializable;
+
+public class FilterId extends DomainId implements Serializable {
+    private static final long serialVersionUID = 1L;
     public FilterId() {
         super();
         Long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();

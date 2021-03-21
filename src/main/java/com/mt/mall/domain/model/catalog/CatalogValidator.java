@@ -29,7 +29,7 @@ public class CatalogValidator {
                 handler.handleError("parentId not found");
             if (parent.isPresent()) {
                 Catalog catalog1 = parent.get();
-                if (catalog1.getType().equals(catalog.getType()))
+                if (!catalog1.getType().equals(catalog.getType()))
                     handler.handleError("parent catalog must be same type as child");
             }
         }

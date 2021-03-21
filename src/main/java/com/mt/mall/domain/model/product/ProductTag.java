@@ -20,6 +20,10 @@ import java.util.Set;
 public class ProductTag implements Serializable {
     @Id
     private Long id;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "domainId", column = @Column(name = "tagId", updatable = false, nullable = false))
+    })
     private TagId tagId;
     private String tagValue;
     @Convert(converter = TagType.DBConverter.class)
@@ -51,11 +55,11 @@ public class ProductTag implements Serializable {
         if (this == o) return true;
         if (!(o instanceof ProductTag)) return false;
         ProductTag that = (ProductTag) o;
-        return Objects.equal(id, that.id) && Objects.equal(tagId, that.tagId) && Objects.equal(tagValue, that.tagValue) && type == that.type && Objects.equal(products, that.products);
+        return Objects.equal(tagId, that.tagId) && Objects.equal(tagValue, that.tagValue) && type == that.type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, tagId, tagValue, type, products);
+        return Objects.hashCode(tagId, tagValue, type);
     }
 }
