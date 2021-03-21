@@ -21,6 +21,7 @@ import com.mt.mall.domain.model.product.event.ProductSkuUpdated;
 import com.mt.mall.domain.model.sku.Sku;
 import com.mt.mall.domain.model.sku.SkuId;
 import com.mt.mall.domain.model.sku.SkuQuery;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class SkuApplicationService {
     @Value("${spring.application.name}")
@@ -157,6 +159,7 @@ public class SkuApplicationService {
                 }
             });
         } catch (UpdateQueryBuilder.PatchCommandExpectNotMatchException ex) {
+            log.debug("unable to update sku due to expect not match ", ex);
             //directly publish msg to stream
             SkuChangeFailed skuChangeFailed = new SkuChangeFailed(null, patchCommands);
             CommonDomainRegistry.getEventStreamService().next(appName, skuChangeFailed.isInternal(), skuChangeFailed.getTopic(), new StoredEvent(skuChangeFailed));
@@ -184,6 +187,7 @@ public class SkuApplicationService {
             }
             if (ProductPatchBatched.class.getName().equals(event.getName())) {
                 ProductPatchBatched deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProductPatchBatched.class);
+                log.debug("consuming ProductPatchBatched with id {}", deserialize.getId());
                 patchBatch(deserialize.getPatchCommands(), deserialize.getChangeId());
             }
         }, Sku.class);
