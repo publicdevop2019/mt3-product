@@ -147,7 +147,7 @@ public class SkuApplicationService {
 
     @SubscribeForEvent
     public void patchBatch(List<PatchCommand> commands, String changeId) {
-        List<PatchCommand> patchCommands = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(commands);
+        List<PatchCommand> patchCommands = List.copyOf(CommonDomainRegistry.getCustomObjectSerializer().deepCopyCollection(commands));
         TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
         try {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
