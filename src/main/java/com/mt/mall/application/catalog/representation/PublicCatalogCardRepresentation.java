@@ -2,18 +2,23 @@ package com.mt.mall.application.catalog.representation;
 
 import com.mt.mall.domain.model.catalog.Catalog;
 import lombok.Data;
-import org.springframework.beans.BeanUtils;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 public class PublicCatalogCardRepresentation {
-    private Long id;
+    private String id;
     private String name;
     private Set<String> attributes;
-    private Long parentId;
+    private String parentId;
 
-    public PublicCatalogCardRepresentation(Object catalog) {
-        BeanUtils.copyProperties(catalog, this);
+    public PublicCatalogCardRepresentation(Object o) {
+        Catalog o1 = (Catalog) o;
+        id = o1.getCatalogId().getDomainId();
+        name = o1.getName();
+        setAttributes(o1.getLinkedTags().stream().map(e -> String.join(":", e.getTagId().getDomainId(), e.getTagValue())).collect(Collectors.toSet()));
+        if (o1.getParentId() != null)
+            parentId = o1.getParentId().getDomainId();
     }
 }
