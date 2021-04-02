@@ -170,6 +170,7 @@ public class SkuApplicationService {
     @SubscribeForEvent
     @Transactional
     public void handleChange(StoredEvent event) {
+        log.debug("handling event with id {}", event.getId());
         ApplicationServiceRegistry.getIdempotentWrapper().idempotent(null, null, event.getId().toString(), (ignored) -> {
             if (ProductCreated.class.getName().equals(event.getName())) {
                 ProductCreated deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProductCreated.class);
