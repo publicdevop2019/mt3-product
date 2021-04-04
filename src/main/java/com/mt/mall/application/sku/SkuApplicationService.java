@@ -1,9 +1,12 @@
 package com.mt.mall.application.sku;
 
 import com.github.fge.jsonpatch.JsonPatch;
+import com.mt.common.CommonConstant;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
+import com.mt.common.domain.model.idempotent.ChangeRecord;
+import com.mt.common.domain.model.idempotent.ChangeRecordQuery;
 import com.mt.common.domain.model.idempotent.event.SkuChangeFailed;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -171,7 +174,7 @@ public class SkuApplicationService {
     @Transactional
     public void handleChange(StoredEvent event) {
         log.debug("handling event with id {}", event.getId());
-        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(null, null, event.getId().toString(), (ignored) -> {
+        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(null, event, event.getId().toString(), (ignored) -> {
             if (ProductCreated.class.getName().equals(event.getName())) {
                 ProductCreated deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProductCreated.class);
                 create(deserialize.getCreateSkuCommands(), deserialize.getChangeId());
@@ -204,5 +207,20 @@ public class SkuApplicationService {
 
     private void create(List<CreateSkuCommand> createSkuCommands, String changId) {
         createSkuCommands.forEach(command -> doCreate(command, changId, command.getSkuId()));
+    }
+
+    @SubscribeForEvent
+    @Transactional
+    public void rollback(String queryStr) {
+        log.debug("rollback with query string {}", queryStr);
+        Set<ChangeRecord> allByQuery = QueryUtility.getAllByQuery((q) -> CommonDomainRegistry.getChangeRecordRepository().changeRecordsOfQuery((ChangeRecordQuery) q), new ChangeRecordQuery(queryStr));
+        allByQuery.forEach(changeRecord -> {
+            ApplicationServiceRegistry.getIdempotentWrapper().idempotentRollback(changeRecord.getChangeId(), (change) -> {
+                List<PatchCommand> command = (List<PatchCommand>) CommonDomainRegistry.getCustomObjectSerializer().nativeDeserialize(change.getRequestBody());
+                List<PatchCommand> patchCommands = PatchCommand.buildRollbackCommand(command);
+                patchBatch(patchCommands, change.getChangeId() + CommonConstant.CHANGE_REVOKED);
+            }, Sku.class);
+
+        });
     }
 }

@@ -16,5 +16,5 @@ INSERT INTO mallDB.product_tag(id, tag_id, tag_value, `type`)VALUES(847400442290
 INSERT INTO mallDB.product_tag_map(product_id, tag_id)VALUES(847795442966531, 847400442290178);
 INSERT INTO mallDB.product_tag_map(product_id, tag_id)VALUES(847795442966531, 847400442290179);
 
-INSERT INTO mallDB.sku(id, created_at, created_by, deleted, deleted_at, deleted_by, modified_at, modified_by, restored_at, restored_by, version, description, price, reference_id, sales, sku_id, storage_actual, storage_order)VALUES(847795444015110, '2021-03-29 18:11:22', 'NOT_HTTP', 0, NULL, NULL, '2021-03-29 18:11:22', 'NOT_HTTP', NULL, NULL, 0, NULL, 88.88, '3P8CINULB94W', 0, '3S8CINULMHOH', 1000, 100);
+INSERT INTO mallDB.sku(id, created_at, created_by, deleted, deleted_at, deleted_by, modified_at, modified_by, restored_at, restored_by, version, description, price, reference_id, sales, sku_id, storage_actual, storage_order)VALUES(847795444015110, '2021-03-29 18:11:22', 'NOT_HTTP', 0, NULL, NULL, '2021-03-29 18:11:22', 'NOT_HTTP', NULL, NULL, 0, NULL, 88.88, '3P8CINULB94W', 0, '3S8CINULMHOH', 5000, 10000);
 
