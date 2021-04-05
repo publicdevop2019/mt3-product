@@ -216,7 +216,7 @@ public class SkuApplicationService {
         Set<ChangeRecord> allByQuery = QueryUtility.getAllByQuery((q) -> CommonDomainRegistry.getChangeRecordRepository().changeRecordsOfQuery((ChangeRecordQuery) q), new ChangeRecordQuery(queryStr));
         allByQuery.forEach(changeRecord -> {
             ApplicationServiceRegistry.getIdempotentWrapper().idempotentRollback(changeRecord.getChangeId(), (change) -> {
-                List<PatchCommand> command = (List<PatchCommand>) CommonDomainRegistry.getCustomObjectSerializer().nativeDeserialize(change.getRequestBody());
+                List<PatchCommand> command = List.copyOf(CommonDomainRegistry.getCustomObjectSerializer().deserializeCollection(change.getRequestBody(), PatchCommand.class));
                 List<PatchCommand> patchCommands = PatchCommand.buildRollbackCommand(command);
                 patchBatch(patchCommands, change.getChangeId() + CommonConstant.CHANGE_REVOKED);
             }, Sku.class);

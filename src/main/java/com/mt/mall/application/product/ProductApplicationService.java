@@ -9,14 +9,11 @@ import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.mall.application.ApplicationServiceRegistry;
-import com.mt.mall.application.filter.representation.FilterCardRepresentation;
 import com.mt.mall.application.product.command.CreateProductCommand;
 import com.mt.mall.application.product.command.PatchProductCommand;
 import com.mt.mall.application.product.command.UpdateProductCommand;
 import com.mt.mall.application.product.representation.ProductCardRepresentation;
 import com.mt.mall.domain.DomainRegistry;
-import com.mt.mall.domain.model.filter.Filter;
-import com.mt.mall.domain.model.filter.FilterId;
 import com.mt.mall.domain.model.meta.Meta;
 import com.mt.mall.domain.model.meta.MetaQuery;
 import com.mt.mall.domain.model.product.Product;
@@ -59,6 +56,7 @@ public class ProductApplicationService {
                 ), Product.class
         );
     }
+
     public SumPagedRep<Product> internalOnlyProducts(String queryParam, String pageParam, String skipCount) {
         return DomainRegistry.getProductRepository().productsOfQuery(new ProductQuery(queryParam, pageParam, skipCount, false));
     }
@@ -193,7 +191,7 @@ public class ProductApplicationService {
     @Transactional
     public void rollback(String changeId) {
         ApplicationServiceRegistry.getIdempotentWrapper().idempotentRollback(changeId, (change) -> {
-            List<PatchCommand> command = (List<PatchCommand>) CommonDomainRegistry.getCustomObjectSerializer().nativeDeserialize(change.getRequestBody());
+            List<PatchCommand> command = List.copyOf(CommonDomainRegistry.getCustomObjectSerializer().deserializeCollection(change.getRequestBody(), PatchCommand.class));
             List<PatchCommand> patchCommands = PatchCommand.buildRollbackCommand(command);
             patchBatch(patchCommands, changeId + CommonConstant.CHANGE_REVOKED);
         }, Product.class);
