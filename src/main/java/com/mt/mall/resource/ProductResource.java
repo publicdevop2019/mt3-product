@@ -85,12 +85,6 @@ public class ProductResource {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("admin")
-    public ResponseEntity<?> deleteForAdminByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        productApplicationService().removeByQuery(queryParam, changeId);
-        return ResponseEntity.ok().build();
-    }
-
     @PatchMapping("app")
     public ResponseEntity<?> patchForApp(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         productApplicationService().patchBatch(patch, changeId);
@@ -105,13 +99,6 @@ public class ProductResource {
     ) {
         SumPagedRep<Product> products = productApplicationService().internalOnlyProducts(queryParam, pageParam, skipCount);
         return ResponseEntity.ok(new SumPagedRep(products, InternalProductRepresentation::new));
-    }
-
-
-    @DeleteMapping("changes/app/{id}")
-    public ResponseEntity<?> rollbackChange(@PathVariable(name = "id") String id) {
-        productApplicationService().rollback(id);
-        return ResponseEntity.ok().build();
     }
 
     private ProductApplicationService productApplicationService() {

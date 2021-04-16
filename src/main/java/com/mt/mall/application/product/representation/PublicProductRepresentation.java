@@ -52,6 +52,7 @@ public class PublicProductRepresentation {
                 appProductSkuRep.setAttributesSales(strings);
                 appProductSkuRep.setPrice(first.get().getPrice());
                 appProductSkuRep.setStorage(first.get().getStorageOrder());
+                appProductSkuRep.setSkuId(first.get().getSkuId().getDomainId());
             }
             return appProductSkuRep;
         }).collect(Collectors.toList());
@@ -83,6 +84,7 @@ public class PublicProductRepresentation {
         private Set<String> attributesSales;
         private Integer storage;
         private BigDecimal price;
+        private String skuId;
     }
 
     @Data

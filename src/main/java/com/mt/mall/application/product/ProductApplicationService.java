@@ -1,7 +1,6 @@
 package com.mt.mall.application.product;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.CommonConstant;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
@@ -19,7 +18,6 @@ import com.mt.mall.domain.model.meta.MetaQuery;
 import com.mt.mall.domain.model.product.Product;
 import com.mt.mall.domain.model.product.ProductId;
 import com.mt.mall.domain.model.product.ProductQuery;
-import com.mt.mall.domain.model.product.event.ProductBatchDeleted;
 import com.mt.mall.domain.model.product.event.ProductDeleted;
 import com.mt.mall.domain.model.product.event.ProductPatchBatched;
 import com.mt.mall.domain.model.sku.SkuId;
@@ -37,23 +35,27 @@ public class ProductApplicationService {
     @SubscribeForEvent
     @Transactional
     public String create(CreateProductCommand command, String operationId) {
-        ProductId productId = new ProductId();
-        return ApplicationServiceRegistry.getIdempotentWrapper().idempotentCreate(command, operationId, productId,
-                () -> DomainRegistry.getProductService().create(
-                        productId,
-                        command.getName(),
-                        command.getImageUrlSmall(),
-                        command.getImageUrlLarge(),
-                        command.getDescription(),
-                        command.getStartAt(),
-                        command.getEndAt(),
-                        command.getSelectedOptions(),
-                        command.getAttributesKey(),
-                        command.getAttributesProd(),
-                        command.getAttributesGen(),
-                        command.getSkus(),
-                        command.getAttributeSaleImages()
-                ), Product.class
+        return ApplicationServiceRegistry.getIdempotentWrapper().idempotent(operationId,
+                (change) -> {
+                    ProductId productId = new ProductId();
+                    DomainRegistry.getProductService().create(
+                            productId,
+                            command.getName(),
+                            command.getImageUrlSmall(),
+                            command.getImageUrlLarge(),
+                            command.getDescription(),
+                            command.getStartAt(),
+                            command.getEndAt(),
+                            command.getSelectedOptions(),
+                            command.getAttributesKey(),
+                            command.getAttributesProd(),
+                            command.getAttributesGen(),
+                            command.getSkus(),
+                            command.getAttributeSaleImages()
+                    );
+                    change.setReturnValue(productId.getDomainId());
+                    return productId.getDomainId();
+                }, Product.class
         );
     }
 
@@ -91,8 +93,8 @@ public class ProductApplicationService {
     @SubscribeForEvent
     @Transactional
     public void replace(String id, UpdateProductCommand command, String changeId) {
-        ProductId productId = new ProductId(id);
-        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(productId, command, changeId, (change) -> {
+        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(changeId, (change) -> {
+            ProductId productId = new ProductId(id);
             Optional<Product> optionalProduct = DomainRegistry.getProductRepository().productOfId(productId);
             if (optionalProduct.isPresent()) {
                 Product product = optionalProduct.get();
@@ -114,6 +116,7 @@ public class ProductApplicationService {
                 );
                 DomainRegistry.getProductRepository().add(product);
             }
+            return null;
         }, Product.class);
     }
 
@@ -121,7 +124,7 @@ public class ProductApplicationService {
     @Transactional
     public void removeById(String id, String changeId) {
         ProductId productId = new ProductId(id);
-        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(productId, null, changeId, (change) -> {
+        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(changeId, (change) -> {
             Optional<Product> optionalProduct = DomainRegistry.getProductRepository().productOfId(productId);
             if (optionalProduct.isPresent()) {
                 Product product = optionalProduct.get();
@@ -129,34 +132,15 @@ public class ProductApplicationService {
                 Set<SkuId> collect = product.getAttrSalesMap().values().stream().map(SkuId::new).collect(Collectors.toSet());
                 DomainEventPublisher.instance().publish(new ProductDeleted(productId, collect, UUID.randomUUID().toString()));
             }
-            change.setQuery(productId);
-        }, Product.class);
-    }
-
-    @SubscribeForEvent
-    @Transactional
-    public Set<String> removeByQuery(String queryParam, String changeId) {
-        return ApplicationServiceRegistry.getIdempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
-            Set<Product> products = QueryUtility.getAllByQuery((query) -> DomainRegistry.getProductRepository().productsOfQuery((ProductQuery) query), new ProductQuery(queryParam));
-            DomainRegistry.getProductRepository().remove(products);
-            change.setRequestBody(products);
-            change.setDeletedIds(products.stream().map(e -> e.getProductId().getDomainId()).collect(Collectors.toSet()));
-            change.setQuery(queryParam);
-            Set<SkuId> collect1 = products.stream().map(e -> e.getAttrSalesMap().values()).flatMap(Collection::stream).map(SkuId::new).collect(Collectors.toSet());
-            DomainEventPublisher.instance().publish(
-                    new ProductBatchDeleted(
-                            products.stream().map(Product::getProductId).collect(Collectors.toSet()),
-                            collect1,
-                            UUID.randomUUID().toString()));
-            return products.stream().map(Product::getProductId).collect(Collectors.toSet());
+            return null;
         }, Product.class);
     }
 
     @SubscribeForEvent
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
-        ProductId productId = new ProductId(id);
-        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(productId, command, changeId, (change) -> {
+        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(changeId, (change) -> {
+            ProductId productId = new ProductId(id);
             Optional<Product> optionalCatalog = DomainRegistry.getProductRepository().productOfId(productId);
             if (optionalCatalog.isPresent()) {
                 Product product = optionalCatalog.get();
@@ -167,15 +151,16 @@ public class ProductApplicationService {
                         afterPatch.getStartAt(),
                         afterPatch.getEndAt()
                 );
-                change.setQuery(productId);
+                return null;
             }
+            return null;
         }, Product.class);
     }
 
     @SubscribeForEvent
     @Transactional
     public void patchBatch(List<PatchCommand> commands, String changeId) {
-        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(null, commands, changeId, (ignored) -> {
+        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(changeId, (ignored) -> {
             List<PatchCommand> skuChange = commands.stream().filter(e -> e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
             List<PatchCommand> productChange = commands.stream().filter(e -> !e.getPath().contains("/" + ADMIN_REP_SKU_LITERAL)).collect(Collectors.toList());
             if (!productChange.isEmpty())
@@ -183,17 +168,8 @@ public class ProductApplicationService {
             if (!skuChange.isEmpty()) {
                 DomainEventPublisher.instance().publish(new ProductPatchBatched(Product.convertToSkuCommands(skuChange), changeId));
             }
+            return null;
         }, Product.class);
     }
 
-
-    @SubscribeForEvent
-    @Transactional
-    public void rollback(String changeId) {
-        ApplicationServiceRegistry.getIdempotentWrapper().idempotentRollback(changeId, (change) -> {
-            List<PatchCommand> command = List.copyOf(CommonDomainRegistry.getCustomObjectSerializer().deserializeCollection(change.getRequestBody(), PatchCommand.class));
-            List<PatchCommand> patchCommands = PatchCommand.buildRollbackCommand(command);
-            patchBatch(patchCommands, changeId + CommonConstant.CHANGE_REVOKED);
-        }, Product.class);
-    }
 }

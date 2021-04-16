@@ -55,12 +55,6 @@ public class TagResource {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("admin")
-    public ResponseEntity<?> deleteForAdminByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        tagApplicationService().removeByQuery(queryParam, changeId);
-        return ResponseEntity.ok().build();
-    }
-
     @PatchMapping(path = "admin/{id}", consumes = "application/json-patch+json")
     public ResponseEntity<?> patchForAdminById(@PathVariable(name = "id") String id, @RequestBody JsonPatch patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         tagApplicationService().patch(id, patch, changeId);

@@ -34,14 +34,18 @@ public class FilterApplicationService {
     @SubscribeForEvent
     @Transactional
     public String create(CreateFilterCommand command, String operationId) {
-        FilterId filterId = new FilterId();
-        return ApplicationServiceRegistry.getIdempotentWrapper().idempotentCreate(command, operationId, filterId,
-                () -> DomainRegistry.getFilterService().create(
-                        filterId,
-                        command.getDescription(),
-                        command.getCatalogs().stream().map(CatalogId::new).collect(Collectors.toSet()),
-                        command.getFilters().stream().map(e -> new FilterItem(new TagId(e.getId()), e.getName(), e.getValues())).collect(Collectors.toSet())
-                ), Filter.class
+        return ApplicationServiceRegistry.getIdempotentWrapper().idempotent(operationId,
+                (change) -> {
+                    FilterId filterId = new FilterId();
+                    DomainRegistry.getFilterService().create(
+                            filterId,
+                            command.getDescription(),
+                            command.getCatalogs().stream().map(CatalogId::new).collect(Collectors.toSet()),
+                            command.getFilters().stream().map(e -> new FilterItem(new TagId(e.getId()), e.getName(), e.getValues())).collect(Collectors.toSet())
+                    );
+                    change.setReturnValue(filterId.getDomainId());
+                    return filterId.getDomainId();
+                }, Filter.class
         );
     }
 
@@ -72,7 +76,7 @@ public class FilterApplicationService {
     @Transactional
     public void replace(String id, UpdateFilterCommand command, String changeId) {
         FilterId filterId = new FilterId(id);
-        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(filterId, command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(changeId, (change) -> {
             Optional<Filter> optionalFilter = DomainRegistry.getFilterRepository().filterOfId(filterId);
             if (optionalFilter.isPresent()) {
                 Filter filter = optionalFilter.get();
@@ -82,6 +86,7 @@ public class FilterApplicationService {
                         command.getDescription());
                 DomainRegistry.getFilterRepository().add(filter);
             }
+            return null;
         }, Filter.class);
     }
 
@@ -89,33 +94,21 @@ public class FilterApplicationService {
     @Transactional
     public void removeFilter(String id, String changeId) {
         FilterId filterId = new FilterId(id);
-        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(filterId, null, changeId, (change) -> {
+        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(changeId, (change) -> {
             Optional<Filter> optionalFilter = DomainRegistry.getFilterRepository().filterOfId(filterId);
             if (optionalFilter.isPresent()) {
                 Filter filter = optionalFilter.get();
                 DomainRegistry.getFilterRepository().remove(filter);
             }
-        }, Filter.class);
-    }
-
-    @SubscribeForEvent
-    @Transactional
-    public Set<String> removeFilters(String queryParam, String changeId) {
-        return ApplicationServiceRegistry.getIdempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
-            Set<Filter> filters = QueryUtility.getAllByQuery((query) -> DomainRegistry.getFilterRepository().filtersOfQuery((FilterQuery) query), new FilterQuery(queryParam));
-            DomainRegistry.getFilterRepository().remove(filters);
-            change.setRequestBody(filters);
-            change.setDeletedIds(filters.stream().map(e -> e.getFilterId().getDomainId()).collect(Collectors.toSet()));
-            change.setQuery(queryParam);
-            return filters.stream().map(Filter::getFilterId).collect(Collectors.toSet());
+            return null;
         }, Filter.class);
     }
 
     @SubscribeForEvent
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
-        FilterId filterId = new FilterId(id);
-        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(filterId, command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(changeId, (change) -> {
+            FilterId filterId = new FilterId(id);
             Optional<Filter> optionalCatalog = DomainRegistry.getFilterRepository().filterOfId(filterId);
             if (optionalCatalog.isPresent()) {
                 Filter filter = optionalCatalog.get();
@@ -126,6 +119,7 @@ public class FilterApplicationService {
                         afterPatch.getDescription()
                 );
             }
+            return null;
         }, Filter.class);
     }
 

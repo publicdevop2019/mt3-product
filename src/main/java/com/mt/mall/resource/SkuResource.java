@@ -71,12 +71,6 @@ public class SkuResource {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("admin")
-    public ResponseEntity<?> deleteForAdminByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        skuApplicationService().removeByQuery(queryParam, changeId);
-        return ResponseEntity.ok().build();
-    }
-
     @PatchMapping("app")
     public ResponseEntity<?> patchForApp(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         skuApplicationService().patchBatch(patch, changeId);

@@ -25,27 +25,24 @@ public class MetaApplicationService {
     @SubscribeForEvent
     @Transactional
     public void handleChange(StoredEvent event) {
-        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(null, null, event.getId().toString(), (ignored) -> {
+        ApplicationServiceRegistry.getIdempotentWrapper().idempotent(event.getId().toString(), (ignored) -> {
             if (TagDeleted.class.getName().equals(event.getName())) {
                 TagDeleted deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), TagDeleted.class);
                 DomainRegistry.getMetaService().findImpactedEntities(new TagId(deserialize.getDomainId().getDomainId()));
-            }
-            else if (TagCriticalFieldChanged.class.getName().equals(event.getName())) {
+            } else if (TagCriticalFieldChanged.class.getName().equals(event.getName())) {
                 TagCriticalFieldChanged deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), TagCriticalFieldChanged.class);
                 DomainRegistry.getMetaService().findImpactedEntities(new TagId(deserialize.getDomainId().getDomainId()));
-            }
-            else if (CatalogUpdated.class.getName().equals(event.getName())) {
+            } else if (CatalogUpdated.class.getName().equals(event.getName())) {
                 CatalogUpdated deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), CatalogUpdated.class);
                 updateMetaWarning(deserialize.getDomainId(), deserialize.getTimestamp());
-            }
-            else if (ProductUpdated.class.getName().equals(event.getName())) {
+            } else if (ProductUpdated.class.getName().equals(event.getName())) {
                 ProductUpdated deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProductUpdated.class);
                 updateMetaWarning(deserialize.getDomainId(), deserialize.getTimestamp());
-            }
-            else if (FilterUpdated.class.getName().equals(event.getName())) {
+            } else if (FilterUpdated.class.getName().equals(event.getName())) {
                 FilterUpdated deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), FilterUpdated.class);
                 updateMetaWarning(deserialize.getDomainId(), deserialize.getTimestamp());
             }
+            return null;
         }, Meta.class);
     }
 
