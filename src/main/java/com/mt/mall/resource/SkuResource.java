@@ -7,9 +7,9 @@ import com.mt.mall.application.ApplicationServiceRegistry;
 import com.mt.mall.application.sku.SkuApplicationService;
 import com.mt.mall.application.sku.command.CreateSkuCommand;
 import com.mt.mall.application.sku.command.UpdateSkuCommand;
-import com.mt.mall.application.sku.representation.SkuCardRepresentation;
 import com.mt.mall.application.sku.representation.AdminSkuRepresentation;
 import com.mt.mall.application.sku.representation.InternalSkuCardRepresentation;
+import com.mt.mall.application.sku.representation.SkuCardRepresentation;
 import com.mt.mall.domain.model.sku.Sku;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -73,7 +73,10 @@ public class SkuResource {
 
     @PatchMapping("app")
     public ResponseEntity<?> patchForApp(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        log.debug("start change with id {}", changeId);
+        log.debug("change details {}", patch);
         skuApplicationService().patchBatch(patch, changeId);
+        log.debug("end change with  {}", changeId);
         return ResponseEntity.ok().build();
     }
 
