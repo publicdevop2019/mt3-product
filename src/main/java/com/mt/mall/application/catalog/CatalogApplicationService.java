@@ -42,7 +42,7 @@ public class CatalogApplicationService {
                             command.getCatalogType()
                     );
                     return catalogId.getDomainId();
-                }, Catalog.class
+                }, "Catalog"
         );
     }
 
@@ -81,7 +81,7 @@ public class CatalogApplicationService {
                 DomainRegistry.getCatalogRepository().add(catalog);
             }
             return null;
-        }, Catalog.class);
+        }, "Catalog");
     }
 
     @SubscribeForEvent
@@ -95,7 +95,7 @@ public class CatalogApplicationService {
                 DomainRegistry.getCatalogRepository().remove(catalog);
             }
             return null;
-        }, Catalog.class);
+        }, "Catalog");
     }
 
     @SubscribeForEvent
@@ -116,6 +116,6 @@ public class CatalogApplicationService {
                 );
             }
             return null;
-        }, Catalog.class);
+        }, "Catalog");
     }
 }

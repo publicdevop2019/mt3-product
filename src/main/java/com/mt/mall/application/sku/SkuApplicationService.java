@@ -64,7 +64,7 @@ public class SkuApplicationService {
                     );
                     change.setReturnValue(skuId.getDomainId());
                     return skuId.getDomainId();
-                }, Sku.class
+                }, "Sku"
         );
     }
 
@@ -96,7 +96,7 @@ public class SkuApplicationService {
                 DomainRegistry.getSkuRepository().add(sku);
             }
             return null;
-        }, Sku.class);
+        }, "Sku");
     }
 
     @SubscribeForEvent
@@ -114,7 +114,7 @@ public class SkuApplicationService {
                 DomainRegistry.getSkuRepository().remove(sku);
             }
             return null;
-        }, Sku.class);
+        }, "Sku");
     }
 
     @SubscribeForEvent
@@ -134,7 +134,7 @@ public class SkuApplicationService {
                 );
             }
             return null;
-        }, Sku.class);
+        }, "Sku");
     }
 
     @SubscribeForEvent
@@ -148,7 +148,7 @@ public class SkuApplicationService {
                     ApplicationServiceRegistry.getIdempotentWrapper().idempotent(changeId, (ignored) -> {
                         DomainRegistry.getSkuRepository().patchBatch(commands);
                         return null;
-                    }, Sku.class);
+                    }, "Sku");
                 }
             });
         } catch (UpdateQueryBuilder.PatchCommandExpectNotMatchException ex) {
@@ -185,7 +185,7 @@ public class SkuApplicationService {
                 patchBatch(deserialize.getPatchCommands(), deserialize.getChangeId());
             }
             return null;
-        }, Sku.class);
+        }, "Sku");
     }
 
     private void remove(Set<SkuId> removeSkuCommands, String changeId) {

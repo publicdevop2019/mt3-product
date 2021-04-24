@@ -43,7 +43,7 @@ public class MetaApplicationService {
                 updateMetaWarning(deserialize.getDomainId(), deserialize.getTimestamp());
             }
             return null;
-        }, Meta.class);
+        }, "Meta");
     }
 
     private void updateMetaWarning(DomainId domainId, Long timestamp) {

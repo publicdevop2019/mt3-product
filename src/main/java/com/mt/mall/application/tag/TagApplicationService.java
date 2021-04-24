@@ -39,7 +39,7 @@ public class TagApplicationService {
                     );
                     change.setReturnValue(tagId.getDomainId());
                     return tagId.getDomainId();
-                }, Tag.class
+                }, "Tag"
         );
     }
 
@@ -69,7 +69,7 @@ public class TagApplicationService {
                 DomainRegistry.getTagRepository().add(tag);
             }
             return null;
-        }, Tag.class);
+        }, "Tag");
     }
 
     @SubscribeForEvent
@@ -84,7 +84,7 @@ public class TagApplicationService {
                 DomainEventPublisher.instance().publish(new TagDeleted(tag.getTagId()));
             }
             return null;
-        }, Tag.class);
+        }, "Tag");
     }
 
     @SubscribeForEvent
@@ -107,7 +107,7 @@ public class TagApplicationService {
                 DomainRegistry.getTagRepository().add(tag);
             }
             return null;
-        }, Tag.class);
+        }, "Tag");
     }
 
 }

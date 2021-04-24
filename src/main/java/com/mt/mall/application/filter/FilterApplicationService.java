@@ -45,7 +45,7 @@ public class FilterApplicationService {
                     );
                     change.setReturnValue(filterId.getDomainId());
                     return filterId.getDomainId();
-                }, Filter.class
+                }, "Filter"
         );
     }
 
@@ -87,7 +87,7 @@ public class FilterApplicationService {
                 DomainRegistry.getFilterRepository().add(filter);
             }
             return null;
-        }, Filter.class);
+        }, "Filter");
     }
 
     @SubscribeForEvent
@@ -101,7 +101,7 @@ public class FilterApplicationService {
                 DomainRegistry.getFilterRepository().remove(filter);
             }
             return null;
-        }, Filter.class);
+        }, "Filter");
     }
 
     @SubscribeForEvent
@@ -120,7 +120,7 @@ public class FilterApplicationService {
                 );
             }
             return null;
-        }, Filter.class);
+        }, "Filter");
     }
 
 }

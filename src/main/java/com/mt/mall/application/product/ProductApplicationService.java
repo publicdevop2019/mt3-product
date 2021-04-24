@@ -55,7 +55,7 @@ public class ProductApplicationService {
                     );
                     change.setReturnValue(productId.getDomainId());
                     return productId.getDomainId();
-                }, Product.class
+                }, "Product"
         );
     }
 
@@ -117,7 +117,7 @@ public class ProductApplicationService {
                 DomainRegistry.getProductRepository().add(product);
             }
             return null;
-        }, Product.class);
+        }, "Product");
     }
 
     @SubscribeForEvent
@@ -133,7 +133,7 @@ public class ProductApplicationService {
                 DomainEventPublisher.instance().publish(new ProductDeleted(productId, collect, UUID.randomUUID().toString()));
             }
             return null;
-        }, Product.class);
+        }, "Product");
     }
 
     @SubscribeForEvent
@@ -154,7 +154,7 @@ public class ProductApplicationService {
                 return null;
             }
             return null;
-        }, Product.class);
+        }, "Product");
     }
 
     @SubscribeForEvent
@@ -169,7 +169,7 @@ public class ProductApplicationService {
                 DomainEventPublisher.instance().publish(new ProductPatchBatched(Product.convertToSkuCommands(skuChange), changeId));
             }
             return null;
-        }, Product.class);
+        }, "Product");
     }
 
 }
