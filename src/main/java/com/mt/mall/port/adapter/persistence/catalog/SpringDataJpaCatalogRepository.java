@@ -1,5 +1,6 @@
 package com.mt.mall.port.adapter.persistence.catalog;
 
+import com.mt.common.CommonConstant;
 import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -64,7 +65,7 @@ public interface SpringDataJpaCatalogRepository extends CatalogRepository, JpaRe
         public SumPagedRep<Catalog> execute(CatalogQuery catalogQuery) {
             QueryUtility.QueryContext<Catalog> queryContext = QueryUtility.prepareContext(Catalog.class, catalogQuery);
             Optional.ofNullable(catalogQuery.getType()).ifPresent(e -> QueryUtility.addStringEqualPredicate(catalogQuery.getType().name(), Catalog_.TYPE, queryContext));
-            Optional.ofNullable(catalogQuery.getParentId()).ifPresent(e -> QueryUtility.addStringEqualPredicate(catalogQuery.getParentId().getDomainId(), Catalog_.PARENT_ID, queryContext));
+            Optional.ofNullable(catalogQuery.getParentId()).ifPresent(e -> addParentIdPredicate(catalogQuery.getParentId().getDomainId(), Catalog_.PARENT_ID, queryContext));
             Optional.ofNullable(catalogQuery.getCatalogIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(catalogQuery.getCatalogIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Catalog_.CATALOG_ID, queryContext));
             Order order = null;
             if (catalogQuery.getCatalogSort().isById())
@@ -73,6 +74,17 @@ public interface SpringDataJpaCatalogRepository extends CatalogRepository, JpaRe
                 order = QueryUtility.getOrder(Catalog_.NAME, queryContext, catalogQuery.getCatalogSort().isAscending());
             queryContext.setOrder(order);
             return QueryUtility.pagedQuery(catalogQuery, queryContext);
+        }
+    }
+    private static <T> void addParentIdPredicate(String value, String sqlFieldName, QueryUtility.QueryContext<T> context) {
+        if("null".equalsIgnoreCase(value)){
+            context.getPredicates().add(context.getCriteriaBuilder().isNull(context.getRoot().get(sqlFieldName).get(CommonConstant.DOMAIN_ID).as(String.class)));
+            Optional.ofNullable(context.getCountPredicates()).ifPresent(e -> e.add(context.getCriteriaBuilder().isNull(context.getCountRoot().get(sqlFieldName).get(CommonConstant.DOMAIN_ID).as(String.class))));
+
+        }else{
+            context.getPredicates().add(context.getCriteriaBuilder().equal(context.getRoot().get(sqlFieldName).get(CommonConstant.DOMAIN_ID).as(String.class), value));
+            Optional.ofNullable(context.getCountPredicates()).ifPresent(e -> e.add(context.getCriteriaBuilder().equal(context.getCountRoot().get(sqlFieldName).get(CommonConstant.DOMAIN_ID).as(String.class), value)));
+
         }
     }
 }
