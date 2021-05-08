@@ -19,6 +19,7 @@ import static com.mt.mall.domain.model.tag.event.TagCriticalFieldChanged.TOPIC_T
 @Component
 public class DomainEventSubscriber {
     private static final String SKU_QUEUE_NAME = "sku_queue";
+    private static final String SKU_EX_QUEUE_NAME = "sku_external_queue";
     private static final String META_QUEUE_NAME = "meta_queue";
     @Value("${spring.application.name}")
     private String appName;
@@ -28,6 +29,18 @@ public class DomainEventSubscriber {
         CommonDomainRegistry.getEventStreamService().subscribe(appName, true, SKU_QUEUE_NAME, (event) -> {
             try {
                 ApplicationServiceRegistry.getSkuApplicationService().handleChange(event);
+            } catch (UpdateQueryBuilder.PatchCommandExpectNotMatchException | AggregateOutdatedException ex) {
+                //ignore above ex
+                log.debug("ignore exception in event {}", ex.getClass().toString());
+            }
+        }, TOPIC_PRODUCT);
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    private void skuExternalListener() {
+        CommonDomainRegistry.getEventStreamService().subscribe(appName, false, SKU_EX_QUEUE_NAME, (event) -> {
+            try {
+                ApplicationServiceRegistry.getSkuApplicationService().handleSkuChange(event);
             } catch (UpdateQueryBuilder.PatchCommandExpectNotMatchException | AggregateOutdatedException ex) {
                 //ignore above ex
                 log.debug("ignore exception in event {}", ex.getClass().toString());

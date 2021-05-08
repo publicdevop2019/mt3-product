@@ -71,15 +71,6 @@ public class SkuResource {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("app")
-    public ResponseEntity<?> patchForApp(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        log.debug("start change with id {}", changeId);
-        log.debug("change details {}", patch);
-        skuApplicationService().patchBatch(patch, changeId);
-        log.debug("end change with  {}", changeId);
-        return ResponseEntity.ok().build();
-    }
-
     @GetMapping("app")
     public ResponseEntity<?> readForAppByQuery(
             @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,

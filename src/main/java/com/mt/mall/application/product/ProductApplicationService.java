@@ -166,7 +166,7 @@ public class ProductApplicationService {
             if (!productChange.isEmpty())
                 DomainRegistry.getProductRepository().patchBatch(productChange);
             if (!skuChange.isEmpty()) {
-                DomainEventPublisher.instance().publish(new ProductPatchBatched(Product.convertToSkuCommands(skuChange), changeId));
+                DomainEventPublisher.instance().publish(new ProductPatchBatched(Product.convertToSkuCommands(skuChange)));
             }
             return null;
         }, "Product");

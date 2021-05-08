@@ -13,10 +13,7 @@ import com.mt.mall.application.sku.command.CreateSkuCommand;
 import com.mt.mall.application.sku.command.PatchSkuCommand;
 import com.mt.mall.application.sku.command.UpdateSkuCommand;
 import com.mt.mall.domain.DomainRegistry;
-import com.mt.mall.domain.model.product.event.ProductCreated;
-import com.mt.mall.domain.model.product.event.ProductDeleted;
-import com.mt.mall.domain.model.product.event.ProductPatchBatched;
-import com.mt.mall.domain.model.product.event.ProductSkuUpdated;
+import com.mt.mall.domain.model.product.event.*;
 import com.mt.mall.domain.model.sku.Sku;
 import com.mt.mall.domain.model.sku.SkuId;
 import com.mt.mall.domain.model.sku.SkuQuery;
@@ -182,7 +179,7 @@ public class SkuApplicationService {
             if (ProductPatchBatched.class.getName().equals(event.getName())) {
                 ProductPatchBatched deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProductPatchBatched.class);
                 log.debug("consuming ProductPatchBatched with id {}", deserialize.getId());
-                patchBatch(deserialize.getPatchCommands(), deserialize.getChangeId());
+                patchBatch(deserialize.getPatchCommands(), event.getId().toString());
             }
             return null;
         }, "Sku");
@@ -198,5 +195,16 @@ public class SkuApplicationService {
 
     private void create(List<CreateSkuCommand> createSkuCommands, String changId) {
         createSkuCommands.forEach(command -> doCreate(command, changId, command.getSkuId()));
+    }
+
+    @SubscribeForEvent
+    @Transactional
+    public void handleSkuChange(StoredEvent event) {
+        log.debug("handling event with id {}", event.getId());
+        if (InternalSkuPatchBatched.class.getName().equals(event.getName())) {
+            InternalSkuPatchBatched deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), InternalSkuPatchBatched.class);
+            log.debug("consuming ProductPatchBatched with id {}", deserialize.getId());
+            patchBatch(deserialize.getPatchCommands(), event.getId().toString());
+        }
     }
 }

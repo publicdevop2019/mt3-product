@@ -5,12 +5,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+
 @Getter
 @NoArgsConstructor
-public class ProductPatchBatched extends ProductEvent {
+public class InternalSkuPatchBatched extends ProductEvent {
     private List<PatchCommand> patchCommands;
 
-    public ProductPatchBatched(List<PatchCommand> patchCommands) {
+    public InternalSkuPatchBatched(List<PatchCommand> patchCommands) {
         super();
         this.patchCommands = patchCommands;
     }
