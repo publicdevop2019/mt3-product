@@ -21,6 +21,7 @@ public class DomainEventSubscriber {
     private static final String SKU_QUEUE_NAME = "sku_queue";
     private static final String SKU_EX_QUEUE_NAME = "sku_external_queue";
     private static final String META_QUEUE_NAME = "meta_queue";
+    public static String CREATE_NEW_ORDER = "CREATE_NEW_ORDER_COMMAND";
     @Value("${spring.application.name}")
     private String appName;
 
@@ -45,7 +46,7 @@ public class DomainEventSubscriber {
                 //ignore above ex
                 log.debug("ignore exception in event {}", ex.getClass().toString());
             }
-        }, TOPIC_PRODUCT);
+        }, CREATE_NEW_ORDER);
     }
 
     @EventListener(ApplicationReadyEvent.class)
