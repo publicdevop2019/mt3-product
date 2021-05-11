@@ -201,10 +201,10 @@ public class SkuApplicationService {
     @Transactional
     public void handleSkuChange(StoredEvent event) {
         log.debug("handling event with id {}", event.getId());
-        if (InternalSkuPatchBatched.class.getName().equals(event.getName())) {
+        if ("DECREASE_SKU".equals(event.getName())) {
             InternalSkuPatchBatched deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), InternalSkuPatchBatched.class);
             log.debug("consuming ProductPatchBatched with id {}", deserialize.getId());
-            patchBatch(deserialize.getPatchCommands(), event.getId().toString());
+            patchBatch(deserialize.getSkuCommands(), event.getId().toString());
         }
     }
 }

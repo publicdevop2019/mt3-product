@@ -9,10 +9,6 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class InternalSkuPatchBatched extends ProductEvent {
-    private List<PatchCommand> patchCommands;
-
-    public InternalSkuPatchBatched(List<PatchCommand> patchCommands) {
-        super();
-        this.patchCommands = patchCommands;
-    }
+    private List<PatchCommand> skuCommands;
+    private String changeId;
 }

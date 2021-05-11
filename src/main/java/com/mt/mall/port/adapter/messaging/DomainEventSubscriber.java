@@ -24,6 +24,8 @@ public class DomainEventSubscriber {
     public static String CREATE_NEW_ORDER = "CREATE_NEW_ORDER_COMMAND";
     @Value("${spring.application.name}")
     private String appName;
+    @Value("${mt.app.name.mt15}")
+    private String sagaName;
 
     @EventListener(ApplicationReadyEvent.class)
     private void skuListener() {
@@ -39,13 +41,8 @@ public class DomainEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     private void skuExternalListener() {
-        CommonDomainRegistry.getEventStreamService().subscribe(appName, false, SKU_EX_QUEUE_NAME, (event) -> {
-            try {
-                ApplicationServiceRegistry.getSkuApplicationService().handleSkuChange(event);
-            } catch (UpdateQueryBuilder.PatchCommandExpectNotMatchException | AggregateOutdatedException ex) {
-                //ignore above ex
-                log.debug("ignore exception in event {}", ex.getClass().toString());
-            }
+        CommonDomainRegistry.getEventStreamService().subscribe(sagaName, false, SKU_EX_QUEUE_NAME, (event) -> {
+            ApplicationServiceRegistry.getSkuApplicationService().handleSkuChange(event);
         }, CREATE_NEW_ORDER);
     }
 
@@ -53,7 +50,7 @@ public class DomainEventSubscriber {
     private void metaChangeListener() {
         CommonDomainRegistry.getEventStreamService().subscribe(appName, true, META_QUEUE_NAME, (event) -> {
             ApplicationServiceRegistry.getMetaApplicationService().handleChange(event);
-        }, TOPIC_TAG, TOPIC_PRODUCT, TOPIC_CATALOG,TOPIC_FILTER);
+        }, TOPIC_TAG, TOPIC_PRODUCT, TOPIC_CATALOG, TOPIC_FILTER);
     }
 
 }
