@@ -2,6 +2,7 @@ package com.mt.mall.application.sku;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.idempotent.event.SkuChangeFailed;
@@ -13,10 +14,15 @@ import com.mt.mall.application.sku.command.CreateSkuCommand;
 import com.mt.mall.application.sku.command.PatchSkuCommand;
 import com.mt.mall.application.sku.command.UpdateSkuCommand;
 import com.mt.mall.domain.DomainRegistry;
-import com.mt.mall.domain.model.product.event.*;
+import com.mt.mall.domain.model.product.event.ProductCreated;
+import com.mt.mall.domain.model.product.event.ProductDeleted;
+import com.mt.mall.domain.model.product.event.ProductPatchBatched;
+import com.mt.mall.domain.model.product.event.ProductSkuUpdated;
 import com.mt.mall.domain.model.sku.Sku;
 import com.mt.mall.domain.model.sku.SkuId;
 import com.mt.mall.domain.model.sku.SkuQuery;
+import com.mt.mall.domain.model.sku.event.SkuPatchCommandEvent;
+import com.mt.mall.domain.model.sku.event.SkuPatchedReplyEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -202,9 +208,15 @@ public class SkuApplicationService {
     public void handleSkuChange(StoredEvent event) {
         log.debug("handling event with id {}", event.getId());
         if ("DECREASE_SKU".equals(event.getName())) {
-            InternalSkuPatchBatched deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), InternalSkuPatchBatched.class);
+            SkuPatchCommandEvent deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), SkuPatchCommandEvent.class);
             log.debug("consuming ProductPatchBatched with id {}", deserialize.getId());
-            patchBatch(deserialize.getSkuCommands(), event.getId().toString());
+            try {
+                patchBatch(deserialize.getSkuCommands(), event.getId().toString());
+                DomainEventPublisher.instance().publish(new SkuPatchedReplyEvent(true, deserialize.getTaskId()));
+            } catch (Exception e) {
+                log.warn("ignore exception");
+                DomainEventPublisher.instance().publish(new SkuPatchedReplyEvent(false, deserialize.getTaskId()));
+            }
         }
     }
 }
