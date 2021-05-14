@@ -19,7 +19,7 @@ import static com.mt.mall.domain.model.tag.event.TagCriticalFieldChanged.TOPIC_T
 @Component
 public class DomainEventSubscriber {
     private static final String SKU_QUEUE_NAME = "sku_queue";
-    private static final String SKU_EX_QUEUE_NAME = "sku_external_queue";
+    private static final String SKU_EX_QUEUE_NAME = "decrease_sku_for_order_event_mall_handler";
     private static final String META_QUEUE_NAME = "meta_queue";
     public static String CREATE_NEW_ORDER = "CREATE_NEW_ORDER_COMMAND";
     @Value("${spring.application.name}")
@@ -43,7 +43,7 @@ public class DomainEventSubscriber {
     private void skuExternalListener() {
         CommonDomainRegistry.getEventStreamService().subscribe(sagaName, false, SKU_EX_QUEUE_NAME, (event) -> {
             ApplicationServiceRegistry.getSkuApplicationService().handleSkuChange(event);
-        }, CREATE_NEW_ORDER);
+        }, "decrease_sku_for_order_event");
     }
 
     @EventListener(ApplicationReadyEvent.class)

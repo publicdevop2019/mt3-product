@@ -207,16 +207,14 @@ public class SkuApplicationService {
     @Transactional
     public void handleSkuChange(StoredEvent event) {
         log.debug("handling event with id {}", event.getId());
-        if ("DECREASE_SKU".equals(event.getName())) {
-            SkuPatchCommandEvent deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), SkuPatchCommandEvent.class);
-            log.debug("consuming ProductPatchBatched with id {}", deserialize.getId());
-            try {
-                patchBatch(deserialize.getSkuCommands(), event.getId().toString());
-                DomainEventPublisher.instance().publish(new SkuPatchedReplyEvent(true, deserialize.getTaskId()));
-            } catch (Exception e) {
-                log.warn("ignore exception");
-                DomainEventPublisher.instance().publish(new SkuPatchedReplyEvent(false, deserialize.getTaskId()));
-            }
+        SkuPatchCommandEvent deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), SkuPatchCommandEvent.class);
+        log.debug("consuming ProductPatchBatched with id {}", deserialize.getId());
+        try {
+            patchBatch(deserialize.getSkuCommands(), event.getId().toString());
+            DomainEventPublisher.instance().publish(new SkuPatchedReplyEvent(true, deserialize.getTaskId()));
+        } catch (Exception e) {
+            log.warn("ignore exception");
+            DomainEventPublisher.instance().publish(new SkuPatchedReplyEvent(false, deserialize.getTaskId()));
         }
     }
 }

@@ -7,7 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SkuPatchedReplyEvent extends DomainEvent {
-    public static String CREATE_NEW_ORDER_REPLY = "CREATE_NEW_ORDER_REPLY";
     private boolean success;
     private long taskId;
 
@@ -15,7 +14,6 @@ public class SkuPatchedReplyEvent extends DomainEvent {
         setSuccess(result);
         setTaskId(taskId);
         setInternal(false);
-        setTopic(CREATE_NEW_ORDER_REPLY);
-        setName("DECREASE_REPLY");
+        setTopic("decrease_sku_for_order_reply_event");
     }
 }
