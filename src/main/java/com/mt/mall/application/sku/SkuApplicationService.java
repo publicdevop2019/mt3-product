@@ -205,16 +205,29 @@ public class SkuApplicationService {
 
     @SubscribeForEvent
     @Transactional
-    public void handleSkuChange(StoredEvent event) {
-        log.debug("handling event with id {}", event.getId());
-        SkuPatchCommandEvent deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), SkuPatchCommandEvent.class);
-        log.debug("consuming ProductPatchBatched with id {}", deserialize.getId());
+    public void handleDecreaseSkuChange(SkuPatchCommandEvent event) {
+        String topic = "decrease_sku_for_order_reply_event";
+        log.debug("consuming ProductPatchBatched with id {}", event.getId());
         try {
-            patchBatch(deserialize.getSkuCommands(), event.getId().toString());
-            DomainEventPublisher.instance().publish(new SkuPatchedReplyEvent(true, deserialize.getTaskId()));
+            patchBatch(event.getSkuCommands(), event.getId().toString());
+            DomainEventPublisher.instance().publish(new SkuPatchedReplyEvent(true, event.getTaskId(), topic));
         } catch (Exception e) {
             log.warn("ignore exception");
-            DomainEventPublisher.instance().publish(new SkuPatchedReplyEvent(false, deserialize.getTaskId()));
+            DomainEventPublisher.instance().publish(new SkuPatchedReplyEvent(false, event.getTaskId(), topic));
+        }
+    }
+
+    @SubscribeForEvent
+    @Transactional
+    public void handleIncreaseSkuChange(SkuPatchCommandEvent event) {
+        String topic = "increase_sku_for_order_reply_event";
+        log.debug("consuming ProductPatchBatched with id {}", event.getId());
+        try {
+            patchBatch(event.getSkuCommands(), event.getId().toString());
+            DomainEventPublisher.instance().publish(new SkuPatchedReplyEvent(true, event.getTaskId(), topic));
+        } catch (Exception e) {
+            log.warn("ignore exception");
+            DomainEventPublisher.instance().publish(new SkuPatchedReplyEvent(false, event.getTaskId(), topic));
         }
     }
 }

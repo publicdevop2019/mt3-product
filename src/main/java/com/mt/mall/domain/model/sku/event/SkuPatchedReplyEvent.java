@@ -10,10 +10,10 @@ public class SkuPatchedReplyEvent extends DomainEvent {
     private boolean success;
     private long taskId;
 
-    public SkuPatchedReplyEvent(boolean result, long taskId) {
+    public SkuPatchedReplyEvent(boolean result, long taskId,String topic) {
         setSuccess(result);
         setTaskId(taskId);
         setInternal(false);
-        setTopic("decrease_sku_for_order_reply_event");
+        setTopic(topic);
     }
 }

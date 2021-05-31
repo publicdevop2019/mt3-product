@@ -4,6 +4,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.exception.AggregateOutdatedException;
 import com.mt.common.domain.model.sql.builder.UpdateQueryBuilder;
 import com.mt.mall.application.ApplicationServiceRegistry;
+import com.mt.mall.domain.model.sku.event.SkuPatchCommandEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -20,8 +21,8 @@ import static com.mt.mall.domain.model.tag.event.TagCriticalFieldChanged.TOPIC_T
 public class DomainEventSubscriber {
     private static final String SKU_QUEUE_NAME = "sku_queue";
     private static final String SKU_EX_QUEUE_NAME = "decrease_sku_for_order_event_mall_handler";
+    private static final String SKU_EX_QUEUE_NAME2 = "increase_sku_for_order_event_mall_handler";
     private static final String META_QUEUE_NAME = "meta_queue";
-    public static String CREATE_NEW_ORDER = "CREATE_NEW_ORDER_COMMAND";
     @Value("${spring.application.name}")
     private String appName;
     @Value("${mt.app.name.mt15}")
@@ -42,8 +43,19 @@ public class DomainEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     private void skuExternalListener() {
         CommonDomainRegistry.getEventStreamService().subscribe(sagaName, false, SKU_EX_QUEUE_NAME, (event) -> {
-            ApplicationServiceRegistry.getSkuApplicationService().handleSkuChange(event);
+            log.debug("handling event with id {}", event.getId());
+            SkuPatchCommandEvent deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), SkuPatchCommandEvent.class);
+            ApplicationServiceRegistry.getSkuApplicationService().handleDecreaseSkuChange(deserialize);
         }, "decrease_sku_for_order_event");
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    private void skuExternalListener2() {
+        CommonDomainRegistry.getEventStreamService().subscribe(sagaName, false, SKU_EX_QUEUE_NAME2, (event) -> {
+            log.debug("handling event with id {}", event.getId());
+            SkuPatchCommandEvent deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), SkuPatchCommandEvent.class);
+            ApplicationServiceRegistry.getSkuApplicationService().handleIncreaseSkuChange(deserialize);
+        }, "increase_sku_for_order_event");
     }
 
     @EventListener(ApplicationReadyEvent.class)
